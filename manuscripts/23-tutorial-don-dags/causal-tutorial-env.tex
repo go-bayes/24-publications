@@ -38,8 +38,7 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
-\usepackage[top=30mm,left=20mm,heightrounded,top=30mm, left=20mm,
-heightrounded]{geometry}
+\usepackage[top=30mm,left=20mm,heightrounded]{geometry}
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 % Make \paragraph and \subparagraph free-standing
@@ -77,41 +76,68 @@ heightrounded]{geometry}
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
 \newlength{\cslhangindent}
 \setlength{\cslhangindent}{1.5em}
 \newlength{\csllabelwidth}
 \setlength{\csllabelwidth}{3em}
-\newlength{\cslentryspacingunit} % times entry-spacing
-\setlength{\cslentryspacingunit}{\parskip}
-\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
- {% don't indent paragraphs
-  \setlength{\parindent}{0pt}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
   % turn on hanging indent if param 1 is 1
   \ifodd #1
-  \let\oldpar\par
-  \def\par{\hangindent=\cslhangindent\oldpar}
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
   \fi
   % set entry spacing
-  \setlength{\parskip}{#2\cslentryspacingunit}
- }%
- {}
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
 \usepackage{calc}
-\newcommand{\CSLBlock}[1]{#1\hfill\break}
-\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
-\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 \usepackage{cancel}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{hyperref}
 \usepackage[noblocks]{authblk}
 \renewcommand*{\Authsep}{, }
 \renewcommand*{\Authand}{, }
 \renewcommand*{\Authands}{, }
 \renewcommand\Affilfont{\small}
-\usepackage{cancel}
-\makeatletter
-\makeatother
-\makeatletter
-\makeatother
+\usepackage[noblocks]{authblk}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes}
+\renewcommand{\rightarrow}{\tikz[baseline=-0.5ex] \draw[-latex] (0,0) -- (0.5,0);}
+\renewcommand{\to}{\rightarrow}
+\renewcommand{\leftarrow}{\tikz[baseline=-0.5ex] \draw[latex-] (0,0) -- (0.5,0);}
+\newcommand{\rightarrowblue}{\textcolor{blue}{\rightarrow}}
+\newcommand{\leftarrowblue}{\textcolor{blue}{\leftarrow}}
+\newcommand{\rightarrowred}{\textcolor{red}{\rightarrow}}
+\newcommand{\leftarrowred}{\textcolor{red}{\leftarrow}}
+\newcommand{\rightarrowdotted}{\tikz[baseline=-0.5ex] \draw[dashed, -latex] (0,0) -- (0.5,0);}
+\newcommand{\rightarrowdottedred}{\tikz[baseline=-0.5ex] \draw[red, dashed, -latex] (0,0) -- (0.5,0);}
+\newcommand{\dottedleftarrowred}{\tikz[baseline=-0.5ex] \draw[red, dashed, latex-] (0,0) -- (0.5,0);}
+\newcommand*\circleblue[1]{\tikz[baseline=(char.base)]{\node[shape=circle, draw=blue!100,inner sep=2pt,fill=blue!10, dotted] (char) {#1};}}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+ \node[shape=circle,draw=blue!100, dotted,inner sep=2pt] (char) {#1};}}
+\newcommand*\boxedblue[1]{\tikz[baseline=(char.base)]{
+ \node[shape=rectangle,draw=blue!100,inner sep=2pt,fill=blue!10] (char) {#1};}}
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -148,18 +174,10 @@ heightrounded]{geometry}
 \newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
 \makeatother
 \makeatletter
+\makeatother
+\makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
-\makeatother
-\makeatletter
-\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
-\makeatother
-\makeatletter
-\@ifundefined{shadecolor}{\definecolor{shadecolor}{rgb}{.97, .97, .97}}
-\makeatother
-\makeatletter
-\makeatother
-\makeatletter
 \makeatother
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
@@ -180,43 +198,27 @@ Inference, Confounding, History, Psychology, Panel},
 
 \title{Causal Inference in Environmental Psychology: Through The Looking
 Glass of Counterfactual Data Science}
+\author{Donald W Hine \and Joseph A. Bulbulia}
+\date{2024-01-08}
 
-
-  \author{Donald W Hine}
-            \affil{%
-                  University of Canterbury, School of Psychology, Speech
-                  and Hearing
-              }
-        \author{Joseph A. Bulbulia}
-            \affil{%
-                  Victoria University of Wellington, New Zealand, School
-                  of Psychology, Centre for Applied Cross-Cultural
-                  Research
-              }
-      
-\date{2023-08-09}
 \begin{document}
 \maketitle
 \begin{abstract}
 Quantifying causal effects from observational data presents substantial
-challenges for environmental psychologists because the correlations
-obtained from observational settings are misleading causal guides.
-However, recent progress in methods for causal inference brings hope for
-transforming observational data into causal understanding. To clarify
-the assumptions under which we may obtain causal understanding from
-observational data, we provide an accessible introduction to the
-potential outcomes framework of causal inference. To help researchers
-better identify causation, we explain within this framework of
-assumptions how to use causal Directed Acyclic Graphs (DAGs). We
-conclude with practical guidelines for data collection and modelling,
-reviewing ``tips'' and ``common pitfalls.'' This chapter will interest
-environmental psychologists, and indeed any human scientist, who always
-wanted to learn about causal inference but never thought they could.
+challenges for environmental psychology researchers. because the
+correlations obtained from observational settings can be misleading
+causal guides. However, recent progress in methods for causal inference
+brings hope for transforming observational data into causal
+understanding. In this chapter, we provide an accessible introduction to
+the Potential Outcomes Framework of causal inference and Directed
+Acyclic Graphs (DAGs), two tools to help researchers better identify
+when causation is and is not present We conclude with practical
+guidelines for data collection and modelling, highlighting ``tips'' and
+``common pitfalls.'' This chapter will interest and utility to
+environmental psychology researchers who wish to draw stronger causal
+inferences from data derived from non-experimental research designs.
 \end{abstract}
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, interior hidden, enhanced, sharp corners, frame hidden]}{\end{tcolorbox}}\fi
-
-\hypertarget{introduction}{%
-\subsection{Introduction}\label{introduction}}
+\subsection{Introduction}\label{introduction}
 
 Correlation does not imply causation. However, quantifying a causal
 effect requires drawing inferences from correlations present in the
@@ -237,8 +239,8 @@ inferring causation in observational settings are widely known. However,
 many observational researchers persist in using hedging causal language
 to reporting their results, offering cautious policy recommendations
 couched in words such as ``might'' and ``suggests''
-(\protect\hyperlink{ref-bulbulia2022}{Bulbulia 2022}) However, because
-causal association can easily run in the opposite direction of manifest
+(\citeproc{ref-bulbulia2022}{Bulbulia 2022}) However, because causal
+association can easily run in the opposite direction of manifest
 associations, every intention to report a observational correlations as
 suggesting causation is more safely presumed guilty unless demonstrated
 otherwise.
@@ -266,13 +268,13 @@ offer advice.
 
 Considerable progress in the methods for estimating causation from
 observational data during the past twenty years offer reasons for hope
-(\protect\hyperlink{ref-vanderweele2015}{VanderWeele 2015}). Although
-most of this progress has occurred outside of psychology, psychological
+(\citeproc{ref-vanderweele2015}{VanderWeele 2015}). Although most of
+this progress has occurred outside of psychology, psychological
 scientists are growing increasingly interested in such methods
-(\protect\hyperlink{ref-mcelreath2020}{McElreath 2020};
-\protect\hyperlink{ref-rohrer2018}{Rohrer 2018}). Efforts to unite
-methods for causal inference with environmental psychology, then, would
-appear both promising and timely.
+(\citeproc{ref-mcelreath2020}{McElreath 2020};
+\citeproc{ref-rohrer2018}{Rohrer 2018}). Efforts to unite methods for
+causal inference with environmental psychology, then, would appear both
+promising and timely.
 
 We believe that rate of progress in the uptake of causal inference in
 environmental psychology (and in psychological science more broadly)
@@ -312,8 +314,8 @@ habits may be useful.
 
 Here, then, we present an introduction of the ``potential outcomes''
 framework of causal inference, also known as the ``counterfactual''
-framework for causal inference
-(\protect\hyperlink{ref-hernan2023}{Hernan and Robins 2023})).
+framework for causal inference (\citeproc{ref-hernan2023}{Hernan and
+Robins 2023})).
 
 \textbf{Part 1} introduces the \emph{the three fundamental assumptions}
 of causal inference. Here develop causal intuitions by anchoring them in
@@ -347,24 +349,21 @@ fields. This advice will be useful human scientists who seek
 quantitative understanding about the probable effects of interventions
 on environmental attitudes and behaviours.
 
-\hypertarget{part-1.-an-introduction-to-the-potential-outcomes-framework-of-causal-inference.}{%
 \subsection{Part 1. An introduction to the potential outcomes framework
 of causal
-inference.}\label{part-1.-an-introduction-to-the-potential-outcomes-framework-of-causal-inference.}}
+inference.}\label{part-1.-an-introduction-to-the-potential-outcomes-framework-of-causal-inference.}
 
 The content provided is both accurate and well-articulated, with a few
 minor exceptions. The below edits clarify some of the language and fix
 minor errors:
 
-\hypertarget{part-1-an-introduction-to-the-potential-outcomes-framework-of-causal-inference}{%
 \subsection{Part 1: An Introduction to the Potential Outcomes Framework
 of Causal
-Inference}\label{part-1-an-introduction-to-the-potential-outcomes-framework-of-causal-inference}}
+Inference}\label{part-1-an-introduction-to-the-potential-outcomes-framework-of-causal-inference}
 
-\hypertarget{step-1-understand-that-we-assess-the-relationships-of-cause-and-effect-by-contrasting-the-outcomes-of-interventions}{%
 \subsubsection{Step 1: Understand that we assess the relationships of
 cause and effect by contrasting the outcomes of
-interventions}\label{step-1-understand-that-we-assess-the-relationships-of-cause-and-effect-by-contrasting-the-outcomes-of-interventions}}
+interventions}\label{step-1-understand-that-we-assess-the-relationships-of-cause-and-effect-by-contrasting-the-outcomes-of-interventions}
 
 Suppose we are interested in well-being. Given this interest, we might
 be curious about understanding the factors that influence it. One such
@@ -393,10 +392,9 @@ We could also express this contrast on a ratio scale:
 \text{Well-being effect of abundant greenspace}_i = \frac{\text{Well-being of abundant green space}_i}{\text{Well-being of no abundant green space}_i}
 \]
 
-\hypertarget{step-1.1-quantifying-a-causal-effect-demands-a-contrast-of-interventions}{%
 \paragraph{\texorpdfstring{\textbf{Step 1.1: Quantifying a causal effect
 demands a contrast of
-interventions}}{Step 1.1: Quantifying a causal effect demands a contrast of interventions}}\label{step-1.1-quantifying-a-causal-effect-demands-a-contrast-of-interventions}}
+interventions}}{Step 1.1: Quantifying a causal effect demands a contrast of interventions}}\label{step-1.1-quantifying-a-causal-effect-demands-a-contrast-of-interventions}
 
 The concept of causal effect requires at least two potential
 interventions. Comparing outcomes under these different interventions
@@ -418,9 +416,8 @@ evidence for causation when the contrast does not equal zero:
 Depending on the residual quantity, we can determine whether the effect
 is positive, negative, or null.
 
-\hypertarget{step-2-understand-that-causation-occurs-in-time}{%
 \subsubsection{Step 2: Understand that causation occurs in
-time}\label{step-2-understand-that-causation-occurs-in-time}}
+time}\label{step-2-understand-that-causation-occurs-in-time}
 
 Causes are related to effects by time. We may say, ``each effect is
 borne of a cause.'' That is, at the scale of the the universe that
@@ -442,16 +439,14 @@ rule out:
 Therefore, we should be wary of cross-sectional data for causal
 inference.
 
-\hypertarget{step-3-understand-that-causal-inference-is-requires-contrasting-potential-or-counterfactual-outcomes-that-are-never-fully-observed.}{%
 \subsubsection{Step 3: Understand that causal inference is requires
 contrasting ``potential'' (or ``counterfactual'') outcomes that are
 never fully
-observed.}\label{step-3-understand-that-causal-inference-is-requires-contrasting-potential-or-counterfactual-outcomes-that-are-never-fully-observed.}}
+observed.}\label{step-3-understand-that-causal-inference-is-requires-contrasting-potential-or-counterfactual-outcomes-that-are-never-fully-observed.}
 
-\hypertarget{proof-by-contradiction-that-individual-causal-effects-are-not-observed.}{%
 \paragraph{\texorpdfstring{\textbf{Proof by contradiction that
 individual causal effects are not
-observed.}}{Proof by contradiction that individual causal effects are not observed.}}\label{proof-by-contradiction-that-individual-causal-effects-are-not-observed.}}
+observed.}}{Proof by contradiction that individual causal effects are not observed.}}\label{proof-by-contradiction-that-individual-causal-effects-are-not-observed.}
 
 Assume that individual causal effects can be fully observed. This
 implies that for an individual, we can observe both the effect of taking
@@ -465,10 +460,9 @@ individual causal effects can never be fully observed.
 
 Another proof is as follows:
 
-\hypertarget{direct-proof-individual-causal-effects-are-not-observed.}{%
 \paragraph{\texorpdfstring{\textbf{Direct proof individual causal
 effects are not
-observed.}}{Direct proof individual causal effects are not observed.}}\label{direct-proof-individual-causal-effects-are-not-observed.}}
+observed.}}{Direct proof individual causal effects are not observed.}}\label{direct-proof-individual-causal-effects-are-not-observed.}
 
 Consider a scenario where the causal effect for an individual is
 understood as the difference in outcomes under two distinct scenarios
@@ -483,26 +477,24 @@ counterfactual scenario (the decision not enacted).
 
 In the language of causal inference, individual causal effects encounter
 the ``fundamental problem of causal inference''
-(\protect\hyperlink{ref-holland1986}{Holland 1986};
-\protect\hyperlink{ref-rubin1976}{Rubin 1976}). That is, individual
-causal effects are necessarily only partially observed.
+(\citeproc{ref-holland1986}{Holland 1986};
+\citeproc{ref-rubin1976}{Rubin 1976}). That is, individual causal
+effects are necessarily only partially observed.
 
-\hypertarget{step-3.1-the-implication-causal-inference-requires-solving-a-special-and-peculiar-missing-data-problem}{%
 \paragraph{\texorpdfstring{\textbf{Step 3.1: The implication: causal
 inference requires solving a special and peculiar missing data
-problem}}{Step 3.1: The implication: causal inference requires solving a special and peculiar missing data problem}}\label{step-3.1-the-implication-causal-inference-requires-solving-a-special-and-peculiar-missing-data-problem}}
+problem}}{Step 3.1: The implication: causal inference requires solving a special and peculiar missing data problem}}\label{step-3.1-the-implication-causal-inference-requires-solving-a-special-and-peculiar-missing-data-problem}
 
 If we are to quantify causal effects, our challenge is to bridge the gap
 between the observable world and the inherently unobservable world.
 Causal inference is a missing data problem (Westreich \emph{et al.}
-(\protect\hyperlink{ref-westreich2015}{2015}); Edwards \emph{et al.}
-(\protect\hyperlink{ref-edwards2015}{2015}))
+(\citeproc{ref-westreich2015}{2015}); Edwards \emph{et al.}
+(\citeproc{ref-edwards2015}{2015}))
 
-\hypertarget{step-4-understand-that-the-problem-of-missing-counterfactual-is-easier-to-solve-when-the-target-of-inference-is-the-average-or-marginal-causal-effect-obtained-from-an-experiment}{%
 \subsubsection{Step 4: Understand that the problem of missing
 counterfactual is easier to solve when the target of inference is the
 average (or marginal) causal effect obtained from an
-experiment}\label{step-4-understand-that-the-problem-of-missing-counterfactual-is-easier-to-solve-when-the-target-of-inference-is-the-average-or-marginal-causal-effect-obtained-from-an-experiment}}
+experiment}\label{step-4-understand-that-the-problem-of-missing-counterfactual-is-easier-to-solve-when-the-target-of-inference-is-the-average-or-marginal-causal-effect-obtained-from-an-experiment}
 
 The average causal effect represents the difference in average outcomes
 of a population under two distinct treatment conditions. In formal
@@ -517,10 +509,9 @@ where \(\mathbb{E}[Y(A = a)]\) denotes the expected value of the outcome
 under treatment condition \(A = a\). Here, \(A = 1\) indicates the
 presence of the treatment, while \(A = 0\) represents its absence.
 
-\hypertarget{step-4.1-understand-that-the-problem-of-missing-counterfactual-outcomes-remains-for-average-treatment-effects.}{%
 \paragraph{Step 4.1 Understand that the problem of missing
 counterfactual outcomes remains for average treatment
-effects.}\label{step-4.1-understand-that-the-problem-of-missing-counterfactual-outcomes-remains-for-average-treatment-effects.}}
+effects.}\label{step-4.1-understand-that-the-problem-of-missing-counterfactual-outcomes-remains-for-average-treatment-effects.}
 
 Thatt the problem of missing counterfactuals remains for average
 treatment effects becomes evident when we consider a scenario involving
@@ -556,10 +547,9 @@ causal effects: the problem of individual-level missing counterfactuals
 persists ``under the hood'' of each intervention that we seek to
 compare.
 
-\hypertarget{step-4.2-understand-how-experiments-satisfy-assumptions-need-to-impute-missing-responses-that-are-needed-to-obtain-average-treatment-effects}{%
 \paragraph{Step 4.2 Understand how experiments satisfy assumptions need
 to impute missing responses that are needed to obtain average treatment
-effects}\label{step-4.2-understand-how-experiments-satisfy-assumptions-need-to-impute-missing-responses-that-are-needed-to-obtain-average-treatment-effects}}
+effects}\label{step-4.2-understand-how-experiments-satisfy-assumptions-need-to-impute-missing-responses-that-are-needed-to-obtain-average-treatment-effects}
 
 Randomised experiments are designed to impute missing counterfactuals
 that are necessary to calculate average treatment effects by random
@@ -567,9 +557,8 @@ treatment assignment. To build intuitions that enable understanding for
 how experiments recover missing counterfactuls, consider their defining
 features.
 
-\hypertarget{step-4.3.-understand-the-principle-of-randomisation}{%
 \paragraph{\texorpdfstring{\textbf{Step 4.3. Understand the principle of
-randomisation}}{Step 4.3. Understand the principle of randomisation}}\label{step-4.3.-understand-the-principle-of-randomisation}}
+randomisation}}{Step 4.3. Understand the principle of randomisation}}\label{step-4.3.-understand-the-principle-of-randomisation}
 
 In a random experiment, each participant has an equal chance of being in
 either the treatment or the control group. This concept can be
@@ -579,10 +568,9 @@ formulated:
 \text{Randomisation} = \text{Equal Probability of Assignment to Groups}
 \]
 
-\hypertarget{step-4.5.-define-experiment-with-reference-measurement-of-interventions}{%
 \subparagraph{\texorpdfstring{\textbf{Step 4.5. Define experiment with
 reference measurement of
-interventions}}{Step 4.5. Define experiment with reference measurement of interventions}}\label{step-4.5.-define-experiment-with-reference-measurement-of-interventions}}
+interventions}}{Step 4.5. Define experiment with reference measurement of interventions}}\label{step-4.5.-define-experiment-with-reference-measurement-of-interventions}
 
 An experiment is an event in which an experimenter (or group of
 experimenters) applies different treatments to another group by virtue
@@ -593,11 +581,10 @@ follows:
 \text{Experiment} = \text{Controlled Application of Interventions + Measurement of Outcome}
 \]
 
-\hypertarget{step-4.6.-understand-that-experiments-align-potential-outcomes-with-observed-outcomes-by-satisfying-a-causal-consistency-assumption}{%
 \subparagraph{\texorpdfstring{\textbf{Step 4.6. Understand that
 experiments align potential outcomes with observed outcomes by
 satisfying a causal consistency
-assumption}}{Step 4.6. Understand that experiments align potential outcomes with observed outcomes by satisfying a causal consistency assumption}}\label{step-4.6.-understand-that-experiments-align-potential-outcomes-with-observed-outcomes-by-satisfying-a-causal-consistency-assumption}}
+assumption}}{Step 4.6. Understand that experiments align potential outcomes with observed outcomes by satisfying a causal consistency assumption}}\label{step-4.6.-understand-that-experiments-align-potential-outcomes-with-observed-outcomes-by-satisfying-a-causal-consistency-assumption}
 
 Causal consistency is the assumption that the potential outcome under an
 intervention level is equivalent to the observed outcome when that
@@ -618,11 +605,10 @@ causal effect of a treatment is thus
 This represents the contrast in average outcome under treatment and
 average outcome without treatment.
 
-\hypertarget{step-4.7.-understand-that-experiments-satisfy-a-causal-consistency-assumption-thus-recovering-half-of-the-potential-outcomes-needed-for-estimating-the-ate}{%
 \subparagraph{\texorpdfstring{\textbf{Step 4.7. Understand that
 experiments satisfy a causal consistency assumption, thus recovering
 half of the potential outcomes needed for estimating the
-ATE}}{Step 4.7. Understand that experiments satisfy a causal consistency assumption, thus recovering half of the potential outcomes needed for estimating the ATE}}\label{step-4.7.-understand-that-experiments-satisfy-a-causal-consistency-assumption-thus-recovering-half-of-the-potential-outcomes-needed-for-estimating-the-ate}}
+ATE}}{Step 4.7. Understand that experiments satisfy a causal consistency assumption, thus recovering half of the potential outcomes needed for estimating the ATE}}\label{step-4.7.-understand-that-experiments-satisfy-a-causal-consistency-assumption-thus-recovering-half-of-the-potential-outcomes-needed-for-estimating-the-ate}
 
 In an experiment, when a treatment (\(A = 1\)) is applied, we assume the
 observed outcome aligns with the potential outcome under treatment:
@@ -647,11 +633,10 @@ potential outcomes under no treatment (\(Y_i(a_i = 0)\)).
 Thus, causal consistency allows us to infer the potential outcomes
 corresponding to the actual treatment each individual receives.
 
-\hypertarget{step-4.8.-understand-that-experiments-satisfy-a-causal-consistency-assumption-thus-recovering-half-of-the-potential-outcomes-needed-for-estimating-the-ate}{%
 \paragraph{\texorpdfstring{\textbf{Step 4.8. Understand that experiments
 satisfy a causal consistency assumption, thus recovering half of the
 potential outcomes needed for estimating the
-ATE}*}{Step 4.8. Understand that experiments satisfy a causal consistency assumption, thus recovering half of the potential outcomes needed for estimating the ATE*}}\label{step-4.8.-understand-that-experiments-satisfy-a-causal-consistency-assumption-thus-recovering-half-of-the-potential-outcomes-needed-for-estimating-the-ate}}
+ATE}*}{Step 4.8. Understand that experiments satisfy a causal consistency assumption, thus recovering half of the potential outcomes needed for estimating the ATE*}}\label{step-4.8.-understand-that-experiments-satisfy-a-causal-consistency-assumption-thus-recovering-half-of-the-potential-outcomes-needed-for-estimating-the-ate}
 
 Exchangeability is a statistical concept implying that, in expectation,
 the distribution of potential outcomes is the same under different
@@ -672,11 +657,10 @@ the control group can be used to estimate the unobserved potential
 outcomes in the treatment group and vice versa. This allows us to impute
 the missing half of the potential outcomes required for ATE estimation.
 
-\hypertarget{step-4.8.-understand-that-experiments-satisfy-a-positivity-assumption-thus-ensuring-that-the-causal-contrasts-that-we-compute-are-not-impossible.}{%
 \paragraph{\texorpdfstring{\textbf{Step 4.8. Understand that experiments
 satisfy a positivity assumption, thus ensuring that the causal contrasts
 that we compute are not
-impossible.}}{Step 4.8. Understand that experiments satisfy a positivity assumption, thus ensuring that the causal contrasts that we compute are not impossible.}}\label{step-4.8.-understand-that-experiments-satisfy-a-positivity-assumption-thus-ensuring-that-the-causal-contrasts-that-we-compute-are-not-impossible.}}
+impossible.}}{Step 4.8. Understand that experiments satisfy a positivity assumption, thus ensuring that the causal contrasts that we compute are not impossible.}}\label{step-4.8.-understand-that-experiments-satisfy-a-positivity-assumption-thus-ensuring-that-the-causal-contrasts-that-we-compute-are-not-impossible.}
 
 Positivity is a vital assumption for causal inference in observational
 settings. However in experiments it is so obviously satisfied that the
@@ -694,10 +678,9 @@ insufficient to compute average causal contrast; (2) \textbf{strong
 positivity} is violated: the intervention is impossible: e.g.~data are
 collected in country were all green spaces have been destroyed.
 
-\hypertarget{step-5-build-intuitions-for-how-causal-assumptions-may-be-translated-from-experimental-to-observational-settings}{%
 \subsubsection{Step 5: Build intuitions for how causal assumptions may
 be translated from experimental to observational
-settings}\label{step-5-build-intuitions-for-how-causal-assumptions-may-be-translated-from-experimental-to-observational-settings}}
+settings}\label{step-5-build-intuitions-for-how-causal-assumptions-may-be-translated-from-experimental-to-observational-settings}
 
 The leap from controlled experiments to observational research typically
 poses challenges because outside of experiments the conditions that
@@ -724,10 +707,9 @@ Next we consider the problems in equating \(0A\) with \(\delta_{ate}\)
 by offering any interpretation of raw correlations in observational data
 (including cautious suggestions of causality.)
 
-\hypertarget{step-5.1.-understand-how-causal-consistency-may-fail-in-observational-settings}{%
 \paragraph{\texorpdfstring{\textbf{Step 5.1. Understand how causal
 consistency may fail in observational
-settings}}{Step 5.1. Understand how causal consistency may fail in observational settings}}\label{step-5.1.-understand-how-causal-consistency-may-fail-in-observational-settings}}
+settings}}{Step 5.1. Understand how causal consistency may fail in observational settings}}\label{step-5.1.-understand-how-causal-consistency-may-fail-in-observational-settings}
 
 The application of treatments in an observational setting may not be
 consistent. Consider the case of moving closer to abundant green spaces.
@@ -759,10 +741,9 @@ spaces it is clear that nearly every attempt to do so will fall short of
 a hypothetical experiment in which a researchers intervene to
 consistently control the experience.
 
-\hypertarget{step-5.2.-understand-how-exchangeability-may-fail-in-observational-settings}{%
 \paragraph{\texorpdfstring{\textbf{Step 5.2. Understand how
 exchangeability may fail in observational
-settings}}{Step 5.2. Understand how exchangeability may fail in observational settings}}\label{step-5.2.-understand-how-exchangeability-may-fail-in-observational-settings}}
+settings}}{Step 5.2. Understand how exchangeability may fail in observational settings}}\label{step-5.2.-understand-how-exchangeability-may-fail-in-observational-settings}
 
 In an observational study, it is easy to imagine that individuals in
 different treatment groups are systematically different. For example,
@@ -798,10 +779,9 @@ Again there are many ways in which groups that are not randomly assigned
 to the conditions we wish to compare might differ in ways that affect
 observed well-being independly of access to abundant urban greenspaces.
 
-\hypertarget{step-5.3.-understand-how-positivity-may-fail-in-observational-settings}{%
 \paragraph{\texorpdfstring{\textbf{Step 5.3. Understand how positivity
 may fail in observational
-settings}}{Step 5.3. Understand how positivity may fail in observational settings}}\label{step-5.3.-understand-how-positivity-may-fail-in-observational-settings}}
+settings}}{Step 5.3. Understand how positivity may fail in observational settings}}\label{step-5.3.-understand-how-positivity-may-fail-in-observational-settings}
 
 Positivity could fail for the reasons we discussed, either because the
 exposure is too rare (violating weak positivity in the data) or because
@@ -814,24 +794,21 @@ data. For example, if the intervention is too rare to evaluate, or is
 missing within certain strata of our comparison groups, we say that weak
 positivity is violated. And we should stop our study there.
 
-\hypertarget{step-6.-build-intution-for-how-the-fundamental-assumptions-for-causal-inference-may-be-satisfied-in-observational-settings}{%
 \subsubsection{Step 6. Build intution for how the fundamental
 assumptions for causal inference may be satisfied in observational
-settings}\label{step-6.-build-intution-for-how-the-fundamental-assumptions-for-causal-inference-may-be-satisfied-in-observational-settings}}
+settings}\label{step-6.-build-intution-for-how-the-fundamental-assumptions-for-causal-inference-may-be-satisfied-in-observational-settings}
 
-\hypertarget{step-6.1-understand-how-we-may-use-the-theory-of-causal-inference-under-multiple-versions-of-treatment-to-address-causal-consistency-in-observational-settings.}{%
 \paragraph{\texorpdfstring{\textbf{Step 6.1 Understand how we may use
 the theory of causal inference under multiple versions of treatment to
 address causal consistency in observational
-settings}.}{Step 6.1 Understand how we may use the theory of causal inference under multiple versions of treatment to address causal consistency in observational settings.}}\label{step-6.1-understand-how-we-may-use-the-theory-of-causal-inference-under-multiple-versions-of-treatment-to-address-causal-consistency-in-observational-settings.}}
+settings}.}{Step 6.1 Understand how we may use the theory of causal inference under multiple versions of treatment to address causal consistency in observational settings.}}\label{step-6.1-understand-how-we-may-use-the-theory-of-causal-inference-under-multiple-versions-of-treatment-to-address-causal-consistency-in-observational-settings.}
 
 In observational research, there are typically multiple versions of
 treatment. The theory of causal inference under multiple versions of
 treatment proves we can consistently estimate causal effects where the
 different versions of treatment are conditionally independent of the
-outcomes VanderWeele (\protect\hyperlink{ref-vanderweele2009}{2009})
-(See Appendix 1 for additional discussion of the proof and its
-implications.)
+outcomes VanderWeele (\citeproc{ref-vanderweele2009}{2009}) (See
+Appendix 1 for additional discussion of the proof and its implications.)
 
 Let \(\coprod\) denote independence. Where there are \(K\) different
 versions of treatment \(A\) and no confounding for \(K\)'s effect on
@@ -845,9 +822,9 @@ Then it can be proved that causal consistency follows.According to the
 theory of causal inference under multiple versions of treatment, the
 measured variable \(A\) functions as a ``coarsened indicator'' for
 estimating the causal effect of the multiple versions of treatment \(K\)
-on \(Y(k)\) (\protect\hyperlink{ref-vanderweele2009}{VanderWeele 2009},
-\protect\hyperlink{ref-vanderweele2018}{2018};
-\protect\hyperlink{ref-vanderweele2013}{VanderWeele and Hernan 2013}).
+on \(Y(k)\) (\citeproc{ref-vanderweele2009}{VanderWeele 2009},
+\citeproc{ref-vanderweele2018}{2018};
+\citeproc{ref-vanderweele2013}{VanderWeele and Hernan 2013}).
 
 In the context of green spaces, \(A\) might represent the general action
 of moving closer to any green space and \(K\) represents the different
@@ -872,10 +849,9 @@ spaces in general, even though this treatment consists of multiple
 versions, as long as the conditions of conditional independence are
 satisfied.
 
-\hypertarget{step-6.2-understand-how-we-may-condition-on-confounders-to-address-the-assumption-of-conditional-exchangeability}{%
 \subsubsection{\texorpdfstring{\textbf{Step 6.2 Understand how we may
 condition on confounders to address the assumption of (conditional)
-exchangeability}}{Step 6.2 Understand how we may condition on confounders to address the assumption of (conditional) exchangeability}}\label{step-6.2-understand-how-we-may-condition-on-confounders-to-address-the-assumption-of-conditional-exchangeability}}
+exchangeability}}{Step 6.2 Understand how we may condition on confounders to address the assumption of (conditional) exchangeability}}\label{step-6.2-understand-how-we-may-condition-on-confounders-to-address-the-assumption-of-conditional-exchangeability}
 
 We say that conditional exchangeability is satisfied if, after
 controlling for observed covariates, the assignment of treatment is
@@ -933,10 +909,9 @@ data. For this reason, it is important to perform sensitivity analyses
 to evaluate how much unmeasured confounding would be required to explain
 away any observed associations.
 
-\hypertarget{step-6.3-understand-how-we-may-assess-the-positivity-assumption-in-observational-settings}{%
 \paragraph{\texorpdfstring{\textbf{Step 6.3 Understand how we may assess
 the positivity assumption in observational
-settings}}{Step 6.3 Understand how we may assess the positivity assumption in observational settings}}\label{step-6.3-understand-how-we-may-assess-the-positivity-assumption-in-observational-settings}}
+settings}}{Step 6.3 Understand how we may assess the positivity assumption in observational settings}}\label{step-6.3-understand-how-we-may-assess-the-positivity-assumption-in-observational-settings}
 
 We say that the positivity assumption is satisfied if there is a
 non-zero probability of receiving or not receiving the exposure within
@@ -951,18 +926,17 @@ expressed:
 
 Causal inference encounters challenges without the satisfaction of the
 positivity assumption, which again in its weak form can be tested by the
-data (\protect\hyperlink{ref-westreich2010}{Westreich and Cole 2010}).
+data (\citeproc{ref-westreich2010}{Westreich and Cole 2010}).
 
-\hypertarget{part-2.-an-introduction-to-causal-diagrams}{%
 \subsection{Part 2. An Introduction to Causal
-Diagrams}\label{part-2.-an-introduction-to-causal-diagrams}}
+Diagrams}\label{part-2.-an-introduction-to-causal-diagrams}
 
 Alice had learned that causal diagrams were developed to assist
 researchers in identifying the conditions under which causal effects can
-be discerned from data (\protect\hyperlink{ref-greenland1999}{Greenland
-\emph{et al.} 1999}; \protect\hyperlink{ref-pearl2009}{Pearl 2009};
-\protect\hyperlink{ref-pearl1995}{Pearl and Robins 1995}). This suits
-her well. All those proofs were tiring her.
+be discerned from data (\citeproc{ref-greenland1999}{Greenland \emph{et
+al.} 1999}; \citeproc{ref-pearl1995}{Pearl 1995},
+\citeproc{ref-pearl2009}{2009}). This suits her well. All those proofs
+were tiring her.
 
 To use causal diagrams, we must understand the following terminology and
 conventions:
@@ -990,7 +964,7 @@ conventions:
   if a node along it prevents the transmission of influence. Two
   variables are considered d-separated if all paths between them are
   blocked; otherwise, they are
-  d-connected(\protect\hyperlink{ref-pearl1995}{Pearl and Robins 1995}).
+  d-connected(\citeproc{ref-pearl1995}{Pearl 1995}).
 \item
   \textbf{Acyclic}: Causal diagrams must be acyclic -- they cannot
   contain feedback loops. More precisely: no variable can be an ancestor
@@ -1000,14 +974,14 @@ conventions:
   estimate causal effects quantitatively. In Part 3 we consider how
   adding baseline measures of the outcome and exposure in a three-wave
   repeated measures design greatly enhances causal estimation
-  (\protect\hyperlink{ref-pearl2009}{Pearl 2009}). To represent the
-  nodes of this design on a graph we must index them by time because the
-  nodes are repeated.
+  (\citeproc{ref-pearl2009}{Pearl 2009}). To represent the nodes of this
+  design on a graph we must index them by time because the nodes are
+  repeated.
 \end{enumerate}
 
 Pearl showed that the principles of d-separation enable us to evaluate
 relationships between nodes in a causal diagram
-(\protect\hyperlink{ref-pearl1995}{Pearl and Robins 1995}).
+(\citeproc{ref-pearl1995}{Pearl 1995}).
 
 The rules of d-separation:
 
@@ -1036,13 +1010,13 @@ In each case, if \(B\) does not d-separate \(A\) and \(C\), \(A\) and
 open path between \(A\) and \(C\). If all paths between \(A\) and \(C\)
 are blocked, or equivalently, if no path remains open, then \(A\) and
 \(C\) are d-separated given a set of conditioning variables
-(\protect\hyperlink{ref-pearl2009}{Pearl 2009}).
+(\citeproc{ref-pearl2009}{Pearl 2009}).
 
 The rules of d-separation clarify which variables to adjust for when
 estimating causal effects: we seek a set of variables that d-separates
 the exposure from the outcome. By conditioning on such an adjustment
 set, we block all confounding paths, leaving only the causal effect
-(\protect\hyperlink{ref-pearl2009}{Pearl 2009}).
+(\citeproc{ref-pearl2009}{Pearl 2009}).
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -1051,24 +1025,24 @@ set, we block all confounding paths, leaving only the causal effect
   \textbf{Adjustment set}: a collection of variables that we either
   condition upon or deliberately avoid conditioning upon to block all
   backdoor paths between the exposure and the outcome in the causal
-  diagram (\protect\hyperlink{ref-pearl2009}{Pearl 2009}).
+  diagram (\citeproc{ref-pearl2009}{Pearl 2009}).
 \item
   \textbf{Confounders}: a member of an adjustment set. Importantly,
   \emph{we call a variable as a ``confounder'' in relation to a specific
   adjustment set.}\footnote{VanderWeele's Modified Disjunctive Cause
     Criterion provides practical guidance for controlling for
-    confounding (\protect\hyperlink{ref-vanderweele2019}{VanderWeele
-    2019}): According to this criterion, a member of any set of
-    variables that can reduce or remove the bias caused by confounding
-    is deemed a member of this confounder set. VanderWeele's strategy
-    for defining a confounder set is as follows: a. Control for any
-    variable that causes the exposure, the outcome, or both. b. Control
-    for any proxy for an unmeasured variable that is a shared cause of
-    both exposure and outcome. c. Define an instrumental variable as a
-    variable associated with the exposure but does not influence the
-    outcome independently, except through the exposure. Exclude any
-    instrumental variable that is not a proxy for an unmeasured
-    confounder from the confounder set.
+    confounding (\citeproc{ref-vanderweele2019}{VanderWeele 2019}):
+    According to this criterion, a member of any set of variables that
+    can reduce or remove the bias caused by confounding is deemed a
+    member of this confounder set. VanderWeele's strategy for defining a
+    confounder set is as follows: a. Control for any variable that
+    causes the exposure, the outcome, or both. b. Control for any proxy
+    for an unmeasured variable that is a shared cause of both exposure
+    and outcome. c. Define an instrumental variable as a variable
+    associated with the exposure but does not influence the outcome
+    independently, except through the exposure. Exclude any instrumental
+    variable that is not a proxy for an unmeasured confounder from the
+    confounder set.
 
     Note that the concept of a ``confounder set'' is broader than the
     concept of an ``adjustment set.'' Every adjustment set is a member
@@ -1088,8 +1062,8 @@ set, we block all confounding paths, leaving only the causal effect
   \textbf{Backdoor criterion}: a set of conditions under which the
   effect of a treatment on an outcome can be obtained by controlling for
   a specific set of variables. The backdoor criterion guides the
-  selection of \textbf{adjustment sets}
-  (\protect\hyperlink{ref-pearl1995}{Pearl and Robins 1995}).
+  selection of \textbf{adjustment sets} (\citeproc{ref-pearl1995}{Pearl
+  1995}).
 \item
   \textbf{Identification problem}: the challenge of estimating the
   causal effect of a variable using observed data. Causal diagrams were
@@ -1098,9 +1072,8 @@ set, we block all confounding paths, leaving only the causal effect
 
 Alice now turns to the description of the elemental confounds
 
-\hypertarget{the-problem-of-confounding-by-a-common-cause}{%
 \subsubsection{1. The problem of confounding by a common
-cause}\label{the-problem-of-confounding-by-a-common-cause}}
+cause}\label{the-problem-of-confounding-by-a-common-cause}
 
 The problem of confounding by common cause arises when there is a
 variable, denoted by \(L\), that influences both the exposure, denoted
@@ -1129,7 +1102,9 @@ signifies the bias introduced by the open backdoor path from \(A\) to
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-common-cause-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-common-cause-1.pdf}
 
 }
 
@@ -1137,18 +1112,17 @@ signifies the bias introduced by the open backdoor path from \(A\) to
 dashed path indicates bias arising from the open backdoor path from A to
 Y.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{advice-attend-to-the-temporal-order-of-all-measured-variables}{%
 \subsubsection{Advice: attend to the temporal order of all measured
-variables}\label{advice-attend-to-the-temporal-order-of-all-measured-variables}}
+variables}\label{advice-attend-to-the-temporal-order-of-all-measured-variables}
 
 Addressing confounding by a common cause involves its adjustment. This
 adjustment effectively closes the backdoor path from the exposure to the
 outcome. Equivalently, conditioning on \(L\) d-separates \(A\) and
 \(Y\). Common adjustment methods include regression, matching, inverse
 probability of treatment weighting, and G-methods (covered in
-(\protect\hyperlink{ref-hernuxe1n2023}{Hernán and Monge 2023})).
+(\citeproc{ref-hernuxe1n2023}{Hernán and Monge 2023})).
 Figure~\ref{fig-dag-common-cause-solution} clarifies that any confounder
 that is a common cause of both \(A\) and \(Y\) must precede \(A\) (and
 hence \(Y\)), since effects follow their causes chronologically.
@@ -1159,7 +1133,9 @@ data.}
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-common-cause-solution-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-common-cause-solution-1.pdf}
 
 }
 
@@ -1167,12 +1143,11 @@ data.}
 pre-exposure confounder. The implication: obtain time series data to
 ensure the confounder occurs before the exposure.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{confounding-by-collider-stratification-conditioning-on-a-common-effect}{%
 \subsubsection{2. Confounding by collider stratification (conditioning
 on a common
-effect)}\label{confounding-by-collider-stratification-conditioning-on-a-common-effect}}
+effect)}\label{confounding-by-collider-stratification-conditioning-on-a-common-effect}
 
 Conditioning on a common effect, also known as collider stratification,
 occurs when a variable, denoted by \(L\), is influenced by both the
@@ -1198,7 +1173,9 @@ causal relationship.
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-common-effect-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-common-effect-1.pdf}
 
 }
 
@@ -1206,11 +1183,10 @@ causal relationship.
 collider. The dashed red path indicates bias from the open backdoor path
 from A to Y.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{advice-attend-to-the-temporal-order-of-all-measured-variables-1}{%
 \subsubsection{Advice: attend to the temporal order of all measured
-variables}\label{advice-attend-to-the-temporal-order-of-all-measured-variables-1}}
+variables}\label{advice-attend-to-the-temporal-order-of-all-measured-variables-1}
 
 To address the problem of conditioning on a common effect, we should
 \emph{generally} ensure that:
@@ -1233,7 +1209,9 @@ and thus neither of \(Y\).\footnote{This rule is not absolute. As
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-common-effect-solution-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-common-effect-solution-1.pdf}
 
 }
 
@@ -1244,12 +1222,11 @@ confounders measured before the exposure, and that we must likewise
 measure the exposure before the outcome, with data collected
 repeatitively on the same units.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{m-bias-conditioning-on-a-collider-that-occurs-before-the-exposure-may-introduce-bias}{%
 \subsubsection{M-bias: conditioning on a collider that occurs before the
 exposure may introduce
-bias}\label{m-bias-conditioning-on-a-collider-that-occurs-before-the-exposure-may-introduce-bias}}
+bias}\label{m-bias-conditioning-on-a-collider-that-occurs-before-the-exposure-may-introduce-bias}
 
 Typically, indicators for confounders should be included only if they
 are known to be measured before their exposures - with notable
@@ -1272,7 +1249,7 @@ where \(A \coprod Y(a)\) but \(A \cancel{\coprod} Y(a)| L\).
 M-bias is another example of collider stratification bias, a phenomenon
 where conditioning on a common effect or a descendent of a common effect
 induces an association between variables that were previously
-independent (\protect\hyperlink{ref-cole2010}{Cole \emph{et al.}
+independent (\citeproc{ref-cole2010}{Cole \emph{et al.}
 2010}).\footnote{Note, when we draw a chronologically ordered path from
   left to right the M shape for which ``M-bias'' takes its name changes
   to an E shape We shall avoid proliferating jargon and retain the term
@@ -1280,7 +1257,9 @@ independent (\protect\hyperlink{ref-cole2010}{Cole \emph{et al.}
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-m-bias-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-m-bias-1.pdf}
 
 }
 
@@ -1291,12 +1270,11 @@ L. The solution: do not condition on L. The graph makes it evident that
 conditioning on variables measured before the exposure is not sufficient
 to prevent confounding.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{advice-adopt-the-modified-disjunctive-cause-criterion-for-confounding-control}{%
 \subsubsection{Advice: adopt the modified disjunctive cause criterion
 for confounding
-control}\label{advice-adopt-the-modified-disjunctive-cause-criterion-for-confounding-control}}
+control}\label{advice-adopt-the-modified-disjunctive-cause-criterion-for-confounding-control}
 
 Again, the modified disjunctive cause criterion will satisfy the
 backdoor criterion in all cases and reduce bias where this criterion
@@ -1316,9 +1294,8 @@ cannot be fully satisfied:
   exposure but does not influence the outcome independently, except
   through the exposure. Exclude any instrumental variable that is not a
   proxy for an unmeasured confounder from the confounder set (see:
-  VanderWeele \emph{et al.}
-  (\protect\hyperlink{ref-vanderweele2020}{2020}) page 441,
-  (\protect\hyperlink{ref-vanderweele2019}{VanderWeele 2019}))
+  VanderWeele \emph{et al.} (\citeproc{ref-vanderweele2020}{2020}) page
+  441, (\citeproc{ref-vanderweele2019}{VanderWeele 2019}))
 \end{enumerate}
 
 Of course, the difficulty is in determining which variables belong to a
@@ -1326,8 +1303,7 @@ confounder set. Specialist knowledge can facilitate this task. However,
 the data alone typically do not settle this question. (For exceptions
 see: bulbulia2021).
 
-\hypertarget{mediator-bias}{%
-\subsubsection{3. Mediator bias}\label{mediator-bias}}
+\subsubsection{3. Mediator bias}\label{mediator-bias}
 
 Applying this to our green spaces example, again we consider proximity
 to green spaces as the exposure (\(A\)), mental health as the outcome
@@ -1361,7 +1337,9 @@ scenario is illustrated in Figure~\ref{fig-dag-descendent}.
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-mediator-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-mediator-1.pdf}
 
 }
 
@@ -1369,11 +1347,10 @@ scenario is illustrated in Figure~\ref{fig-dag-descendent}.
 mediator. The dashed black arrow indicates bias arising from partially
 blocking the path between A and Y.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{advice-attend-to-the-temporal-order-of-all-measured-variables-2}{%
 \subsubsection{Advice: attend to the temporal order of all measured
-variables}\label{advice-attend-to-the-temporal-order-of-all-measured-variables-2}}
+variables}\label{advice-attend-to-the-temporal-order-of-all-measured-variables-2}
 
 To mitigate the issue of mediator bias, particularly when focusing on
 total effects, we should generally avoid conditioning on a mediator. We
@@ -1390,7 +1367,9 @@ variables.\footnote{Note that if \(L\) were associated with \(Y\) and
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-mediator-solution-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-mediator-solution-1.pdf}
 
 }
 
@@ -1399,11 +1378,10 @@ a mediator. The implication: by ensuring temporal order in data
 collection we diminish the probabilty of mistaking an effect of an
 exposure for its confounder.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{conditioning-on-a-descendant-may-induce-confounding}{%
 \subsubsection{4. Conditioning on a descendant may induce
-confounding}\label{conditioning-on-a-descendant-may-induce-confounding}}
+confounding}\label{conditioning-on-a-descendant-may-induce-confounding}
 
 Let us consider this principle in the context of our green spaces
 example. Again denote ``proximity to green spaces'' by \(A\), ``mental
@@ -1424,7 +1402,9 @@ estimation.
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-descendent-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-descendent-1.pdf}
 
 }
 
@@ -1433,7 +1413,7 @@ dashed path illustrates the introduction of bias by conditioning on the
 descendant of a confounder that is affected by the exposure, thus
 opening of a backdoor path between the exposure, A, and the outcome, Y.}
 
-\end{figure}
+\end{figure}%
 
 Again, the advice is evident from the chronology of the graph: we should
 measure the (\(L^\prime\)) before the exposure (\(A\)). This solution is
@@ -1441,7 +1421,9 @@ presented in Figure~\ref{fig-dag-descendent-solution}.
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-descendent-solution-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-descendent-solution-1.pdf}
 
 }
 
@@ -1451,11 +1433,10 @@ measurements. By ensuring that L occurs before A confounding is
 controlled. The figure also makes it evident that L need not affect Y to
 be a confounder (i.e.~a member of a confounder set).}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{conditioning-on-a-descendent-may-reduce-confounding}{%
 \subsubsection{5. Conditioning on a descendent may reduce
-confounding}\label{conditioning-on-a-descendent-may-reduce-confounding}}
+confounding}\label{conditioning-on-a-descendent-may-reduce-confounding}
 
 In our greenspace example, consider an unmeasured confounder \(U\),
 perhaps a genetic factor, that impacts both proximity to green spaces
@@ -1477,7 +1458,9 @@ confounding control. Every case necessitates its unique approach.
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-descendent-solution-2-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-descendent-solution-2-1.pdf}
 
 }
 
@@ -1495,12 +1478,11 @@ measured by an indicator late that is expressed (and may be measured)
 later in life. Adjusting for such an indicator would constitute an
 example of post-outcome confounding control.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{using-causal-diagrams-to-inform-data-collection-the-three-wave-panel-design}{%
 \subsubsection{6. Using causal diagrams to inform data collection: the
 three-wave panel
-design}\label{using-causal-diagrams-to-inform-data-collection-the-three-wave-panel-design}}
+design}\label{using-causal-diagrams-to-inform-data-collection-the-three-wave-panel-design}
 
 In a three-wave panel design, we collect data across three intervals to
 facilitate observational causal inference. The causal diagram in
@@ -1577,7 +1559,9 @@ observational causal inference in a three-wave panel design.
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-6-1.pdf}
+\centering{
+
+\includegraphics[width=0.8\textwidth,height=\textheight]{causal-tutorial-env_files/figure-pdf/fig-dag-6-1.pdf}
 
 }
 
@@ -1591,11 +1575,10 @@ confounders before the exposure and the exposure before the outcome, we
 reduce the potential for reverse causation, collider stratification, and
 mediator biases.}
 
-\end{figure}
+\end{figure}%
 
-\hypertarget{the-inevitability-of-unmeasured-confounding}{%
 \subsubsection{7. The Inevitability of Unmeasured
-Confounding}\label{the-inevitability-of-unmeasured-confounding}}
+Confounding}\label{the-inevitability-of-unmeasured-confounding}
 
 In observational research, there is an unavoidable issue known as
 unmeasured confounding. These are confounders that are not included in
@@ -1623,17 +1606,15 @@ would be necessary to explain the observed association, thus providing
 evidence towards the robustness of the observed association.
 
 E-Values can be computed through the \texttt{EValue} package in R
-(\protect\hyperlink{ref-mathur2018}{Mathur \emph{et al.} 2018}). This
-package provides an intuitive, user-friendly interface for researchers
-to compute E-Values. Observational researchers have no excuses not to
+(\citeproc{ref-mathur2018}{Mathur \emph{et al.} 2018}). This package
+provides an intuitive, user-friendly interface for researchers to
+compute E-Values. Observational researchers have no excuses not to
 conduct sensitivity analyses.
 
-\hypertarget{part-3.-summary-pitfalls-and-tips.}{%
 \subsubsection{Part 3. Summary, Pitfalls and
-Tips.}\label{part-3.-summary-pitfalls-and-tips.}}
+Tips.}\label{part-3.-summary-pitfalls-and-tips.}
 
-\hypertarget{summary}{%
-\subsubsection{Summary}\label{summary}}
+\subsubsection{Summary}\label{summary}
 
 We introduced the potential outcomes framework of causal inference,
 focussing on three fundamental assumptions:
@@ -1710,8 +1691,7 @@ points take home messages were:
 
 We conclude by summarising our advice through ``Tips'' and ``Pitfalls''
 
-\hypertarget{data-collection-tips}{%
-\subsubsection{Data Collection Tips}\label{data-collection-tips}}
+\subsubsection{Data Collection Tips}\label{data-collection-tips}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -1731,8 +1711,7 @@ We conclude by summarising our advice through ``Tips'' and ``Pitfalls''
   Strive for high sample retention.
 \end{enumerate}
 
-\hypertarget{graph-drawing-tips}{%
-\subsubsection{Graph Drawing Tips}\label{graph-drawing-tips}}
+\subsubsection{Graph Drawing Tips}\label{graph-drawing-tips}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -1759,8 +1738,7 @@ We conclude by summarising our advice through ``Tips'' and ``Pitfalls''
   Remember, causal diagrams are qualitative tools, not detailed maps.
 \end{enumerate}
 
-\hypertarget{pitfalls-to-avoid}{%
-\subsubsection{Pitfalls to Avoid}\label{pitfalls-to-avoid}}
+\subsubsection{Pitfalls to Avoid}\label{pitfalls-to-avoid}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -1792,117 +1770,114 @@ We conclude by summarising our advice through ``Tips'' and ``Pitfalls''
 
 \newpage{}
 
-\hypertarget{funding}{%
-\subsection{Funding}\label{funding}}
+\subsection{Funding}\label{funding}
 
 This work is supported by a grant from the Templeton Religion Trust
 (TRT0418). JB received support from the Max Planck Institute for the
 Science of Human History. The funders had no role in preparing the
 manuscript or the decision to publish it.
 
-\hypertarget{references}{%
-\subsection{References}\label{references}}
+\subsection{References}\label{references}
 
-\hypertarget{refs}{}
+\phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
-\leavevmode\vadjust pre{\hypertarget{ref-bulbulia2022}{}}%
+\bibitem[\citeproctext]{ref-bulbulia2022}
 Bulbulia, JA (2022) A workflow for causal inference in cross-cultural
 psychology. \emph{Religion, Brain \& Behavior}, \textbf{0}(0), 1--16.
 doi:\href{https://doi.org/10.1080/2153599X.2022.2070245}{10.1080/2153599X.2022.2070245}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-cole2010}{}}%
+\bibitem[\citeproctext]{ref-cole2010}
 Cole, SR, Platt, RW, Schisterman, EF, \ldots{} Poole, C (2010)
 Illustrating bias due to conditioning on a collider. \emph{International
 Journal of Epidemiology}, \textbf{39}(2), 417--420.
 doi:\href{https://doi.org/10.1093/ije/dyp334}{10.1093/ije/dyp334}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-edwards2015}{}}%
+\bibitem[\citeproctext]{ref-edwards2015}
 Edwards, JK, Cole, SR, and Westreich, D (2015) All your data are always
 missing: Incorporating bias due to measurement error into the potential
 outcomes framework. \emph{International Journal of Epidemiology},
 \textbf{44}(4), 14521459.
 
-\leavevmode\vadjust pre{\hypertarget{ref-greenland1999}{}}%
+\bibitem[\citeproctext]{ref-greenland1999}
 Greenland, S, Pearl, J, and Robins, JM (1999) Causal diagrams for
 epidemiologic research. \emph{Epidemiology (Cambridge, Mass.)},
 \textbf{10}(1), 37--48.
 
-\leavevmode\vadjust pre{\hypertarget{ref-hernan2023}{}}%
+\bibitem[\citeproctext]{ref-hernan2023}
 Hernan, MA, and Robins, JM (2023) \emph{Causal inference}, Taylor \&
 Francis. Retrieved from
 \url{https://books.google.co.nz/books?id=/_KnHIAAACAAJ}
 
-\leavevmode\vadjust pre{\hypertarget{ref-hernuxe1n2023}{}}%
+\bibitem[\citeproctext]{ref-hernuxe1n2023}
 Hernán, MA, and Monge, S (2023) Selection bias due to conditioning on a
 collider. \emph{BMJ}, \textbf{381}, p1135.
 doi:\href{https://doi.org/10.1136/bmj.p1135}{10.1136/bmj.p1135}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-holland1986}{}}%
+\bibitem[\citeproctext]{ref-holland1986}
 Holland, PW (1986) Statistics and causal inference. \emph{Journal of the
 American Statistical Association}, \textbf{81}(396), 945960.
 
-\leavevmode\vadjust pre{\hypertarget{ref-mathur2018}{}}%
+\bibitem[\citeproctext]{ref-mathur2018}
 Mathur, MB, Ding, P, Riddell, CA, and VanderWeele, TJ (2018) Website and
-r package for computing e-values. \emph{Epidemiology (Cambridge,
+r package for computing {E}-values. \emph{Epidemiology (Cambridge,
 Mass.)}, \textbf{29}(5), e45.
 
-\leavevmode\vadjust pre{\hypertarget{ref-mcelreath2020}{}}%
-McElreath, R (2020) \emph{Statistical rethinking: A bayesian course with
-examples in r and stan}, CRC press.
+\bibitem[\citeproctext]{ref-mcelreath2020}
+McElreath, R (2020) \emph{Statistical rethinking: A {B}ayesian course
+with examples in r and stan}, CRC press.
 
-\leavevmode\vadjust pre{\hypertarget{ref-pearl2009}{}}%
+\bibitem[\citeproctext]{ref-pearl1995}
+Pearl, J (1995) Causal diagrams for empirical research.
+\emph{Biometrika}, \textbf{82}(4), 669--688.
+
+\bibitem[\citeproctext]{ref-pearl2009}
 Pearl, J (2009) \emph{\href{https://doi.org/10.1214/09-SS057}{Causal
 inference in statistics: An overview}}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-pearl1995}{}}%
-Pearl, J, and Robins, JM (1995) Probabilistic evaluation of sequential
-plans from causal models with hidden variables. In, Vol. 95, Citeseer,
-444453.
-
-\leavevmode\vadjust pre{\hypertarget{ref-rohrer2018}{}}%
+\bibitem[\citeproctext]{ref-rohrer2018}
 Rohrer, JM (2018) Thinking clearly about correlations and causation:
 Graphical causal models for observational data. \emph{Advances in
 Methods and Practices in Psychological Science}, \textbf{1}(1), 2742.
 
-\leavevmode\vadjust pre{\hypertarget{ref-rubin1976}{}}%
+\bibitem[\citeproctext]{ref-rubin1976}
 Rubin, DB (1976) Inference and missing data. \emph{Biometrika},
 \textbf{63}(3), 581--592.
 doi:\href{https://doi.org/10.1093/biomet/63.3.581}{10.1093/biomet/63.3.581}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-vanderweele2015}{}}%
-VanderWeele, T (2015) \emph{Explanation in causal inference: Methods for
-mediation and interaction}, Oxford University Press.
-
-\leavevmode\vadjust pre{\hypertarget{ref-vanderweele2009}{}}%
+\bibitem[\citeproctext]{ref-vanderweele2009}
 VanderWeele, TJ (2009) Concerning the consistency assumption in causal
 inference. \emph{Epidemiology}, \textbf{20}(6), 880.
 doi:\href{https://doi.org/10.1097/EDE.0b013e3181bd5638}{10.1097/EDE.0b013e3181bd5638}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-vanderweele2018}{}}%
+\bibitem[\citeproctext]{ref-vanderweele2015}
+VanderWeele, TJ (2015) \emph{Explanation in causal inference: Methods
+for mediation and interaction}, Oxford University Press.
+
+\bibitem[\citeproctext]{ref-vanderweele2018}
 VanderWeele, TJ (2018) On well-defined hypothetical interventions in the
 potential outcomes framework. \emph{Epidemiology}, \textbf{29}(4), e24.
 doi:\href{https://doi.org/10.1097/EDE.0000000000000823}{10.1097/EDE.0000000000000823}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-vanderweele2019}{}}%
+\bibitem[\citeproctext]{ref-vanderweele2019}
 VanderWeele, TJ (2019) Principles of confounder selection.
 \emph{European Journal of Epidemiology}, \textbf{34}(3), 211219.
 
-\leavevmode\vadjust pre{\hypertarget{ref-vanderweele2013}{}}%
+\bibitem[\citeproctext]{ref-vanderweele2013}
 VanderWeele, TJ, and Hernan, MA (2013) Causal inference under multiple
 versions of treatment. \emph{Journal of Causal Inference},
 \textbf{1}(1), 120.
 
-\leavevmode\vadjust pre{\hypertarget{ref-vanderweele2020}{}}%
+\bibitem[\citeproctext]{ref-vanderweele2020}
 VanderWeele, TJ, Mathur, MB, and Chen, Y (2020) Outcome-wide
 longitudinal designs for causal inference: A new template for empirical
 studies. \emph{Statistical Science}, \textbf{35}(3), 437466.
 
-\leavevmode\vadjust pre{\hypertarget{ref-westreich2010}{}}%
+\bibitem[\citeproctext]{ref-westreich2010}
 Westreich, D, and Cole, SR (2010) Invited commentary: positivity in
 practice. \emph{American Journal of Epidemiology}, \textbf{171}(6).
 doi:\href{https://doi.org/10.1093/aje/kwp436}{10.1093/aje/kwp436}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-westreich2015}{}}%
+\bibitem[\citeproctext]{ref-westreich2015}
 Westreich, D, Edwards, JK, Cole, SR, Platt, RW, Mumford, SL, and
 Schisterman, EF (2015) Imputation approaches for potential outcomes in
 causal inference. \emph{International Journal of Epidemiology},
