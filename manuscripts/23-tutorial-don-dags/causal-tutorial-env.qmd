@@ -24,7 +24,7 @@ keywords:
   - DAGS
   - Causal Inference
   - Confounding
-  - History
+  - Environmental
   - Psychology
   - Panel
 format:
@@ -129,242 +129,94 @@ push_mods <-
 # keywords: potential outcomes, DAGs, causal inference, evolution, religion, measurement, tutorial
 # 10.31234/osf.io/b23k7
 
-#20012 words
-# 75 refs
-# 32 figs
 ```
 
 ## Introduction
 
 Causal inference involves using empirical observations to draw conclusions about the causal relationships between variables or events. It typically involves determining whether changes in one or more independent variables are linked to changes in one or more dependent variables, while controlling for potential sources of confounding. The aim of causal inference is to identify cause-effect relationships with a high level of confidence, understanding the mechanisms underlying these relationships, while ruling out plausible alternative explanations [@cook2002experimental]
 
-In experimental settings, quantitative causal inferences from associational models is made possible through randomisation, controlled interventions, and chronologically ordered data collection.
-
-By contrast, in observational settings, the data researchers collect are not the products of randomisation and control.
-Moreover, observational researchers are often limited to cross-sectional data, which lack temporal order.
-In observational settings, then, credible causal inference from correlations can be, at best, indirect.
-The problems of inferring causation in observational settings are widely known.
-However, many observational researchers persist in using hedging causal language to reporting their results, offering cautious policy recommendations couched in words such as "might" and "suggests" [@bulbulia2022] However, because causal association can easily run in the opposite direction of manifest associations, every intention to report a observational correlations as suggesting causation is more safely presumed guilty unless demonstrated otherwise.
-
-Are there any settings in which we might we obtain valid causal inferences from observational data?
-If so, by which pathways might we pursue such inferences?
-
-Environmental psychologists have strong motivations to ask these questions.
-Among the most compelling is an interest in understanding the probable effects of interventions on environmental attitudes and behaviours, which is essential for offering effective policy advice.
-Moreover, although randomised experiments can sometimes afford causal understanding, experimental studies are typically too expensive to perform at scale.
-Designing and implementing interventions and then tracking their effects over long periods are typically infeasible, and often decisions cannot wait.
-Experimental control often comes at the price of ecological validity, limiting applications.
-For these reasons, the bandwidth of psychologically interesting and practically relevant questions that experiments may address is limited.
-By contrast, observational data is abundant.
-If we could obtain causal insights from observational data, the state of knowledge in environmental psychology would be greatly accelerated and the field would be better equipped to offer advice.
-
-Considerable progress in the methods for estimating causation from observational data during the past twenty years offer reasons for hope [@vanderweele2015].
-Although most of this progress has occurred outside of psychology, psychological scientists are growing increasingly interested in such methods [@rohrer2018; @mcelreath2020].
-Efforts to unite methods for causal inference with environmental psychology, then, would appear both promising and timely.
-
-We believe that rate of progress in the uptake of causal inference in environmental psychology (and in psychological science more broadly) will turn on how rapidly researchers understand the theoretical basis on which methods for causal inference rely.
-The theoretical basis of causal effect estimation is vital because to obtain causal effect estimates from observational data relies on assumptions.
-Put differently, before researchers apply statistical methods to data, they must devote considerable attention to planning and design than is their custom.
-Whether the assumptions required for causal inference are credibly met will typically require the input of experts familiar with the questions at hand.
-In some cases the data allow reasoned guesses about whether assumptions have been satisfied.
-However such cases are the exception are rare.
-That causal inference relies on untestable assumptions invites many risks.
-On the one hand, if we persist in demanding verification from data researchers obtained from conventional thresholds they risk missing causal inferences that are supported by reasonable assumptions.
-On the other hand, researchers might be tempted to admit implausible assumptions without warrant.
-This latter risk is particularly worrying in those social sciences where publication biases favour results.
-Too few journals are interested in studies that report uncertainty, or that describe why results cannot be obtained from the data to hand.
-We believe that to accelerate progress in environmental psychology, and in the human sciences more generally, the theoretical foundations of causal inference must be accessible.
-The assumptions that underpin causal inference must be explained in a way that builds clear intuitions about the underlying problem each assumption addresses.
-Researchers must understand how these intuitions flow on to the tasks of data collection and data organisation.
-For causal inference to bring about the scientific transformation, each practical step from assumption to data collection must also be grounded in solid intuitions.
-Because the theoretical foundations of causal inference remain unfamilar and opaque to most psychological scientists, including those with strong backgrounds in statistical modelling, we believe that a gentle introduction focussed on developing the necessary intuitions and rigour habits may be useful.
 
-Here, then, we present an introduction of the "potential outcomes" framework of causal inference, also known as the "counterfactual" framework for causal inference [@hernan2023]).
+Causal inference is sometimes characterised as a complex cognitive process unique to humans. However, it may be more appropriate to think of causal inference as existing throughout the plant and animal kingdoms on a spectrum, or potentially multiple spectra, that vary in terms conscious awareness and sophistication [@mancuso2018revolutionary].  For example, plants and microorganisms are genetically preprogrammed to recognise and respond to environmental conditions relevant to reproduction and survival.  Birds and rodents have well-established capacities to learn, but not to the level of complexity exhibited by larger mammals and primates.   During the past several thousand years, humans have developed a broad range for frameworks for causal inference such as the law of karma in Hindu, Jain, and Buddhist traditions, Aristotle’s four (material, formal, efficient, and final) causes, early work empiricism and experimentation by Francis Bacon and John Locke, Newtonian mechanics, as well as more contemporary conceptualisations based on counterfactual reasoning such as those described in this chapter.      
 
-**Part 1** introduces the *the three fundamental assumptions* of causal inference.
-Here develop causal intuitions by anchoring them in the framework of randomised experiments, which will be familiar to most readers of this chapter.
-We shall discover that the building intuitions for causal inference from an understanding of experiments greatly demystify the assumptions on which causal inference relies and offers clear directives for data collection.
-Surprisingly, perhaps, this discussion will bring new theoretical understand of experiments that may be helpful to improving their designs.
 
-**Part 2** introduces Directed Acyclic Graphs (DAGs) -- or causal diagrams -- as powerful tools for investigating causal assumptions in observational settings, or in randomised experimental setting with repeated measures.
-We shall discover that the functionality of causal diagrams rests on three rules, and that these three rules in turn rest on a robust system of mathematical proofs.
-The basis of causal diagrams in mathematical proves should inspire confidence.
-The relative ease with which causal diagrams can be constructed in the absence of mathematical formalism makes causal diagrams accessible.
-Yet we will learn that causal diagrams only make sense in relation to the framework of assumptions described in Part 1.
-Lacking a firm grasp of these assumptions, the application of causal diagrams to causal questions is perilous.
-We offer strategies for constructing causal diagrams that will help reserach use them safely and effectively, both in research design and modelling.
+## Correlation in Psychological Research 
 
-**Part 3** Briefly reviews actionable directives for data collection and modelling within environmental psychology and related fields.
-This advice will be useful human scientists who seek quantitative understanding about the probable effects of interventions on environmental attitudes and behaviours.
+As taught in most introductory undergraduate psychology courses, correlations between two more variables does not imply the presence of a causal process. However, in most psychological research, quantifying a causal effect requires drawing inferences based on research design, statistical modelling, and correlations present in data.
 
-## Part 1. An introduction to the potential outcomes framework of causal inference.
+In experimental settings, quantitative causal inferences from associational models are made possible through randomisation, controlled interventions, and chronologically ordered data collection.  For example, even in non-longitudinal experimental studies, manipulations always precede the measurement of outcomes. 
+By contrast, in observational settings, the data researchers collect are not the products of randomisation and control. Moreover, observational researchers are often limited to cross-sectional data, which lack temporal order. In observational settings, then, credible causal inference from correlations can be, at best, indirect. The problems of inferring causation in observational settings are widely known.  For example, in cross-sectional studies, correlations between two variables may be due to the presence of a third variable that causes changes in one or both.  Furthermore, variables can be correlated, but the direction of causation can be ambiguous.  Variable A may cause variable B?  Or B may cause A?  In the absence of an appropriate research design is may be impossible to tell.   
 
-The content provided is both accurate and well-articulated, with a few minor exceptions.
-The below edits clarify some of the language and fix minor errors:
+Despite this, many observational researchers persist in using hedging causal language to reporting their results, offering cautious policy recommendations couched in words such as “might effect”, “suggestive of a causal link”, and “is consistent with our hypothesis that A causes B” [@bulbulia2022].  This is true of our own work, and also that of many of colleagues in environmental psychology.  However, because correlations can be caused by unmeasured variables and true causal effects, when they exist, can run in the opposite direction of the proposed causal model, researchers need to be extremely cautious when inferring causal conclusions.
 
-## Part 1: An Introduction to the Potential Outcomes Framework of Causal Inference
 
-### Step 1: Understand that we assess the relationships of cause and effect by contrasting the outcomes of interventions
+Are there any settings in which we might we obtain valid causal inferences from observational data? If so, by which pathways might we pursue such inferences?
 
-Suppose we are interested in well-being.
-Given this interest, we might be curious about understanding the factors that influence it.
-One such factor could be the accessibility of urban green spaces \[CITE\].
-That is, living closer to abundant green spaces may enhance well-being compared to living in an environment devoid of such abundance.
-How might we obtain a quantitative causal understanding?
+Environmental psychologists have strong motivations to ask these questions. Among the most compelling is an interest in understanding the possible effects of interventions on environmental attitudes and behaviours, which is essential for offering effective policy advice. Moreover, although randomised experiments can sometimes afford causal understanding, experimental studies are often expensive to perform at scale, and random assignment to treatment conditions can pose unacceptable ethical risks. Designing and implementing interventions and then tracking their effects over long periods are typically infeasible, and often decisions cannot wait. Experimental control often comes at the price of ecological validity, limiting direct applications in non-laboratory contexts.  [Although see MIT Poverty Action lab for examples for examples of large scale RCTs.] For these reasons, the bandwidth of psychologically interesting and practically relevant questions that experiments may address is limited. By contrast, observational data is abundant. If we could obtain causal insights from observational data, the state of knowledge in environmental psychology would be greatly accelerated and the field would be better equipped to offer advice.
+Considerable progress in the methods for estimating causation from observational data during the past 20 years offer reasons for hope [@vanderweele2015]. Although most of this progress has occurred outside of psychology, interest amongst psychological scientists is growing [@mcelreath2020;@rohrer2018]. Efforts to unite methods for causal inference with observational environmental psychology research is both promising and timely.
 
-First, we define a 'cause'.
-In a setting of causal inference, a cause is equivalent to an "intervention" or "exposure" or "treatment."
+We believe that rate of progress in the uptake of causal inference in environmental psychology (and in psychological science more broadly) will turn on how rapidly researchers understand the theoretical basis on which methods for causal inference rely. The theoretical basis of causal effect estimation is vital because to obtain causal effect estimates from observational data relies on assumptions. That is, before researchers apply statistical methods to data, they must devote considerable attention to planning and design than is their custom. Whether the assumptions required for causal inference are credibly met will typically require the input of experts familiar with the questions at hand. In some cases the data allow reasoned guesses about whether assumptions have been satisfied. However such cases are the exception are rare. That causal inference relies on untestable assumptions invites many risks. On the one hand, if we persist in demanding verification from data researchers obtained from conventional thresholds they risk missing causal inferences that are supported by reasonable assumptions. On the other hand, researchers might be tempted to admit implausible assumptions without warrant. This latter risk is particularly worrying in those social sciences where publication biases favour compelling narratives couched in causal language, often with a one or two sentence caveat about strong causal attributions at the end of the paper. Too few journals are interested in studies that report uncertainty, or that provide detailed accounts of methodological limitations. . We believe that to accelerate progress in environmental psychology, and in the human sciences more generally, the theoretical foundations of causal inference must be accessible and transparently communicated. The assumptions that underpin causal inference must be explained in a way that builds a clear understanding about the underlying problem each assumption addresses. Researchers must understand how these assumptions flow on to the tasks of data collection and data organisation. For causal inference to bring about the scientific transformation, each practical step from assumption to data collection must also be grounded in solid intuitions. Because the theoretical foundations of causal inference remain unfamilar and opaque to most psychological scientists, including those with strong backgrounds in statistical modelling, we hope this  introduction outlining the foundations of causal inference from association data will encourage more environmental psychologists to adopt these new conceptual frameworks and methods.
 
-Second, we define an "effect." In a setting of causal inference, an effect is the outcome of the intervention.
-To quantitatively understand the effect of a cause or intervention, we state a contrast of outcomes under two interventions at some scale of measurement.
-For example, the effect of abundant green spaces for individual $i$ may be expressed as:
+## Overview
+In this chapter, we present an introduction of the “potential outcomes” framework of causal inference.  This is also sometime referred to as the “counterfactual” framework [@hernan2023]).
 
-$$
-\text{Well-being effect of abundant greenspace}_{i} = \text{Well-being of abundant green space}_i - \text{Well-being of no abundant green space}_i
-$$
+**Part 1** introduces the the three fundamental assumptions of causal inference. Here we develop causal intuitions by anchoring them in the framework of randomised experiments, which will be familiar to most readers. We shall discover that the building intuitions for causal inference from an understanding of experiments help demystify the assumptions on which causal inference relies and offers clear directives for data collection. Surprisingly, perhaps, this discussion will bring new theoretical understanding of experiments that may be helpful to improving their designs.
 
-We could also express this contrast on a ratio scale:
+**Part 2** introduces Directed Acyclic Graphs (DAGs) – or causal diagrams – as powerful tools for investigating causal assumptions in observational settings, or in randomised experimental setting with repeated measures. We note that the functionality of causal diagrams rests on three rules, and that these three rules, in turn, rest on a robust system of mathematical proofs, which we hope will inspire confidence in more sceptical readers. The relative ease with which causal diagrams can be constructed in the absence of mathematical formalism makes causal diagrams accessible. Yet we will learn that causal diagrams only make sense in relation to the framework of assumptions described in Part 1. Lacking a firm grasp of these assumptions, the application of causal diagrams to causal questions is perilous. We offer strategies for constructing causal diagrams that will help researchers use them safely and effectively, both in research design and modelling.
 
-$$
-\text{Well-being effect of abundant greenspace}_i = \frac{\text{Well-being of abundant green space}_i}{\text{Well-being of no abundant green space}_i}
-$$
+**Part 3** Briefly reviews actionable advice for improving causal inferences from observational data in environmental psychology researchers. This advice will be useful behavioural scientists who seek quantitative understanding of effects of policies and interventions on pro-environmental behaviour, and the well-being of the Planet Earth and those who inhabit it.
 
-#### **Step 1.1: Quantifying a causal effect demands a contrast of interventions**
+## Part 1: Introducing the Potential Outcomes Framework of Causal Inference
 
-The concept of causal effect requires at least two potential interventions.
-Comparing outcomes under these different interventions provides insight into causation.
-For instance, contrasting an intervention against its absence always yields zero contrast in effects, represented mathematically as:
+The potential outcomes framework was introduced by Jerzy Neyman [@neyman1923]. It was later developed by Donald Rubin to address causal inference in non-experimental settings [@rubin1976], and was extended by Jamie Robins to address confounding time-varying confounding [@robins1986]. A central focus of the framework is counterfactuals.  The basic idea is that for any possible treatment, there are two potential outcomes:
 
-$$
-\text{Effect of abundant greenspace} = \text{Effect of abundant green space} - \text{Effect of abundant green space} = 0
-$$
+1.	The “treatment” outcome.  The “thing” that happens if an individual in the study receives the treatment.
+2.	The “control” outcome.  The “thing” that happens if an individual does not receive the treatment.  
 
-The contrast of potential outcomes under different interventions offers evidence for causation when the contrast does not equal zero:
+In the potential outcomes framework, the causal effect of a treatment is defined as the difference between these two “potential outcomes”.   That is, what is the difference for an individual if they receive a treatment and if they did not receive the treatment?
 
-$$
-\text{Causal effect of Do X} = \text{Causal effect of Do  X} - \text{Causal Effect of Do Not X} \neq 0
-$$
+Importantly, we can never simultaneously observe both potential outcomes for a specific individual, given that they either receive the treatment or they don’t.  This problem is sometimes called the "fundamental problem of causal inference" [@holland1986; @rubin2005].  
 
-Depending on the residual quantity, we can determine whether the effect is positive, negative, or null.
 
-### Step 2: Understand that causation occurs in time
+This problem is addressed in experimental studies by comparing a group of individuals who receive the treatment with a group of individuals who do not.  In observational studies, the problem of counterfactuals can be addressed by identifying and statistically controlling for potential confounding variables.  The potential outcomes framework provides a highly structured way to managing confounders and making defensible causal inferences when using observational, as opposed to experimental data. 
+### Step 1: Understanding Relationships of Cause and Effect Through Intervention Outcomes
 
-Causes are related to effects by time.
-We may say, "each effect is borne of a cause." That is, at the scale of the the universe that people occupy, effects cannot precede their.
-Although intuitive, this concept is often overlooked in psychological science.
-For instance, causation requires that we assume:
+In causal inference, we start by defining the causal contrast of interest and identifying the relevant population.
 
-$$
-\text{cause} \to \text{effect}
-$$
+Consider this example. We aim to explore the causal impact of easy access to urban green spaces on psychological well-being [@nguyen2021green; @reyes2021linking]. We'll focus on "subjective happiness," hereafter referred to as "happiness". Assume happiness exists and is measurable. Represent happiness as "Y". 
 
-However, when we work with cross-sectional data, we cannot generally rule out:
+We consider the treatment, "ample access to green space", as binary. Denote this treatment with $A$. Define $A = 1$ as "having ample access to greenspace" and $A = 0$ as "lacking ample access to greenspace". Assume these conditions are mutually exclusive. Our target population is New Zealanders in the 2020s. A preliminary causal question might be:
 
-$$
-\text{labelled effect} \to \text{labelled cause}
-$$
+"In New Zealand, does proximity to abundant green spaces increase self-perceived happiness compared to environments lacking such spaces?"
 
-Therefore, we should be wary of cross-sectional data for causal inference.
+This question is a starting point for understanding causal inference in environmental psychology. It involves comparing outcomes under varying levels of an intervention within a specified population.
 
-### Step 3: Understand that causal inference is requires contrasting "potential" (or "counterfactual") outcomes that are never fully observed.
+Now, consider two randomly selected individuals, "Bex" and "Murray", from our population. Suppose Bex gets access to green space, while Murray does not. We measure their happiness post-treatment. Thus:
 
-#### **Proof by contradiction that individual causal effects are not observed.**
+$$Y_{\text{Bex}}|A = 1 $$
 
-Assume that individual causal effects can be fully observed.
-This implies that for an individual, we can observe both the effect of taking a decision (exposure to abundant green space) and not taking the decision (no living with abundant green space) simultaneously.
-However, by definition, an individual can only exist in one state at a time --- either one has green space access or they do not -- we cannot have both.
+This denotes "Bex's happiness when having access to green space". Similarly:
 
-This contradicts our initial assumption, leading us to conclude that individual causal effects can never be fully observed.
+$$Y_{\text{Murray}}|A = 0 $$
 
-Another proof is as follows:
+This represents "Murray's happiness without access to green space".
 
-#### **Direct proof individual causal effects are not observed.**
+Here, the vertical line $|$ signifies "conditional upon". We define a causal effect as the difference between potential outcomes. Potential outcomes are represented as $Y_a$, $Y^a$, or $Y(a)$. Using the bracket notation, the causal effect of green space is the difference between the potential outcomes with and without the treatment:
 
-Consider a scenario where the causal effect for an individual is understood as the difference in outcomes under two distinct scenarios --- one where a decision is enacted (for example, enjoying green space) and one where it is not (devoid of green space).
+$$\text{Individual Treatment Effect}_{\text{Bex}}: Y(1)_{\text{Bex}} - Y(0)_{\text{Bex}}$$
 
-However, for any individual in a particular moment, only one of these circumstances can occur ---- the individual either embraces green space or they do not.
-We can only observe the outcome corresponding to the actual decision made, but we cannot observe the outcome for the counterfactual scenario (the decision not enacted).
+For Murray, the causal effect is similarly the difference between potential outcomes:
 
-In the language of causal inference, individual causal effects encounter the "fundamental problem of causal inference" [@rubin1976; @holland1986].
-That is, individual causal effects are necessarily only partially observed.
+We can equate $Y_{\text{Bex}}|A = 1$ with $Y(1)_{\text{Bex}}$ and $Y(0)_{\text{Murray}}$ with $Y(0)_{\text{Murray}}$.
 
-#### **Step 3.1: The implication: causal inference requires solving a special and peculiar missing data problem**
+The fundamental problem of causal inference lies in the impossibility of observing both potential outcomes for an individual under different treatment conditions simultaneously. In other words, we can never observe both $Y(1)_{\text{individual}}$ and $Y(0)_{\text{individual}}$ for the same person. This constraint makes it challenging to directly measure the causal effect of a treatment on an individual.
 
-If we are to quantify causal effects, our challenge is to bridge the gap between the observable world and the inherently unobservable world.
-Causal inference is a missing data problem (@westreich2015; @edwards2015)
+To illustrate, consider our previous examples, Bex and Murray. We can observe Bex's happiness when she has access to green space ($Y(1)_{\text{Bex}}$) and Murray's happiness without such access ($Y(0)_{\text{Murray}}$). However, we cannot observe Bex's happiness without access to green space and Murray's happiness with access, within the same timeframe. This limitation means we can only estimate the causal effect indirectly.
 
-### Step 4: Understand that the problem of missing counterfactual is easier to solve when the target of inference is the average (or marginal) causal effect obtained from an experiment
+The solution to this problem in causal inference often involves comparing groups or populations rather than individuals. By comparing the average outcomes of groups under different treatment conditions, we can estimate the average treatment effect (ATE). This approach, while not resolving the fundamental problem at the individual level, provides a practical method for estimating causal effects in a population.
 
-The average causal effect represents the difference in average outcomes of a population under two distinct treatment conditions.
-In formal terms, the average causal effect of a treatment (A) on an outcome (Y) can be defined as follows:
+In the next section, we will examine how average treatment effects are calculated and interpreted in experimental settings. 
 
-$$
-\text{Average Causal Effect} = \mathbb{E}[Y(A = 1)] - \mathbb{E}[Y(A = 0)]
-$$
-
-where $\mathbb{E}[Y(A = a)]$ denotes the expected value of the outcome under treatment condition $A = a$.
-Here, $A = 1$ indicates the presence of the treatment, while $A = 0$ represents its absence.
-
-#### Step 4.1 Understand that the problem of missing counterfactual outcomes remains for average treatment effects.
-
-Thatt the problem of missing counterfactuals remains for average treatment effects becomes evident when we consider a scenario involving two contrasting states: the presence of treatment ($A = 1$) and the absence of treatment ($A = 0$).
-
-If an individual is subjected to treatment, we observe the outcome $Y_{\text{observed}_i}|A_i = 1$, but miss the counterfactual outcome $Y(A_i = 0)$, i.e., the outcome if the individual had not received the treatment.
-
-Similarly, if the treatment is not administered, we observe $Y_{\text{observed}_i}|A_i = 0$, but miss the counterfactual outcome $Y(A_i = 1)$.
-
-Thus, for each individual, only one of the potential outcomes is observed, and the other one is missing.
-The challenge is that we cannot compute the individual causal effect, $Y(A_i = 1) - Y(A_i = 0)$, because we only observe one of the two terms for each individual.
-
-To compute the average causal effect over a population, we should ideally sum these individual causal effects and divide by the population size:
-
-$$
-\text{Average Causal Effect} = \frac{1}{N}\sum_{i=1}^{N} [Y(A_i = 1) - Y(A_i = 0)]
-$$
-
-However, as we only observe one term of the subtracted pair for each individual, we cannot calculate this sum directly.
-We again encounter the fundamental problem in causal inference when calculate average causal effects: the problem of individual-level missing counterfactuals persists "under the hood" of each intervention that we seek to compare.
-
-#### Step 4.2 Understand how experiments satisfy assumptions need to impute missing responses that are needed to obtain average treatment effects
-
-Randomised experiments are designed to impute missing counterfactuals that are necessary to calculate average treatment effects by random treatment assignment.
-To build intuitions that enable understanding for how experiments recover missing counterfactuls, consider their defining features.
-
-#### **Step 4.3. Understand the principle of randomisation**
-
-In a random experiment, each participant has an equal chance of being in either the treatment or the control group.
-This concept can be formulated:
-
-$$
-\text{Randomisation} = \text{Equal Probability of Assignment to Groups}
-$$
-
-##### **Step 4.5. Define experiment with reference measurement of interventions**
-
-An experiment is an event in which an experimenter (or group of experimenters) applies different treatments to another group by virtue of randomised assignment.
-Thus, an experiment consists is constituted as follows:
-
-$$
-\text{Experiment} = \text{Controlled Application of Interventions + Measurement of Outcome}
-$$
-
-##### **Step 4.6. Understand that experiments align potential outcomes with observed outcomes by satisfying a causal consistency assumption**
-
-Causal consistency is the assumption that the potential outcome under an intervention level is equivalent to the observed outcome when that intervention is applied.
-
-In the context of an experiment, observed outcomes may be credibly mapped one-to-one with potential outcomes.
-
-Recall that $Y(a)$ denotes the potential outcome under treatment level $A = a$.
-Let $\delta_{ate}$} denote the average causal effect on the difference scale.
-The target of causal inference for the average causal effect of a treatment is thus
-
-$$
-\delta_{ate} = E[Y(1)] - E[Y(0)]
-$$
-
-This represents the contrast in average outcome under treatment and average outcome without treatment.
-
-##### **Step 4.7. Understand that experiments satisfy a causal consistency assumption, thus recovering half of the potential outcomes needed for estimating the ATE**
+#### Step 2: Using experiments to understand how average treatment effects work 
 
 In an experiment, when a treatment ($A = 1$) is applied, we assume the observed outcome aligns with the potential outcome under treatment:
 
@@ -380,8 +232,6 @@ $$
 
 In other words, if an individual is assigned to the treatment group ($A_i = 1$), then the observed outcome corresponds to the potential outcome under treatment ($Y_i(a_i = 1)$).
 Similarly, for those in the control group ($A_i = 0$), the observed outcomes correspond to the potential outcomes under no treatment ($Y_i(a_i = 0)$).
-
-Thus, causal consistency allows us to infer the potential outcomes corresponding to the actual treatment each individual receives.
 
 #### **Step 4.8. Understand that experiments satisfy a causal consistency assumption, thus recovering half of the potential outcomes needed for estimating the ATE**\*
 
@@ -406,6 +256,9 @@ As such, we can compute the average causal effect.
 However in observational settings, it is precisely control that is lacking.
 The data that we need to assess causal effects may fail if (1) **weak positivity** is violated: the relevant observations have not been collected.
 For example if moving either to abundant greenspace or away from abundant greenspace is exceedly rare, the data might be insufficient to compute average causal contrast; (2) **strong positivity** is violated: the intervention is impossible: e.g. data are collected in country were all green spaces have been destroyed.
+
+
+
 
 ### Step 5: Build intuitions for how causal assumptions may be translated from experimental to observational settings
 
