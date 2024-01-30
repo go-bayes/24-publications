@@ -1,11 +1,606 @@
 ---
-title: "24-publications"
+title: "Causal Diagrams: A Practical Guide"
+author: 
+  name: Joseph A. Bulbulia
+  orcid: 0000-0002-5861-2056
+  email: joseph.bulbulia@vuw.ac.nz
+  affiliation: 
+    - name: Victoria University of Wellington, New Zealand, School of Psychology, Centre for Applied Cross-Cultural Research
+      department: Psychology/Centre for Applied Cross-Cultural Research
+      city: Wellington
+      country: New Zealand
+      url: www.wgtn.ac.nz/cacr
+abstract: > 
+  In causal inference, accurately quantifying a causal effect requires contrasting hypothetical counterfactual states simulated from data. This complex task relies on a framework of explicit assumptions and systematic, multi-step workflows. Causal diagrams (directed acyclic graphs, or DAGs) are powerful tools for evaluating assumptions and designing research. However, when misused, causal diagrams encourage false confidence. This guide offers practical advice for creating sequentially ordered causal diagrams that are effective and safe. Focussing on the time structure of causation reveals the benefits of sequential order in the spatial organisation of causal diagrams, both for data analysis and collection. After reviewing fundamentals, we employ *sequentially ordered causal diagrams* to elucidate often misunderstood concepts of causal interaction (moderation), mediation, and dynamic longitudinal feedback, as well as measurement-error bias and target validity. Overall, sequentially ordered causal diagrams underscore causal inference’s mission-critical demand for accuracy in the relative timing of confounders, exposures, and outcomes recorded in one’s data.
+keywords:
+  - Directed Acyclic Graph
+  - Causal Inference
+  - Confounding
+  - Feedback
+  - Interaction
+  - Internal validity
+  - External validity
+  - Mediation
+format:
+  pdf:
+    sanitize: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [singlecolumn]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=20mm
+      - heightrounded
+    header-includes:
+      - \input{/Users/joseph/GIT/templates/latex/custom-commands.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
 ```{r}
-1 + 1
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: false
+
+#   html:
+#   html-math-method: katex
+
+# Include in YAML for Latex
+# sanitize: true
+# keep-tex: true
+# include-in-header:
+#       - text: |
+#           \usepackage{cancel}
+
+
+# for making graphs
+library("tinytex")
+library(extrafont)
+loadfonts(device = "all")
+
+#quarto install tinytex --update-path
+
+# libraries for jb (when internet is not accessible)
+# read libraries
+source("/Users/joseph/GIT/templates/functions/libs2.R")
+
+# read functions
+source("/Users/joseph/GIT/templates/functions/funs.R")
+
+# read data/ set to path in your computer
+pull_path <-
+  fs::path_expand(
+    "/Users/joseph/v-project\ Dropbox/data/current/nzavs_13_arrow"
+  )
+
+# for saving models. # set path fo your computer
+push_mods <-
+  fs::path_expand(
+    "/Users/joseph/v-project\ Dropbox/data/nzvs_mods/00drafts/23-causal-dags"
+  )
+
+
+# keywords: potential outcomes, DAGs, causal inference, evolution, religion, measurement, tutorial
+# 10.31234/osf.io/b23k7
+
+#xxx words
+# 75 refs
+# 32 figs
 ```
+
+## Introduction
+
+
+<!-- Correlation does not imply causation. This adage is widely known.
+Nevertheless, many human scientists report manifest correlations and use
+hedging language that implies causation. However, such reporting
+typically lacks justification. Making matters worse, widely adopted
+analytic strategies for confounding control, such as indiscriminate
+co-variate adjustment, are known to enhance biases [@mcelreath2020].
+Across many human sciences, including the evolutionary human sciences,
+persistent confusion in the analysis and reporting of correlations
+continue to impede scientific progress, revealing a *causality crisis*
+[@bulbulia2022].
+
+We have reasons to hope for better. First, the open science movement has
+demonstrated that attention to the problems of replication, analysis,
+and reporting can bring considerable improvements to the reliability of
+research within a short period. Although much remains to be
+done, basic corrective practices for open science have become normative.
+Second, several decades of active development in causal inference across
+the health sciences, computer sciences, and economics, have yielded both
+considerable conceptual clarifications and rigorous analytic tool-kits
+for inference [@splawa1990application; @rubin1976; @robins1986;
+@pearl1995; @pearl2009a; @vanderweele2015; @deffner2022; @hernan2023].
+Although causal data science is still evolving [@vansteelandt2022;
+@hoffman2023; @díaz2021], a substantial foundation exists. Much of this
+foundation is written in a system of mathematical proofs that bring
+confidence. Debates within the causal data sciences are peripheral to causal inference's theoretical and conceptual foundations. Given science's ability to self-correct, and causal inference's bedrock of theoretical and conceptual foundation, we can be
+optimistic for a rapid uptake of causal inference methodology across the human sciences that presently lack it. The articles in this special issue of *Evolutionary Human Sciences* give
+testimony to this hope.
+
+Within the frameworks of causal data science, causal diagrams, also
+known as 'directed acyclic graphs' or 'DAGs,' have been developed as
+powerful inferential tools. Their applications are grounded in a robust
+system of formal mathematical proofs that should instil confidence.
+Nevertheless, causal diagrams do not require mathematical training and
+are broadly accessible. This accessibility is a great advantage.
+
+However, the accessibility of causal diagrams also invites risks. Causal
+diagrams only acquire their significance when integrated within the
+broader theoretical frameworks and workflows of causal data science.
+These frameworks differ from those of traditional data science by
+attempting to estimate pre-specified contrasts, or 'estimands,' among
+counterfactual states of the world. Although we assume these
+counterfactual states to be real, they must be simulated from data, under
+explicit assumptions (really *assertions*) that must be justified [@vansteelandt2012;
+@robins1986; @edwards2015]. These *structural assumptions (assertions)* differ from
+the *statistical assumptions* familiar to traditionally trained data
+scientists. Yet, because causal inference recovers counterfactuals by
+applying statistical models to observed data, careful statistical
+validations must also enter its workflows. We cannot assume that
+traditionally trained human scientists, even those with excellent
+statistical training, have familiarity with the demands of
+counterfactual inference [@ogburn2021; @bulbulia2023a]. Using causal
+diagrams without understanding causal inference risks inadvertently worsen
+the causality crisis by fostering misguided confidence where none is
+due. -->
+
+Here, I offer readers of *Evolutionary Human Science* practical guidance
+for creating causal diagrams.
+
+**Part 1** introduces core concepts and theories in causal data science, emphasising the fundamental assumptions and the demands they impose on causal inferential workflows. We review the motivation in causal data science for adopting an 'estimands first' approach — pre-specifying counterfactual contrasts to address a well-defined causal question within a clearly defined target population. 
+<!-- Although the overview is brief, it provides a necessary orientation to settings in
+which causal diagrams possess their utility, outside of which their
+application offers no guarantees. -->
+
+<!-- Although we do not assume the presence or absence of a causal effect for the exposure on the outcome, structural features of the world that may compromise valid inference must be
+explicitly stipulated in advance of observing data. This stipulation is
+required because causality is inevitably under-determined by observational data. The need for structural assumptions sets a high bar for researcher integrity. *With great power comes great responsibility.*  -->
+
+**Part 2** introduces essential terminology and explores elementary use cases, focussing on the benefits of sequentially order in one's graph for evaluating confounding biases.  
+
+<!-- These diagrams highlight the critical role of timing, underscoring its significance not only in analysis but also in securing quality measurements for the relative timing of events within the dataset. -->
+<!-- a. the units present in a study at baseline (before random assignment, or pseudo-random assignment in the case of observational data); 
+b. the features or characteristics of these units that hold scientific interest; 
+c. the (mis)measurement of these features at baseline and throughout the study; 
+d. the target population for which the study aims to clarify the effects of interventions
+ -->
+
+**Part 3** uses sequentially ordered causal diagrams to clarify concepts of interaction (moderation) and effect modification.
+
+
+**Part 4** clarifies biases arising from measurement error bias. 
+
+
+**Part 5** clarifies restriction biases arising from (a) attrition/ censoring; (b) mismatch between a study sample population and a target sample population. We also consider heterogeniety biases arising from failures to sufficiently restrict one's sample.
+
+**Part 6** uses causal diagrams to clarify causal estimation in which there are multiple exposures, focussing on causal mediation, and time-varying treatments.
+
+There are many good resources available for learning causal diagrams
+[@rohrer2018; @hernan2023; @cinelli2022; @barrett2021; @mcelreath2020;
+@greenland1999; @suzuki2020; @pearl2009]. This work hopes to contribute to
+these resources, first by providing additional conceptual orientation to
+the frameworks and workflows of causal data science, outside of which
+the application of causal diagrams is risky; second, by underscoring the
+benefits of sequential order in one's causal diagrams to clarify demands
+for data collection and analysis; third by using causal diagrams to clarify threats to target validity arising from sample/target population mismatch, fourth, by using causal diagrams to clarify
+questions of causal interaction, mediation, and longitudinal feedback, about
+which there remains considerable confusions among many human scientists.
+
+
+## Part 1. Overview of Causal Data Science
+
+The first step in answering a causal question is to ask it
+[@hernán2016]. Causal diagrams come later, when we consider which forms
+of data might enable us to address our pre-specified causal questions.
+<!-- This section introduces key concepts and broader workflows within which
+causal diagrams find their purposes and utilities. It begins by
+considering what is at stake when we ask a causal question. -->
+
+#### 1.1.1 The fundamental problem of causal inference
+
+To ask a causal question, we must consider the concept of causality
+itself. Consider an intervention, $A$, and its effect, $Y$. We say that
+$A$ causes $Y$ if altering $A$ would lead to a change in $Y$ [@hume1902;
+@lewis1973]. If altering $A$ would not change $Y$, we say that $A$ has
+no causal effect on $Y$.
+
+In causal inference, we aim to quantitatively contrast the potential
+outcomes of $Y$ in response to different levels of a well-defined
+intervention. Commonly, we refer to such interventions as 'exposures' or
+'treatments;' we refer to the possible effects of interventions as
+'potential outcomes.'
+
+Consider a binary treatment variable $A \in \{0,1\}$. For each unit $i$
+in the set $\{1, 2, \ldots, n\}$, when $A_i$ is set to 0, the potential
+outcome under this condition is denoted, $Y_i(0)$. Conversely, when
+$A_i$ is set to 1, the potential outcome is denoted, $Y_i(1)$. We
+refer to the terms $Y_i(1)$ and $Y_i(0)$ as 'potential outcomes' because
+until realised, the effects of interventions describe counterfactual states.
+
+Suppose that each unit $i$ receives either $A_i = 1$ or $A_i = 0$. The
+corresponding outcomes are realised as $Y_i|A_i = 1$ or $Y_i|A_i = 0$.
+For now, let us assume that each realised outcome under that
+intervention is equivalent to one of the potential outcomes required for a quantitative causal contrast, such that $[(Y_i(a)|A_i = a)] = (Y_i|A_i = a)$. Thus when $A_i = 1$,  $Y_i(1)|A_i = 1$ is observed. However, if $A_i = 1$, it follows that $Y_i(0)|A_i = 1$ is not observed:
+
+$$
+Y_i|A_i = 1 \implies Y_i(0)|A_i = 1~ \text{is counterfactual}
+$$
+
+Conversely, if $A_i = 0$, we may assume the potential outcome $Y_i(0)|A_i = 0$) is observed as $Y_i|A_i = 0$. However, the potential outcome $Y_i(1)|A_i = 0$ is never realised and so not observed:
+
+$$
+Y_i|A_i = 0 \implies Y_i(1)|A_i = 0~ \text{is counterfactual}
+$$
+
+We define $\tau_i$ as the individual causal effect for unit $i$ and
+express the individual causal effect:
+
+$$
+\tau_i = Y_i(1) - Y_i(0)
+$$
+
+Notice that each unit can only be exposed to only one level of the exposure
+$A_i = a$ at a time. This implies that $\tau_i$, is not merely unobserved but inherently *unobservable* (see discussion in Appendix 3). 
+
+Although we cannot observe potential outcomes that do not occur, it is tempting to ask questions about them, 'What if Isaac Newton had not witnessed the falling apple?’ What if Leonardo da Vinci had never pursued art?' or 'What if Archduke Ferdinand had not been assassinated?' There are abundant examples from literature. Robert Frost contemplates, 'Two roads diverged in a yellow wood, and sorry I could not travel both, and be one traveller, long I stood...' (see: Robert Frost, 'The Road Not Taken':
+https://www.poetryfoundation.org/poems/44272/the-road-not-taken). We have counterfactual questions for our personal experiences: 'What if I had had not interviewed for that job?' 'What if I had stayed in that relationship?' We may speculate, with reasons, but we cannot directly observe the potential outcomes we would need to verify our speculations. The physics of middle-sized dry goods prevents the joint realisation of the facts required for quantitative comparisons. That individual causal effects cannot be identified from observations is known as '*the fundamental problem of causal inference*' [@rubin1976; @holland1986].
+
+
+#### 1.1.2 Causal effects from randomised experiments
+
+It is not feasible to compute individual causal effects. However, under
+certain assumptions, we can estimate *average* treatment effects -- also called 'marginal effects,' -- by comparing groups that have received different levels of treatment. The average treatment effect, $ATE$, is defined as the difference between the expected outcomes under treatment and contrast conditions. Suppose the treatment, $A$, is a binary
+variable $A \in \{0,1\}$:
+
+$$
+\text{Average Treatment Effect}  = \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)].
+$$
+A challenge remains in computing these treatment-group averages when individual causal effects are unobservable. Consider the problem framed in terms of *full data* that would be required to compute these averages — that is in terms of the complete counterfactual dataset where the missing potential outcomes, inherent in observational data, were somehow available:
+
+$$
+\text{Average Treatment Effect} = \left(\underbrace{\underbrace{\mathbb{E}[Y(1)|A = 1]}_{\text{observed for } A = 1} + \underbrace{\mathbb{E}[Y(1)|A = 0]}_{\text{unobserved for } A = 0}}_{\text{effect among treated, by the law of total expectation}}\right) - \left(\underbrace{\underbrace{\mathbb{E}[Y(0)|A = 0]}_{\text{observed for } A = 0} + \underbrace{\mathbb{E}[Y(0)|A = 1]}_{\text{unobserved for } A = 1}}_{\text{effect among untreated, by the law of total expectation}}\right).
+$$
+
+Consider that for each treatment condition, half the observations needed to compute a treatment-group average are (inherently) unobserved. 
+
+Randomisation allows investigators to recover the treatment group averages even though treatment groups contain inherently missing observations. When investigators effectively randomise units into treatment conditions, and there is full adherence, the distributions of confounding factors that could explain differences in the potential outcomes are balanced across the conditions. Randomisation (in a perfect experiment) ensures that nothing can explain a difference in treatment group average except the treatment. This implies (by the law of iterated expectations):
+
+$$
+\widehat{\mathbb{E}}[Y(0) | A = 1] = \widehat{\mathbb{E}}[Y(0) | A = 0]
+$$
+
+and
+
+$$
+\widehat{\mathbb{E}}[Y(1) | A = 1] = \widehat{\mathbb{E}}[Y(1) | A = 0]
+$$
+
+We assume, (by causal consistency, see: $\S 1.2.1$):
+
+$$\widehat{\mathbb{E}}[Y(1) | A = 1] = \widehat{\mathbb{E}}[Y| A = 1]$$
+
+and
+
+$$\widehat{\mathbb{E}}[Y(0) | A = 0] = \widehat{\mathbb{E}}[Y| A = 0]$$
+
+It follows that the average treatment effect of the randomised experiment can be computed (by the law of iterated expectations):
+
+$$
+\text{The Estimated Average Treatment Effect} = \widehat{\mathbb{E}}[Y | A = 1] - \widehat{\mathbb{E}}[Y | A = 0].
+$$
+
+<!-- There are four critical aspects for how ideally randomised experiments enable the estimation of average treatment effects worth highlighting.
+
+First, the investigators should specify a population for whom they seek to
+generalise their results. We refer to this population as the *target population*. If the study population differs from the target population in the distribution of covariates that interact with the treatment, the investigators will have no guarantees their results will generalise (see the discussion below: $\S 3.1.6$). 'Target validity' (or 'external validity') remains a challenge in every causal inferential workflow. In **Part 5** we will consider how modified sequential causal diagrams may clarify the demands of target validity in settings where there is sample/target population mismatch; also refer to: @imai2008misunderstandings; @westreich2019target; @westreich2017; @pearl2022; @bareinboim2013general; @stuart2018generalizability;
+@webster2021directed. 
+
+Second, because the units in the study sample may differ over time,
+investigators must be careful to avoid biases that arise from mismatch
+between the study sample at baseline, before random treatment
+assignment, and the study sample at each point thereafter -- including administration of the treatment. Importantly, a randomised experiment recovers the causal effect of random treatment assignment, not of the treatment itself, which may differ if some participants do not adhere to their treatment. The effect randomised assignment is called the *Intent-to-treat effect*. The effect of perfect adherence is called the *per protocol effect* [@hernan2017per; @lash2020]. To obtain the per protocol effects for randomised experiments requires the application of methods for causal inference in observational settings (see: $\S 2.3$)
+
+Third, I have presented the average treatment effect on the difference
+scale, that is, as a difference in average potential outcomes for the
+target population under two distinct levels of treatment. However,
+depending on the scientific question at hand, investigators may wish to
+estimate causal effects on the risk-ratio scale, the rate-ratio scale,
+the hazard-ratio scale, or another scale. Where there are interactions
+such that treatment effects vary across different strata of the
+population, an estimate of the causal effect on the risk difference
+scale will differ in at least one stratum to be compared from the
+estimate on the risk ratio scale [@greenland2003quantifying].  -->
+
+<!-- We will
+return to this point in **Part 3** when we consider effect-modification.
+For now, it should be clear that when we speak of an 'average treatment
+effect' we must describe not just the target population but also the
+causal effect-scale on which our contrast will be made. -->
+
+<!-- Fourth, in observational studies, investigators might wish to describe
+the target population of interest as a restriction of the study sample
+population. For example, investigators might wish to estimate the
+average treatment effect only in the population that received the
+treatment. This treatment effect is sometimes called the average treatment effect in the treated ($ATT$), and may be expressed:
+
+$$\text{Average Treatment Effect in the Treated} = \mathbb{E}[Y(1) - Y(0) | A = 1]$$
+
+Consider that if investigators are interested in the average treatment
+effect in the treated, counterfactual comparisons are deliberately *restricted* to the sample population that was treated. That is, the investigators will seek to obtain the average of the missing counterfactual outcomes for *the treated population were they not treated*, without necessarily obtaining the counterfactual outcomes for the untreated population were they treated. This difference in focus may imply different assumptions and analytic workflows. **Appendix 1** describes an example for which the assumptions required to estimate the average treatment effect may be preferred. In what follows, we will use the term $ATE$ as a placeholder to mean the average treatment effect, or equivalently the 'marginal effect', for a target population on a pre-specified scale of causal contrast.
+
+Setting aside the important detail that the 'average treatment effect' requires considerable care in its specification, it is worth pausing to marvel at how an ideally conducted randomised controlled experiment provides a means for identifying inherently unobservable counterfactuals. It does so by using a Sherlock-Holmes-method of inference by elimination of confounders, which randomisation balances across treatments. -->
+<!-- 
+ When experimenters observe a difference in average treatment effects, and all else goes right, they may infer that the distribution of potential outcomes differs by treatment because randomisation exhausts every other explanation except that of the treatment. They are entitled to this inference because randomisation balances the distribution of potential confounders across the treatment groups to be compared. -->
+
+<!-- Outside of randomised experiments, however, we lack guarantees of balance in the confounders. For this reason, investigators should prefer developing sound randomised experiments for
+addressing every causal question that experiments can address.
+Unfortunately, randomised experiments cannot address many scientifically
+important questions. This bitter constraint is familiar to evolutionary
+human scientists. We typically confront 'What if?' questions that are
+rooted in the unidirectional nature of human history. -->
+
+Understanding how randomisation obtains the missing
+counterfactual outcomes that we require to consistently estimate average
+treatment effects clarifies the tasks of causal inference in
+non-experimental settings [@hernán2008a; @hernán2006; @hernán2022]. 
+
+<!-- We next examine these identification assumptions in greater detail because using causal diagrams without understanding these assumptions is unsafe. -->
+
+### 1.2 Fundamental Identification Assumptions
+
+There are three fundamental identification assumptions that must be
+satisfied to consistently estimate causal effects with data.
+
+#### 1.2.1 Assumption 1: Causal Consistency
+
+We satisfy the causal consistency assumption if, for each unit $i$ in
+the set $\{1, 2, \ldots, n\}$, the observed outcome corresponds to one
+of the specific counterfactual outcomes to be compared such that:
+
+$$
+Y_i^{observed}|A_i = 
+\begin{cases} 
+Y_i(a^*) & \text{if } A_i = a^* \\
+Y_i(a) & \text{if } A_i = a
+\end{cases}
+$$
+
+The causal consistency assumption implies that the observed outcome at a
+specific exposure level equates to the counterfactual outcome for that
+individual at the observed exposure level. Although it seems
+straightforward to equate an individual's observed outcome with their
+counterfactual outcome, treatment conditions vary, and treatment
+heterogeneity poses considerable challenges for satisfying this
+assumption. See: **Appendix A**
+
+
+#### 1.2.2 Assumption 2: Conditional Exchangeability (no unmeasured confounding)
+
+We satisfy the conditional exchangeability assumption if the treatment
+groups are conditionally balanced in the variables that could affect the
+potential outcomes. In experimental designs, random assignment
+facilitates satisfaction of the conditional exchangeability assumption.
+In observational studies more effort is required. We must control for
+any covariate that could account for observed correlations between $A$
+and $Y$ in the absence of a causal effect of $A$ on $Y$.
+
+Let $\coprod$ again denote independence. Let $L$ denote the set of
+covariates necessary to ensure this conditional independence. We satisfy
+conditional exchangeability when:
+
+$$
+Y(a) \coprod A | L \quad \text{or equivalently} \quad A \coprod Y(a) | L
+$$
+
+Assuming conditional exchangeability is satisfied and the other
+assumptions required for consistent causal inference also hold, we may
+compute the average treatment effect (ATE) on the difference scale:
+
+$$
+ATE = \mathbb{E}[Y(1) | L] - \mathbb{E}[Y(0) | L]
+$$
+
+In the disciplines of cultural evolution, where experimental control is
+impractical, causal inferences hinge on the plausibility of satisfying
+this 'no unmeasured confounding' assumption (see: **Appendix 1**)
+
+Importantly, causal diagrams primarily function to identify sources of bias that may influence the association between an exposure and outcome. They highlight those aspects of the assumed causal order relevant to the assessment of 'no-unmeasured confounding.' Although causal diagrams can also be useful for examining structural features of measurement-error bias and threats to target validity from sample/population mismatch, certain of these threats are not amenable to Markov factorisation (see $\S 2.3$). For instance, in $\S 2.8$, we consider the limitations of causal diagrams in addressing uncorrelated measurement error bias, which does not manifest on causal diagrams. In  $\S 3.1.6$, we employ causal diagrams to clarify threats to external validity from sample restriction (effect-modifier-restriction bias). In these instances, we must introduce colouring conventions that repurpose causal diagrams for somewhat different problems than those they were originally designed to address, namely, problems of confounding bias.
+
+<!-- Note that a common mistake when -->
+
+<!-- creating a causal diagram is to provide too much detail, obscuring -->
+
+<!-- rather than clarifying structural sources of bias. We return to this -->
+
+<!-- point below. -->
+
+Finally, it is important to underscore that without randomisation,
+we cannot fully ensure the no-unmeasured confounding assumption that
+enables us to recover the missing counterfactuals we require to
+consistently estimate causal effects from data [@stuart2015;
+@greifer2023]. Because we must nearly always assume unmeasured confounding, the workflows of causal data science must ultimately rely on sensitivity analyses to clarify how much unmeasured confounding would be required to compromise a study's findings [@vanderweele2019].
+
+#### 1.2.3 Assumption 3: Positivity
+
+We satisfy the positivity assumption if there is a non-zero probability
+of receiving each treatment level for every combination of covariates
+that occurs in the population. Where $A$ is the exposure and $L$ is a
+vector of covariates, we say positivity is achieved if:
+
+$$
+0 < Pr(A = a | L = l) < 1, \quad \text{for all } a, l \text{ with } Pr(L = l) > 0
+$$
+
+There are two types of positivity violation:
+
+1.  **Random non-positivity** occurs when an exposure is theoretically
+    possible, but specific exposure levels are not represented in the
+    data. Notably, random non-positivity is the only identifiability
+    assumption verifiable with data.
+
+2.  **Deterministic non-positivity** occurs when the exposure is
+    implausible by nature. For instance, a hysterectomy in biological
+    males would appear biologically implausible.
+
+Satisfying the positivity assumption can present considerable data
+challenges [@westreich2010]. Suppose we had access to extensive panel
+data that has tracked 20,000 individuals randomly sampled from the
+target population over three years. Suppose further that we wanted to
+estimate a one-year causal effect of weekly religious service attendance
+on charitable donations. We control for baseline attendance to recover
+an incident exposure effect estimate (see: $\S 2.3$ and **Appendix 2**).
+Assume that the natural transition rate from no religious service
+attendance to weekly service attendance is low, say one in a thousand
+annually. In that case, the effective sample for the treatment condition
+dwindles to 20. This example clarifies the problem. For rare exposures,
+the data required for valid causal contrasts may be sparse, even in
+large datasets. Where the positivity assumption is violated, causal
+diagrams will be of limited utility because observations in the data do
+not support valid causal inferences. (**Appendix 1** develops a worked
+example that illustrates the difficulty of satisfying this assumption in
+a setting of a cultural evolutionary question.)
+
+### 1.3 Conceptual, Data, and Modelling Assumptions
+
+We have reviewed the three fundamental assumptions of causal inference.
+However, we must also consider further conceptual, data, and modelling
+assumptions that, in addition to the foundational assumptions we just
+reviewed, must also be satisfied to obtain valid causal inferences.
+We next consider a subset of these assumptions. **Appendix B** describes these further assumptions
+
+<!-- ### Summary of Part 1 -->
+
+<!-- Causal data science is not ordinary data science. In causal data -->
+
+<!-- science, the initial step involves formulating a precise causal question -->
+
+<!-- that clearly identifies the exposure, outcome, and population of -->
+
+<!-- interest. This field focuses on estimating the effect of an intervention -->
+
+<!-- or treatment, denoted by $A$, by contrasting potential outcomes. Such -->
+
+<!-- contrasts are often computed on scales like the difference scale, -->
+
+<!-- exemplified by $\mathbb{E}[Y(1) - Y(0)|L]$. A fundamental challenge in -->
+
+<!-- this domain is that, for any given unit, we can observe only one of -->
+
+<!-- these potential outcomes, either $Y_i(1)$ or $Y_i(0)$, but not both -->
+
+<!-- simultaneously. This constraint demands methods for inferring the -->
+
+<!-- unobserved potential outcomes within observed treatment groups. -->
+
+<!-- The ideally conducted randomised experiment clarifies how we may obtain -->
+
+<!-- average causal effects as contrasts of fully observed outcomes under -->
+
+<!-- treatment. Randomisation allows us to balance confounders in the -->
+
+<!-- treatment conditions to be compared, leaving only the treatment as the -->
+
+<!-- best explanation for any observed differences in the averages of -->
+
+<!-- outcomes by treatment (or equivalently in the average differences by in -->
+
+<!-- the observed outcomes under treatment conditions). -->
+
+<!-- We considered the three fundamental assumptions required for causal -->
+
+<!-- inference, which are implicit in the ideal of a randomised experiment: -->
+
+<!-- causal consistency: ensuring outcomes at a specific exposure level align -->
+
+<!-- with their counterfactual counterparts; conditional exchangeability: the -->
+
+<!-- absence of unmeasured confounding; positivity: the existence of a -->
+
+<!-- non-zero probability for each exposure level across all covariate -->
+
+<!-- stratifications. Meeting each of these assumptions is crucial for valid -->
+
+<!-- causal inference. We noted that causal diagrams primarily assist -->
+
+<!-- researchers in evaluating the conditions under which the assumption of -->
+
+<!-- no unmeasured confounding may be satisfied by data. -->
+
+<!-- Furthermore, we examined a set of practical considerations that might -->
+
+<!-- undermine confidence in causal inferences and that must be made -->
+
+<!-- explicit, such as the need for interpretable causal estimands, -->
+
+<!-- inferential threats from measurement error and selection bias (problems -->
+
+<!-- that may overlap with each other and with other problems of confounding -->
+
+<!-- bias), and model mis-specification bias. To address these and other -->
+
+<!-- threats to causal inference, causal data science requires an intricate, -->
+
+<!-- multi-step workflow. This work extends beyond creating causal diagrams -->
+
+<!-- and analysing patterns in observed data. We should not short-circuit -->
+
+<!-- these steps of the intricate, multi-step workflow by one that (1) drafts -->
+
+<!-- a causal diagram and (2) launches into data analysis. -->
+
+## Part 2. Applications of Sequentially Ordered Causal Diagrams for Understanding Structural Sources of Bias
+
+Having outlined basic features of the causal inference framework, we are
+now in a position to use causal diagrams to elucidate elementary structural sources of bias [@pearl1995; @pearl2009; @greenland1999]. We begin by defining our terminology.
+
+### 2.1 Variable naming conventions
+
+::: {#tbl-00}
+
+
+```{=latex}
+\terminologydirectedgraph 
+```
+Test
+
+:::
+
+
+
+
+### 2.2 Graphical conventions
+
+#### 2.2.1 Graphical conventions for the analysis of confounding
+
+1.  Arrow: **A causes Y**: 
+
+$$A_1 \rightarrow Y_2$$ 
+
+Denotes a causal relationship where A causes Y.
+
+
+2.  **Red arrow: non-causal path linking A and Y involving L**:
+
+$$ A_1 \leftarrowred L_0 \rightarrowred Y_2 $$ 
+    
+Denotes $L_0$ causes both $Y_2$ and $A_1$. Note that obtaining timing from the data is critical to avoid causal incoherence such as:
+
+$$ A_2 \rightarrowred Y_0 $$
+
