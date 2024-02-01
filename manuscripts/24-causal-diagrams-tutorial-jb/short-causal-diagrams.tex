@@ -195,8 +195,7 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\usepackage{bookmark}
-
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
@@ -241,15 +240,55 @@ one's data.
 
 \subsection{Introduction}\label{introduction}
 
+Correlation does not imply causation. This adage is widely known.
+Nevertheless, many human scientists report manifest correlations and use
+hedging language that implies causation. However, such reporting
+typically lacks justification. Making matters worse, widely adopted
+analytic strategies for confounding control, such as indiscriminate
+co-variate adjustment, are known to enhance biases
+(\citeproc{ref-mcelreath2020}{McElreath 2020}). Across many human
+sciences, including the evolutionary human sciences, persistent
+confusion in the analysis and reporting of correlations continue to
+impede scientific progress, revealing a \emph{causality crisis}
+(\citeproc{ref-bulbulia2022}{Bulbulia 2022}).
+
+Within the frameworks of causal data science, causal diagrams, also
+known as `directed acyclic graphs' or `DAGs,' have been developed as
+powerful inferential tools. Their applications are grounded in a robust
+system of formal mathematical proofs that should instil confidence.
+Nevertheless, causal diagrams do not require mathematical training and
+are broadly accessible. This accessibility is a great advantage.
+
+However, the accessibility of causal diagrams also invites risks. Causal
+diagrams only acquire their significance when integrated within the
+broader theoretical frameworks and workflows of causal data science.
+These frameworks differ from those of traditional data science by
+attempting to estimate pre-specified contrasts, or `estimands,' among
+counterfactual states of the world. Although we assume these
+counterfactual states to be real, they must be simulated from data,
+under explicit assumptions (really \emph{assertions}) that must be
+justified (\citeproc{ref-edwards2015}{Edwards \emph{et al.} 2015};
+\citeproc{ref-robins1986}{Robins 1986};
+\citeproc{ref-vansteelandt2012}{Vansteelandt \emph{et al.} 2012}). These
+\emph{structural assumptions (assertions)} differ from the
+\emph{statistical assumptions} familiar to traditionally trained data
+scientists. Yet, because causal inference recovers counterfactuals by
+applying statistical models to observed data, careful statistical
+validations must also enter its workflows. We cannot assume that
+traditionally trained human scientists, even those with excellent
+statistical training, have familiarity with the demands of
+counterfactual inference (\citeproc{ref-bulbulia2023a}{Bulbulia \emph{et
+al.} 2023}; \citeproc{ref-ogburn2021}{Ogburn and Shpitser 2021}). Using
+causal diagrams without understanding causal inference risks
+inadvertently worsen the causality crisis by fostering misguided
+confidence where none is due.
+
 Here, I offer readers of \emph{Evolutionary Human Science} practical
-guidance for creating causal diagrams.
+guidance for creating effective, safe, causal diagrams.
 
 \textbf{Part 1} introduces core concepts and theories in causal data
 science, emphasising the fundamental assumptions and the demands they
-impose on causal inferential workflows. We review the motivation in
-causal data science for adopting an `estimands first' approach ---
-pre-specifying counterfactual contrasts to address a well-defined causal
-question within a clearly defined target population.
+impose on causal inferential workflows.
 
 \textbf{Part 2} introduces essential terminology and explores elementary
 use cases, focussing on the benefits of sequentially order in one's
@@ -258,11 +297,11 @@ graph for evaluating confounding biases.
 \textbf{Part 3} uses sequentially ordered causal diagrams to clarify
 concepts of interaction (moderation) and effect modification.
 
-\textbf{Part 4} clarifies biases arising from measurement error bias.
+\textbf{Part 4} clarifies biases arising from measurement error.
 
 \textbf{Part 5} clarifies restriction biases arising from (a) attrition/
 censoring; (b) mismatch between a study sample population and a target
-sample population. We also consider heterogeniety biases arising from
+sample population. We also consider heterogeneity biases arising from
 failures to sufficiently restrict one's sample.
 
 \textbf{Part 6} uses causal diagrams to clarify causal estimation in
@@ -285,8 +324,7 @@ diagrams to clarify demands for data collection and analysis; third by
 using causal diagrams to clarify threats to target validity arising from
 sample/target population mismatch, fourth, by using causal diagrams to
 clarify questions of causal interaction, mediation, and longitudinal
-feedback, about which there remains considerable confusions among many
-human scientists.
+feedback, about which there remains considerable confusion.
 
 \subsection{Part 1. Overview of Causal Data
 Science}\label{part-1.-overview-of-causal-data-science}
@@ -294,7 +332,7 @@ Science}\label{part-1.-overview-of-causal-data-science}
 The first step in answering a causal question is to ask it
 (\citeproc{ref-hernuxe1n2016}{Hernán \emph{et al.} 2016a}). Causal
 diagrams come later, when we consider which forms of data might enable
-us to address our pre-specified causal questions.
+us to address our pre-specified causal questions.\textgreater{}
 
 \paragraph{1.1.1 The fundamental problem of causal
 inference}\label{the-fundamental-problem-of-causal-inference}
@@ -354,40 +392,26 @@ exposure \(A_i = a\) at a time. This implies that \(\tau_i\), is not
 merely unobserved but inherently \emph{unobservable} (see discussion in
 Appendix 3).
 
-Although we cannot observe potential outcomes that do not occur, it is
-tempting to ask questions about them, `What if Isaac Newton had not
-witnessed the falling apple?' What if Leonardo da Vinci had never
-pursued art?' or `What if Archduke Ferdinand had not been assassinated?'
-There are abundant examples from literature. Robert Frost contemplates,
-`Two roads diverged in a yellow wood, and sorry I could not travel both,
-and be one traveller, long I stood\ldots{}' (see: Robert Frost, `The
-Road Not Taken':
-https://www.poetryfoundation.org/poems/44272/the-road-not-taken). We
-have counterfactual questions for our personal experiences: `What if I
-had had not interviewed for that job?' `What if I had stayed in that
-relationship?' We may speculate, with reasons, but we cannot directly
-observe the potential outcomes we would need to verify our speculations.
-The physics of middle-sized dry goods prevents the joint realisation of
-the facts required for quantitative comparisons. That individual causal
-effects cannot be identified from observations is known as `\emph{the
-fundamental problem of causal inference}'
+That individual causal effects cannot be identified from observations is
+known as `\emph{the fundamental problem of causal inference}'
 (\citeproc{ref-holland1986}{Holland 1986};
 \citeproc{ref-rubin1976}{Rubin 1976}).
 
 \paragraph{1.1.2 Causal effects from randomised
 experiments}\label{causal-effects-from-randomised-experiments}
 
-It is not feasible to compute individual causal effects. However, under
-certain assumptions, we can estimate \emph{average} treatment effects --
-also called `marginal effects,' -- by comparing groups that have
-received different levels of treatment. The average treatment effect,
-\(ATE\), is defined as the difference between the expected outcomes
-under treatment and contrast conditions. Suppose the treatment, \(A\),
-is a binary variable \(A \in \{0,1\}\):
+Although it is not typically feasible to compute individual causal
+effects. under certain assumptions, it may be possible to estimate
+\emph{average} treatment effects -- also called `marginal effects.' The
+average treatment effect, \(ATE\), is defined as the difference between
+the expected outcomes under treatment and contrast conditions. Consider
+a binary treatment, \(A\) \in \{0,1\}\$:
 
 \[
 \text{Average Treatment Effect}  = \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)].
-\] A challenge remains in computing these treatment-group averages when
+\]
+
+A challenge remains in computing these treatment-group averages when
 individual causal effects are unobservable. Consider the problem framed
 in terms of \emph{full data} that would be required to compute these
 averages --- that is in terms of the complete counterfactual dataset
@@ -395,7 +419,7 @@ where the missing potential outcomes, inherent in observational data,
 were somehow available:
 
 \[
-\text{Average Treatment Effect} = \left(\underbrace{\underbrace{\mathbb{E}[Y(1)|A = 1]}_{\text{observed for } A = 1} + \underbrace{\mathbb{E}[Y(1)|A = 0]}_{\text{unobserved for } A = 0}}_{\text{effect among treated, by the law of total expectation}}\right) - \left(\underbrace{\underbrace{\mathbb{E}[Y(0)|A = 0]}_{\text{observed for } A = 0} + \underbrace{\mathbb{E}[Y(0)|A = 1]}_{\text{unobserved for } A = 1}}_{\text{effect among untreated, by the law of total expectation}}\right).
+\text{Average Treatment Effect} = \left(\underbrace{\underbrace{\mathbb{E}[Y(1)|A = 1]}_{\text{observed for } A = 1} + \underbrace{\mathbb{E}[Y(1)|A = 0]}_{\text{unobserved for } A = 0}}_{\text{effect among treated}}\right) - \left(\underbrace{\underbrace{\mathbb{E}[Y(0)|A = 0]}_{\text{observed for } A = 0} + \underbrace{\mathbb{E}[Y(0)|A = 1]}_{\text{unobserved for } A = 1}}_{\text{effect among untreated}}\right).
 \]
 
 Consider that for each treatment condition, half the observations needed
