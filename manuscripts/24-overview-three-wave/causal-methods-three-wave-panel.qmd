@@ -1,0 +1,1184 @@
+---
+title: "A Practical Guide to Causal Analysis in Three-Wave Panel Studies"
+abstract: |
+  Causal inference from observational data poses considerable challenges. This guide explains an approach to estimating causal effects using panel data.
+
+  **Part 1: Pre-specification of Causal Estimands for a Target Population** considers the first step: how to ask a causal question by clearly pre-specifying a causal contrast for a well-defined exposure on well-defined outcomes in the population of interest.
+
+  **Part 2: Three-Wave Panel Design** discusses the methodology for obtaining causal effect estimates from three-wave panel studies and discusses issues of bias from sampling, attrition/missing responses, measurement error, and unmeasured confounding. Here we discuss methods for avoiding these biases, which should be considered in advance of data collection and may nevertheless be inevitable even with the best-made plans.
+
+  **Part 3: Statistical Estimands and Estimators** describes the process of converting observational data into consistent causal effect estimates for the targeted causal estimands. Here we consider conventional parametric estimators, as well as more recently developed non-parametric and semi-parametric machine learning methods.
+
+  **Part 4: Pre-registration, Data Analysis, and Reporting** describes the protocols for pre-registering analyses, conducting these data analyses, and clearly and accurately communicating scientific findings.
+
+  **Part 5: Addressing Complex Causal Questions** discusses methods for addressing complex causal questions relating to treatment-effect heterogeneity, causal interactions, causal mediation, and longitudinal treatment strategies. We examine how the approaches discussed in Parts 1 - 4 may be cautiously adapted to handle these complex causal questions, and why social scientists should tread lightly before attempting to answer them.
+  Overall, we hope to provide a clear, step-by-step guide that applied researchers may use to obtain robust causal inferences using three waves of longitudinal data.
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid_id: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+keywords:
+  - Causal Inference
+  - Confounding
+  - Counterfactuals
+  - Missing data
+  - Modified treatment policies
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitize: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [singlecolumn]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=20mm
+      - heightrounded
+    header-includes:
+      - \input{/Users/joseph/GIT/templates/latex/custom-commands.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+#tinytex::tlmgr_update()
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+source("/Users/joseph/GIT/templates/functions/libs2.R")
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+source("/Users/joseph/GIT/templates/functions/funs.R")
+
+# ALERT: UNCOMMENT THIS AND DOWNLOAD THE FUNCTIONS FROM JB's GITHUB
+source(
+  "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+)
+
+source(
+  "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+)
+
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+pull_path <-
+  fs::path_expand(
+    #"/Users/joseph/v-project\ Dropbox/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs_refactor/nzavs_data_23"
+    "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data"
+  )
+
+# read data: note that you need use the arrow package in R
+### WARNING: THIS PATH WILL NOT WORK FOR YOU. PLEASE SET A PATH TO YOUR OWN COMPUTER!! ###
+### WARNING: FOR EACH NEW STUDY SET UP A DIFFERENT PATH OTHERWISE YOU WILL WRITE OVER YOUR MODELS
+push_mods <-  fs::path_expand(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/nzvs_mods/24/jb-three-wave-guide"
+)
+
+# check path:is this correct?  check so you know you are not overwriting other directors
+push_mods
+
+
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+loadfonts(device = "all")
+
+## Read in data from analysis 
+# imports
+#n_participants <-  here_read("n_participants")
+
+
+# verify positivity 
+#church
+#transition_table <- here_read("transition_table")
+#transition_table
+# binary
+#transition_table_2 <- here_read("transition_table_out_church_2")
+#transition_table_2
+
+
+# socialising
+#transition_table_socialising <- here_read("transition_table_socialising")
+#transition_table_socialising
+
+# binary
+#transition_table_socialising_shift<- here_read("transition_table_socialising_shift")
+#transition_table_socialising_shift
+
+
+# ordinary regressions
+#fit_church_on_donate <-here_read("fit_church_on_donate")
+#lm_coef_church_on_donate <- tbl_regression(fit_church_on_donate)
+#b_cross_church_on_donate <-inline_text(lm_coef_church_on_donate, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+
+# use
+#b_cross_church_on_donate
+
+
+#fit_church_on_volunteer <-here_read("fit_church_on_volunteer")
+#lm_coef_fit_church_on_volunteer <- tbl_regression(fit_church_on_volunteer)
+#b_cross_church_on_volunteer <-inline_text(lm_coef_fit_church_on_volunteer, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+
+# use
+#b_cross_church_on_volunteer
+
+
+#fit_socialising_on_donate<-here_read("fit_socialising_on_donate")
+#fit_socialising_on_donate <-here_read("fit_socialising_on_donate")
+#lm_coef_fit_socialising_on_donate <- tbl_regression(fit_socialising_on_donate)
+#b_cross_socialising_on_donate <-inline_text(lm_coef_fit_socialising_on_donate, variable = hours_community_sqrt_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+
+# use
+#b_cross_socialising_on_donate
+
+
+#fit_socialising_on_volunteer <-here_read("fit_socialising_on_volunteer")
+#fit_socialising_on_volunteer <-here_read("fit_socialising_on_volunteer")
+#lm_coef_fit_socialising_on_volunteer <- tbl_regression(fit_socialising_on_volunteer)
+#b_cross_socialising_on_volunteer <-inline_text(lm_coef_fit_socialising_on_volunteer, variable = hours_community_sqrt_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+
+# use
+#b_cross_socialising_on_volunteer
+# 
+# library(glue)
+# # works but not used
+# # testlm_coef_church_on_donate <- glue("b = {fit_church_on_donate_x[2, 1]}, SE = {fit_church_on_donate_x[2, 3]}")
+# 
+# # not this table is too long in most instance 
+# # table_baseline<- here_read("table_baseline")
+# 
+# # personality
+# table_baseline_personality <- here_read("table_baseline_personality")
+# 
+# # demographic vars
+# table_demographic_vars <- here_read("table_demographic_vars")
+# 
+# # self reported behaviours 
+# table_virtue_vars <- here_read("table_virtue_vars")
+# 
+# # prejudice 
+# table_acceptance_vars<- here_read("table_acceptance_vars")
+# 
+# # help received 
+# table_selected_sorted_names_help_received_vars <- here_read("table_selected_sorted_names_help_received_vars")
+# 
+# # density of the exposure 
+# graph_density_of_exposure<- here_read("graph_density_of_exposure")
+# graph_density_of_exposure_socialising<- here_read("graph_density_of_exposure_socialising")
+# 
+# # graphs
+# # graph_density_of_exposure_socialising + ggtitle("Weekly hours socialing")
+# #graph_density_of_exposure + ggtitle("Monthly religious service")
+# 
+# 
+# # church outcomes
+# 
+# # self reported behaviour 
+# tab_compare_church_prosocial_behaviour_z<- here_read("tab_compare_church_prosocial_behaviour_z")
+# tab_compare_church_prosocial_behaviour_raw<- here_read("tab_compare_church_prosocial_behaviour_raw")
+# tab_compare_church_LOSS_prosocial_behaviour_z<- here_read("tab_compare_church_LOSS_prosocial_behaviour_z")
+# tab_compare_church_LOSS_prosocial_behaviour_raw<- here_read("tab_compare_church_LOSS_prosocial_behaviour_raw")
+# 
+# 
+# group_tab_compare_church_prosocial_behaviour_raw<- here_read("group_tab_compare_church_prosocial_behaviour_raw")
+# group_tab_compare_church_LOSS_prosocial_behaviour_z<- here_read("group_tab_compare_church_LOSS_prosocial_behaviour_z")
+# group_tab_compare_church_prosocial_behaviour_z<- here_read("group_tab_compare_church_prosocial_behaviour_z")
+# group_tab_compare_church_LOSS_prosocial_behaviour_raw<- here_read("group_tab_compare_church_LOSS_prosocial_behaviour_raw")
+# 
+# # RESULT OBJECTS 
+# # group_tab_compare_church_prosocial_behaviour_z
+# # group_tab_compare_church_prosocial_behaviour_raw
+# # group_tab_compare_church_LOSS_prosocial_behaviour_z
+# # group_tab_compare_church_LOSS_prosocial_behaviour_raw
+# 
+# 
+# 
+# plot_church_prosocial <- margot_plot(
+#   group_tab_compare_church_prosocial_behaviour_z,
+#   type = "RD",
+#   title = "Religious service effect on reported donations and volunteering",
+#   subtitle = ">= 1 x weekly service attendance",
+#   xlab = "",
+#   ylab = "",
+#   estimate_scale = 1,
+#   base_size = 8,
+#   text_size = 2.5,
+#   point_size = .5,
+#   title_size = 12,
+#   subtitle_size = 11,
+#   legend_text_size = 8,
+#   legend_title_size = 10,
+#   x_offset = -1,
+#   x_lim_lo = -1,
+#   x_lim_hi =  .5
+# )
+# 
+# plot_church_prosocial
+# 
+# 
+# plot_church_LOSS_prosocial <- margot_plot(
+#   group_tab_compare_church_LOSS_prosocial_behaviour_z,
+#   type = "RD",
+#   title = "Religious service loss on reported donations and volunteering",
+#   subtitle = "loss of any service attendance",
+#   xlab = "",
+#   ylab = "",
+#   estimate_scale = 1,
+#   base_size = 8,
+#   text_size = 2.5,
+#   point_size = .5,
+#   title_size = 12,
+#   subtitle_size = 11,
+#   legend_text_size = 8,
+#   legend_title_size = 10,
+#   x_offset = -1,
+#   x_lim_lo = -1,
+#   x_lim_hi =  .5
+# )
+# 
+# plot_church_LOSS_prosocial
+# 
+# # prejudice
+# # results
+# group_tab_compare_church_prejudice_z <- here_read("group_tab_warm_church")
+# tab_compare_church_prejudice_z  <- here_read("tab_warm_church")
+# 
+# 
+# plot_church_prejudice  <- margot_plot(
+#   group_tab_compare_church_prejudice_z,
+#   type = "RD",
+#   title = "Religious service effect on prejudice/acceptance",
+#   subtitle = ">= 1 x weekly service attendance",
+#   xlab = "",
+#   ylab = "",
+#   estimate_scale = 1,
+#   base_size = 8,
+#   text_size = 2.5,
+#   point_size = .5,
+#   title_size = 12,
+#   subtitle_size = 11,
+#   legend_text_size = 8,
+#   legend_title_size = 10,
+#   x_offset = -1,
+#   x_lim_lo = -1,
+#   x_lim_hi =  .5
+# )
+# 
+# plot_church_prejudice
+# # 
+# # ggsave(
+# #   plot_prejudice_church,
+# #   path = here::here(here::here(push_mods, "figs")),
+# #   width = 8,
+# #   height = 6,
+# #   units = "in",
+# #   filename = "plot_prejudice_church.png",
+# #   device = 'png',
+# #   limitsize = FALSE,
+# #   dpi = 600
+# # )
+# 
+# 
+# 
+# 
+# # HELP RECEIVED
+# tab_church_help_received <- here_read('tab_church_help_received')
+# group_tab_church_help_received <- here_read("group_tab_church_help_received")
+# 
+# # results
+# # tab_church_help_received
+# # group_tab_church_help_received
+# 
+# 
+# 
+# plot_church_help_received <- margot_plot(
+#   group_tab_church_help_received,
+#   type = "RR",
+#   title = "Religious service effect on help received",
+#   subtitle = ">= 1 x weekly service attendance",
+#   xlab = "",
+#   ylab = "",
+#   estimate_scale = 1,
+#   base_size = 8,
+#   text_size = 2.5,
+#   point_size = .5,
+#   title_size = 12,
+#   subtitle_size = 11,
+#   legend_text_size = 8,
+#   legend_title_size = 10,
+#   x_offset = 0,
+#   x_lim_lo = 0,
+#   x_lim_hi =  2
+# )
+# 
+# #plot_church_help_received
+
+###################
+
+#f <- function(data, trt){
+#   ifelse( data[[trt]] <=4, 4,  data[[trt]] )
+# }
+
+#f <- function(data, trt){
+#   ifelse( data[[trt]] <=4, 4,  data[[trt]] )
+# }
+
+# shift function for socialing: # simple shift,2 hours per week. 
+# f_s <- function(data, trt){
+#   ifelse( data[[trt]] <=2, 2,  data[[trt]] )
+# }
+
+
+# shift lose all religion
+# > f_1
+# function(data, trt){
+#   ifelse( data[[trt]] > 0, 0,  data[[trt]] )
+# }
+
+## SD DATA
+# dat_sd_tranform <- readRDS(here::here(push_mods_dogs_gain, "dat_sd_tranform"))
+
+
+# comparative estimands
+# compare_cats_sleep <- readRDS(here::here(push_mods_cats_gain , "compare_cats_sleep"))
+# plot_group_tab_compare_cats_sleep <-readRDS(here::here(push_mods_cats_gain , "plot_group_tab_compare_cats_sleep"))
+# plot_group_tab_compare_cats_sleep
+# 
+# compare_dogs_excercise <- readRDS(here::here(push_mods_dogs_gain , "compare_dogs_excercise"))
+# plot_group_compare_dogs_excercise <-readRDS(here::here(push_mods_dogs_gain , "plot_group_compare_dogs_excercise"))
+# 
+# 
+# plot_group_tab_compare_cats_sleep <-readRDS(here::here(push_mods_cats_gain , "plot_group_tab_compare_cats_sleep"))
+# 
+# 
+# compare_dogs_excercise <- readRDS(here::here(push_mods_dogs_gain , "compare_dogs_excercise"))
+# plot_group_compare_dogs_excercise <-readRDS(here::here(push_mods_dogs_gain , "plot_group_compare_dogs_excercise"))
+
+```
+
+## Introduction
+
+### Overview of the steps
+
+1.  **Clarify the causal question:** prior to any analysis, it is crucial to explicitly define the causal question under examination. Suppose we wish to investigate the causal effect of religious-service attendance on cooperation. As yet, there is no causal question. Within the umbrella term of "religious service attendance" multiple scenarios can be considered: attending religious service weekly service; attending some religious service from a baseline of no attendance; losing religious service attendance... etc. 
+
+2.  **Clearly define the target population**: for whom do we intend the results to generalise? This question canno
+
+
+3.  **Clearly state eligibility criteria.**: inclusion/exclusion criteria to obtain valid causal estimates. 
+
+
+4.  **Ensure correct temporal order in the variables**: the study's design incorporates a correct temporal structure for confounders, treatment, and outcomes. For example, the outcome cannot occur before the treatment.
+
+5.  **Balance confounders**: once the temporal structure is set, we adjust for confounders that could distort the causal link between exposure and outcome.
+
+
+6.  **Include of baseline measures of the treatment and outcome**: we include baseline measures for both the treatment and the outcomes. This strategy serves two objectives: first, it augments control for confounding variables, and second, it permits differentiation between "incidence" and "prevalence" effects. *Incidence effects* capture the emergence of new cases or conditions among individuals who acquire pets during the study. This facilitates an evaluation of the causal impact of pet adoption on well-being among those who were not pet owners at the baseline.
+
+7.  **Assess multiple dimensions of the outcome within the same study**: we use an outcomewide approach [@vanderweele2020] to assess multiple outcomes wihtin a single study. This approach has several benefits. First we obtain *contextualised effects*: each outcome is evaluated in context relative to the others. This facilitates a better understanding of the importance of each individual effect within the overarching construct of well-being. Second, we *mitigate* of spurious findings: by assessing multiple outcomes simultaneously, we minimise the risk of cherry-picking cases that confirm a preconceived hypothesis, thereby reducing the likelihood of chance findings. Third, we *accelerate sientific understanding*: a comprehensive assessment can fast-track our scientific insights into the potential advantages and disadvantages of pet ownership on various aspects of human well-being. The selection of outcomes below are based on previous studies reflecting interest in the relationship between pet ownership and (1) health, (2) embodied well-being and distress, (3) reflective well-being and (4) social well-being
+
+8.  **Obtain methodological precision through TMLE and machine learning**: to address the intrinsic limitations of non-randomised pet ownership, our study employs Targeted Maximum Likelihood Estimation (TMLE) coupled with machine learning techniques (the `SuperLearner` library in R [@polley2023]). These advanced methodological enhancement offer the following benefits. First, our approach *reduces model dependence*: TMLE allows for doubly-robust causal inference, reducing reliance on correct model specification. The method is robust even if either the treatment model (i.e., pet ownership) or the outcome model (i.e., well-being indicators) is incorrectly specified. Second, *machine Learning for confounder balancing improves precision* further refines our ability to balance confounders, particularly when these are high-dimensional or interact in complex ways. Flexible semi-parametric estimation of parameters that are of no intrinsic interest (the control variables) protects inference from model mis-specification [@díaz2021].
+
+
+## Part 1: Pre-specification of Causal Estimands for a Target Population
+
+To answer a causal question we must first ask one...
+
+
+
+
+### Causal identification assumptions
+
+### Identification assumption 1: Causal consistency
+
+Causal consistency assumes the observed outcome aligns with the potential outcome for a given exposure level:
+
+$$Y^{observed} = AY(a=1) + (1-A)Y(a=0)$$
+
+Observed outcomes can represent counterfactual outcomes under certain exposures, such that:
+
+$$
+Y^{observed}_i = 
+\begin{cases} 
+Y_i(~a^*) & \text{if } A_i = a* \\
+Y_i(~a~) & \text{if } A_i = a
+\end{cases}
+$$
+
+Causal consistency also assumes no interference between unit treatments, allowing potential outcomes to be set to the observed outcomes. For this assumption to hold, we require "treatment variation irrelevance." If there are (1) well-defined outcomes for each treatment version, and (2) no confounding effects, the multiple versions of treatments can be used to estimate the causal effect:
+
+$$K \coprod Y(k) | L$$ or equivalently $$Y(k) \coprod K | L$$
+
+Here, the treatment $A$ is essentially a function of $K$ treatments, $A = f(k_1...k_v)$ versions
+
+Limitations exist, however, when interventions are ill-defined, or the causal effect's interpretation is ambiguous. Put simply, given there are unknown ways of becoming religiously disaffiliated the interpretation of "disaffiliation" may be strained. It is strained in the sense that we would not know how to intervene to *make* a religiously affiliated person disaffiliate. We will return to this question in the discussion.
+
+#### Identification assumption 2: Exchangability
+
+Exchangeability assumes treatment assignment is independent of potential outcomes, given observed covariates. This is the "no-confounding" assumption that many psychologists have learned in association with experimental design. In the setting of observational data, we emulate randomisation by conditioning on indicators that may lead to an association of the exposure $A$ and the outcome $Y$ in the absence of causation.
+
+$$Y(a)\coprod  A|L$$ or $$A \coprod  Y(a)|L$$
+
+Where exchangability holds, we calculate the Average Treatment Effect (ATE)
+
+$$
+ATE = E[Y(a*)|L = l] - E[Y(a)|L = l] 
+$$
+
+Put differently, conditioning on confounders ensures *balance* in their distribution across exposures.
+
+
+#### Identification assumption 3: Positivity
+
+Positivity is satisfied if there is a positive probability of receiving or not receiving exposure at all covariate levels. Expressed as:
+
+```{=tex}
+\begin{equation}
+0 < \Pr(A=a|L)<1, ~ \forall a \in A, ~ \forall a \in L
+\end{equation}
+```
+There are two types of positivity violation.
+
+-   **Random non-positivity**: Occurs when the causal effect of a missing observation is presumed to exist. This violation is the only one verifiable by data. Here, we check and report it.
+
+-   **Deterministic non-positivity**: Occurs when the causal effect is inconceivable. For example, the causal effect of hysterectomy in biological males violates deterministic non-positivity.
+
+
+
+### Conceptual, data, and modelling assumptions
+
+We have reviewed the three fundamental assumptions of causal inference. However, we must also consider further conceptual, data, and modelling assumptions that, in addition to the foundational assumptions we just reviewed, must also be satisfied to obtain valid causal inferences. We next consider a subset of these assumptions.
+
+#### Overly ambitious estimands
+
+In causal inference, the Average Treatment Effect (ATE) conceived as comparison between population-wide simulations at two levels of exposure, $E[Y(1)] - E[Y(0)]$, is often artificial. Artificiality is evident for continuous exposures, where such comparisons simplify the complexity of real-world phenomena into a low dimensional summary, such as a contrast of a one-standard-deviation difference in the mean, or a comparison of one quartile of exposure to another quartile of exposure. In practice, the requirements for targeting such contrasts impose a strong reliance on statistical models, which introduce further opportunities for bias. Such comparisons might also strain the positivity assumption because the relevant events occur infrequently or are absent within the strata of covariates required to satisfy conditional exchangeability. Moreover, because treatment effects arebrarely linear and may not be monotonic. For this reason, comparingbarbitrary points on a continuous scale, while relying on correctbmodelling specifications, risks drawing erroneous conclusionsb[@calonico2022; @ogburn2021]. In short, the simplifications and modelsbrequired for obtaining standard causal estimands often lack realism. The practical inferences that we draw from them may be misleading [@vansteelandt2022].
+
+Furthermore, the 'average treatment effect' itself might not be our primary scientific interest. In many setting we may want to understand heterogeneity in treatment effects without a clear understanding in advance of modelling where such heterogeneity may be found [@wager2018]. Presently, methods for valid causal inference in settings of heterogeneous treatment effects remain inchoate see: @tchetgen2012; @wager2018; @cui2020; @foster2023; @foster2023; @kennedy2023; @nie2021.
+
+Recently, causal data scientists have explored new classes of estimands and estimators, such as modified treatment policies or 'shift interventions' [@hoffman2023; @díaz2021; @vanderweele2018; @williams2021] and optimal treatment policies [@athey2021;
+@kitagawa2018]. Such estimands allow researchers to specify and examine a broader range of causal contrasts, such as treating those as treating only those likely to respond, or those who meet certain ethical criteria not determined by statisticians, or those who optimise a pre-specified [@wager2018; @cui2020; @díaz2021]. A review of these promising
+developments would take us beyond the scope of this discussion, however, readers should be aware that causal inference is not bound to standard $E[Y(1)] - E[Y(0)]$ estimands that require simulating often implausible or even unhelpful counterfactual outcomes for the entire population at two levels of a pre-specified intervention.
+
+#### Target validity
+
+Investigators must recognise that a mismatch between the sample and target population can invalidate causal effect estimates  even if the magnitudes are consistently estimated. If the mismatch affects effect-modifiers of the treatment-effects there will be no guarantee that effect-estimates for the sample will generalise to the target population -- that is, no guarantee that the effect estimates will achieve 'target validity,' or equivalently 'external validity.' Worringly such threats cannot be fully evaluated from responses in the restricted or censored sample (say more here)
+
+##  Part 2: A Three-Wave Panel Design
+
+We describe a methods for obtaining causal effect estimates from three-wave panel studies, and discusses issues of bias from attrition/missing responses, measurement error, unmeasured confounding. 
+
+### Confounding bias
+
+Say more
+
+### Measurement bias
+
+Say more
+
+### Restriction Bias
+
+
+Say more
+
+### Example of a Three-Wave Panel Design for Obtaining a Marginal Incident-Exposure Effect
+
+Causal diagrams point the need for obtaining clearly defined time-series
+data. How might we do it? Here, I sketch the outlines of a design for a
+three-wave panel study that intends to estimate an *incident exposure
+effect*. I do not intend this advice to be more than a sketch. However,
+I believe it is important to give readers a concrete example for how
+data collection for causal inference might occur.
+
+
+#### Step 1. Ask a causal question
+
+In a three-wave panel design, ensuring the relative timing of events
+essential for valid causal inference [@vanderweele2020].
+
+Here is a causal question:
+
+What is the causal effect of attending weekly religious services
+compared to not attending services on charitable giving in the
+population of New Zealanders who identify as Christian?
+
+To answer this question we must assess how changes in religious service
+attendance, measured from the beginning of the year (baseline) to
+mid-year (wave 1), affect levels of charitable giving at the end of the
+year (wave 2) In this design, the change in religious service attendance
+is captured between the first and second waves, while the outcome,
+charitable giving, is measured in the third wave. This establishes a
+sequential order that mirrors the cause-and-effect relationship.
+Ensuring such temporal ordering is crucial in any causal analysis. Note
+additionally that we must obtain comparisons from continuous data for a
+binary data. Depending on the data, such a contrast might not be well
+supported. For example, change between these levels might occur only
+rarely, in which case our inference might rely too heavily on parametric
+model specifications. Focusing on the estimand:
+
+##### Exposure:
+
+-   A = 0: Attends less than once per month
+-   A = 1: Attends weekly
+
+##### Outcome:
+
+-   Focus: One-year effect of shifting from A = 0 to A = 1.
+-   Charitable giving as measured by self-reported giving
+
+##### Scale of contrast:
+
+-   ATE on the causal difference scale (per protocol).
+
+##### Target population:
+
+-   Individuals in New Zealand who might attend religious service and
+    identify as Christian.
+
+##### Source population:
+
+-   National probability sample of New Zealanders (N = 34,000).
+
+##### Baseline population:
+
+-   Defined by eligibility criteria (including religious affiliation). If the baseline population differs from the target population, if sample weights for the distribution of covariates are available for the *target population*, these should be applied to the baseline population [although with caution, given potential for model mis-specification, see @stuart2015.]
+
+Let $\widehat{ATE}_{target}$ denote the population average treatment
+effect for the target population. Let $\widehat{ATE}_{\text{restricted}}$ denote the average treatment effect at the end of treatment. Let $W$ denote a set of variables upon which the restricted and target populations structurally differ. We say that
+results *generalise* if we can guarantee that:
+
+$$
+\widehat{ATE}_{target} =  \widehat{ATE}_{restricted} 
+$$
+
+or if there is a known function such that:
+
+$$
+ATE_{target}\approx  f_W(ATE_{\text{restricted}}, W)
+$$
+
+In most cases, $f_W$ will be unknown, as it must account for potential
+heterogeneity of effects and unobserved sources of bias. For further
+discussion on this topic, see: @imai2008misunderstandings;
+@cole2010generalizing; @stuart2018generalizability; @bulbulia2023c, and
+$\S 3.1.6$
+
+#### Step 2. Ensure that the exposure is measured at wave 0 (baseline) and wave 1 (the exposure interval)
+
+Measuring the exposure at both baseline (wave 0) and the exposure
+interval (wave 1) has the following benefits:
+
+1.  **Enables estimation of incident exposure effect**: by
+    including baseline observations, we can distinguish between
+    incidence (new occurrences) and prevalence (existing states)
+    exposure effects. For instance, in a study on religious service
+    attendance, assessing the incident exposure effect allows us to
+    differentiate the effect of starting to attend services regularly
+    from the effect of ongoing attendance.
+
+2.  **Confounding control**: measuring the exposure at baseline helps
+    control for time-invariant confounders. These are factors that do
+    not change over time and might affect both the exposure and outcome.
+    In the context of religious service attendance, personal attributes
+    like inherent religiosity could influence both attendance and
+    related outcomes.
+
+3.  **Sample adequacy**: for rare exposures, baseline measurements can
+    assess sample size adequacy. If a change in exposure is infrequent
+    (e.g., infrequent to weekly religious service attendance), a larger
+    sample may be needed to satisfy the positivity assumption and detect
+    causal effects. By measuring the exposure at baseline, we can better
+    evaluate whether our sample is representative and large enough to
+    detect such rare changes.
+
+#### Step 3. Ensure that the outcome is measured at wave 0 (baseline) and wave 2 (post-exposure wave 1)
+
+Measuring the outcome at both wave 0 (baseline) and the post-exposure
+outcome wave (wave 2) offers the following advantages:
+
+1.  **Temporal ordering**: causes precede effects. We need this to avoid
+    *causal incoherence*. For example, ensuring order protects us from
+    inadvertently estimating $Y\rightarrowred A$.
+
+2.  **Confounding control**: including the baseline measure of both the
+    exposure and outcome allows for better control of confounding. This
+    approach helps to isolate the effect of the exposure on the outcome
+    from the exposure wave (wave 1) to the outcome wave (wave 2),
+    independent of their baseline levels. It reduces the risk of
+    confounding, where unmeasured factors might influence both the
+    exposure and the outcome, as shown in @fig-dag-1.
+
+#### Step 4. Measure observable common causes of the exposure and outcome
+
+Next, we must identify and record at wave 0 (baseline) all potential
+confounders that could influence both the exposure (e.g., frequency of
+attending religious services) and the outcome (e.g., charitable giving).
+Proper identification and adjustment for these confounders are crucial
+for accurate causal inference. By obtaining measures of the confounders
+at baseline we:
+
+a.  **Minimise mediation bias**: by measuring confounders at baseline,
+    it will be difficult to produce the *causally incoherent* model:
+    $A_1\to \boxed{L_2} \rightarrowdotted Y_3$
+
+b.  **Minimise collider bias**: by measuring confounders at baseline, it
+    will be difficult to produce the *causally incoherent* model:
+    $A_1\rightarrowred L_3 \leftarrowred Y_2$.
+
+The topic of measurement construction is vast. For now, it is worth
+noting that measures should be obtained in consultation with locals and
+domain experts [@vanderweele2022].
+
+#### Step 5. Gather data for proxy variables of unmeasured common causes at the baseline wave
+
+If any unmeasured confounders influence both the exposure and outcome,
+but we lack direct measurements, we should make efforts to include
+proxies for them at baseline. Even if this strategy cannot eliminate all
+bias from unmeasured confounding, it will generally reduce bias.
+
+####  Step 6. Retain sample
+
+Censoring leads to bias. Strategies for sample retention are essential.
+
+a.  **Developing tracking protocols**: establish robust systems for
+    tracking participants over the study period. This involves keeping
+    updated records of contact information such as addresses, emails,
+    phone numbers, and names, and accounting for changes in name over
+    time.
+
+b.  **Motivate retention**: implement strategies to encourage ongoing
+    participation. These incentives should ideally not lead to bias in
+    the distribution of effect-modifiers that might affect the outcome
+    of interest. For example, retention should not appeal to trust in
+    science if trust in science is the outcome of interest.
+
+c.  **Investigators should avoid acting in ways that lead to
+    differential retention**: for example, stay out of the news.
+
+```{tikz}
+#| label: fig-dag-1
+#| fig-cap: "Three-wave panel design with selection-restriction bias. Where the exposure affects attrition, and an unmeasured confounder (U_C=1) may affect both attrition and the outcome, there is scope for restriction bias from censoring. Even if the exposure does not affect censoring, if U_C=1 leads to informative censoring, the marginal effect in the censored may differ from the marginal effect in the uncensored (Section 3.1.6). Note we seek inference on the distribution of Y over C=0,1 (the target population.) Post-treatment selection bias cannot be corrected by conditioning on baseline co-variates. The best strategy is to minimise attrition and non-response. However, because attrition is nearly inevitable, we apply correction methods such as censoring weighting or multiple imputation. These methods introduce scope for bias from model mis-specification."
+#| out-width: 100%
+#| echo: false
+#| include: true
+#| eval: true
+
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{arrows}
+\usetikzlibrary{decorations}
+\tikzstyle{Arrow} = [->, thin, preaction = {decorate}]
+\tikzset{>=latex}
+% Define a simple decoration
+\tikzstyle{cor} = [-, dotted, preaction = {decorate}]
+
+\begin{tikzpicture}[{every node/.append style}=draw]
+
+\node [rectangle, draw=white] (U) at (0, 0) {U};
+\node [rectangle, draw=black, align=left] (L) at (2, 0) {L$_{0}$ \\A$_{0}$ \\Y$_{0}$};
+\node [rectangle, draw=white] (A) at (4, 0) {A$_{1}$};
+\node [ellipse, draw=white] (US) at (4, -1) {U$_{\text{C=1}}$};
+\node [font=\tiny, rectangle, draw=blue, thick](C) at (6, 0) {$\Pr(Z=z|C=1)$};
+\node [ellipse, draw=white] (Y) at (8, 0) {Y$_{2}^{\text{C}}$};
+
+\draw [-latex, draw=black] (U) to (L);
+\draw [-latex, draw=black] (L) to (A);
+\draw [-latex, bend left=50, draw=black] (L) to (Y);
+\draw [-latex, bend right=50, draw=red, dotted] (U) to (Y);
+\draw [-latex, bend left=50, draw=red, dotted] (U) to (A);
+\draw [-latex, draw=red] (A) to (C);
+\draw [-latex, draw=red,bend right =02] (US) to (C);
+\draw [-latex, draw=blue,bend right =03] (US) to (C);
+\draw [-latex, draw=red,bend right =02] (US) to (Y);
+\draw [-latex, draw=blue, bend right =03] (US) to (Y);
+
+
+
+
+\end{tikzpicture}
+
+
+```
+
+
+
+
+
+## Part 3: Statistical Estimation and Estimators
+
+We outline the process of converting observational data into consistent causal effect estimates for the targeted causal estimands. Here we describe the advantages and limitations of robust non-parametric and semi-parametric machine learning methods, arguing these should be used where sample size permits. 
+
+<!-- Example:  -->
+
+<!-- **Objective**: we evaluate the causal effect of increased religious service attendance on pro-social behavior. Previous studies suggest attending religious services more frequently may foster greater pro-social behavior among individuals. To address causality, we investigate hypothetical intervention that would increase the frequency of monthly religious service attendance to a minimum threshold of weekly service attendance, contrasted against the natural course of attendance patterns. -->
+
+<!-- **Treatment ($A$)**: monthly religious service attendance, measured as the number of services attended per month. -->
+
+<!-- **Outcome ($Y$)**: pro-social behavior, quantitatively assessed through in three domains: (1) self-reported behaviour: annual charitable donations, weekly volunteering; (2) prejudice/acceptance toward 12 minority groups; additionally evaluate self-reported religious prejudice; (3) help-received from others, a novel measure that minimises self-reporting bias; we evaluate help-received from family, from friends, and from the community. -->
+
+<!-- **Covariates ($L$)**: baseline covariates include demographic characteristics, baseline religious service attendance, baseline measures of all outcomes, and variables that might affect the treatment and outcomes, such as work demands, number of children, number of siblings, and hours spent excercising and doing housework.  -->
+
+### Causal estimation
+
+Suppose we have defined our estimand. To obtain causal contrasts we recommend using doubly robust estimation methods. These combine inverse probability of treatment weights (propensity scores) with regression stratification. There are two models at work in a doubly robust estimator.
+
+#### Parametric Doubly Robust Estimation
+
+Combines the strengths of the IPTW and G-computation methods (see: [here](https://go-bayes.github.io/psych-434-2023/content/09-content.html#comprehensive-checklist-for-detailed-reporting-of-a-causal-inferenctial-study-e.g.-assessment-3-option-2). 
+
+The technique utilises both the propensity score and the outcome model, making it "doubly robust." This implies that if either of these models is correctly specified, the estimation will not be biased.
+
+**Step 1** The first step is to estimate the propensity score. The propensity score, denoted as $e(L)$, is the conditional probability of the exposure $A = 1$ given the covariates $L$. The appropriate model to estimate this can be chosen based on the nature of the data and the exposure.
+
+$$e = P(A = 1 | L) = f_A(L; \theta_A)$$
+
+In this equation, $f_A(L; \theta_A)$ is a function that estimates the probability of the exposure $A = 1$ given covariates $L$. Here, we use the `ebalance` method from the `clarify` package, which we have found to ensure good balance on the confounders (see fig below). We then calculate the weights for each individual, denoted as $v$, using the estimated propensity score:
+
+$$
+v = 
+\begin{cases} 
+\frac{1}{e} & \text{if } A = 1 \\
+\frac{1}{1-e} & \text{if } A = 0 
+\end{cases}
+$$
+
+Here, $v$ depends on $A$, and is calculated as the inverse of the propensity score for exposed individuals and as the inverse of $1-e$ for unexposed individuals.
+
+**Step 2** The next step involves fitting a weighted outcome model. Using the weights computed from the estimated propensity scores, a model for the outcome $Y$, conditional on the exposure $A$, is fitted.
+
+$$ \hat{E}(Y|A, L; V) = f_Y(A, L ; \theta_Y, V) $$
+
+In this model, $f_Y$ is a function (in our case a weighted regression model) with parameters $θ_Y$. The weights $V$ are incorporated into the estimation process, affecting the contribution of each observation to the estimation of $θ_Y$, but they are not an additional variable in the model. Additionally, following @agnostic, we take the interaction of the exposure and baseline covariates when estimating our regression model. For binary outcomes we model the rate ratio using Poisson regression. Although binomial regression is acceptable when the outcome is rare (less than 10%), non-collapsability leads means that we cannot interpret results as marginal causal effects. For consistency we use the Poisson model with robust standard errors.
+
+**Step 3**  simulate the potential outcome for each individual under the hypothetical scenario where everyone is exposed to the intervention $A=a$, irrespective of their actual exposure level:
+
+$$\hat{E}(a) = \hat{E}[Y_i|A=a; L,\hat{\theta}_Y, v_i]$$
+
+This expectation is calculated for each individual $i$, with individual-specific weights $v_i$.
+
+**Step 4** Estimate the causal effect as a contrast in averages of the population outcomes under each intervention:
+
+$$\hat{\delta} = \hat{E}[Y(a)] - \hat{E}[Y(a')]$$
+
+The difference $\delta$ represents the average causal effect of changing the exposure from level $a'$ to level $a$.
+
+For standard errors and confidence intervals, we use simulation-based inference methods [@greifer2023].
+
+
+#### Semi-parametric and non-parametric estimator
+
+
+#### Shift functions
+
+Causider a causal question in which we applying the following contrasts:
+
+- The expected outcomes under each shift function defined above by the function $f(A)$, and
+- The expected outcomes under the actual observed attendance/socalising patterns.
+
+Formally, the each target is given:
+
+$$ \Delta = E[Y(a*)|f(A),L] - E[Y(a)|A,L] $$
+
+Where $\Delta$ is the average treatment effect of a modified treatment policy.
+
+
+**Motiviting example: shift function as gain of weekly religious service**: the intervention of interest is defined by a shift function applied to the treatment variable, designed to assess the effect of shifting the treatment on all outcomes examined in the study. The focal estimand shift function may be formally specified as:
+
+$$f(A) = \begin{cases} 4 & \text{if } A \leq 4  \text{ monthly religious service attendance} \\ A & \text{if } A > 4  \text{ monthly religious service attendance} \end{cases} $$
+
+Here, we estimate outcomes in a hypothetical world in which all individuals were attend at least four religious services per month (weekly).
+
+
+**Comparative intervention 1: shift function as loss of any religious service**: 
+
+Because the gain of religion might be different from the loss of religion, we additionally contrast the population average outcome were everyone to stop attending monthly religious service verse the expected outcome at the natural treatment values: 
+
+$$f(A) = 0 $$
+
+Here, we estimate outcomes in a hypothetical world in which no individuals attended religious service.
+
+
+
+<!-- ### Inclusion criteria and missing data -->
+
+<!-- For example: -->
+
+<!-- -   Participants who provided full information about both religious service attendance and hours socialising at the baseline wave (NZAVS time 10, years 2018-10) and exposure wave (NZAVS wave 2019-20) were included. -->
+<!-- -   Missing data for all variables at baseline were allowed. Missing data at baseline were imputed through the `mice` package [@vanbuuren2018]. -->
+<!-- -   Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave).  This allow for adjustment owing to attition and loss to follow up (see details of the `lmtp` package [@williams2021]) -->
+
+<!-- #### Exclusion Criteria -->
+
+<!-- -   Participants who did not respond to the religious service attendance question at baseline or the exposure wave.  -->
+<!-- -   Participants who did not respond to the hours socialising question at baseline or the exposure wave.  -->
+<!-- -   We allowed loss-to-follow up in the outcome wave (NZAVS wave 2020); missing values owing to attrition and non-response were were handled using censoring weights. -->
+
+<!-- There were N = X  NZAVS participants who met these criteria. -->
+
+
+<!-- ###  Method for confounding control -->
+
+<!-- Effects should temporally succeed their causes. To circumvent reverse causation issues, outcomes were assessed in the year succeeding exposure, specifically the 2020 wave of the NZAVS. The causal diagram in @fig-outcomewide-dag outlines our approach to confounding control. We align with @vanderweele2020 in employing a *modified disjunctive cause criterion*, articulated as follows: -->
+
+<!-- 1.  **Identify all relevant factors**: initially, enumerate all covariates affecting either the exposure or the outcomes across five domains, or both. These factors encompass variables influencing exposure or outcome and variables that could be consequences of such factors -->
+
+<!-- 2.  **Remove instrumental variables**: subsequently, remove any factors identified as instrumental variables—factors influencing the exposure but not the outcome. The inclusion of instrumental variables diminishes efficiency. -->
+
+<!-- 3.  **Include proxy variables for unmeasured common causes**: for unmeasured variables affecting both exposure and outcome, attempt to include a proxy variable. A proxy serves as a consequent of the unmeasured variable. -->
+
+<!-- 4.  **Control for previous exposure**: accounting for prior exposure is imperative for assessing incident exposure as opposed to prevalent exposure. This step enhances confounding control and aids in sidestepping reverse causation and other unmeasured confounders. This ensures that any unmeasured confounder would need to affect both the outcome and the initial exposure, regardless of prior exposure levels, to account for an observed exposure-outcome association [@danaei2012; @hernan2023]. -->
+
+<!-- 5.  **Control for baseline outcome**: controlling for the outcome at baseline is crucial for ruling out reverse causation. While this does not fully preclude reverse causation, it minimises its impact. Therefore, the baseline outcome, along with a comprehensive set of covariates, should be part of the model to render the confounding control assumption plausible. The baseline outcome often serves as the most potent confounder affecting both the exposure and subsequent outcome [@vanderweele2020]. -->
+
+<!-- To mitigate bias from missing data due to non-response or panel attrition, we imputed missing values using the mice package in R [@vanbuuren2018]. To address non-response or missingness at follow-up, we employed censoring weights, integrated into our semi-parametric models. Valid inferences for the New Zealand population were secured by applying post-stratification census weights for age, European ethnicity, and gender. -->
+
+
+
+
+#### Survey weights
+
+TBA
+
+#### Missing responses
+
+TBA
+
+##### Inverse probabilty of censoring weights 
+
+TBA
+
+#### Example report
+
+> We employ a semi-parametric estimator known as Targeted Minimum Loss-based Estimation (TMLE), which is adept at estimating the causal effect of modified treatment policies on outcomes over time. Estimatation was performed using `lmtp` package [@williams2021]. TMLE is a robust method that combines machine learning techniques with traditional statistical models to estimate causal effects while providing valid statistical uncertainty measures for these estimates.
+
+> TMLE operates through a two-step process involving both outcome and treatment (exposure) models. Initially, it employes machine learning algorithms to flexibly model the relationship between treatments, covariates, and outcomes. This flexibility allows TMLE to account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions. The outcome of this step is a set of initial estimates for these relationships.
+
+> The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible to the true causal effect while still being robust to model misspecification in either the outcome or treatment model.
+
+> A central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid overfitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects on of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]
+```
+
+### Sensitivity analysis
+
+
+### Part 4: Pre-registration, Data Analysis, and Reporting
+
+We describe the protocols for pre-registrating analysis, conducting these data analyses, and clearly and accurately communicating scientific findings. 
+
+
+### Optional strategies for conveying results
+
+#### Report results of a cross-sectional model
+
+Explain causal effect estimates
+
+#### Contrast condition
+
+Tread carefully
+
+### Part 5: Addressing complex causal questions  
+
+We discuss methods for addressing more complex causal questions than average treatment effect estimation, including investigating treatment-effect heterogeneity, causal interactions, causal mediation, and longitudinal treatment strategies. 
+
+For further discussions of our approach, see: [@bulbulia2023a; @bulbulia2023; @bulbulia2022; @vanderweele2015; @hernan2023])
+
+
+
+
+### Study 2: Example 
+
+```{r}
+#| label: verify-positivity-data-dogs
+#| eval: false
+#| echo: false
+
+# transition_table_socialising
+# transition_table_socialising_shift
+```
+
+@tbl-transition-socialising shows a transition matrix captures the movement between weekly hours socialising during the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagnal). Again, a cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
+
+|  From   |  State 0  | State 1  | State 2 | State 3 | State 4 | State 5 | State 6 | State 7 | State 8 |
+|:-------:|:---------:|:--------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| State 0 | **20039** |   2243   |  1192   |   221   |   25    |   12    |    7    |    3    |    6    |
+| State 1 |   2288    | **1389** |   731   |   103   |   11    |    4    |    3    |    0    |    0    |
+| State 2 |   1328    |   660    | **806** |   161   |   29    |    6    |    2    |    1    |    2    |
+| State 3 |    236    |   101    |   151   | **76**  |   17    |    5    |    1    |    0    |    0    |
+| State 4 |    55     |    16    |   32    |   17    | **11**  |    3    |    1    |    2    |    0    |
+| State 5 |    16     |    5     |    8    |    4    |    3    |  **0**  |    1    |    0    |    0    |
+| State 6 |     8     |    1     |    0    |    0    |    1    |    0    |  **0**  |    0    |    1    |
+| State 7 |     3     |    1     |    1    |    1    |    0    |    0    |    0    |  **0**  |    0    |
+| State 8 |     3     |    1     |    1    |    1    |    1    |    0    |    0    |    0    |  **1**  |
+
+: Transition matrix for change in the square of hours socialing with community each week {#tbl-transition-socialising}
+
+
+
+@@tbl-transition-socialising presents a summary of changes in socialising at the threshold that we compared. When shifting to socialising at least 1.4 hours per week, we imagine 'treating' 25,959 cases. Again this table is for illustration, as the the shift intervention allows us to flexibly contrast cases without projecting the entire population in to one or another cell.  
+
+
+|        From         | < 1.4 weekly hours | >= 1.4 weekly hours |
+|:-------------------:|:------------------:|:-------------------:|
+| < 1.4 weekly hours  |     **25959**      |        2318         |
+| >= 1.4 weekly hours |        2434        |      **1347**       |
+
+: Transition matrix for change in the square of hours socialing with community each week {#tbl-transition-socialising-shift}
+
+
+### Example report of estimator
+
+
+**Treatment Model**: in the context of causal inference, a treatment model estimates the likelihood of receiving the treatment—here, pet ownership—based on observed characteristics (covariates). In ordinary regression, this would be akin to the predictor variables in the model, but modelling the treatment, in this case pet ownership.
+
+**Outcome Model**: this estimates the potential outcomes of interest, here, measures of well-being, conditional on treatment status and other covariates. In traditional regression settings, this model is what you typically fit to understand how predictors influence the outcome.
+
+By using TMLE to combine both a treatment and outcome model, we can better identify the specific effect of pet ownership on multi-dimensional well-being. Here are the steps:
+
+1.  **Treatment model with propensity scores**: the initial phase of our analysis consists of generating propensity scores for the exposure for each participant. These scores quantify the probability of an individual having the treatment, conditional on their set of covariates. The scores emerge from a targeted machine learning model that accounts for high-dimensional confounders to estimate treatment assignment probabilities, namely pet ownership. **In plain terms,** we first calculate a score for each person that indicates how likely they are to experience the treatment based on various characteristics.This step is like determining each person's chances of having the treatment, given their particular life circumstances.
+
+2.  **Weighting via propensity scores**: upon computing the propensity scores, we assign an inverse probability weight to each dataset entry. These weights serve to equilibrate the distribution of observed covariates between the treated and untreated cohorts, thus attenuating the bias in the causal estimates. **In plain terms,** we use propensity scores to make the contrasts groups more comparable in a manner that emulates randomisation in experiments.
+
+3.  **Outcome models**: a second targeted machine learning model focuses on the outcome variables, encompassing multiple measures of the outcome distributed across different domains of interest. This model incorporates both the individual treatment statuses and the previously calculated weights, enhancing our capacity for causal inference. **In plain terms** we create a model that tries to predict well-being levels based on whether experiences the treatment under consideration, while also considering conditional on covarites.
+
+4. **Doubly robust estimation*: Combines the treatment and outcome model to obtain robust results: only one of the two models needs to be correctly specified.
+
+5.  **Counterfactual contrasts**: a core component of TMLE is the projection of counterfactual outcomes. By combining estimates from the treatment and outcome models, TMLE enables the computation of potential well-being levels for each individual under dual treatment conditions—both with and without pet ownership. **In plain terms:** we use the models to estimate what someone's well-being would likely be in both scenarios: owning a pet and not owning one. Note that our shift estimand, described below, helps to make the assumptions required for such contrasts more credible.  We will contrast the average population outcome if all were to own pets with the naturally occurring from the distribution of pet ownership in the treatment year (NZAVS wave 2019)
+
+6.  **Effect estimation**: the final analytical stage involves determining the average treatment effect by contrasting the estimated counterfactual outcomes. 
+
+
+
+
+## Results
+
+### Religious service attendance
+
+### Summary of findings
+
+
+### Assumptions and limitations
+
+1.  **Causality and confounding**: we employs rigorous causal inference techniques, but these are contingent on the assumption of no unmeasured confounding. (Say more about E-values...)
+
+2.  **Measurement error**: the variables under consideration---exercise and sleep---are self-reported, which might introduce both systematic and random measurement errors. It should be specifically noted that the apparent modesty of the practical effects could arise, in part, to measurement inaccuracy. Given the limitations of self-report measures, the true effect sizes may differ from those estimated. Therefore, while the evidence does suggest a modest impact, the actual real-world effects may be either smaller or larger than the estimates suggest. Given the modest effect sizes and the limitations of self-report measures, future research should explore the use of more objective measures for variables like exercise and sleep. (... etc.)
+
+3.  **Generalisability and transportability**: our findings should be interpreted within the context of the New Zealand population from which the data were sourced. Although the results may have broader relevance, direct extrapolation to different populations or sociocultural settings should be undertaken cautiously.
+
+### Theoretical and practical relevance
+
+{{< pagebreak >}}
+
+### Ethics
+
+The NZAVS is reviewed every three years by the University of Auckland Human Participants Ethics Committee. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+### Acknowledgements
+
+The New Zealand Attitudes and Values Study is supported by a grant from the TempletoReligion Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or the decision to publish.
+
+### Author Statement
+
+TBA
+
+{{< pagebreak >}}
+
+## Appendix A. Measures
+
+#### Age (waves: 1-15)
+
+We asked participants' age in an open-ended question ("What is your age?" or "What is your date of birth").
+
+#### Disability (waves: 5-15)
+
+We assessed disability with a one item indicator adapted from @verbrugge1997, that asks "Do you have a health condition or disability that limits you, and that has lasted for 6+ months?" (1 = Yes, 0 = No).
+
+#### Education Attainment (waves: 1, 4-15)
+
+Participants were asked "What is your highest level of qualification?". We coded participans highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
+
+#### Employment (waves: 1-3, 4-11)
+
+We asked participants "Are you currently employed? (This includes self-employed or casual work)". \* note: This question disappeared in the updated NZAVS Technical documents (Data Dictionary).
+
+#### European (waves: 1-15)
+
+Participants were asked "Which ethnic group do you belong to (NZ census question)?" or "Which ethnic group(s) do you belong to? (Open-ended)" (wave: 3). Europeans were coded as 1, whereas other ethnicities were coded as 0.
+
+#### Ethnicity (waves: 3)
+
+Based on the New Zealand Cencus, we asked participants "Which ethnic group(s) do you belong to?". The responses were: (1) New Zealand European; (2) Māori; (3) Samoan; (4) Cook Island Māori; (5) Tongan; (6) Niuean; (7) Chinese; (8) Indian; (9) Other such as DUTCH, JAPANESE, TOKELAUAN. Please state:. We coded their answers into four groups: Maori, Pacific, Asian, and Euro (except for Time 3, which used an open-ended measure).
+
+#### Gender (waves: 1-15)
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male was coded as 1, and gender diverse coded as 3 [@fraser_coding_2020]. (or 0.5 = neither female nor male)
+
+#### Income (waves: 1-3, 4-15)
+
+Participants were asked "Please estimate your total household income (before tax) for the year XXXX". To stablise this indicator, we first took the natural log of the response + 1, and then centred and standardised the log-transformed indicator.
+
+<!-- #### Job Security (waves: 1-3,4-7,9-15) -->
+
+<!-- Participants indicated their feeling of job security by answering "How secure do you feel in your current job?" on a scale from 1 (not secure) to 7 (very secure). -->
+
+<!-- #### Parent (waves: 5-15) -->
+
+<!-- Participants were asked "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. -->
+
+#### Number of Children (waves: 1-3, 4-15)
+
+We measured number of children using one item from @Bulbulia_2015. We asked participants "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or ""How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15).
+
+#### Political Orientation
+
+We measured participants' political orientation using a single item adapted from @jost_end_2006-1.
+
+"Please rate how politically liberal versus conservative you see yourself as being."
+
+(1 = Extremely Liberal to 7 = Extremely Conservative)
+
+#### NZSEI-13 (waves: 8-15)
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate an score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
+
+Participants were asked "If you are a parent, what is the birth date of your eldest child?".
+
+#### Living with Partner
+
+Participants were asekd "Do you live with your partner?" (1 = Yes, 0 = No).
+
+#### Living in an Urban Area (waves: 1-15)
+
+We coded whether they are living in an urban or rural area (1 = Urban, 0 = Rural) based on the addresses provided.
+
+We coded whether they are living in an urban or rural area (1 = Urban, 0 = Rural) based on the addresses provided.
+
+#### NZ Deprivation Index (waves: 1-15)
+
+We used the NZ Deprivation Index to assign each participant a score based on where they live [@atkinson2019]. This score combines data such as income, home ownership, employment, qualifications, family structure, housing, and access to transport and communication for an area into one deprivation score.
+
+#### NZ-Born (waves: 1-2,4-15)
+
+We asked participants "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).
+
+#### Mini-IPIP 6 (waves: 1-3,4-15)
+
+We measured participants personality with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011] which consists of six dimensions and each dimensions is measured with four items:
+
+1.  agreeableness,
+
+    i.  I sympathize with others' feelings.
+    ii. I am not interested in other people's problems. (r)
+    iii. I feel others' emotions.
+    iv. I am not really interested in others. (r)
+
+2.  conscientiousness,
+
+    i.  I get chores done right away.
+    ii. I like order.
+    iii. I make a mess of things. (r)
+    iv. I ften forget to put things back in their proper place. (r)
+
+3.  extraversion,
+
+    i.  I am the life of the party.
+    ii. I don't talk a lot. (r)
+    iii. I keep in the background. (r)
+    iv. I talk to a lot of different people at parties.
+
+4.  honesty-humility,
+
+    i.  I feel entitled to more of everything. (r)
+    ii. I deserve more things in life. (r)
+    iii. I would like to be seen driving around in a very expensive car. (r)
+    iv. I would get a lot of pleasure from owning expensive luxury goods. (r)
+
+5.  neuroticism, and
+
+    i.  I have frequent mood swings.
+    ii. I am relaxed most of the time. (r)
+    iii. I get upset easily.
+    iv. I seldom feel blue. (r)
+
+6.  openness to experience
+
+    i.  I have a vivid imagination.
+    ii. I have difficulty understanding abstract ideas. (r)
+    iii. I do not have a good imagination. (r)
+    iv. I am not interested in abstract ideas. (r)
+
+Each dimension was assessed with four items and participants rated the accuracy of each item as it applies to them from 1 (Very Inaccurate) to 7 (Very Accurate). Items marked with (r) are reverse coded.
+
+#### Honesty-Humility-Modesty Facet (waves: 10-14)
+
+Participants indicated the extent to which they agree with the following four statements from @campbell2004 , and @sibley2011 (1 = Strongly Disagree to 7 = Strongly Agree)
+
+```         
+i.  I want people to know that I am an important person of high status, (Waves: 1, 10-14)
+ii. I am an ordinary person who is no better than others.
+iii. I wouldn't want people to treat me as though I were superior to them.
+iv. I think that I am entitled to more respect than the average person is.
+```
+
+### Exposure variable
+
+HERE
+
+### Health well-being outcomes
+
+### Appendix B. Descriptive Statistics
+
+
+```{r}
+#| label: tbl-table_demographic_vars
+#| tbl-cap: "Baseline outcome and democgraphic statistics for cat ownership study"
+#| eval: false
+#| echo: false
+#| include: false
+
+table_demographic_vars |>  kbl(format = "markdown")
+
+```
+
+### Appendix D. Population Average Treatment Effect {.appendix}
+
+As indicated in the main manuscript, the Average Treatment Effects is obtained by contrasting the expected outcome when a population sampled is exposed to an exposure level, $E[Y(A = a)]$, with the expected outcome under a different exposure level, $E[Y(A=a')]$.
+
+For a binary treatment with levels $A=0$ and $A=1$, the Average Treatment Effect (ATE), on the difference scale, is expressed:
+
+$$ATE_{\text{risk difference}} = E[Y(1)|L] - E[Y(0)|L]$$
+
+On the risk ratio scale, the ATE is expressed:
+
+$$ATE_{\text{risk ratio}} = \frac{E[Y(1)|L]}{E[Y(0)|L]}$$
+
+Other effect scales, such as the incidence rate ratio, incidence rate difference, or hazard ratio, might also be of interest.
+
+Here we estimate the Population Average Treatment Effect (PATE), which denotes the effect the treatment would have on the New Population if applied universally. This quantity can be expressed:
+
+$$PATE_{\text{risk difference}} = f(E[Y(1) - Y(0)|L], W)$$
+
+$$PATE_{\text{risk ratio}} = f\left(\frac{E[Y(1)|L]}{E[Y(0)|L]}, W\right)$$
+
+where $f$ is a function that incorporates post-stratification weights $W$ into the estimation of the expected outcomes from which we obtain causal contrasts. Because the NZAVS is national probability sample, i.e. inverse probability of being sampled 1. However, to incorporate gender, age, and ethnic differences we include post-stratification weight into our outcome wide models.
+
+{{< pagebreak >}}
+
+## References {.appendix}
