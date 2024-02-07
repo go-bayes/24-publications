@@ -377,32 +377,9 @@ loadfonts(device = "all")
 
 ## Introduction
 
-### Overview of the steps
-
-1.  **Clarify the causal question:** prior to any analysis, it is crucial to explicitly define the causal question under examination. Suppose we wish to investigate the causal effect of religious-service attendance on cooperation. As yet, there is no causal question. Within the umbrella term of "religious service attendance" multiple scenarios can be considered: attending religious service weekly service; attending some religious service from a baseline of no attendance; losing religious service attendance... etc. 
-
-2.  **Clearly define the target population**: for whom do we intend the results to generalise? This question canno
-
-
-3.  **Clearly state eligibility criteria.**: inclusion/exclusion criteria to obtain valid causal estimates. 
-
-
-4.  **Ensure correct temporal order in the variables**: the study's design incorporates a correct temporal structure for confounders, treatment, and outcomes. For example, the outcome cannot occur before the treatment.
-
-5.  **Balance confounders**: once the temporal structure is set, we adjust for confounders that could distort the causal link between exposure and outcome.
-
-
-6.  **Include of baseline measures of the treatment and outcome**: we include baseline measures for both the treatment and the outcomes. This strategy serves two objectives: first, it augments control for confounding variables, and second, it permits differentiation between "incidence" and "prevalence" effects. *Incidence effects* capture the emergence of new cases or conditions among individuals who acquire pets during the study. This facilitates an evaluation of the causal impact of pet adoption on well-being among those who were not pet owners at the baseline.
-
-7.  **Assess multiple dimensions of the outcome within the same study**: we use an outcomewide approach [@vanderweele2020] to assess multiple outcomes wihtin a single study. This approach has several benefits. First we obtain *contextualised effects*: each outcome is evaluated in context relative to the others. This facilitates a better understanding of the importance of each individual effect within the overarching construct of well-being. Second, we *mitigate* of spurious findings: by assessing multiple outcomes simultaneously, we minimise the risk of cherry-picking cases that confirm a preconceived hypothesis, thereby reducing the likelihood of chance findings. Third, we *accelerate sientific understanding*: a comprehensive assessment can fast-track our scientific insights into the potential advantages and disadvantages of pet ownership on various aspects of human well-being. The selection of outcomes below are based on previous studies reflecting interest in the relationship between pet ownership and (1) health, (2) embodied well-being and distress, (3) reflective well-being and (4) social well-being
-
-8.  **Obtain methodological precision through TMLE and machine learning**: to address the intrinsic limitations of non-randomised pet ownership, our study employs Targeted Maximum Likelihood Estimation (TMLE) coupled with machine learning techniques (the `SuperLearner` library in R [@polley2023]). These advanced methodological enhancement offer the following benefits. First, our approach *reduces model dependence*: TMLE allows for doubly-robust causal inference, reducing reliance on correct model specification. The method is robust even if either the treatment model (i.e., pet ownership) or the outcome model (i.e., well-being indicators) is incorrectly specified. Second, *machine Learning for confounder balancing improves precision* further refines our ability to balance confounders, particularly when these are high-dimensional or interact in complex ways. Flexible semi-parametric estimation of parameters that are of no intrinsic interest (the control variables) protects inference from model mis-specification [@díaz2021].
-
-
 ## Part 1: Pre-specification of Causal Estimands for a Target Population
 
-To answer a causal question we must first ask one...
-
+To answer a causal question we must first ask one [@hernan2023; @hernan2017per].
 
 
 
@@ -446,7 +423,6 @@ $$
 
 Put differently, conditioning on confounders ensures *balance* in their distribution across exposures.
 
-
 #### Identification assumption 3: Positivity
 
 Positivity is satisfied if there is a positive probability of receiving or not receiving exposure at all covariate levels. Expressed as:
@@ -462,8 +438,6 @@ There are two types of positivity violation.
 
 -   **Deterministic non-positivity**: Occurs when the causal effect is inconceivable. For example, the causal effect of hysterectomy in biological males violates deterministic non-positivity.
 
-
-
 ### Conceptual, data, and modelling assumptions
 
 We have reviewed the three fundamental assumptions of causal inference. However, we must also consider further conceptual, data, and modelling assumptions that, in addition to the foundational assumptions we just reviewed, must also be satisfied to obtain valid causal inferences. We next consider a subset of these assumptions.
@@ -474,17 +448,15 @@ In causal inference, the Average Treatment Effect (ATE) conceived as comparison 
 
 Furthermore, the 'average treatment effect' itself might not be our primary scientific interest. In many setting we may want to understand heterogeneity in treatment effects without a clear understanding in advance of modelling where such heterogeneity may be found [@wager2018]. Presently, methods for valid causal inference in settings of heterogeneous treatment effects remain inchoate see: @tchetgen2012; @wager2018; @cui2020; @foster2023; @foster2023; @kennedy2023; @nie2021.
 
-Recently, causal data scientists have explored new classes of estimands and estimators, such as modified treatment policies or 'shift interventions' [@hoffman2023; @díaz2021; @vanderweele2018; @williams2021] and optimal treatment policies [@athey2021;
-@kitagawa2018]. Such estimands allow researchers to specify and examine a broader range of causal contrasts, such as treating those as treating only those likely to respond, or those who meet certain ethical criteria not determined by statisticians, or those who optimise a pre-specified [@wager2018; @cui2020; @díaz2021]. A review of these promising
-developments would take us beyond the scope of this discussion, however, readers should be aware that causal inference is not bound to standard $E[Y(1)] - E[Y(0)]$ estimands that require simulating often implausible or even unhelpful counterfactual outcomes for the entire population at two levels of a pre-specified intervention.
+Recently, causal data scientists have explored new classes of estimands and estimators, such as modified treatment policies or 'shift interventions' [@hoffman2023; @díaz2021; @vanderweele2018; @williams2021] and optimal treatment policies [@athey2021; @kitagawa2018]. Such estimands allow researchers to specify and examine a broader range of causal contrasts, such as treating those as treating only those likely to respond, or those who meet certain ethical criteria not determined by statisticians, or those who optimise a pre-specified [@wager2018; @cui2020; @díaz2021]. A review of these promising developments would take us beyond the scope of this discussion, however, readers should be aware that causal inference is not bound to standard $E[Y(1)] - E[Y(0)]$ estimands that require simulating often implausible or even unhelpful counterfactual outcomes for the entire population at two levels of a pre-specified intervention.
 
 #### Target validity
 
-Investigators must recognise that a mismatch between the sample and target population can invalidate causal effect estimates  even if the magnitudes are consistently estimated. If the mismatch affects effect-modifiers of the treatment-effects there will be no guarantee that effect-estimates for the sample will generalise to the target population -- that is, no guarantee that the effect estimates will achieve 'target validity,' or equivalently 'external validity.' Worringly such threats cannot be fully evaluated from responses in the restricted or censored sample (say more here)
+Investigators must recognise that a mismatch between the sample and target population can invalidate causal effect estimates even if the magnitudes are consistently estimated. If the mismatch affects effect-modifiers of the treatment-effects there will be no guarantee that effect-estimates for the sample will generalise to the target population -- that is, no guarantee that the effect estimates will achieve 'target validity,' or equivalently 'external validity.' Worringly such threats cannot be fully evaluated from responses in the restricted or censored sample (say more here)
 
-##  Part 2: A Three-Wave Panel Design
+## Part 2: A Three-Wave Panel Design
 
-We describe a methods for obtaining causal effect estimates from three-wave panel studies, and discusses issues of bias from attrition/missing responses, measurement error, unmeasured confounding. 
+We describe a methods for obtaining causal effect estimates from three-wave panel studies, and discusses issues of bias from attrition/missing responses, measurement error, unmeasured confounding.
 
 ### Confounding bias
 
@@ -496,43 +468,21 @@ Say more
 
 ### Restriction Bias
 
-
 Say more
 
 ### Example of a Three-Wave Panel Design for Obtaining a Marginal Incident-Exposure Effect
 
-Causal diagrams point the need for obtaining clearly defined time-series
-data. How might we do it? Here, I sketch the outlines of a design for a
-three-wave panel study that intends to estimate an *incident exposure
-effect*. I do not intend this advice to be more than a sketch. However,
-I believe it is important to give readers a concrete example for how
-data collection for causal inference might occur.
-
+Causal diagrams point the need for obtaining clearly defined time-series data. How might we do it? Here, I sketch the outlines of a design for a three-wave panel study that intends to estimate an *incident exposure effect*. I do not intend this advice to be more than a sketch. However, I believe it is important to give readers a concrete example for how data collection for causal inference might occur.
 
 #### Step 1. Ask a causal question
 
-In a three-wave panel design, ensuring the relative timing of events
-essential for valid causal inference [@vanderweele2020].
+In a three-wave panel design, ensuring the relative timing of events essential for valid causal inference [@vanderweele2020].
 
 Here is a causal question:
 
-What is the causal effect of attending weekly religious services
-compared to not attending services on charitable giving in the
-population of New Zealanders who identify as Christian?
+What is the causal effect of attending weekly religious services compared to not attending services on charitable giving in the population of New Zealanders who identify as Christian?
 
-To answer this question we must assess how changes in religious service
-attendance, measured from the beginning of the year (baseline) to
-mid-year (wave 1), affect levels of charitable giving at the end of the
-year (wave 2) In this design, the change in religious service attendance
-is captured between the first and second waves, while the outcome,
-charitable giving, is measured in the third wave. This establishes a
-sequential order that mirrors the cause-and-effect relationship.
-Ensuring such temporal ordering is crucial in any causal analysis. Note
-additionally that we must obtain comparisons from continuous data for a
-binary data. Depending on the data, such a contrast might not be well
-supported. For example, change between these levels might occur only
-rarely, in which case our inference might rely too heavily on parametric
-model specifications. Focusing on the estimand:
+To answer this question we must assess how changes in religious service attendance, measured from the beginning of the year (baseline) to mid-year (wave 1), affect levels of charitable giving at the end of the year (wave 2) In this design, the change in religious service attendance is captured between the first and second waves, while the outcome, charitable giving, is measured in the third wave. This establishes a sequential order that mirrors the cause-and-effect relationship. Ensuring such temporal ordering is crucial in any causal analysis. Note additionally that we must obtain comparisons from continuous data for a binary data. Depending on the data, such a contrast might not be well supported. For example, change between these levels might occur only rarely, in which case our inference might rely too heavily on parametric model specifications. Focusing on the estimand:
 
 ##### Exposure:
 
@@ -550,8 +500,7 @@ model specifications. Focusing on the estimand:
 
 ##### Target population:
 
--   Individuals in New Zealand who might attend religious service and
-    identify as Christian.
+-   Individuals in New Zealand who might attend religious service and identify as Christian.
 
 ##### Source population:
 
@@ -561,9 +510,7 @@ model specifications. Focusing on the estimand:
 
 -   Defined by eligibility criteria (including religious affiliation). If the baseline population differs from the target population, if sample weights for the distribution of covariates are available for the *target population*, these should be applied to the baseline population [although with caution, given potential for model mis-specification, see @stuart2015.]
 
-Let $\widehat{ATE}_{target}$ denote the population average treatment
-effect for the target population. Let $\widehat{ATE}_{\text{restricted}}$ denote the average treatment effect at the end of treatment. Let $W$ denote a set of variables upon which the restricted and target populations structurally differ. We say that
-results *generalise* if we can guarantee that:
+Let $\widehat{ATE}_{target}$ denote the population average treatment effect for the target population. Let $\widehat{ATE}_{\text{restricted}}$ denote the average treatment effect at the end of treatment. Let $W$ denote a set of variables upon which the restricted and target populations structurally differ. We say that results *generalise* if we can guarantee that:
 
 $$
 \widehat{ATE}_{target} =  \widehat{ATE}_{restricted} 
@@ -575,103 +522,49 @@ $$
 ATE_{target}\approx  f_W(ATE_{\text{restricted}}, W)
 $$
 
-In most cases, $f_W$ will be unknown, as it must account for potential
-heterogeneity of effects and unobserved sources of bias. For further
-discussion on this topic, see: @imai2008misunderstandings;
-@cole2010generalizing; @stuart2018generalizability; @bulbulia2023c, and
-$\S 3.1.6$
+In most cases, $f_W$ will be unknown, as it must account for potential heterogeneity of effects and unobserved sources of bias. For further discussion on this topic, see: @imai2008misunderstandings; @cole2010generalizing; @stuart2018generalizability; @bulbulia2023c, and $\S 3.1.6$
 
 #### Step 2. Ensure that the exposure is measured at wave 0 (baseline) and wave 1 (the exposure interval)
 
-Measuring the exposure at both baseline (wave 0) and the exposure
-interval (wave 1) has the following benefits:
+Measuring the exposure at both baseline (wave 0) and the exposure interval (wave 1) has the following benefits:
 
-1.  **Enables estimation of incident exposure effect**: by
-    including baseline observations, we can distinguish between
-    incidence (new occurrences) and prevalence (existing states)
-    exposure effects. For instance, in a study on religious service
-    attendance, assessing the incident exposure effect allows us to
-    differentiate the effect of starting to attend services regularly
-    from the effect of ongoing attendance.
+1.  **Enables estimation of incident exposure effect**: by including baseline observations, we can distinguish between incidence (new occurrences) and prevalence (existing states) exposure effects. For instance, in a study on religious service attendance, assessing the incident exposure effect allows us to differentiate the effect of starting to attend services regularly from the effect of ongoing attendance.
 
-2.  **Confounding control**: measuring the exposure at baseline helps
-    control for time-invariant confounders. These are factors that do
-    not change over time and might affect both the exposure and outcome.
-    In the context of religious service attendance, personal attributes
-    like inherent religiosity could influence both attendance and
-    related outcomes.
+2.  **Confounding control**: measuring the exposure at baseline helps control for time-invariant confounders. These are factors that do not change over time and might affect both the exposure and outcome. In the context of religious service attendance, personal attributes like inherent religiosity could influence both attendance and related outcomes.
 
-3.  **Sample adequacy**: for rare exposures, baseline measurements can
-    assess sample size adequacy. If a change in exposure is infrequent
-    (e.g., infrequent to weekly religious service attendance), a larger
-    sample may be needed to satisfy the positivity assumption and detect
-    causal effects. By measuring the exposure at baseline, we can better
-    evaluate whether our sample is representative and large enough to
-    detect such rare changes.
+3.  **Sample adequacy**: for rare exposures, baseline measurements can assess sample size adequacy. If a change in exposure is infrequent (e.g., infrequent to weekly religious service attendance), a larger sample may be needed to satisfy the positivity assumption and detect causal effects. By measuring the exposure at baseline, we can better evaluate whether our sample is representative and large enough to detect such rare changes.
 
 #### Step 3. Ensure that the outcome is measured at wave 0 (baseline) and wave 2 (post-exposure wave 1)
 
-Measuring the outcome at both wave 0 (baseline) and the post-exposure
-outcome wave (wave 2) offers the following advantages:
+Measuring the outcome at both wave 0 (baseline) and the post-exposure outcome wave (wave 2) offers the following advantages:
 
-1.  **Temporal ordering**: causes precede effects. We need this to avoid
-    *causal incoherence*. For example, ensuring order protects us from
-    inadvertently estimating $Y\rightarrowred A$.
+1.  **Temporal ordering**: causes precede effects. We need this to avoid *causal incoherence*. For example, ensuring order protects us from inadvertently estimating $Y\rightarrowred A$.
 
-2.  **Confounding control**: including the baseline measure of both the
-    exposure and outcome allows for better control of confounding. This
-    approach helps to isolate the effect of the exposure on the outcome
-    from the exposure wave (wave 1) to the outcome wave (wave 2),
-    independent of their baseline levels. It reduces the risk of
-    confounding, where unmeasured factors might influence both the
-    exposure and the outcome, as shown in @fig-dag-1.
+2.  **Confounding control**: including the baseline measure of both the exposure and outcome allows for better control of confounding. This approach helps to isolate the effect of the exposure on the outcome from the exposure wave (wave 1) to the outcome wave (wave 2), independent of their baseline levels. It reduces the risk of confounding, where unmeasured factors might influence both the exposure and the outcome, as shown in @fig-dag-1.
 
 #### Step 4. Measure observable common causes of the exposure and outcome
 
-Next, we must identify and record at wave 0 (baseline) all potential
-confounders that could influence both the exposure (e.g., frequency of
-attending religious services) and the outcome (e.g., charitable giving).
-Proper identification and adjustment for these confounders are crucial
-for accurate causal inference. By obtaining measures of the confounders
-at baseline we:
+Next, we must identify and record at wave 0 (baseline) all potential confounders that could influence both the exposure (e.g., frequency of attending religious services) and the outcome (e.g., charitable giving). Proper identification and adjustment for these confounders are crucial for accurate causal inference. By obtaining measures of the confounders at baseline we:
 
-a.  **Minimise mediation bias**: by measuring confounders at baseline,
-    it will be difficult to produce the *causally incoherent* model:
-    $A_1\to \boxed{L_2} \rightarrowdotted Y_3$
+a.  **Minimise mediation bias**: by measuring confounders at baseline, it will be difficult to produce the *causally incoherent* model: $A_1\to \boxed{L_2} \rightarrowdotted Y_3$
 
-b.  **Minimise collider bias**: by measuring confounders at baseline, it
-    will be difficult to produce the *causally incoherent* model:
-    $A_1\rightarrowred L_3 \leftarrowred Y_2$.
+b.  **Minimise collider bias**: by measuring confounders at baseline, it will be difficult to produce the *causally incoherent* model: $A_1\rightarrowred L_3 \leftarrowred Y_2$.
 
-The topic of measurement construction is vast. For now, it is worth
-noting that measures should be obtained in consultation with locals and
-domain experts [@vanderweele2022].
+The topic of measurement construction is vast. For now, it is worth noting that measures should be obtained in consultation with locals and domain experts [@vanderweele2022].
 
 #### Step 5. Gather data for proxy variables of unmeasured common causes at the baseline wave
 
-If any unmeasured confounders influence both the exposure and outcome,
-but we lack direct measurements, we should make efforts to include
-proxies for them at baseline. Even if this strategy cannot eliminate all
-bias from unmeasured confounding, it will generally reduce bias.
+If any unmeasured confounders influence both the exposure and outcome, but we lack direct measurements, we should make efforts to include proxies for them at baseline. Even if this strategy cannot eliminate all bias from unmeasured confounding, it will generally reduce bias.
 
-####  Step 6. Retain sample
+#### Step 6. Retain sample
 
 Censoring leads to bias. Strategies for sample retention are essential.
 
-a.  **Developing tracking protocols**: establish robust systems for
-    tracking participants over the study period. This involves keeping
-    updated records of contact information such as addresses, emails,
-    phone numbers, and names, and accounting for changes in name over
-    time.
+a.  **Developing tracking protocols**: establish robust systems for tracking participants over the study period. This involves keeping updated records of contact information such as addresses, emails, phone numbers, and names, and accounting for changes in name over time.
 
-b.  **Motivate retention**: implement strategies to encourage ongoing
-    participation. These incentives should ideally not lead to bias in
-    the distribution of effect-modifiers that might affect the outcome
-    of interest. For example, retention should not appeal to trust in
-    science if trust in science is the outcome of interest.
+b.  **Motivate retention**: implement strategies to encourage ongoing participation. These incentives should ideally not lead to bias in the distribution of effect-modifiers that might affect the outcome of interest. For example, retention should not appeal to trust in science if trust in science is the outcome of interest.
 
-c.  **Investigators should avoid acting in ways that lead to
-    differential retention**: for example, stay out of the news.
+c.  **Investigators should avoid acting in ways that lead to differential retention**: for example, stay out of the news.
 
 ```{tikz}
 #| label: fig-dag-1
@@ -718,13 +611,9 @@ c.  **Investigators should avoid acting in ways that lead to
 
 ```
 
-
-
-
-
 ## Part 3: Statistical Estimation and Estimators
 
-We outline the process of converting observational data into consistent causal effect estimates for the targeted causal estimands. Here we describe the advantages and limitations of robust non-parametric and semi-parametric machine learning methods, arguing these should be used where sample size permits. 
+We outline the process of converting observational data into consistent causal effect estimates for the targeted causal estimands. Here we describe the advantages and limitations of robust non-parametric and semi-parametric machine learning methods, arguing these should be used where sample size permits.
 
 <!-- Example:  -->
 
@@ -742,7 +631,7 @@ Suppose we have defined our estimand. To obtain causal contrasts we recommend us
 
 #### Parametric Doubly Robust Estimation
 
-Combines the strengths of the IPTW and G-computation methods (see: [here](https://go-bayes.github.io/psych-434-2023/content/09-content.html#comprehensive-checklist-for-detailed-reporting-of-a-causal-inferenctial-study-e.g.-assessment-3-option-2). 
+Combines the strengths of the IPTW and G-computation methods (see: [here](https://go-bayes.github.io/psych-434-2023/content/09-content.html#comprehensive-checklist-for-detailed-reporting-of-a-causal-inferenctial-study-e.g.-assessment-3-option-2).
 
 The technique utilises both the propensity score and the outcome model, making it "doubly robust." This implies that if either of these models is correctly specified, the estimation will not be biased.
 
@@ -768,7 +657,7 @@ $$ \hat{E}(Y|A, L; V) = f_Y(A, L ; \theta_Y, V) $$
 
 In this model, $f_Y$ is a function (in our case a weighted regression model) with parameters $θ_Y$. The weights $V$ are incorporated into the estimation process, affecting the contribution of each observation to the estimation of $θ_Y$, but they are not an additional variable in the model. Additionally, following @agnostic, we take the interaction of the exposure and baseline covariates when estimating our regression model. For binary outcomes we model the rate ratio using Poisson regression. Although binomial regression is acceptable when the outcome is rare (less than 10%), non-collapsability leads means that we cannot interpret results as marginal causal effects. For consistency we use the Poisson model with robust standard errors.
 
-**Step 3**  simulate the potential outcome for each individual under the hypothetical scenario where everyone is exposed to the intervention $A=a$, irrespective of their actual exposure level:
+**Step 3** simulate the potential outcome for each individual under the hypothetical scenario where everyone is exposed to the intervention $A=a$, irrespective of their actual exposure level:
 
 $$\hat{E}(a) = \hat{E}[Y_i|A=a; L,\hat{\theta}_Y, v_i]$$
 
@@ -782,16 +671,14 @@ The difference $\delta$ represents the average causal effect of changing the exp
 
 For standard errors and confidence intervals, we use simulation-based inference methods [@greifer2023].
 
-
 #### Semi-parametric and non-parametric estimator
-
 
 #### Shift functions
 
 Causider a causal question in which we applying the following contrasts:
 
-- The expected outcomes under each shift function defined above by the function $f(A)$, and
-- The expected outcomes under the actual observed attendance/socalising patterns.
+-   The expected outcomes under each shift function defined above by the function $f(A)$, and
+-   The expected outcomes under the actual observed attendance/socalising patterns.
 
 Formally, the each target is given:
 
@@ -799,40 +686,39 @@ $$ \Delta = E[Y(a*)|f(A),L] - E[Y(a)|A,L] $$
 
 Where $\Delta$ is the average treatment effect of a modified treatment policy.
 
-
 **Motiviting example: shift function as gain of weekly religious service**: the intervention of interest is defined by a shift function applied to the treatment variable, designed to assess the effect of shifting the treatment on all outcomes examined in the study. The focal estimand shift function may be formally specified as:
 
 $$f(A) = \begin{cases} 4 & \text{if } A \leq 4  \text{ monthly religious service attendance} \\ A & \text{if } A > 4  \text{ monthly religious service attendance} \end{cases} $$
 
 Here, we estimate outcomes in a hypothetical world in which all individuals were attend at least four religious services per month (weekly).
 
+**Comparative intervention 1: shift function as loss of any religious service**:
 
-**Comparative intervention 1: shift function as loss of any religious service**: 
-
-Because the gain of religion might be different from the loss of religion, we additionally contrast the population average outcome were everyone to stop attending monthly religious service verse the expected outcome at the natural treatment values: 
+Because the gain of religion might be different from the loss of religion, we additionally contrast the population average outcome were everyone to stop attending monthly religious service verse the expected outcome at the natural treatment values:
 
 $$f(A) = 0 $$
 
 Here, we estimate outcomes in a hypothetical world in which no individuals attended religious service.
-
-
 
 <!-- ### Inclusion criteria and missing data -->
 
 <!-- For example: -->
 
 <!-- -   Participants who provided full information about both religious service attendance and hours socialising at the baseline wave (NZAVS time 10, years 2018-10) and exposure wave (NZAVS wave 2019-20) were included. -->
+
 <!-- -   Missing data for all variables at baseline were allowed. Missing data at baseline were imputed through the `mice` package [@vanbuuren2018]. -->
+
 <!-- -   Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave).  This allow for adjustment owing to attition and loss to follow up (see details of the `lmtp` package [@williams2021]) -->
 
 <!-- #### Exclusion Criteria -->
 
 <!-- -   Participants who did not respond to the religious service attendance question at baseline or the exposure wave.  -->
+
 <!-- -   Participants who did not respond to the hours socialising question at baseline or the exposure wave.  -->
+
 <!-- -   We allowed loss-to-follow up in the outcome wave (NZAVS wave 2020); missing values owing to attrition and non-response were were handled using censoring weights. -->
 
 <!-- There were N = X  NZAVS participants who met these criteria. -->
-
 
 <!-- ###  Method for confounding control -->
 
@@ -850,9 +736,6 @@ Here, we estimate outcomes in a hypothetical world in which no individuals atten
 
 <!-- To mitigate bias from missing data due to non-response or panel attrition, we imputed missing values using the mice package in R [@vanbuuren2018]. To address non-response or missingness at follow-up, we employed censoring weights, integrated into our semi-parametric models. Valid inferences for the New Zealand population were secured by applying post-stratification census weights for age, European ethnicity, and gender. -->
 
-
-
-
 #### Survey weights
 
 TBA
@@ -861,11 +744,11 @@ TBA
 
 TBA
 
-##### Inverse probabilty of censoring weights 
+#### Inverse probabilty of censoring weights
 
 TBA
 
-#### Example report
+#### Example report estimator
 
 > We employ a semi-parametric estimator known as Targeted Minimum Loss-based Estimation (TMLE), which is adept at estimating the causal effect of modified treatment policies on outcomes over time. Estimatation was performed using `lmtp` package [@williams2021]. TMLE is a robust method that combines machine learning techniques with traditional statistical models to estimate causal effects while providing valid statistical uncertainty measures for these estimates.
 
@@ -874,15 +757,99 @@ TBA
 > The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible to the true causal effect while still being robust to model misspecification in either the outcome or treatment model.
 
 > A central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid overfitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects on of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]
+
+### Example Sensitivity Analysis Using E-values
+
+### E-value
+
+> The minimum strength of association on the risk ratio scale that an unmeasured confounder would need to have with both the exposure and the outcome, conditional on the measured covariates, to fully explain away a specific exposure-outcome association
+
+See: [@vanderweele2020][@mathur2018a]
+
+For example, suppose that the lower bound of the the E-value was 1.3 with the lower bound of the confidence interval = 1.12, we might then write:
+
+> With an observed risk ratio of RR=1.3, an unmeasured confounder that was associated with both the outcome and the exposure by a risk ratio of 1.3-fold each (or 30%), above and beyond the measured confounders, could explain away the estimate, but weaker joint confounder associations could not; to move the confidence interval to include the null, an unmeasured confounder that was associated with the outcome and the exposure by a risk ratio of 1.12-fold (or 12%) each could do so, but weaker joint confounder associations could not.
+
+The equations are as follows (for risk ratios)
+
+$$
+E-value_{RR} = RR + \sqrt{RR \times (RR - 1)}
+$$ $$
+E-value_{LCL} = LCL + \sqrt{LCL \times (LCL - 1)}
+$$
+
+Here is an R function that will calculate E-values
+
+```{r}
+calculate_e_value <- function(rr, lcl) {
+  e_value_rr = rr + sqrt(rr*(rr - 1))
+  e_value_lcl = lcl + sqrt(lcl*(lcl - 1))
+  
+  list(e_value_rr = e_value_rr, e_value_lcl = e_value_lcl)
+}
+
+# e.g. smoking causes cancer
+
+# finding 	RR = 10.73 (95% CI: 8.02, 14.36)
+
+calculate_e_value(10.73, 8.02)
+
 ```
 
-### Sensitivity analysis
+Using VanderWeele's recommended reporting language, we may write:
 
+> "With an observed risk ratio of RR=10.7, an unmeasured confounder that was associated with both the outcome and the exposure by a risk ratio of 20.9-fold each, above and beyond the measured confounders, could explain away the estimate, but weaker joint confounder associations could not; to move the confidence interval to include the null, an unmeasured confounder that was associated with the outcome and the exposure by a risk ratio of 15.5-fold each could do so, but weaker joint confounder associations could not."
+
+Note that in this class, most of the outcomes will be (standardised) continuous outcomes. Here's a function and LaTeX code to describe the approximation.
+
+This function takes a linear regression coefficient estimate (`est`), its standard error (`se`), the standard deviation of the outcome (`sd`), a contrast of interest in the exposure (`delta`, which defaults to 1), and a "true" standardized mean difference (true, which defaults to 0). It calculates the odds ratio using the formula from [@vanderweele2017] and Chinn (2000) and then uses this to calculate the E-value.
+
+```{r}
+#| label: evalue_ols
+#| echo: true
+compute_evalue_ols <- function(est, se, delta = 1, true = 0) {
+  # rescale estimate and SE to reflect a contrast of size delta
+  est <- est / delta
+  se <- se / delta
+
+  # compute transformed odds ratio and confidence intervals
+  odds_ratio <- exp(0.91 * est)
+  lo <- exp(0.91 * est - 1.78 * se)
+  hi <- exp(0.91 * est + 1.78 * se)
+
+  # compute E-Values based on the RR values
+  evalue_point_estimate <- odds_ratio * sqrt(odds_ratio + 1)
+  evalue_lower_ci <- lo * sqrt(lo + 1)
+
+  # return E-values
+  return(list(EValue_PointEstimate = evalue_point_estimate,
+              EValue_LowerCI = evalue_lower_ci))
+}
+
+# e.g stimate of 0.5, a standard error of 0.1, and a standard deviation of 1.
+results <- compute_evalue_ols(est = 0.5, se = 0.1, delta = 1)
+print(results)
+```
+
+For one's report, Vanderweele suggest using the following language without modification:
+
+> "With an observed risk ratio of RR=2.92, an unmeasured confounder that was associated with both the outcome and the exposure by a risk ratio of 2.92-fold each, above and beyond the measured confounders, could explain away the estimate, but weaker joint confounder associations could not; to move the confidence interval to include the null, an unmeasured confounder that was associated with the outcome and the exposure by a risk ratio of 2.23-fold each could do so, but weaker joint confounder associations could not."
+
+Note the E-values package will do the computational work for us. It returns very similar values as the explicit function. We recommend using the E-value package
+
+```{r}
+#| label: evalues
+#| echo: true
+
+# load package
+library(EValue)
+
+EValue::evalues.OLS( est = 0.5, se = 0.1, sd = 1, delta = 1, true = 0 )
+```
 
 ### Part 4: Pre-registration, Data Analysis, and Reporting
 
-We describe the protocols for pre-registrating analysis, conducting these data analyses, and clearly and accurately communicating scientific findings. 
-
+We describe the protocols for pre-registrating analysis, conducting these data analyses, and clearly and accurately communicating scientific findings.
 
 ### Optional strategies for conveying results
 
@@ -894,16 +861,13 @@ Explain causal effect estimates
 
 Tread carefully
 
-### Part 5: Addressing complex causal questions  
+### Part 5: Addressing complex causal questions
 
-We discuss methods for addressing more complex causal questions than average treatment effect estimation, including investigating treatment-effect heterogeneity, causal interactions, causal mediation, and longitudinal treatment strategies. 
+We discuss methods for addressing more complex causal questions than average treatment effect estimation, including investigating treatment-effect heterogeneity, causal interactions, causal mediation, and longitudinal treatment strategies.
 
 For further discussions of our approach, see: [@bulbulia2023a; @bulbulia2023; @bulbulia2022; @vanderweele2015; @hernan2023])
 
-
-
-
-### Study 2: Example 
+### Example transition matrix
 
 ```{r}
 #| label: verify-positivity-data-dogs
@@ -917,7 +881,7 @@ For further discussions of our approach, see: [@bulbulia2023a; @bulbulia2023; @b
 @tbl-transition-socialising shows a transition matrix captures the movement between weekly hours socialising during the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagnal). Again, a cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
 
 |  From   |  State 0  | State 1  | State 2 | State 3 | State 4 | State 5 | State 6 | State 7 | State 8 |
-|:-------:|:---------:|:--------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|
 | State 0 | **20039** |   2243   |  1192   |   221   |   25    |   12    |    7    |    3    |    6    |
 | State 1 |   2288    | **1389** |   731   |   103   |   11    |    4    |    3    |    0    |    0    |
 | State 2 |   1328    |   660    | **806** |   161   |   29    |    6    |    2    |    1    |    2    |
@@ -930,21 +894,16 @@ For further discussions of our approach, see: [@bulbulia2023a; @bulbulia2023; @b
 
 : Transition matrix for change in the square of hours socialing with community each week {#tbl-transition-socialising}
 
+@tbl-transition-socialising presents a summary of changes in socialising at the threshold that we compared. When shifting to socialising at least 1.4 hours per week, we imagine 'treating' 25,959 cases. Again this table is for illustration, as the the shift intervention allows us to flexibly contrast cases without projecting the entire population in to one or another cell.
 
-
-@@tbl-transition-socialising presents a summary of changes in socialising at the threshold that we compared. When shifting to socialising at least 1.4 hours per week, we imagine 'treating' 25,959 cases. Again this table is for illustration, as the the shift intervention allows us to flexibly contrast cases without projecting the entire population in to one or another cell.  
-
-
-|        From         | < 1.4 weekly hours | >= 1.4 weekly hours |
-|:-------------------:|:------------------:|:-------------------:|
-| < 1.4 weekly hours  |     **25959**      |        2318         |
-| >= 1.4 weekly hours |        2434        |      **1347**       |
+|         From         | \< 1.4 weekly hours | \>= 1.4 weekly hours |
+|:--------------------:|:-------------------:|:--------------------:|
+| \< 1.4 weekly hours  |      **25959**      |         2318         |
+| \>= 1.4 weekly hours |        2434         |       **1347**       |
 
 : Transition matrix for change in the square of hours socialing with community each week {#tbl-transition-socialising-shift}
 
-
 ### Example report of estimator
-
 
 **Treatment Model**: in the context of causal inference, a treatment model estimates the likelihood of receiving the treatment—here, pet ownership—based on observed characteristics (covariates). In ordinary regression, this would be akin to the predictor variables in the model, but modelling the treatment, in this case pet ownership.
 
@@ -958,31 +917,53 @@ By using TMLE to combine both a treatment and outcome model, we can better ident
 
 3.  **Outcome models**: a second targeted machine learning model focuses on the outcome variables, encompassing multiple measures of the outcome distributed across different domains of interest. This model incorporates both the individual treatment statuses and the previously calculated weights, enhancing our capacity for causal inference. **In plain terms** we create a model that tries to predict well-being levels based on whether experiences the treatment under consideration, while also considering conditional on covarites.
 
-4. **Doubly robust estimation*: Combines the treatment and outcome model to obtain robust results: only one of the two models needs to be correctly specified.
+4.  \*\*Doubly robust estimation\*: Combines the treatment and outcome model to obtain robust results: only one of the two models needs to be correctly specified.
 
-5.  **Counterfactual contrasts**: a core component of TMLE is the projection of counterfactual outcomes. By combining estimates from the treatment and outcome models, TMLE enables the computation of potential well-being levels for each individual under dual treatment conditions—both with and without pet ownership. **In plain terms:** we use the models to estimate what someone's well-being would likely be in both scenarios: owning a pet and not owning one. Note that our shift estimand, described below, helps to make the assumptions required for such contrasts more credible.  We will contrast the average population outcome if all were to own pets with the naturally occurring from the distribution of pet ownership in the treatment year (NZAVS wave 2019)
+5.  **Counterfactual contrasts**: a core component of TMLE is the projection of counterfactual outcomes. By combining estimates from the treatment and outcome models, TMLE enables the computation of potential well-being levels for each individual under dual treatment conditions—both with and without pet ownership. **In plain terms:** we use the models to estimate what someone's well-being would likely be in both scenarios: owning a pet and not owning one. Note that our shift estimand, described below, helps to make the assumptions required for such contrasts more credible. We will contrast the average population outcome if all were to own pets with the naturally occurring from the distribution of pet ownership in the treatment year (NZAVS wave 2019)
 
-6.  **Effect estimation**: the final analytical stage involves determining the average treatment effect by contrasting the estimated counterfactual outcomes. 
+6.  **Effect estimation**: the final analytical stage involves determining the average treatment effect by contrasting the estimated counterfactual outcomes.
 
+## Conclusions: Summary of Advice
 
+### Overview of the steps
 
+1.  **Clarify the causal question:** prior to any analysis, it is crucial to explicitly define the causal question under examination.
 
-## Results
+Suppose we wish to investigate the causal effect of religious-service attendance on cooperation. As yet, there is no causal question. Within the umbrella term of "religious service attendance" multiple scenarios can be considered: attending religious service weekly service; attending some religious service from a baseline of no attendance; losing religious service attendance and others.
 
-### Religious service attendance
+A clearly defined question might contrast might be: "What is the expected causal effect of attending religious service at least weekly among those who do not attend weekly, contrasted with natural expectation were no intervation to occur?" (Note: this is a "shift intervention.")
 
-### Summary of findings
+2.  **Clearly define the target population**: for whom do we intend the results to generalise? For example, we might retrict our question to the population of people who identify as religious. Where relevant, survey weights should always be collected and used to obtain valid estimates for target population outcomes.
 
+3.  **Clearly state eligibility criteria.**: state inclusion/exclusion criteria to obtain valid causal estimates. Note that these criteria always relate to a target population.
 
-### Assumptions and limitations
+4.  **Ensure correct temporal order in the variables in ones data**: causality occurs in time. Confounders occur before exposures, which in turn must occur before the outcome.
 
-1.  **Causality and confounding**: we employs rigorous causal inference techniques, but these are contingent on the assumption of no unmeasured confounding. (Say more about E-values...)
+5.  **Balance confounders**: once the temporal structure is set, we may adjust for confounders that could distort the causal link between exposure and outcome.
 
-2.  **Measurement error**: the variables under consideration---exercise and sleep---are self-reported, which might introduce both systematic and random measurement errors. It should be specifically noted that the apparent modesty of the practical effects could arise, in part, to measurement inaccuracy. Given the limitations of self-report measures, the true effect sizes may differ from those estimated. Therefore, while the evidence does suggest a modest impact, the actual real-world effects may be either smaller or larger than the estimates suggest. Given the modest effect sizes and the limitations of self-report measures, future research should explore the use of more objective measures for variables like exercise and sleep. (... etc.)
+6.  **Include of baseline measures of the treatment and outcome**: with at least three waves of data, we should include baseline measures for both the treatment and the outcomes. This strategy serves two objectives: first, it augments control for confounding variables, and second, it permits differentiation between "incidence" and "prevalence" effects. *Incidence effects* capture the emergence of new cases or conditions among individuals who acquire pets during the study. This facilitates an evaluation of the causal impact of pet adoption on well-being among those who were not pet owners at the baseline.
 
-3.  **Generalisability and transportability**: our findings should be interpreted within the context of the New Zealand population from which the data were sourced. Although the results may have broader relevance, direct extrapolation to different populations or sociocultural settings should be undertaken cautiously.
+7.  **Adjust for missing data**: we generally recommend using inverse probability of censoring weights which may carry fewer assumptions that multiply imputing missing values.
 
-### Theoretical and practical relevance
+8.  **Assess multiple dimensions of the outcome within the same study**: where scientificallly relevant, we recommend using an outcomewide approach [@vanderweele2020] to assess multiple outcomes within a single study. This approach has several benefits.
+
+First we obtain *contextualised effects*: each outcome is evaluated in context relative to the others. This facilitates a better understanding of the importance of each individual effect within the overarching construct of well-being.
+
+Second, we *mitigate* of spurious findings: by assessing multiple outcomes simultaneously, we minimise the risk of cherry-picking cases that confirm a preconceived hypothesis, thereby reducing the likelihood of chance findings.
+
+Third, we *accelerate sientific understanding*: a comprehensive assessment can fast-track our scientific insights into the potential advantages and disadvantages of pet ownership on various aspects of human well-being. The selection of outcomes below are based on previous studies reflecting interest in the relationship between pet ownership and (1) health, (2) embodied well-being and distress, (3) reflective well-being and (4) social well-being
+
+9.  **Use TMLE and machine learning**: Targeted Maximum Likelihood Estimation (TMLE) coupled with machine learning (the `SuperLearner` library in R [@polley2023]) has several advantages: first it reduces reliance on the assumption of a correctly specified model. The method is robust even if either the treatment model or the outcome model is incorrectly specified. Second, *machine Learning for confounder balancing improves precision* further refines our ability to balance confounders, particularly when these are high-dimensional or interact in ways that cannot be known in advance [@díaz2021].
+
+10. **Clearly state results using graphs**: it is often sensible to estimate effect using standardised outcomes which allows for ready graphical comparison. However, in some cases, effects on the data scale are more meaningful, in which case graphical comparisons may be misleading.
+
+11. **Quantitatively assess robustness to unmeasured confounding**: report sensitivity analysis such as E-values.
+
+12. **Measurement error**: note that all data, and in particular self-report data, may be subject to random measurement error. Given the limitations of self-report measures, the true effect sizes may differ from those estimated. Importantly, overly modest effects could arise, in part, from uncorrelated measurement inaccuracy in the treatment and outcomes.
+
+13. **Generalisability and transportability**: findings should be interpreted within the context of the target population. Although the results may have broader relevance, direct extrapolation to different populations or sociocultural settings should only be undertaken cautiously
+
+14 **Theoretical and practical relevance**: when describing the relevance of the data, it can be useful to state regression coefficients from cross-sectional data using models that do not adequately obtain casual effect estimates. In our experience, the results of "standard" models will be different, sometimes considerably so. Data simulations may also help to drive home the importance of adopting a careful causal inference approach.
 
 {{< pagebreak >}}
 
@@ -1144,7 +1125,6 @@ HERE
 ### Health well-being outcomes
 
 ### Appendix B. Descriptive Statistics
-
 
 ```{r}
 #| label: tbl-table_demographic_vars
