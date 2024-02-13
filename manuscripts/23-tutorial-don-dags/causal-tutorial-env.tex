@@ -225,7 +225,7 @@ Inference, Confounding, Environmental, Psychology, Panel},
 
 \title{Causal Inference in Environmental Psychology}
 \author{Joseph A. Bulbulia \and Donald W Hine}
-\date{2024-02-13}
+\date{2024-02-14}
 
 \begin{document}
 \maketitle
@@ -526,7 +526,7 @@ given time. Breaking down the Average Treatment Effect (ATE) into
 observed and unobserved outcomes yields the following equation:
 
 \[
-\text{Average Treatment Effect} = \left(\underbrace{\underbrace{\mathbb{E}[Y(1)|A = 1]}_{\text{observed for } A = 1} + \underbrace{\mathbb{E}[Y(1)|A = 0]}_{\text{unobserved for } A = 0}}_{\text{effect among treated}}\right) - \left(\underbrace{\underbrace{\mathbb{E}[Y(0)|A = 0]}_{\text{observed for } A = 0} + \underbrace{\mathbb{E}[Y(0)|A = 1]}_{\text{unobserved for } A = 1}}_{\text{effect among untreated}}\right).
+\text{Average Treatment Effect} = \left(\underbrace{\underbrace{\mathbb{E}[Y(1)|A = 1]}_{\text{observed}} + \underbrace{\mathbb{E}[Y(1)|A = 0]}_{\text{unobserved}}}_{\text{treated}}\right) - \left(\underbrace{\underbrace{\mathbb{E}[Y(0)|A = 0]}_{\text{observed}} + \underbrace{\mathbb{E}[Y(0)|A = 1]}_{\text{unobserved}}}_{\text{untreated}}\right).
 \]
 
 In this expression, \(\mathbb{E}[Y(1)|A = 1]\) represents the average
@@ -641,6 +641,8 @@ randomised experiments may be summarised as follows:
   independence between potential outcomes and treatment assignment,
   given all measured confounders, ensuring observed group differences in
   the effects of the treatment are attributable to the treatment itself.
+  Note that in a randomised controled experiment, we have
+  \emph{unconditional exchangability}. Randomisation ensures balance.
 \end{enumerate}
 
 \paragraph{Control Ensures Consistent Treatments are Administered Across
@@ -676,10 +678,10 @@ Y_{i}(0) &= (Y_{i}|A_{i} = 0) \quad \text{(Potential outcome observed if untreat
 \end{aligned}
 \]
 
-When the conditional exchangeability assumption is satisfied, we can
-extend our analysis from comparisons of treatment effects observed in
-the data to comparisons of the average treatment effects as if the
-entire population had been treated or had been untreated:
+When the exchangeability assumption is satisfied, we can extend our
+analysis from comparisons of treatment effects observed in the data to
+comparisons of the average treatment effects as if the entire population
+had been treated or had been untreated:
 
 \[
 \begin{aligned}
@@ -820,7 +822,7 @@ treatment exposure variability within certain strata and complicating
 valid causal inference.
 
 In observational studies, understanding the context and carefully using
-statistical methods helps us get close to the conditions of a randomized
+statistical methods helps us get close to the conditions of a randomised
 experiment. The closer we get, the more we can trust our causal
 conclusions. Yet, it is important to admit that sometimes our data will
 not give us much confidence. By comparing our work to the ideal of a
@@ -916,19 +918,6 @@ table is adapted from (\citeproc{ref-bulbulia2023}{Bulbulia 2023}))}
 \subsubsection{Elements of Causal
 Diagrams}\label{elements-of-causal-diagrams}
 
-\begin{table}
-
-\caption{\label{tbl-03}This table is adapted from
-(\citeproc{ref-bulbulia2023}{Bulbulia 2023})}
-
-\centering{
-
-\terminologydirectedgraph
-
-}
-
-\end{table}%
-
 Having established the meanings of our symbols, we now turn to the
 fundamental components of causal diagrams themselves. Table~\ref{tbl-02}
 describes the basic elements of causal diagrams themselves. Key features
@@ -992,161 +981,207 @@ allowing for the transmission of influence, the variables are considered
 d-connected, denoted as \(X_1 \cancel\coprod X_2\)
 (\citeproc{ref-pearl1995}{Pearl 1995}).
 
-Table~\ref{tbl-03} describes the fundamental rules by which causal
-associations open statistical associations when there are up to three
-variables that may be causally related to each other.\footnote{Recall
-  that to ensure balance in confounders across treatments, we must
-  ensure that \(A\coprod Y(a)|L\) -- that the potential outcomes are
-  independent within levels of the treatments to be compared,
-  conditional on measured covariates \(L\). We do not need to ensure
-  that the treatment has no effect such that \(A|Y,L\).}
+Next, we define three basic rules that link causal relationships to
+statistical associations. All confounding results from these
+rules.\footnote{Recall that to ensure balance in confounders across
+  treatments, we must ensure that \(A\coprod Y(a)|L\) -- that the
+  potential outcomes are independent within levels of the treatments to
+  be compared, conditional on measured covariates \(L\). We do not need
+  to ensure that the treatment has no effect such that
+  \(A\coprod Y |L\).}
 
-\subparagraph{\texorpdfstring{\textbf{Two variables with no
-arrows}}{Two variables with no arrows}}\label{two-variables-with-no-arrows}
+\subparagraph{Two variables with no arrows: absence of
+causatoin}\label{two-variables-with-no-arrows-absence-of-causatoin}
 
-When we create a graph with two variables, \(X_0\) and \(X_1\), that
-have no arrows between them, we assert that there is no causal effect
-between them. If there were only variables and no causal relationship
-between them the variables would be statistically independent of each
-other. Using mathematical notation, we can describe this independence as
-\(X_0 \coprod X_1\). This independence implies that knowing the value of
-one variable does not provide any information about the value of the
-other.
+\[\xorxA\] If \(X_0\) and \(X_1\) have no arrows between them, we assert
+there is no causal effect. Without a causal link, they are independent,
+denoted mathematically as \(X_0 \coprod X_1\). This means knowing one
+variable tells you nothing about the other.
 
-\subparagraph{\texorpdfstring{\textbf{Two variables with a causal
-arrow}}{Two variables with a causal arrow}}\label{two-variables-with-a-causal-arrow}
+\paragraph{Fundamental causal association: two variables with a causal
+arrow}\label{fundamental-causal-association-two-variables-with-a-causal-arrow}
 
-Introducing a causal arrow from \(X_0\) to \(X_1\)
-(\(X_0 \rightarrow X_1\)) indicates that \(X_0\) causally affects
-\(X_1\). This causal relationship implies a statistical dependency
-between \(X_0\) and \(X_1\).
+\[\xtoxA\]
 
-Using mathematical notation, we describe this dependency as
-\(X_0 \cancel\coprod X_1\). Here, knowledge about \(X_0\) provides
-information about \(X_1\), reflecting their causal association. Again,
-if there were only two variables such that \(X_0 \to X_1\), this causal
-relationship would imply that the two variables were statistically
-dependent.
+Adding a causal arrow from \(X_0 \to X_1\) indicates \(X_0\) causes a
+change in \(X_1\), or that \(X_1\) ``listens to'' \(X_0\). Causality
+creates a \emph{statistical} dependency, denoted mathematically as
+\(X_0 \cancel\coprod X_1\). This means knowing \(X_0\) gives information
+about \(X_1\)
 
-\subparagraph{\texorpdfstring{\textbf{Three Variables: Fork, Chain, and
-Collider
-Structures}}{Three Variables: Fork, Chain, and Collider Structures}}\label{three-variables-fork-chain-and-collider-structures}
+\paragraph{Three Variables: Fork, Chain, and Collider
+Structures}\label{three-variables-fork-chain-and-collider-structures}
 
 There are only three fundamental ways in which we may add another causal
 relationship to the basic two-node structure: the fork structure, the
 chain structure, and the collider structure. Each structure has a
 corresponding rule for how the probability distributions of the three
-nodes become related or unrelated when we condition on nodes within
-them:
+nodes become related or unrelated when we condition on them.
 
-\textbf{The Fork Structure}: the fork structure
-(\(X_0 \rightarrow X_1\), \(X_0 \rightarrow X_2\)) implies \(X_0\) is a
-common cause of \(X_1\) and \(X_2\).
+\subparagraph{The Fork Structure}\label{the-fork-structure}
 
-\textbf{The Fork Structure Rule}: here, \(X_1\) and \(X_2\) are
-conditionally independent given \(X_0\) (if \(\boxed{X_0}\), then
-\(X_1 \coprod X_2 | X_0\)). Conditioning on \(X_0\) blocks any
-statistical association between \(X_1\) and \(X_2\) through \(X_0\).
-This implies that if there were any statistical association between
-\(X_1\) and \(X_2\) after conditioning on \(X_2\) it would arise from a
-causal association between \(X_1\) and \(X_2\).
+\[\fork\]
 
-\textbf{The Chain Structure}: the chain structure
-(\(X_0 \rightarrow X_1 \rightarrow X_2\)) states that \(X_0\) affects
-\(X_1\), which in turn affects \(X_2\).
+The fork structure (\(X_0 \rightarrow X_1\), \(X_0 \rightarrow X_2\))
+shows \(X_0\) causes both \(X_1\) and \(X_2\). Given \(X_0\), \(X_1\)
+and \(X_2\) are independent, written as \(X_1 \coprod X_2 | X_0\). This
+means knowing \(X_0\) removes any link between \(X_1\) and \(X_2\).
+Thus, if \(X_1\) and \(X_2\) are statistically related after
+conditioning on their common cause this statistical association reflects
+causation. Here, association is causation.
 
-\textbf{The Chain Structure Rule}: \(X_0\) and \(X_2\) are conditionally
-independent given \(X_1\) (if \(\boxed{X_1}\), then
-\(X_0 \coprod X_2 | X_1\)). Conditioning on \(X_1\) blocks the indirect
-path between \(X_0\) and \(X_2\). This implies that if there is a causal
-association between \(X_0\) and \(X_2\) we might not detect it after
-conditioning on \(X_1\)
+\textbf{Fork Rule}: *if interested in the causal effect of
+\(X_1 \to X_2\), condition on \(\boxed{X_1}\)**.
 
-\textbf{The Collider Structure}: the collider structure
-(\(X_0 \rightarrow X_2 \leftarrow X_1\)) shows \(X_2\) as a common
-effect of \(X_0\) and \(X_1\).
+\subparagraph{The Chain Structure}\label{the-chain-structure}
 
-\textbf{The Collider Structure Rule}: in a collider structure, \(X_0\)
-and \(X_1\) are independent. However, conditioning on \(X_2\) (or a
-descendant of \(X_2\), \(X_3\)) introduces an association between
-\(X_0\) and \(X_1\) (\(X_0 \cancel\coprod X_1 | X_2\)). This is because
+\[\chain\]
+
+The chain structure (\(X_0 \rightarrow X_1 \rightarrow X_2\)) describes
+a setting in which \(X_0\) affects \(X_1\) and \(X_1\) affects \(X_2\).
+In this structure, \(X_0\) and \(X_2\) are conditionally independent
+given \(X_1\). That is, if \(\boxed{X_1}\), then
+\(X_0 \coprod X_2 | X_1\)). Hence, conditioning on \(X_1\) \emph{blocks}
+the association of \(X_0\) and \(X_2\). This implies that if there is a
+causal association between \(X_0\) and \(X_2\) we might not detect it
+after conditioning on \(\boxed{X_1}\).
+
+Chain Rule: \textbf{if interested in the (total) causal effect of
+\(X_0 \to X_2\), do not condition on \(X_1\)}.
+
+\subparagraph{The Collider Structure}\label{the-collider-structure}
+
+\[\immorality\]
+
+The collider structure describes a setting in which both \(X_0\to X_2\)
+and \(X_1 \to X_2\). In a collider structure, \(X_0\) and \(X_1\) are
+independent. However, conditioning on \(X_2\) -- the common descendant
+of \(X_2\), \(X_3\) -- introduces a stastisical association between
+\(X_0\) and \(X_1\), such that \(X_0 \cancel\coprod X_1 | X_2\). That is
 conditioning on the common effect (or its descendant) creates a pathway
 through which \(X_0\) and \(X_1\) share information about each other.
-Notably, this statistical association might arise in the absence of any
-causal association.
+Again, this statistical association between \(X_0\) and \(X_1\) can
+arise in the absence of any causal association.
+
+Collider Rule: \textbf{if interested in the causal effect of
+\(X_0 \to X_1\), do not condition on \(X_2\)}.
+
+\subparagraph{Extensions: all confounding bias results from combinations
+of basic causal associations and the three elementary structures (forks,
+chains,
+colliders)}\label{extensions-all-confounding-bias-results-from-combinations-of-basic-causal-associations-and-the-three-elementary-structures-forks-chains-colliders}
+
+For example, consider the implications of conditioning on the descendant
+of a collider:
+
+\[\immoralityChild\]
+
+Because every descendant is statistically associated with its parent
+(basic causality), a descendant acts as a proxy for its parent. In this
+scenario, conditioning on \(X_3\) (the descendant of \(X_2\), which is a
+collider) inadvertently opens a path between \(X_0\) and \(X_1\) that
+would otherwise be blocked by the unconditioned collider \(X_2\). This
+occurs because \(X_3\) inherits all statistical associations of \(X_2\),
+here, its statistical associations with \(X_0\) and \(X_1\).
+Consequently, when we condition on \(X_3\), we indirectly condition on
+\(X_2\), thereby introducing a statistical association between \(X_0\)
+and \(X_1\) through \(X_3\).
+
+This principle underscores the nuanced nature of causal inference,
+demonstrating how conditioning on certain variables, here a descendant
+of colliders, can inadvertently create statistical dependencies such
+that association is \emph{not} causation. The implication: do not
+condition on a descendent of a collider.
 
 For those new to the causal diagrams, the fundamental structures of
 causation presented in Pearl's rules of d-separation might seem
 abstract. Similarly, individuals not versed in probability theory might
 find the notation of conditional dependencies and independencies
 challenging. Yet, with the groundwork of rules and conventions laid,
-applying causal diagrams to real-world problems is not as intimidating.
-In fact, based on our experience, many find constructing causal diagrams
-to be engaging and enjoyable. Once we know how conditioning affects
-statistical associations within causal structures, we can work backwards
-through statistics to make causal inferences. However it is vital to
-remember that all structure relationships in a graph except the focal
-treatment/outcome relationship must be assumed. Any dataset is typically
-compatible with many causal diagrams. Causal diagrams help investigators
-to understand what follows from their assumptions. However, assumptions
-themselves cannot be avoided.
-
-\subsubsection{How to Create Causal
-Diagrams}\label{how-to-create-causal-diagrams}
-
-\paragraph{Causal diagrams must address a clearly stated pre-specified
-identification
-problem}\label{causal-diagrams-must-address-a-clearly-stated-pre-specified-identification-problem}
-
-An identification problem asks if one can reliably measure the causal
-effect of \(A\) on \(Y\) using data, distinguishing genuine causation
-from statistical association. Causal diagrams are qualitative tools
-whose primary purpose is evaluate whether, based on the causal
-relationships encoded in the causal diagram, researchers may identify a
-causal association in the population of interest from statistical
-associations in the data. These assumptions encoded in a causal diagram
-are called ``structural assumptions''
-(\citeproc{ref-hernuxe1n2004a}{Hernán \emph{et al.} 2004}). In most
-instances, the structural assumptions encoded in a causal diagram cannot
-be verified by the data. Only the relationship between the treatment and
-the outcome is left unspecified such that 1. \textbf{In the absence of a
-causal relationship}, and conditional on all measured confounders, the
-treatment and outcome will be statistically independent in the observed
-data (\(A \coprod Y| L\)). 2. \textbf{In the presence of a causal
-relationship}, conditioning on all measured confounders, the statistical
-association between treatment and outcome will consistently estimate
-their causal relationship(\(E[Y(a) | L] = E[Y |A=a, L]\)). Because all
-but the \(A\to Y\) path is assumed, causal diagrams should be created in
+applying causal diagrams to real-world problems is need not be
+intimidating. In fact, based on our experience, many find constructing
+causal diagrams to be enjoyable conversation starters. Once we know how
+conditioning affects statistical associations within causal structures,
+we can work backwards through statistics to make causal inferences. Put
+another way, causal diagrams reveal how and when association is
+causation. This is good news for psychological questions that are
+inaccessible to experiments. However, we must temper our enthusiasm. We
+must remember that \textbf{all structure relationships in a graph except
+the focal treatment/outcome relationship must be assumed.} This because
+most observational datasets are typically compatible with many causal
+diagrams. Statistically ``significant'' associations do not in
+themselves reveal anything about causation. Causal diagrams are powerful
+aids because they help investigators to understand what follows from
+their assumptions the data. However, assumptions about the structural
+relationships in the data cannot be avoided. Because every path except
+the \(A\to Y\) path is assumed, causal diagrams should be created in
 collaboration with area experts. Where there is expert disagreement,
 multiple causal diagrams should be proposed to reflect the implications
 of disagreements for causal inference.
 
-We can further decompose the identification problem into two tasks:
+\subsubsection{How to Create Causal
+Diagrams}\label{how-to-create-causal-diagrams}
 
-\textbf{First task}: assess if the treatment (\(A\)) and outcome (\(Y\))
-are not associated after conditioning on measured common causes. This
-involves identifying potential common causes, representing a strategy of
-controlling for them, and then evaluating whether there is any backdoor
-path linking \(A\) and \(Y\) after implementing this strategy. Note that
-we do not draw a path between \(A\) and \(Y\) when evaluating the
-question of whether all backdoor paths are closed. Our first task is to
-evaluate whether \(A\) and \(Y\) are d-separated, that is whether
-statistical associations are absent if treatment and outcome are
-independent.
+\paragraph{Causal diagrams must address a clearly stated identification
+problem}\label{causal-diagrams-must-address-a-clearly-stated-identification-problem}
 
-\textbf{Second task}: evaluate whether \(A\) and \(Y\) are causally
-associated, and this causal association remains unbiased after adopting
-the conditioning strategy suggested in the first task. This step helps
-determine if the statistical relationship between \(A\) and \(Y\)
-remains a consistent estimate of a causal association conditional on the
-data and model that we use to evaluate a causal question. As we shall
-soon discuss, causal inference may be prone to over-conditioning biases
-in which it is the conditioning implicit in the data or explicit in the
-model that leads to a statistical relationship of treatment and outcome
-that is biased for causality.
+The \emph{identification problem} is the task of determining if the
+effect of a treatment (\(A\)) on an outcome (\(Y\)) can be accurately
+inferred from statistical accociations in the data. Causal diagrams,
+which incorporate \emph{structural assumptions}, serve as tools for
+assessing the potential to identify causal effects from the patterns
+observed in data (\citeproc{ref-hernuxe1n2004a}{Hernán \emph{et al.}
+2004}). These assumptions, fundamental to causal inference, are
+generally not empirically testable through data alone. The
+identification challenge encompasses two principal considerations:
 
-\paragraph{Steps in Creating Causal Diagrams That Address Identification
-Problems}\label{steps-in-creating-causal-diagrams-that-address-identification-problems}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{In the absence of a causality}, when all known confounders are
+  controlled for, is there statistical independence between the
+  treatment and outcome? This involves identifying all potential
+  confounders, implementing strategies to adjust for these confounders,
+  and then checking if there are any indirect connections, known as
+  \emph{backdoor paths}, between \(A\) and \(Y\). A \emph{backdoor path}
+  refers to a sequence of links in the causal diagram that could
+  introduce spurious associations between \(A\) and \(Y\) if not
+  properly adjusted for. (Below we work through seven examples). The
+  goal here is to evaluate whether \(A\) and \(Y\) are d-separated,
+  indicating that any observed association between \(A\) and \(Y\) does
+  not stem from these indirect paths.
+\item
+  \textbf{With an existing causal link}, once all known confounders have
+  been adjusted for, does a direct and unbiased relationship between the
+  treatment and outcome remain observable? This verifies whether the
+  statistical relationship between \(A\) and \(Y\), as analysed under
+  the specified model, can be interpreted as reflecting a true causal
+  effect, mindful of potential \emph{over-conditioning biases}.
+  \emph{Over-conditioning bias} occurs when the adjustment process
+  inadvertently introduces or magnifies associations that misrepresent
+  the actual causal relationship.
+\end{enumerate}
+
+The process breaks down into two tasks:
+
+\begin{itemize}
+\item
+  \textbf{First task}: verify that \(A\) and \(Y\) are not linked after
+  adjusting for known common causes. This step involves ensuring that no
+  \emph{backdoor paths} -- indirect paths that could falsely suggest a
+  relationship between \(A\) and \(Y\) -- remain open after an
+  adjustment strategy is applied.
+\item
+  \textbf{Second task}: confirm that an assocation between \(A\) and
+  \(Y\) remains unbiased after the conditioning strategy from the first
+  task. This step is crucial for validating that the observed
+  statistical association accurately reflects the causal relationship,
+  free from distortions caused by the adjustment strategy.
+\end{itemize}
+
+\paragraph{Steps in creating causal diagrams that aaddress
+identification
+problems}\label{steps-in-creating-causal-diagrams-that-aaddress-identification-problems}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -1596,45 +1631,71 @@ accurately classified into at least three relative time intervals and we
 must model the treatments and outcomes as separate elements in our
 statistical model.
 
-\subsection{Part 4. How To Use Causal Diagrams in Cross-Sectional and
-Longitudinal
-Designs}\label{part-4.-how-to-use-causal-diagrams-in-cross-sectional-and-longitudinal-designs}
+\subsection{Part 4. Putting Causal Diagrams to Use in Cross-Sectional
+and Longitudinal
+Designs}\label{part-4.-putting-causal-diagrams-to-use-in-cross-sectional-and-longitudinal-designs}
 
 \subsubsection{Cross-sectional designs}\label{cross-sectional-designs}
 
-For many causal questions, investigators will only have access to
-cross-sectional data -- repeated-measures (longitudinal) data may not be
-available. Is causal inference possible in these settings?
+In environmental psychology, researchers often grapple with whether
+causal inferences can be drawn from cross-sectional data, especially
+when longitudinal data are not available. The challenge is not unique to
+cross-sectional designs; even longitudinal studies require careful
+assumption-management. We next discuss how causal diagrams can guide
+inference in both data types, with examples relevant to environmental
+psychologists.
 
-First, it is important to remember that causal inference from
-observational data in longitudinal settings hinges on certain
-assumptions. While assumptions in cross-sectional data analyses are
-typically stronger, this does not preclude the pursuit of causal
-inferences. In both settings all assumptions must be clearly and
-explicitly stated.
-
-Second, it is possible to be confident that certain confounders measured
-in cross-sectional data preceded the treatment variable. Factors such as
-one's ethnicity, year of birth, place of birth, and biological gender
-remain constant throughout an individual's life.
-
-Third, many standard confounders are unlikely to be influenced by
-treatments of interest to environmental psychologists to a degree that
-would undermine causal inference. Variables such as one's sexual
-orientation, highest level of education, and possibly one's income, are
-unlikely to be significantly impacted by such treatments. We can often
-pleausibly dismiss such variables as mediators in the causal effects of
-interest.
-
-Fourth, the relative timing in the sequence of the treatment and the
-outcome can sometimes be clear enough to dismiss reverse causation
-(where the treatment occurs before the outcome). This is always the case
-if the outcome is mortality.
-
-Fifth, both with longitudinal and cross-sectional data it is generally
-useful to create multiple causal diagrams. Unless a causal diagram is
-uncontroversial, we recommend created multiple causal diagrams and
-reporting the results of each.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Assumption mmnagement}: the crux of causal inference,
+  regardless of data type, is the management of assumptions. Although
+  cross-sectional analyses typically demand stronger assumptions owing
+  to the snapshot nature of data, these assumptions, when transparently
+  articulated, do not always bar causal analysis. For instance, if
+  investigating the effect of green spaces on mental health,
+  longitudinal data might allow discovery of effects owing to changes in
+  access to green spaces, however cross-sectional data might still offer
+  insights if we control for known confounders such as age,
+  socioeconomic status, and urban vs.~rural living environments.
+\item
+  \textbf{Stable confounders}: in cross-sectional studies, some
+  confounders are inherently stable over time, such as ethnicity, year
+  and place of birth, and biological gender. For environmental
+  psychologists examining the relationship between access to natural
+  environments and psychological well-being, these stable confounders
+  can be adjusted for without concern for introducing bias from
+  mediators or colliders. For example, conditioning on year of birth can
+  help to isolate the effect of recent urban development on mental
+  health, independent of generational differences in attitudes toward
+  green spaces.
+\item
+  \textbf{Invariable confounders}: other confounders, while not
+  immutable, are less likely to be influenced by the treatment.
+  Variables such as sexual orientation, educational attainment, and
+  often income level fall into this category. For instance, the effect
+  of exposure to polluted environments on cognitive outcomes can be
+  analysed by conditioning on education level, assuming that recent
+  exposure to pollution is unlikely to retroactively change someone's
+  educational history.
+\item
+  \textbf{Timing and reverse causation}: the sequence of treatment and
+  outcome is crucial. In some cases, the temporal order is clear,
+  reducing concerns about reverse causation. Mortality is a definitive
+  outcome where the timing issue is unambiguous. If researching the
+  effects of air quality on mortality, the causal direction (poor air
+  quality leading to higher mortality rates) is straightforward.
+\item
+  \textbf{Multiple causal diagrams}: given the complexity of
+  environmental influences on psychological outcomes, it's prudent to
+  construct multiple causal diagrams to cover various hypothetical
+  scenarios. For example, when studying the effect of community green
+  space on stress reduction, one diagram might assume direct benefits of
+  green space on stress, while another might include potential mediators
+  like physical activity. By analysing and reporting findings based on
+  multiple diagrams, researchers can explore the robustness of their
+  conclusions across different theoretical frameworks.
+\end{enumerate}
 
 Table~\ref{tbl-cs} describes ambigious confounding control setting
 arising from cross-sectional data. Suppose again we are interested in
@@ -1676,7 +1737,9 @@ from a process in which exercise is a mediator (Scenario 2). (See
 Appendix C)
 
 \begin{table}
-\caption{ }\tabularnewline
+\caption{Code for a simulation of a data generating process in which the effect
+of excercise (L) fully mediates the effect of greenspace (A) on
+happiness (Y).}\tabularnewline
 
 \centering
 \begin{tabular}{lcccccc}
@@ -1691,9 +1754,6 @@ L & 1.6 & 1.5, 1.7 & <0.001 &  &  & \\
 \multicolumn{7}{l}{\rule{0pt}{1em}\textsuperscript{1} CI = Confidence Interval}\\
 \end{tabular}
 \end{table}
-
-Code for simulation of data generating process in which the effect of
-excercise fully mediates the effect of greenspace on happiness.
 
 This table presents us the conditional treatment effect. Where an
 outcome is continuous and there are no interactions, the coeficient for
@@ -1711,10 +1771,119 @@ that exercise is a mediator, the average treatment effect of access to
 green space on happiness is ATE = 2.92, CI = {[}2.66, 3.21{]}.
 
 These findings illustrate the role that assumptions about the relative
-timing of exercise as a confounder or as a mediator plays. Future work
-must consider
+timing of exercise as a confounder or as a mediator plays.
 
-\subsubsection{Longitudinal (Panel Data)}\label{longitudinal-panel-data}
+\subsubsection{Recommendations for conducting and reporting causal
+analyses with cross-sectional
+data.}\label{recommendations-for-conducting-and-reporting-causal-analyses-with-cross-sectional-data.}
+
+We offer the following recommendations for analysing and reporting
+analyses with cross-sectional data
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Draw multiple causal diagrams}: as the previous example
+  illustrates, we may wish to draw a number of causal diagrams that
+  represent different theoretical assumptions about the both the
+  relationships and timing in the occurrance of variables relevant to an
+  identification problem. This practice allows for a comprehensive
+  exploration of potential causal pathways and the roles variables may
+  play ---- be they confounders, mediators, or colliders. For instance,
+  when examining the effect of urban green spaces on mental health,
+  consider diagrams that account for direct effects, as well as those
+  that include mediators like physical activity or social interaction.
+\item
+  \textbf{Perform and report analyses for each assumption}: conduct
+  separate analyses based on the different scenarios outlined by your
+  causal diagrams. This approach ensures that the analytical strategy
+  aligns with the theoretical underpinnings of each model. Transparently
+  reporting the results from each analysis, including the assumptions
+  and statistical methods employed, enhances balance in a study. Editors
+  and reviewers will not be accustomed to this practice of conditioning
+  inferences on different assumptions. However, for meaningful progress,
+  it essential to persevere. The problem inherent to cross-sectional
+  analyses must be addressed by broadining the scope of our imaginations
+  beyond testing one or another favoured hypothesis. Rather, we should
+  graph the structural assumptions encoded by different theories, and
+  condition on specific combinations in the occurance of events.
+\item
+  \textbf{Interpret findings with attention to ambiguities}: Ccrefully
+  interpret the results, paying close attention to any ambiguities or
+  inconsistencies that emerge across the different analyses. Describe
+  how different assumptions about structural relationships and timing
+  can lead to different conclusions. For example, if the effect of green
+  space access on mental health appears positive when treating exercise
+  as a mediator but negative when treated as a confounder -- as in the
+  present simulation -- discuss the theoretical and practical
+  implications of these findings.
+\item
+  \textbf{Recommend caution when findings diverge}: wherever findings
+  lead to different practical conclusions, embrace caution about drawing
+  firm conclusions.
+\item
+  \textbf{Suggest specific avenues for future research}: identify gaps
+  in the current understanding that arise from ambiguities in your
+  findings. Recommend specific, targeted data collection that might
+  clarify the nature of the relationships among variables. For instance,
+  longitudinal studies or experiments.
+\item
+  \textbf{Supplement observational data with simulated data}: data
+  simulation is a powerful tool for understanding the complexities of
+  causal inference in environmental psychology. By simulating data based
+  on various theoretical models, researchers can explore how different
+  assumptions about confounders, mediators, and the structure of causal
+  relationships might influence their findings. Simulation studies allow
+  for the testing of analytical strategies under controlled conditions,
+  providing insights into the robustness of methods against violations
+  of assumptions or the presence of unobserved confounders. Appendices C
+  and D provides example code.
+\item
+  \textbf{Conduct sensitivity analyses to assess robustness}:
+  sensitivity analyses are essential for evaluating the extent to which
+  conclusions are dependent on specific assumptions or parameters within
+  the causal model. Data simulation can be a powerful tool for
+  evaluating the sensitivity of results to assumptions. In the next
+  section, we consider a simple sensitivity analysis for assessing
+  robustness to unmeasured confounding.
+\end{enumerate}
+
+\subsubsection{Longitudinal Designs}\label{longitudinal-designs}
+
+Causation occurs in time. Longitudinal designs offer a substantial
+advantage over cross-sectional designs for causal inference because
+sequential measurements allow us to capture causation, and quantify its
+magnitude. We typically do not need to assert timing as we do in
+cross-sectional data settings. Despite this advantage, longitudinal
+studies neverhteless rely on assumptions. These must be stated, and
+carefully managed.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Temporal sequencing}: the core strength of longitudinal
+  designs is their ability to capture temporal sequencing, reducing
+  ambiguity about the directionality of causal relationships. For
+  instance, tracking changes in ``happiness'' following changes in
+  access to green spaces over time can more definitively suggest
+  causation than cross-sectional snapshots.
+\item
+  \textbf{Managing assumptions}: although longitudinal data reduces the
+  need to assert timing , researchers still face assumptions regarding
+  the absence of unmeasured confounders and the stability of over time.
+  These assumptions must be explicitly stated. As with cross sectional
+  designs, wherever assumptions differ, researchers should draw
+  different causal diagrams that reflect these assumptions, and
+  subsequently conduct and report separate analyses.
+\item
+  \textbf{Conditioning on baselines}: In longitudinal designs,
+  conditioning on baseline measures of both the treatment and outcome
+  can significantly address problems of unmeasured confounding. As
+  mentioned before, by conditioning on baseline levels of access to
+  green spaces and baseline mental health, researchers can more
+  accurately estimate the \emph{incident effect} of changes in green
+  space access on changes in mental health.
+\end{enumerate}
 
 \begin{table}
 
@@ -1728,6 +1897,50 @@ must consider
 }
 
 \end{table}%
+
+\subsubsection{Recommendations for conducting and reporting causal
+analyses with cross-sectional
+data.}\label{recommendations-for-conducting-and-reporting-causal-analyses-with-cross-sectional-data.-1}
+
+We offer the following recommendations for analysing and reporting
+analyses with cross-sectional data
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Draw two causal diagrams: one that describes the
+  identification problem and the other for its solutions}: not only is
+  it beneficial to draw separate causal diagrams to represent distinct
+  structural assumptions, it is often helpful to draw a distinct causal
+  diagram -- or several -- for describing the identification problem and
+  a distinct causal diagram for describing its proposed solutions. As
+  illustrated in Table~\ref{tbl-lg}, we recommend constructing at least
+  two causal diagrams: first, draft an initial causal diagram that
+  depicts assumed relationships among variables, including potential
+  confounders and mediators. Second, draft a subsequent causal diagram
+  that depicts a strategy for addressing these relationships, for
+  example by highlighting variables on which to condition to reveal the
+  causal effect of interest.
+\item
+  \emph{Use at least three-wave of data}: a three-wave longitudinal
+  design offers a refined approach by incorporating data from three time
+  points. This design enables the examination of temporal precedence and
+  lagged effects, providing stronger evidence of causality. For
+  instance, if increased access to green spaces (time 0) is followed by
+  increased exercise (time 1), which then precedes improvements in
+  happiness (time 2), the temporal pattern can clarify a causal pathway
+  from green space access through exercise to mental health.
+  Table~\ref{tbl-lg} describe the core of a three-wave longitudinal
+  problem together with a strategy for addressing it.
+\item
+  \emph{Simulate data}
+\item
+  \emph{Conduct sensitivity analyses such as the E-value}
+\item
+  \emph{Calculate average treatment effects for the entire population}
+\item
+  \emph{Effect-modification}
+\end{enumerate}
 
 \subsection{Summary}\label{summary}
 
@@ -1760,21 +1973,22 @@ observational data we must evaluate whether and how these assumptions
 may be satisfied.
 
 Part 2 discussed causal diagrams and their role in addressing the
-conditional exchangeability assumption of ``no unmeasured confounders.''
-We discovered four elementary structures from which all causal
-relationships are build. And within these structures we discovered
-elementary rules for evaluating the implications that conditioning on
-elements within these structures entail about statistical associations
-that are observable in data. As such, causal diagrams offer a simplified
-visual vocabulary for mapping complex causal relationships onto
-observations in data. However, the relationships encoded in graphs are
-assertions that are generally not themselves verifiable from data. The
-only causal relationships that are not asserted are those between
-treatments and outcomes. We use causal diagrams to evaluate structural
-sources of bias in the statistical associations of treatments and
-outcomes that causal diagrams that may arise from causal relationships
-in the world that we assume might statistically associate treatments
-with outcomes irrespective of their causal associations.
+conditional exchangeability assumption, or the assumption of ``no
+unmeasured confounders.'' We discovered four elementary structures from
+which all causal relationships are build. And within these structures we
+discovered elementary rules for evaluating the implications that
+conditioning on elements within these structures entail about
+statistical associations that are observable in data. As such, causal
+diagrams offer a simplified visual vocabulary for mapping complex causal
+relationships onto observations in data. However, the relationships
+encoded in graphs are assertions that are generally not themselves
+verifiable from data. The only causal relationships that are not
+asserted are those between treatments and outcomes. We use causal
+diagrams to evaluate structural sources of bias in the statistical
+associations of treatments and outcomes that causal diagrams that may
+arise from causal relationships in the world that we assume might
+statistically associate treatments with outcomes irrespective of their
+causal associations.
 
 In Part 3, we applied causal diagrams to various confounding scenarios.
 We observed that a causal diagram need highlight only those aspects of a
@@ -2166,7 +2380,7 @@ reduce bias in cases where confounding cannot be eliminated.
 (`variable') represented on a causal diagram. In a causal diagram, nodes
 are drawn with reference to variables defomed for the target population.
 
-\textbf{Randomization}: The process of randomly assigning subjects to
+\textbf{Randomisation}: The process of randomly assigning subjects to
 different treatments or control groups, aiming to eliminate selection
 bias in experimental studies.
 
@@ -2365,84 +2579,98 @@ baseline treatment and outcome, if these variables are strongly
 correlated with the unmeasured confounder, may substantially reduce the
 effect of unmeasured confounding
 
+In this simulation:
+
+\begin{itemize}
+\tightlist
+\item
+  The interaction between \(A_1\) (treatment) and \(L_0\) (baseline
+  confounders) is specified by the coefficient \(\theta_{A1L0} = 0.5\),
+  indicating that the effect of \(A_1\) on \(Y_2\) varies depending on
+  the value of \(L_0\).
+\item
+  The inclusion of this interaction allows us to examine how the
+  baseline level of a confounder (\(L_0\)) modifies the effect of the
+  treatment (\(A_1\)) on the outcome (\(Y_2\)).
+\end{itemize}
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(kableExtra)}
 \FunctionTok{library}\NormalTok{(gtsummary)}
-\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }\CommentTok{\# reproducable}
+\ControlFlowTok{if}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{require}\NormalTok{(grf))\{}\FunctionTok{install.packages}\NormalTok{(}\StringTok{"grf"}\NormalTok{)\} }\CommentTok{\# causal forest}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }\CommentTok{\# Ensure reproducibility}
 
-\NormalTok{n }\OtherTok{\textless{}{-}} \DecValTok{1000} \CommentTok{\# n of observations}
+\NormalTok{n }\OtherTok{\textless{}{-}} \DecValTok{10000} \CommentTok{\# Number of observations}
 
-\CommentTok{\#  baseline covariates}
+\CommentTok{\# Baseline covariates}
 \NormalTok{U }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(n) }\CommentTok{\# Unmeasured confounder}
-\NormalTok{A\_0 }\OtherTok{\textless{}{-}} \FunctionTok{rbinom}\NormalTok{(n, }\DecValTok{1}\NormalTok{, }\AttributeTok{prob =} \FunctionTok{plogis}\NormalTok{(U)) }\CommentTok{\# baseline exposure}
-\NormalTok{Y\_0 }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(n, }\AttributeTok{mean =}\NormalTok{ U, }\AttributeTok{sd =} \DecValTok{1}\NormalTok{) }\CommentTok{\# baseline outcome}
-\NormalTok{L\_0 }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(n, }\AttributeTok{mean =}\NormalTok{ U, }\AttributeTok{sd =} \DecValTok{1}\NormalTok{) }\CommentTok{\# baseline confounders}
+\NormalTok{A\_0 }\OtherTok{\textless{}{-}} \FunctionTok{rbinom}\NormalTok{(n, }\DecValTok{1}\NormalTok{, }\AttributeTok{prob =} \FunctionTok{plogis}\NormalTok{(U)) }\CommentTok{\# Baseline exposure}
+\NormalTok{Y\_0 }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(n, }\AttributeTok{mean =}\NormalTok{ U, }\AttributeTok{sd =} \DecValTok{1}\NormalTok{) }\CommentTok{\# Baseline outcome}
+\NormalTok{L\_0 }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(n, }\AttributeTok{mean =}\NormalTok{ U, }\AttributeTok{sd =} \DecValTok{1}\NormalTok{) }\CommentTok{\# Baseline confounders}
 
+\CommentTok{\# Coefficients for treatment assignment}
+\NormalTok{beta\_A0 }\OtherTok{=} \FloatTok{0.25}
+\NormalTok{beta\_Y0 }\OtherTok{=} \FloatTok{0.3}
+\NormalTok{beta\_L0 }\OtherTok{=} \FloatTok{0.2}
+\NormalTok{beta\_U }\OtherTok{=} \FloatTok{0.1}
 
-\CommentTok{\# simulate treatment assignment}
-\NormalTok{A\_1 }\OtherTok{\textless{}{-}}
-  \FunctionTok{rbinom}\NormalTok{(n, }\DecValTok{1}\NormalTok{, }\AttributeTok{prob =} \FunctionTok{plogis}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.5} \SpecialCharTok{+} 
-                               \FloatTok{0.25} \SpecialCharTok{*}\NormalTok{ A\_0 }\SpecialCharTok{+} 
-                               \FloatTok{0.3} \SpecialCharTok{*}\NormalTok{ Y\_0 }\SpecialCharTok{+} 
-                               \FloatTok{0.2} \SpecialCharTok{*}\NormalTok{ L\_0 }\SpecialCharTok{+}  
-                               \FloatTok{0.2} \SpecialCharTok{*}\NormalTok{ U))}
+\CommentTok{\# Simulate treatment assignment}
+\NormalTok{A\_1 }\OtherTok{\textless{}{-}} \FunctionTok{rbinom}\NormalTok{(n, }\DecValTok{1}\NormalTok{, }\AttributeTok{prob =} \FunctionTok{plogis}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.5} \SpecialCharTok{+} 
+\NormalTok{                                    beta\_A0 }\SpecialCharTok{*}\NormalTok{ A\_0 }\SpecialCharTok{+}
+\NormalTok{                                    beta\_Y0 }\SpecialCharTok{*}\NormalTok{ Y\_0 }\SpecialCharTok{+} 
+\NormalTok{                                    beta\_L0 }\SpecialCharTok{*}\NormalTok{ L\_0 }\SpecialCharTok{+} 
+\NormalTok{                                    beta\_U }\SpecialCharTok{*}\NormalTok{ U))}
 
+\CommentTok{\# Coefficients for continuous outcome}
+\NormalTok{delta\_A1 }\OtherTok{=} \FloatTok{0.3}
+\NormalTok{delta\_Y0 }\OtherTok{=} \FloatTok{0.9}
+\NormalTok{delta\_A0 }\OtherTok{=} \FloatTok{0.1}
+\NormalTok{delta\_L0 }\OtherTok{=} \FloatTok{0.3}
+\NormalTok{theta\_A0Y0L0 }\OtherTok{=} \FloatTok{0.5} \CommentTok{\# Interaction effect between A\_1 and L\_0}
+\NormalTok{delta\_U }\OtherTok{=} \FloatTok{0.05}
 
-\CommentTok{\# simulate continuous outcome}
-\CommentTok{\# effect sizes here are arbitrary: can be adjusted}
-\NormalTok{Y\_3 }\OtherTok{\textless{}{-}}
-  \FunctionTok{rnorm}\NormalTok{(n,}
-        \AttributeTok{mean =} \DecValTok{0} \SpecialCharTok{+}
-          \FloatTok{0.3} \SpecialCharTok{*}\NormalTok{ A\_1 }\SpecialCharTok{+}
-          \FloatTok{0.9} \SpecialCharTok{*}\NormalTok{ Y\_0 }\SpecialCharTok{+}
-          \FloatTok{0.9} \SpecialCharTok{*}\NormalTok{ A\_0 }\SpecialCharTok{+}
-          \FloatTok{0.2} \SpecialCharTok{*}\NormalTok{  L\_0 }\SpecialCharTok{+}
-          \FloatTok{0.1} \SpecialCharTok{*}\NormalTok{ U,}
-        \AttributeTok{sd =}\NormalTok{ .}\DecValTok{01}\NormalTok{)}
+\CommentTok{\# Simulate continuous outcome including interaction}
+\NormalTok{Y\_2 }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(n,}
+             \AttributeTok{mean =} \DecValTok{0} \SpecialCharTok{+}
+\NormalTok{               delta\_A1 }\SpecialCharTok{*}\NormalTok{ A\_1 }\SpecialCharTok{+} 
+\NormalTok{               delta\_Y0 }\SpecialCharTok{*}\NormalTok{ Y\_0 }\SpecialCharTok{+} 
+\NormalTok{               delta\_A0 }\SpecialCharTok{*}\NormalTok{ A\_0 }\SpecialCharTok{+} 
+\NormalTok{               delta\_L0 }\SpecialCharTok{*}\NormalTok{ L\_0 }\SpecialCharTok{+} 
+\NormalTok{               theta\_A0Y0L0 }\SpecialCharTok{*}\NormalTok{ Y\_0 }\SpecialCharTok{*} 
+\NormalTok{               A\_0 }\SpecialCharTok{*}\NormalTok{ L\_0 }\SpecialCharTok{+} 
+\NormalTok{               delta\_U }\SpecialCharTok{*}\NormalTok{ U,}
+             \AttributeTok{sd =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
 
-\CommentTok{\# data frame}
-\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(Y\_3, A\_1, L\_0, Y\_0, U)}
-
+\CommentTok{\# Data frame}
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(Y\_2, A\_0, A\_1, L\_0, Y\_0, U)}
 
 \CommentTok{\# models}
-\CommentTok{\# ground truth}
-\NormalTok{fit\_truth }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Y\_3 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A\_1 }\SpecialCharTok{+}\NormalTok{ A\_0 }\SpecialCharTok{+}\NormalTok{ Y\_0 }\SpecialCharTok{+}\NormalTok{ L\_0 }\SpecialCharTok{+}\NormalTok{ U, }\AttributeTok{data =}\NormalTok{ data)}
+\CommentTok{\# no control}
+\NormalTok{fit\_no\_control }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Y\_2 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A\_1, }\AttributeTok{data =}\NormalTok{ data)}
+\CommentTok{\#summary(fit\_no\_control)}
 
 \CommentTok{\# standard covariate control}
-\NormalTok{fit\_standard }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Y\_3 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A\_1 }\SpecialCharTok{+}\NormalTok{ L\_0, }\AttributeTok{data =}\NormalTok{ data)}
+\NormalTok{fit\_standard }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Y\_2 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A\_1 }\SpecialCharTok{+}\NormalTok{ L\_0, }\AttributeTok{data =}\NormalTok{ data)}
+\CommentTok{\#summary(fit\_standard)}
 
-\CommentTok{\# standard covariate control + baseline outcome}
-\NormalTok{fit\_control\_baseline\_outcome }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Y\_3 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A\_1 }\SpecialCharTok{+}\NormalTok{ Y\_0 }\SpecialCharTok{+}\NormalTok{ L\_0,}
-                                   \AttributeTok{data =}\NormalTok{ data)}
+\CommentTok{\# interaction}
+\NormalTok{fit\_interaction  }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Y\_2 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A\_1 }\SpecialCharTok{+}\NormalTok{ L\_0 }\SpecialCharTok{+}\NormalTok{ A\_0 }\SpecialCharTok{+}\NormalTok{ Y\_0 }\SpecialCharTok{+}\NormalTok{ A\_0}\SpecialCharTok{:}\NormalTok{L\_0}\SpecialCharTok{:}\NormalTok{Y\_0, }\AttributeTok{data =}\NormalTok{ data)}
+\CommentTok{\#summary(fit\_interaction)}
 
-\CommentTok{\# standard covariate control + baseline treatment}
-\NormalTok{fit\_control\_baseline\_exposure }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Y\_3 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A\_1 }\SpecialCharTok{+}\NormalTok{ A\_0 }\SpecialCharTok{+}\NormalTok{ L\_0,}
-                                    \AttributeTok{data =}\NormalTok{ data)}
-
-\CommentTok{\# standard covariate control + baseline treatment + baseline outcome}
-\NormalTok{fit\_control\_baseline\_exposure\_outcome }\OtherTok{\textless{}{-}}
-  \FunctionTok{lm}\NormalTok{(Y\_3 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A\_1 }\SpecialCharTok{+}\NormalTok{ A\_0 }\SpecialCharTok{+}\NormalTok{ Y\_0}\SpecialCharTok{++}\NormalTok{L\_0,}
-     \AttributeTok{data =}\NormalTok{ data)}
 
 \CommentTok{\# create gtsummary tables for each regression model}
-\NormalTok{tbl\_truth }\OtherTok{\textless{}{-}} \FunctionTok{tbl\_regression}\NormalTok{(fit\_truth)  }\SpecialCharTok{|\textgreater{}} \FunctionTok{bold\_labels}\NormalTok{()}
-\NormalTok{tbl\_standard }\OtherTok{\textless{}{-}} \FunctionTok{tbl\_regression}\NormalTok{(fit\_standard)}
-\NormalTok{tbl\_control\_baseline\_outcome }\OtherTok{\textless{}{-}}
-  \FunctionTok{tbl\_regression}\NormalTok{(fit\_control\_baseline\_outcome)}
-\NormalTok{tbl\_control\_baseline\_exposure }\OtherTok{\textless{}{-}}
-  \FunctionTok{tbl\_regression}\NormalTok{(fit\_control\_baseline\_exposure)}
-\NormalTok{tbl\_control\_baseline\_exposure\_outcome }\OtherTok{\textless{}{-}}
-  \FunctionTok{tbl\_regression}\NormalTok{(fit\_control\_baseline\_exposure\_outcome)}
+\NormalTok{tbl\_fit\_no\_control}\OtherTok{\textless{}{-}} \FunctionTok{tbl\_regression}\NormalTok{(fit\_no\_control)  }
+\NormalTok{tbl\_fit\_standard }\OtherTok{\textless{}{-}} \FunctionTok{tbl\_regression}\NormalTok{(fit\_standard)}
+\NormalTok{tbl\_fit\_interaction }\OtherTok{\textless{}{-}}
+  \FunctionTok{tbl\_regression}\NormalTok{(fit\_interaction)}
+
 
 \CommentTok{\# get only the treatment variable}
 \NormalTok{tbl\_list\_modified }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
-\NormalTok{  tbl\_truth,}
-\NormalTok{  tbl\_standard,}
-\NormalTok{  tbl\_control\_baseline\_outcome,}
-\NormalTok{  tbl\_control\_baseline\_exposure,}
-\NormalTok{  tbl\_control\_baseline\_exposure\_outcome}
-\NormalTok{),}
+\NormalTok{  tbl\_fit\_no\_control,}
+\NormalTok{  tbl\_fit\_standard,}
+\NormalTok{  tbl\_fit\_interaction),}
 \ControlFlowTok{function}\NormalTok{(tbl) \{}
 \NormalTok{  tbl }\SpecialCharTok{\%\textgreater{}\%}
     \FunctionTok{modify\_table\_body}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ .x }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{filter}\NormalTok{(variable }\SpecialCharTok{==} \StringTok{"A\_1"}\NormalTok{))}
@@ -2453,23 +2681,19 @@ effect of unmeasured confounding
 \NormalTok{table\_comparison }\OtherTok{\textless{}{-}} \FunctionTok{tbl\_merge}\NormalTok{(}
   \AttributeTok{tbls =}\NormalTok{ tbl\_list\_modified,}
   \AttributeTok{tab\_spanner =} \FunctionTok{c}\NormalTok{(}
-    \StringTok{"Truth"}\NormalTok{,}
+    \StringTok{"No Control"}\NormalTok{,}
     \StringTok{"Standard"}\NormalTok{,}
-    \StringTok{"Control: Baseline Outcome"}\NormalTok{,}
-    \StringTok{"Control: Baseline Exposure"}\NormalTok{,}
-    \StringTok{"Control: Baseline Exposure/Outcome"}
-\NormalTok{  )}
+    \StringTok{"Interaction"}\NormalTok{)}
 \NormalTok{) }\SpecialCharTok{|\textgreater{}}
   \FunctionTok{modify\_table\_styling}\NormalTok{(}
-    \AttributeTok{column =} \FunctionTok{c}\NormalTok{(p.value\_1, p.value\_2, p.value\_3, p.value\_4, p.value\_5),}
+    \AttributeTok{column =} \FunctionTok{c}\NormalTok{(p.value\_1, p.value\_2, p.value\_3),}
     \AttributeTok{hide =} \ConstantTok{TRUE}
 \NormalTok{  )}
 
-\CommentTok{\# create latex table for publication}
+\CommentTok{\#create latex table for publication}
 \NormalTok{markdown\_table }\OtherTok{\textless{}{-}}
   \FunctionTok{as\_kable\_extra}\NormalTok{(table\_comparison, }\AttributeTok{format =} \StringTok{"latex"}\NormalTok{, }\AttributeTok{booktabs =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
   \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{latex\_options =} \StringTok{"scale\_down"}\NormalTok{)}
-
 \CommentTok{\# print it}
 \NormalTok{markdown\_table}
 \end{Highlighting}
@@ -2478,17 +2702,130 @@ effect of unmeasured confounding
 \begin{table}
 \centering
 \resizebox{\linewidth}{!}{
-\begin{tabular}{lcccccccccc}
+\begin{tabular}{lcccccc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Truth} & \multicolumn{2}{c}{Standard} & \multicolumn{2}{c}{Control: Baseline Outcome} & \multicolumn{2}{c}{Control: Baseline Exposure} & \multicolumn{2}{c}{Control: Baseline Exposure/Outcome} \\
-\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9} \cmidrule(l{3pt}r{3pt}){10-11}
-\textbf{Characteristic} & \textbf{Beta} & \textbf{95\% CI} & \textbf{Beta} & \textbf{95\% CI} & \textbf{Beta} & \textbf{95\% CI} & \textbf{Beta} & \textbf{95\% CI} & \textbf{Beta} & \textbf{95\% CI}\\
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{No Control} & \multicolumn{2}{c}{Standard} & \multicolumn{2}{c}{Interaction} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
+\textbf{Characteristic} & \textbf{Beta} & \textbf{95\% CI} & \textbf{Beta} & \textbf{95\% CI} & \textbf{Beta} & \textbf{95\% CI}\\
 \midrule
-\textbf{A\_1} & 0.30 & 0.30, 0.30 & 0.91 & 0.75, 1.1 & 0.35 & 0.29, 0.41 & 0.80 & 0.66, 0.93 & 0.31 & 0.31, 0.32\\
+A\_1 & 1.5 & 1.5, 1.6 & 0.86 & 0.80, 0.93 & 0.29 & 0.27, 0.31\\
 \bottomrule
-\multicolumn{11}{l}{\rule{0pt}{1em}\textsuperscript{1} CI = Confidence Interval}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}\textsuperscript{1} CI = Confidence Interval}\\
 \end{tabular}}
 \end{table}
+
+Next we simulate average treatment effect
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# use \textasciigrave{}clarify\textasciigrave{} package to obtain ATE}
+\FunctionTok{library}\NormalTok{(clarify)}
+\CommentTok{\# simulate fit 1 ATE}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+\NormalTok{sim\_coefs\_fit\_std }\OtherTok{\textless{}{-}} \FunctionTok{sim}\NormalTok{(fit\_standard)}
+\NormalTok{sim\_coefs\_fit\_int }\OtherTok{\textless{}{-}} \FunctionTok{sim}\NormalTok{(fit\_interaction)}
+
+\CommentTok{\# marginal risk difference ATE, simulation{-}based: model 1 (L is a confounder)}
+\NormalTok{sim\_est\_fit\_std }\OtherTok{\textless{}{-}}
+  \FunctionTok{sim\_ame}\NormalTok{(}
+\NormalTok{    sim\_coefs\_fit\_std,}
+    \AttributeTok{var =} \StringTok{"A\_1"}\NormalTok{,}
+    \AttributeTok{subset =}\NormalTok{ A\_1 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{,}
+    \AttributeTok{contrast =} \StringTok{"RD"}\NormalTok{,}
+    \AttributeTok{verbose =} \ConstantTok{FALSE}
+\NormalTok{  )}
+
+\CommentTok{\# marginal risk difference ATE, simulation{-}based: model 2 (L is a mediator)}
+\NormalTok{sim\_est\_fit\_int }\OtherTok{\textless{}{-}}
+  \FunctionTok{sim\_ame}\NormalTok{(}
+\NormalTok{    sim\_coefs\_fit\_int,}
+    \AttributeTok{var =} \StringTok{"A\_1"}\NormalTok{,}
+    \AttributeTok{subset =}\NormalTok{ A\_1 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{,}
+    \AttributeTok{contrast =} \StringTok{"RD"}\NormalTok{,}
+    \AttributeTok{verbose =} \ConstantTok{FALSE}
+\NormalTok{  )}
+
+\CommentTok{\# obtain summaries}
+\NormalTok{summary\_sim\_est\_fit\_std }\OtherTok{\textless{}{-}}
+  \FunctionTok{summary}\NormalTok{(sim\_est\_fit\_std, }\AttributeTok{null =} \FunctionTok{c}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{RD}\StringTok{\textasciigrave{}} \OtherTok{=} \DecValTok{0}\NormalTok{))}
+\NormalTok{summary\_sim\_est\_fit\_int }\OtherTok{\textless{}{-}}
+  \FunctionTok{summary}\NormalTok{(sim\_est\_fit\_int, }\AttributeTok{null =} \FunctionTok{c}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{RD}\StringTok{\textasciigrave{}} \OtherTok{=} \DecValTok{0}\NormalTok{))}
+
+\CommentTok{\# get coefficients for reporting}
+\CommentTok{\# ate for fit 1, with 95\% CI}
+\NormalTok{ATE\_fit\_std }\OtherTok{\textless{}{-}}\NormalTok{ glue}\SpecialCharTok{::}\FunctionTok{glue}\NormalTok{(}
+  \StringTok{"ATE = \{round(summary\_sim\_est\_fit\_std[3, 1], 2)\}, }
+\StringTok{  CI = [\{round(summary\_sim\_est\_fit\_std[3, 2], 2)\},}
+\StringTok{  \{round(summary\_sim\_est\_fit\_std[3, 3], 2)\}]"}
+\NormalTok{)}
+\CommentTok{\# ate for fit 2, with 95\% CI}
+\NormalTok{ATE\_fit\_int }\OtherTok{\textless{}{-}}
+\NormalTok{  glue}\SpecialCharTok{::}\FunctionTok{glue}\NormalTok{(}
+    \StringTok{"ATE = \{round(summary\_sim\_est\_fit\_int[3, 1], 2)\},}
+\StringTok{    CI = [\{round(summary\_sim\_est\_fit\_int[3, 2], 2)\},}
+\StringTok{    \{round(summary\_sim\_est\_fit\_int[3, 3], 2)\}]"}
+\NormalTok{  )}
+\CommentTok{\# ATE\_fit\_std}
+\CommentTok{\# ATE\_fit\_int}
+\end{Highlighting}
+\end{Shaded}
+
+Using the \texttt{clarify} package, we infer the ATE for the standard
+model is ATE = 0.86, CI = {[}0.8, 0.93{]}.
+
+Using the \texttt{clarify} package, we infer the ATE for the model that
+conditions on the baseline exposure and baseline outcome to be: ATE =
+0.29, CI = {[}0.27, 0.31{]}, which is close to the values supplied to
+the data-generating mechanism.
+
+Because the baseline exposure and baseline outcome are often the most
+important variables to include when estimating an incident effect, we
+should endevour to obtain at least three waves of data such that these
+variables along with other baseline confounders are included in at time
+0, the exposure is included at time 1, and the outcome is included at
+time 2.
+
+\subsection{Appendix E: Non-parametric Estimation of Average Treatment
+Effects Using Causal
+Forests}\label{appendix-e-non-parametric-estimation-of-average-treatment-effects-using-causal-forests}
+
+Semi-parametric and non-parametric estimators have many advantages, most
+especially the ability to fit non-restrictive statistical models. Here
+we include an example of such a model using the causal forest package.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# load causal forest library }
+\FunctionTok{library}\NormalTok{(grf) }\CommentTok{\# estimate conditional and average treatment effects}
+\FunctionTok{library}\NormalTok{(glue) }\CommentTok{\# reporting }
+
+\CommentTok{\#  \textquotesingle{}data\textquotesingle{} is our data frame with columns \textquotesingle{}A\_1\textquotesingle{} for treatment, \textquotesingle{}L\_0\textquotesingle{} for a covariate, and \textquotesingle{}Y\_2\textquotesingle{} for the outcome}
+\CommentTok{\#  we also have the baseline exposure \textquotesingle{}A\_0\textquotesingle{} and \textquotesingle{}Y\_0\textquotesingle{}}
+\CommentTok{\#  ensure W (treatment) and Y (outcome) are vectors}
+\NormalTok{W }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{A\_1)  }\CommentTok{\# Treatment}
+\NormalTok{Y }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Y\_2)  }\CommentTok{\# Outcome}
+\NormalTok{X }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(data[, }\FunctionTok{c}\NormalTok{(}\StringTok{"L\_0"}\NormalTok{, }\StringTok{"A\_0"}\NormalTok{, }\StringTok{"Y\_0"}\NormalTok{)])}
+
+\CommentTok{\# fit causal forest model }
+\NormalTok{fit\_causal\_forest }\OtherTok{\textless{}{-}} \FunctionTok{causal\_forest}\NormalTok{(X, Y, W)}
+
+\CommentTok{\# estimate the average treatment effect (ATE)}
+\NormalTok{ate }\OtherTok{\textless{}{-}} \FunctionTok{average\_treatment\_effect}\NormalTok{(fit\_causal\_forest)}
+
+\CommentTok{\# make data frame for reporting using "glue\textquotesingle{} }
+\NormalTok{ate}\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(ate)}
+
+\CommentTok{\# obtain ate for report}
+\NormalTok{ATE\_fit\_causal\_forest }\OtherTok{\textless{}{-}}
+\NormalTok{  glue}\SpecialCharTok{::}\FunctionTok{glue}\NormalTok{(}
+    \StringTok{"ATE = \{round(ate[1, 1], 2)\}, se = \{round(ate[2, 1], 2)\}"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+Causal forest estimates the average treatment effect as ATE = 0.3, se =
+0.01. This converges to to the true value supplied to the genearating
+mechanism of 0.3
 
 
 
