@@ -1,7 +1,7 @@
 ---
 title: "Causal Inference in Environmental Psychology"
 abstract: |
- This chapter offers an introduction to causal inference within environmental psychology, emphasising the utility of causal diagrams (Directed Acyclic Graphs  -- or DAGs) for addressing causal questions. It begins by outlining foundational concepts of causal inference and clarifying assumptions necessary for estimating causal effects. Subsequent sections describe how to construct causal diagrams tailored to identifying causal effects in observational research settings. The chapter is structured into three parts: an introduction to principles of causal inference, a guide on crafting causal diagrams, and a discussion of their practical applications. It aims to be useful to researchers who hope to address causal questions from observational data.
+  This chapter offers a practical guide for environmental psychology researchers to investigate causal questions, focusing on how Directed Acyclic Graphs (DAGs) can clarify relationships between greenspace access and happiness. We introduce core concepts of causal inference and the assumptions needed to extract causal insights from observational data. Using simulated data, we demonstrate how to construct DAGs that illuminate potential confounding in the greenspace-happiness link. When the confounding structure is complex, we recommend creating multiple DAGs to illustrate the uncertainty and report results under different scenarios. We offer guidelines for how to do this.
 authors: 
   - name: Joseph A. Bulbulia
     orcid: 0000-0002-5861-2056
@@ -102,54 +102,61 @@ push_mods <-
 
 ```
 
-
 ## Introduction
 
-Causal inference attempts to quantify the magnitude of causal relations from data. In the simplest case, we evaluate whether an intervention or "treatment" on one variable leads, on average, to subsequent changes in another variable, known as the "outcome", and if so, by how much. The objective of causal inference is not only to determine whether cause-effect relationships are present but also to estimate their magnitude using data [@cook2002experimental].
+Causal inference seeks to answer a fundamental question: by how much does an intervention or "treatment" directly change another variable (the "outcome"), if at all? It goes beyond identifying correlations to quantify the actual magnitude of causal effects. While the ability to understand cause and effect exists across the animal kingdom [@mancuso2018revolutionary], methods for reliably estimating the size of these effects are a relatively recent development.
 
-It is often thought that the capacity for evaluating causal relationships is a complex cognitive process unique to humans. However, capacities for causal understanding span the plant and animal kingdoms among organisms that vary in levels of conscious awareness and complexity [@mancuso2018revolutionary]. For example, plants and microorganisms have genetic predispositions to recognise and react to environmental conditions critical for their reproduction and survival. Birds and rodents demonstrate the ability to learn, albeit not as complexly as larger mammals and primates. Over millennia, humans have developed diverse frameworks for causal understanding, ranging from the law of karma in Hindu, Jain, and Buddhist traditions to Aristotle’s four causes, early empirical and experimental approaches by Francis Bacon and John Locke, Newtonian mechanics, and others.
+Though often considered the "gold standard" for establishing causation, randomized controlled experiments have limitations. They can be expensive, ethically complex, and results may still be affected by bias [@hernan2017per; @montgomery2018]. Observational data, abundant and readily available, offer a valuable alternative for accelerating knowledge – but only if valid causal inferences can be drawn from them.
 
-Although the capacity to infer cause and effect is common to many lineages and has evolved to high levels of sophistication in human cultures, methods for quantitatively estimating magnitudes of causal effect from data are much less common. Arguably, such capacities emerged only recently with the development of randomised controlled experiments. Specialist methods for quantifying magnitudes of causal influence from "real-world" data are even more recent. Although such methods are routinely taught in modern epidemiology [@lash2020] and economics [@angrist2009mostly], many social scientists do not routinely employ methods for observational causal inference [@morgan2014]. Thus, in our more specialised sense of "causal inference," that of quantifying magnitudes of effect, causal inference is far from universal. This chapter aims to familiarise environmental psychologists with a fundamental understanding of these newly developed specialist methods.
+Unfortunately, many researchers still attempt to analyze observational data using standard covariance analysis that does not address the problem of confounding and can worsen bias [@westreich2013; @robins1986; @hernan2023]. This has led to a "causality crisis" in social sciences, where correlation is acknowledged as insufficient, yet firm causal statements remain elusive [@bulbulia2023a].
 
-We believe there is considerable value in understanding these more recently developed methods for causal inference in observational settings and for routinely employing them. Introductory undergraduate psychology courses teach that correlations between variables do not necessarily indicate causation. The question arises: can valid causal inferences ever be drawn from observational data, and if so, how? Although randomised experiments are often considered to be the “gold standard” for generating causal inferencess, they can be costly and ethically challenging. Moreover, even the use of randomised controlled experiments do not always ensure valid causal insights due to factors such as treatment noncompliance, differential attrition patterns across treatment conditions and sampling bias [@hernan2017per; @montgomery2018]. 
+Recent advances in causal inference from biostatistics and computer science offer a solution [@vanderweele2015]. This approach has immense potential for environmental psychology, a field where randomized controlled experiments often are impractical or impossible. This chapter introduces those methods, with the goal of helping environmental psychologists gain the understanding and tools they need to confidently extract robust causal insights from their data.
 
-Observational data, being more plentiful, offers potentially valuable resources for accelerating knowledge in environmental psychology, provided causal insights can be gleaned from them. However, many researchers continue to attempt to draw causal inferences from such data with statistical models that are not fit for purpose. Indeed routinely employed practices that attempt to "control for" the confounding of cause and effect, such as covariance analysis, can exacerbate bias [@westreich2013; @robins1986; @hernan2023]. Thus, on one side, social scientists assess correlations and state that correlations are not causation. This is unsatisfactory because we typically want to understand causation. On the other hand, we continue to draw hesitant causal conclusions from observed correlations using hedging language [@bulbulia2022]. However, lacking appropriate methods, we typically lack any entitlement to such hedging language. Indeed widespread practices that attempt to "control" point in the opposite direction of truth. In short, the social sciences that have yet to incorporate advances in causal inference are arguably perpetuating what might be called a "causality crisis" [@bulbulia2023a].
+### Overview
+#### Part 1: Potential Outcomes and Experimental Foundations
 
-The advances in causal inference during the past two decades, which emerged in the disciplines of biostatistics and computer science, offer hope for progress in across all the social sciences including psychology [@vanderweele2015]. Incorporating methods for causal inference into environmental psychology research offers particularly strong potential for scientific progress because many of the questions that environmental psychologists hope to answer cannot be approached through randomised controlled experiments. This chapter aims to lay a foundation of understanding that will inspire environmental psychologists to develop the knowledge and skills to help us obtain the more reliable and robust causal understanding that nearly all of us seek.
+We introduce the potential outcomes framework—the cornerstone of causal inference [@hernan2023]. Within the familiar context of randomized experiments, we examine **three core assumptions** vital for reliable causal conclusions. Building intuition using experiments offers two benefits: it sheds light on the assumptions behind causal analysis, guiding both observational and experimental design, and it makes clear that even "gold standard" experiments rely on assumptions for their causal interpretations [@westreich2012berkson; @hernan2017per; @westreich2015; @robins2008estimation].
 
-## Overview
+#### Part 2: Causal Diagrams - Visually Understanding Confounding
 
-**Part 1** introduces the potential outcomes framework for causal inference [@hernan2023]. This section describes the three core assumptions underpinning causal inference, grounding these concepts within the familiar context of randomised experiments. Our experience is that building intuitions about causal inference from an understanding of experimental designs helps to demystify the assumptions central to causal analysis and provides clear guidelines for data collection in observational studies. It also reveals that experiments obtain causal inferences by assumptions. Understanding how these assumptions work is not only useful for improving standards of experimental design and inference [@westreich2012berkson; @hernan2017per; @westreich2015; @robins2008estimation], but also for improving design and analysis standards for observational studies.
+Next, we dive into Directed Acyclic Graphs (DAGs), visual models representing causal relationships and assumptions [@pearl2009a]. Although a full examination of their capabilities goes beyond this chapter, we equip you with essential strategies for their construction and interpretation. You will see how DAGs are **built from four basic graphical structures** ready to apply to your environmental psychology questions.
 
-**Part 2** introduces Directed Acyclic Graphs (DAGs) – or causal diagrams – as powerful tools for examining causal assumptions [@pearl2009a]. Although an exhaustive review of causal diagrams' capabilities is beyond our overview, we present fundamental strategies for constructing and interpreting these diagrams, which we hope will prove valuable for addressing many questions within environmental psychology. We shall see that the elementary building blocks of causal diagrams can be derived from four basic graphical structures.
+#### Part 3: Using DAGs for Causal Identification
 
-**Part 3** uses causal diagrams to investigate strategies for causal identification in seven scenarios, revealing the power of causal diagrams to clarify strategies for data collection and modelling. Some of the strategies that causal diagrams suggest accord with intuition. However, some do not.  By drawing our assumptions and evaluating the implications of these structures according to four basic rules, we discover that new prospects for observational data collection and analysis may be disclosed. Causal diagrams take us to places that intuition does not. Although they are grounded in a rigorous system of mathematical proofs, employing them requires no mathematical calculations. This is a great advantage because it makes causal inference widely accessible to a broad bandwidth of scientists and practitioners. 
+We use seven examples to demonstrate how the four foundational graphical structures contribute to confounding problems. DAGs will illuminate strategies researchers can employ to address these issues. Some tactics may align with intuition, but DAGs can reveal insightful options we may not initially consider. Although DAGs are supported by rigorous mathematical proof, DAGs are surprisingly accessible: they require no complex calculations and thus empowering a broad range of researchers.
 
-**Part 4** provides a 'how to' guide for employing Directed Acyclic Graphs in two distinct use cases: (1) cross-sectional designs; (2) repeated-measures longitudinal designs.  
+#### Part 4: a Practical Guide to DAGs
+
+We address the uncertainties around true causal structures when confounding relationships are inherently unclear or debated.  Here, we explain the value of drawing multiple DAGs and simulate data to illustrate why this approach is useful.  Finally, we provide recommendations for reporting in two settings:
+
+  (i) Only cross-sectional data are available
+  (ii) Repeated measures longitudinal data are available
 
 ## Part 1: An Overview of the Potential Outcomes Framework for Causal Inference
 
-The potential outcomes framework for causal inference originated in the work of Jerzy Neyman for the purpose of evaluating the effectiveness of agricultural experiments [@neyman1923]. It was later extended by Harvard statistician Donald Rubin, who demonstrated the framework may also facilitate causal inferences in non-experimental settings [@rubin1976]. Jamie Robins further generalised this framework to assess confounding in complex scenarios involving multiple treatments and time-varying factors [@robins1986]. A core concept within this framework is that of a "counterfactual contrast" or "estimand." To quantitatively assess the magnitude of causality requires contrasting how the world would have turned under two or more states, corresponding to different levels of intervention or treatment or sequence of treatments whose effects researchers hope to measure.  Notably, before any intervention, these states remain counterfactual. This is perhaps obvious. We have yet to intervene. However, after any intervention, for every instance of a treatment that is applied, at most only one of the two states of the world to be contrasted is realised. The other state remains counterfactual. Philosophers who have puzzled over the nature of causation have long realised that causality is never directly observed [@hume1902]. In a sense, we may think of causal inference as a form of counterfactual data science [@edwards2015; @bulbulia2023a]
+The potential outcomes framework for causal inference originated in the work of Jerzy Neyman for the purpose of evaluating the effectiveness of agricultural experiments [@neyman1923]. It was later extended by Harvard statistician Donald Rubin, who demonstrated the framework may also facilitate causal inferences in non-experimental settings [@rubin1976]. Jamie Robins further generalized this framework to assess confounding in complex scenarios involving multiple treatments and time-varying treatments [@robins1986]. 
 
-To understand the significance of counterfactual contrasts in causal inference, consider a situation where you are at a crossroads in life, facing a significant decision. You are soon graduating from university and have been accepted into your ideal graduate programme in Environmental Psychology at the University of Canterbury; you are making preparations for a relocation to Christchurch, New Zealand. Concurrently, you receive a compelling job offer from Acme Nuclear Fuels, a pioneer in renewable energy solutions. Each option would lead you on a distinct path, affecting your daily life, income, social circles, romantic relationships, and perhaps ultimately your sense of life's purpose. Which decision will lead to a better overall life for you?
+A core concept within this framework is that of a "counterfactual contrast" or "estimand." To quantitatively assess the magnitude of causality requires contrasting how the world would have turned out under two or more states, corresponding to different levels of intervention or treatment.  Notably, before any intervention, these states remain counterfactual. After any intervention, for every treatment applied, at most, only one of the two states of the world to be contrasted is realized. The other state remains counterfactual. Philosophers who have puzzled over the nature of causation have long realized that causality is **never directly observed** [@hume1902]. In a sense, we may think of causal inference as a form of counterfactual data science [@edwards2015; @bulbulia2023a] 
 
-In causal inference, it can be useful to clarify conceptually challenging concepts using mathematical notation. As mentioned, we will see that the practical application of causal diagrams does not rely on mathematical notation or calculations. If you find the mathematics unappealing, you may proceed directly up the elevator of causal inference via the elevator of causal diagrams. However, for some, it can be helpful to express ideas symbolically using elementary mathematics, to climb a ladder slowly, to understand the basis of how causal inference works at each step, and perhaps only then to discard the ladder of mathematical concepts that built this understanding.
+#### The Fundamental Problem of Causal Inference: causation is not directly observed
 
-Formally, let $D$ denote the decision, where $D = 1$ denotes the decision to attend graduate school and $D=0$ denotes the decision to embark on a career in industry. We denote the two potential outcomes - the counterfactual states of the world under different levels of decision using the notation $Y_{\text{you}}(1)$ and $Y_{\text{you}}(0)$. Again, these outcomes describe the hypothetical scenarios resulting from each decision. We assume there is a fact-of-matter. Were you to choose, your life would turn out one way perhaps similarly, perhaps differently, to the other way. Conceptually, to quantitatively attach a *magnitude* to the causal effect of your choice, we must measure the difference $Y_{\text{you}}(1) - Y_{\text{you}}(0)$. However, this difference is fundamentally unobservable. Once you make a decision, the alternative scenario remains unknowable. We can illustrate this as follows:
+To grasp the implications of counterfactual contrasts in causal inference, imagine yourself at a pivotal point in your life. Having just completed your undergraduate studies, you have been accepted into your dream Environmental Psychology program at the University of Canterbury and are set to relocate to Christchurch, New Zealand. Suddenly, you receive a fantastic job offer from Acme Nuclear Fuels, a leader in renewable energy.  Both paths diverge significantly —  lifestyle, income, social networks, relationships, perhaps even life purpose hang in the balance. Which choice aligns with your ideal future?
+
+Formally, let $D$ denote the decision, where $D = 1$ means attending graduate school and $D = 0$ means joining the workforce.  Your two potential outcomes under each path are described as $Y_{\text{you}}(1)$ and $Y_{\text{you}}(0)$.  Importantly, we assume a definite outcome exists for each choice you *could* have made.  Conceptually, we need to measure the difference $Y_{\text{you}}(1) - Y_{\text{you}}(0)$ to quantify the *magnitude* of the effect of your choice. Yet, this difference remains fundamentally unobservable. Your life goes down one path, forever obscuring the alternative:
 
 $$
 (Y_{\text{you}}|D_{\text{you}} = 1) = Y_{\text{you}}(1) \quad \text{implies} \quad Y_{\text{you}}(0)|D_{\text{you}} = 1~ \text{is counterfactual}.
 $$
 
-Similarly, the equation applies in reverse when the choice is $A = 0$:
+The same counterfactual issue arises if you had selected $D = 0$:
 
 $$
 (Y_{\text{you}}|D_{\text{you}} = 0) = Y_{\text{you}}(0) \quad \text{implies} \quad Y_{\text{you}}(1)|D_{\text{you}} = 0~ \text{is counterfactual}.
 $$
 
-Of course, you regularly make principled decisions about your life based on past experiences, instincts, and knowledge. Nevertheless, the *data* that you require to quantitatively compare life outcomes under one decision as opposed to the other is not available. Life, as it would have unfolded under the option you do not select, remains counterfactual -- it cannot be directly measured. A quantitative causal contrast here is not a matter of factual data science. This example, although contrived, perhaps resonates with similar crossroads you have encountered in your life. The dilemmas that you faced at these crossroads underscore what is known as "The fundamental problem of causal inference" [@rubin2005; @holland1986]: for any individual case, we cannot observe the potential outcomes that we require to quantify the magnitude of an individual causal contrast.
+This simple model mirrors the sorts of consequential "fork-in-the-road" decisions we regularly encounter. "The fundamental problem of causal inference" [@rubin2005; @holland1986] highlights that directly comparing one individual's outcome under both potential paths is impossible. 
 
-The fundamental problem of causal inference never goes away. However, by collecting, organising, and aggregating data under certain assumptions, we can obtain valid quantitative causal contrasts from data to estimate *average treatment effects*. To clarify these assumptions, we next consider how experiments attach magnitudes to missing counterfactual outcomes to obtain average treatment effects.
+This problem persists. Do not despair! Under certain assumptions, careful data collection and analysis can illuminate *average treatment effects*. Consider how experiments uncover these key assumptions. 
 
 ### Understanding Relationships of Cause and Effect Through Intervention Outcomes
 
@@ -179,144 +186,117 @@ How do experiments manage to estimate average treatment effects despite the inhe
 
 #### Balance of Confounders Removes Confounding
 
-In experimental designs, random assignment of treatment effectively eliminates any systematic relationship between treatment conditions and the distribution of confounders that can affect both the treatment and the outcome. Simply put, randomisation creates a balance in confounders across treatment groups. While factors that might influence the outcome do not vanish, the balance ensured by successful randomisation allows us to disregard the phenomenon of *confounding*. This is because the distribution of confounders will be, on average, identical across the treatment groups, supporting the assumption that any systematic difference in average outcomes between these groups owes to the treatment itself.
+Random assignment in experiments is the key to eliminating bias from confounding factors. It creates, on average, an equal distribution of confounders (denoted by $L$) across treatment groups. While confounders still exist, this balance allows us to confidently attribute outcome differences between groups to the treatment *itself*.
 
-We denote the set of all possible confounders by the letter $L$. In causal inference, the absence of confounding can be articulated in one of two equivalent ways. Where the symbol $\coprod$ denotes independence:
+We express this lack of confounding mathematically in two equivalent ways (where $\coprod$ means "independent"):
 
-1. The potential outcomes, given the treatment and confounders, are conditionally independent: $Y(a) \coprod A \mid L$.
-2. The treatment assignment, given the potential outcomes and confounders, is conditionally independent: $A \coprod Y(a) \mid L$.
+1. **Potential Outcomes Independent of Treatment (given L):**  $Y(a) \coprod A \mid L$ 
+2. **Treatment Assignment Independent of Potential Outcomes (given L):**   $A \coprod Y(a) \mid L$
 
-To some, the mathematical formalism, which involves the symbol $\coprod$ to denote the statistical independence of the term to either side of this symbol, might seem complex. However, this compact notion for describing statistical independence will be helpful later when we explore *how* causal diagrams enable us to confidently develop causal inference strategies for observational data that aim to emulate experimental randomisation. If our treatment $A$ is not independent of the potential outcome $Y(a)$ after controlling for confounders $L$, that is, if $A\cancel\coprod Y(a)|L$, we cannot obtain an unbiased estimate for the causal effect of treatment on outcome.  Moreover if $A\coprod Y(a)$ yet $A\cancel \coprod Y(a)|L$, then we can only obtain consistent causal estimation by *avoiding* controlling for $L$.  The compact mathematical notation allows us to appreciate why causal diagrams work -- how they specifically rely on the assumptions about the relationships of measured and unmeasured variables to the treatment and outcome. Again, the application of causal diagrams to scientific problems does not rely on mastery of probability theory. If you find the notation unfamiliar and confusing you may safely ignore it because your causal diagrams encode these concepts in a purely spatial representation.
+Understanding this notation is helpful when using causal diagrams,  but the diagrams themselves visually encode these concepts. The core idea is simple: **a balance of confounders between treatment groups is the essence of both experimental and observational causal inference strategies.**  Randomization achieves this, ensuring $A \coprod Y(a)$.
 
-However, it is essential to understand that the heart of every strategy for causal inference -- whether experimental or non-experimental -- is the attempt to achieve a balance across treatment conditions in the variables that might influence the outcome. “Under the hood” such balance implies statistical independence of the treatment and the potential outcomes, conditional on covariates $L$. Randomisation ensures $L$ is balanced on the treatments, allowing us to infer that successful randomisation ensures $A \coprod Y(a)$.
+This leads to our first key principle of causal inference from experiments:
 
-Thus, the first key principle for causal inference embodied in randomised experiments may be summarised as follows:
+1. **Conditional Exchangeability:** potential outcomes and treatment assignment are statistically independent after considering all measured confounders.  This allows us to attribute group differences to the treatment. Note: randomization achieves *unconditional* exchangeability, simplifying analysis.
 
-1. **Conditional Exchangeability**: There is statistical independence between potential outcomes and treatment assignment, given all measured confounders, ensuring observed group differences in the effects of the treatment are attributable to the treatment itself. Note that in a randomised controled experiment, we have *unconditional exchangability*. Randomisation ensures balance.
+#### Control Ensures Consistent Treatments Across All Confounders
 
-#### Control Ensures Consistent Treatments are Administered Across All Confounders
+Two more principles let us draw conclusions about average treatment effects, and they stem from the *control* in an experiment:
 
-Two further principles allow researchers to infer average treatment effects without observing individual treatment effects. These principles arise from *control*, not randomisation:
-
-2. **Causal Consistency**: This principle allows us to assume that the observed outcomes in experimental conditions correspond to the potential outcomes under the received treatment. To develop intuition for this, we turn to simple mathematical notation:
-
-For any individual $i$, the observed outcome $Y_i$ given their treatment status $A_i = 1$ is equal to their potential outcome under treatment, denoted as $Y_i(1)$. Similarly, when the treatment status for the same individual $i$ is $A_i = 0$, the observed outcome $Y_i$ is equal to the potential outcome under no treatment, denoted as $Y_i(0)$. More compactly:
+2. **Causal Consistency:** observed outcomes match the potential outcomes under the assigned treatment.  In notation, for individual 'i':
 
 $$
 \begin{aligned}
-Y_{i}(1) &= (Y_{i}|A_{i} = 1) \quad \text{(Potential outcome observed if treated)} \\
-Y_{i}(0) &= (Y_{i}|A_{i} = 0) \quad \text{(Potential outcome observed if untreated)}
+Y_{i}(1) &= (Y_{i}|A_{i} = 1) \quad \text{(Potential outcome if treated)} \\
+Y_{i}(0) &= (Y_{i}|A_{i} = 0) \quad \text{(Potential outcome if untreated)}
 \end{aligned}
 $$
 
-When the exchangeability assumption is satisfied, we can extend our analysis from comparisons of treatment effects observed in the data to comparisons of the average treatment effects as if the entire population had been treated or had been untreated:
+If exchangeability holds, we can then derive the Average Treatment Effect (ATE) from observed data:
 
 $$
 \begin{aligned}
-\text{Average Treatment Effect (ATE)} &= \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)] \\
+\text{ATE} &= \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)] \\
 &= \mathbb{E}(Y|A=1) - \mathbb{E}(Y|A=0)
 \end{aligned}
 $$
 
-Here, $\mathbb{E}[Y(1)]$ and $\mathbb{E}[Y(0)]$ denote the expected outcomes if the entire population were treated or untreated, respectively.
+It is the *control* in a Randomized Controlled Trial (RCT) that typically makes causal consistency a safe assumption; treatments are standardized. We will see this is harder to ensure in observational data.
 
-Thus, by the assumptions of causal consistency and conditional exchangeability, randomised controlled experiments recover average treatment effects as contrasts in the average of the outcomes in treatment groups (or equivalently as the average of the differences of the treatment outcome averages -- the two quantities are mathematically equivalent.)
-
-Note that the causal consistency assumption is generally satisfied by the *control* that experimentalists exert over randomised controlled experiments. In an experiment, treatment groups receive equivalent treatments. This is almost self-evident. However, as we will see, in real-world data, the assumption of consistent treatments is much harder to satisfy. As it turns out, however, one may consistently estimate causal effects if the many versions of the treatment are conditionally independent of the potential outcomes under these treatments. 
-
-3. **Positivity**: There is one more assumption required to obtain valid causal contrasts from data. We must assume that there is a non-zero probability of receiving each treatment level within covariate-defined subgroups.
-
-$$
-P(A = a | L= l) > 0
-$$
-
-This assumption is also met by the *control* that experimentalists exert over randomised controlled experiments and is rarely stated explicitly. However, in observational settings, this condition must be verified to avoid extrapolating results beyond observed data.  
+3. **Positivity:**  every individual has a non-zero chance of receiving any treatment level within each combination of confounder values. Postivity also arises natural from experimental *control* and rarely needs explicit mention. But it is vital to check postivity in observational studies.
 
 ### Why Satisfying the Fundamental Assumptions of Causal Inference in Observational Settings is Difficult
 
-In observational research, researchers do not control the treatment allocation. The goal is to replicate a controlled experimental environment as closely as possible. However, obtaining balance in confounders across the treatments to be compared introduces challenges.
+Unlike experiments, observational studies lack researcher control over treatment allocation. The aim, though, is to mimic an experimental setting as closely as possible. The core hurdle is achieving that balance in confounders that lets us compare groups fairly.
 
 ##### The Conditional Exchangeability Assumption in Observational Settings
 
-Achieving conditional exchangeability is challenging in observational studies. This condition requires the groups being compared to be similar in every aspect except for the treatment. Consider the example of the effect of living near green spaces on subjective happiness. In real-world data, individuals with access to green spaces may differ from those without access in several ways:
+Conditional exchangeability demands that groups be alike *except* for the treatment received. But in our green spaces example, real-world data won't look this tidy:
 
-**Socioeconomic status**: there might be a link between an individual's economic background and their proximity to green spaces. More affluent individuals could afford housing in areas with better access to high-quality green spaces.
+* **Socioeconomic status:**  individuals' financial means likely play a role in  housing locations, and thus influence proximity to quality green spaces.
+* **Age demographics:**  different age groups have varied needs and preferences when it comes to green spaces. 
+* **Mental health:**  existing mental health conditions could cause  someone to actively seek out or avoid green spaces.
+* **Lifestyle choices:**  green space proximity might align with a broader preference for outdoor activities. Is well-being directly caused by the area, or  a healthier lifestyle in general? 
+* **Personal values and social connections:** environmental values or connections within the community could explain both residence choice and the way these spaces are enjoyed.
 
-**Age demographics**: different age groups may have different preferences regarding green spaces. Younger individuals or families with children might prioritise access to parks, unlike other demographics.
-
-**Mental health**: individuals with existing mental health issues might seek out green spaces for therapeutic benefits or avoid them because of social anxiety or other factors.
-
-**Lifestyle choices**: individuals who prefer outdoor activities might choose to live near green spaces. It is difficult to ascertain whether proximity to green spaces directly causes improved well-being or if it is merely a characteristic of individuals who already lead healthier lifestyles.
-
-**Personal values and social connections**: the decision to live near green spaces might also be influenced by personal values, such as environmentalism, or the desire to be part of a community that values these spaces. Such values and connections can affect how individuals interact with and benefit from living in proximity to green spaces.
-
-These and other unmeasured factors can introduce biases, complicating the interpretation of causal relationships in observational studies.
+These and other hidden factors bias our observational study, making it tricky to isolate the actual impact of green spaces.
 
 ##### The Causal Consistency Assumption and Treatment Heterogeneity
 
-Again we consider our interest in quantifying the causal effect of living near green spaces. The definition of "proximity to green spaces" itself varies significantly, leading to a diverse range of experiences classified under the same "treatment." Again, we set aside the issue that proximity is a continuous variable and that the distance to the nearest green space influences how often and easily individuals can access these areas, affecting the impact of this "treatment." However, we should note that causal inference always requires contrasting conditions. When assessing causal contrasts we must specify the points to be compared on a continuous scale. Arguably, such comparisons will require artificiality and extrapolation.  Focussing on the variability of the green spaces themselves this includes:
+'Proximity to green spaces'  itself hides huge variability. This variation makes the 'treatment' a moving target for consistent measurement:
 
-**Diversity of green spaces**: the biodiversity and aesthetic value of these spaces can vary widely. Some might have access to well-maintained parks, while others to basic recreational areas with limited natural appeal.
-
-**Availability of amenities**: amenities such as walking paths, benches, and recreational facilities can enhance the experience of green spaces, encouraging more frequent and prolonged visits.
-
-**Size and type of green space**: the type (e.g., urban park, community garden) and size of the green space might affect the psychological and physical benefits it offers.  Thus, as we convert observed outcomes under these heterogenous conditions, it might be unclear which interventions it is that we are comparing.  
+* **Diversity of green spaces:** biodiversity and aesthetics range broadly  – comparing manicured urban parks to untended, overgrown spaces is not a fair matchup.
+* **Availability of amenities:** access to paths, seating, etc. drastically influences how often and in what ways the space can be used.
+* **Size and type of green space:** urban garden or sprawling forest? Each offers distinct benefits. 
 
 ##### The Positivity Assumption in Observational Settings 
 
-Positivity, the requirement that every individual has a chance of receiving each level of treatment being compared, can be challenging to ensure in observational studies. In some urban areas, it might be practically impossible for certain demographics to have access to green spaces owing to factors like housing prices or availability, limiting treatment exposure variability within certain strata and complicating valid causal inference.
+Positivity requires every individual to have a chance of any treatment level. But sometimes, practical limits on  housing in certain areas create barriers for specific demographics, hindering inference across potential scenarios.
 
-In observational studies, understanding the context and carefully using statistical methods helps us get close to the conditions of a randomised experiment. The closer we get, the more we can trust our causal conclusions. Yet, it is important to admit that sometimes our data will not give us much confidence. By comparing our work to the ideal of a randomised experiment, environmental psychologists can more clearly see and explain what observational data can and cannot tell us about cause and effect, especially for questions that practical or ethical considerations are not amenable to experimental investigation.
-
-We will set the question of positivity to the side. However, interested readers may consult [@westreich2010; @hernan2023]. The important topic of causal consistency is briefly considered in Appendix B, see also: [@vanderweele2009; @vanderweele2013; @hernan2023].
-
-The primary application of causal diagrams is to evaluate the conditional exchangeability assumption of “no unmeasured confounding.” The next section considers how causal diagrams powerfully assist with evaluating the demands of this assumption, guide data collection, and allow researchers to develop statistical modelling strategies that consistently estimate average magnitudes of causal effects within levels of the interventions they seek to contrast.
+**Key Point:** although we try to mirror experiments in observational studies, getting close enough for truly confident causal conclusions can be incredibly hard.  Sometimes, our data simply won't allow it. Understanding the experimental ideal helps environmental psychologists recognize and explain the limits of observational causal claims.
 
 ## Part 2. Causal Diagrams
 
-This section introduces causal diagrams, starting with essential terminology. Understanding this terminology is not straightforward for newcomers, but it is necessary for applying causal diagrams effectively. After explaining the terms, we will examine practical examples. We will see that various forms of confounding arise from four key causal structures. Recognising these structures is crucial for applying them in practical scenarios. **Appendix A** provides a comprehensive glossary.
+This section introduces causal diagrams, starting with essential terminology. Understanding this terminology can be a bit tricky for newcomers, but it is necessary for applying causal diagrams effectively. After explaining the terms, we will examine practical examples. We will see that various forms of confounding arise from four key causal structures. Recognizing these structures is crucial for applying them in practical scenarios. Note: **Appendix A** provides a comprehensive glossary.
 
-Causal diagrams use specific symbols to represent elements important in causal inference, as established in seminal works [@pearl1995; @pearl2009; @greenland1999]. The symbols and their meanings are listed in Table @tbl-01:
+Causal diagrams use specific symbols to represent elements important in causal inference, as established in seminal works [@pearl1995; @pearl2009; @greenland1999].  The symbols and their meanings are listed in Table @tbl-01:
 
-- **$A$** is the treatment or exposure variable, the intervention or condition whose effect on an outcome is under investigation. **This symbol represents the cause**.
-- **$Y$** is the outcome variable, the effect or result that is being studied. **This symbol represents the effect**.
-- **$L$** includes all measured confounders, variables that may affect both the treatment and the outcome.
-- **$U$** includes unmeasured confounders, variables not included in the analysis that could influence both the treatment and the outcome, potentially leading to biased conclusions.
-- **$M$** is a mediator variable, a factor through which the treatment affects the outcome. The focus here is on identifying the total effect of treatment $A$ on an outcome $Y$, but it is also important to understand how controlling for mediators can affect estimates of this total effect.
-
+* **$A$** is the treatment or exposure variable – the intervention or condition whose effect on an outcome is under investigation. **This symbol represents the cause**.
+* **$Y$** is the outcome variable – the effect or result that is being studied. **This symbol represents the effect**.
+* **$L$** includes all measured confounders – variables that may affect both the treatment and the outcome.
+* **$U$** includes unmeasured confounders – variables not included in the analysis that could influence both the treatment and the outcome, potentially leading to biased conclusions.
+* **$M$** is a mediator variable – a factor through which the treatment affects the outcome. The focus here is on identifying the total effect of treatment $A$ on an outcome $Y$, but it is also important to understand how controlling for mediators can affect estimates of this total effect. 
 
 ::: {#tbl-01}
 
 ```{=latex}
 \terminologylocalconventionssimple
 ```
-Terminology that is used in this article for causal diagrams. (This table is adapted from [@bulbulia2023])
+Terminology that is used in this article for causal diagrams (adapted from [@bulbulia2023]). 
 :::
 
+### Elements of Causal Diagrams
+
+Having established the meanings of our symbols, we now turn to the fundamental components of causal diagrams themselves.  @tbl-02 describes the basic elements.  Key features are:
+
+1. **Nodes**:  represent variables or events within a causal system. They stand for distinct elements that can influence or be influenced within the system.
+
+2. **Edges**: signify the relationships between the variables represented by nodes.  In causal diagrams, edges are directed that define pathways of causal influence. Importantly, causal diagrams are non-parametric; thus, the representation of a relationship does not change with its nature—be it linear or non-linear, an arrow is used in both cases.
+
+3. **Influence relationships**: Aa variable is termed a "child" if it is directly influenced by another variable, which is then referred to as its "parent."  This describes the direction of causal influence within the diagram.
+
+4. **Acyclic**: causal diagrams must not contain cycles; that is, they cannot have feedback loops where a variable can be both a cause and effect of itself, directly or indirectly. This requirement ensures clarity in the direction of causal influence.  In scenarios involving repeated measurements, nodes should be indexed by time to maintain acyclicity.
+
+5. **Conditioning**:  determining whether to statistically control for certain variables is important for unbiased estimation of the relationship between the treatment and the outcome. This process of "conditioning" or "adjustment" is visually represented by enclosing the variable in a box within the diagram. 
 
 ::: {#tbl-02}
 
 ```{=latex}
 \terminologygeneralbasic
 ```
-Basic conventions for causal diagrams. (This table is adapted from [@bulbulia2023])
+Basic conventions for causal diagrams (adapted from [@bulbulia2023]). 
 :::
 
-
-### Elements of Causal Diagrams
-
-
-Having established the meanings of our symbols, we now turn to the fundamental components of causal diagrams themselves. @tbl-02 describes the basic elements of causal diagrams themselves. Key features are:
-
-1. **Nodes**: representations of variables or events within a causal system. Each node stands for a distinct element that can influence or be influenced within the system.
-
-2. **Edges**: signify the relationships between the variables represented by nodes. In causal diagrams, edges are directed that define pathways of causal influence. Importantly, causal diagrams are non-parametric; thus, the representation of a relationship does not change with its nature—be it linear or non-linear, an arrow is used in both cases.
-
-3. **Parent and child relationships**: a variable is termed a "child" if it receives an arrow from another variable, which is then referred to as its "parent." This terminology helps to describe the direction of causal influence within the diagram.
-
-4. **Acyclic**: causal diagrams must not contain cycles; that is, they cannot have feedback loops where a variable can be both a cause and effect of itself, directly or indirectly. This requirement ensures clarity in the direction of causal influence. In scenarios involving repeated measurements, nodes should be indexed by time to maintain acyclicity.
-
-5. **Conditioning**: a central aspect of causal analysis is determining how controlling for certain variables affects the unbiased estimation of the relationship between the treatment and the outcome. This process of "conditioning" or "adjustment" is visually represented by enclosing the variable in a box within the diagram.
 
 
 #### The Rules of D-separation 
