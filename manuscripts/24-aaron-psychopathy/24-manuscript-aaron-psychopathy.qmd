@@ -214,6 +214,18 @@ narc_t_tab <- readRDS(here::here(push_mods_narc, "t_tab"))
 
 narcl_standard_deviation_exposure <- readRDS(here::here(push_mods_narc, "standard_deviation_exposure"))
 
+# summaries
+psychopathy_combined_tab_outcomes_gain
+antagonism_tab_outcomes_gain
+antagonism_tab_outcomes_loss
+psychopathy_combined_tab_outcomes_loss
+disinhibition_tab_outcomes_gain
+disinhibition_tab_outcomes_loss
+emotional_tab_outcomes_gain
+emotional_tab_outcomes_loss
+narc_tab_outcomes_loss
+narc_tab_outcomes_gain
+
 #### GRAPHS 
 
 # Combined 
@@ -395,7 +407,7 @@ plot_emotional_group_tab_outcomes_loss <- margot_plot(
   x_lim_lo = -1,
   x_lim_hi =  .5
 )
-plot_emotional_group_tab_outcomes_loss
+#plot_emotional_group_tab_outcomes_loss
 
 ## narcissism plots
 
@@ -463,7 +475,7 @@ plot_narc_group_tab_outcomes_loss <- margot_plot(
 # 
 # # help received 
 # table_selected_sorted_names_help_received_vars <- here_read("table_selected_sorted_names_help_received_vars")
-# 1] "The table presents a transition matrix that describes stability and movement between the treatment from the baseline wave to the treatment wave. Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagnal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, presents the count of individuals moving from state $i$ to state $j$."
+# 1] "The table presents a transition matrix describing stability and movement between the treatment from the baseline to the treatment wave. Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, presents the count of individuals moving from state $i$ to state $j$."
 
 ```
 
@@ -478,13 +490,13 @@ Here, to address this question, we develop an outcome-wide longitudinal study us
 
 ### Sample
 
-Data were collected as part of The New Zealand Attitudes and Values Study (NZAVS) is an annual longitudinal national probability panel study of social attitudes, personality, ideology and health outcomes. The NZAVS began in 2009. It includes questionnaire responses from more almost 70,000 New Zealand residents. The study includes researchers from many New Zealand universities, including the University of Auckland, Victoria University of Wellington, the University of Canterbury, the University of Otago, and Waikato University. Because the survey asks the same people to respond each year, it can track subtle change in attitudes and values over time, and is an important resource for researchers both in New Zealand and around the world. The NZAVS is university-based, not- for-profit and independent of political or corporate funding.https://doi.org/10.17605/OSF.IO/75SNB
+Data were collected as part of The New Zealand Attitudes and Values Study (NZAVS) is an annual longitudinal national probability panel study of social attitudes, personality, ideology and health outcomes. The NZAVS began in 2009. It includes questionnaire responses from over 72,000 New Zealand residents. The study includes researchers from many New Zealand universities, including the University of Auckland, Victoria University of Wellington, the University of Canterbury, the University of Otago, and Waikato University. Because the survey asks the same people to respond each year, it can track subtle changes in attitudes and values over time and is an important resource for researchers in New Zealand and worldwide. The NZAVS is university-based, not-for-profit and independent of political or corporate funding.https://doi.org/10.17605/OSF.IO/75SNB
 
 [Appendix A](#appendix-measures) provides statistical information about the measures used in this study.
 
 [Appendix B](#appendix-demographics) provides information about demographic covariates used for confounding control (NZAVS time 10, years 2018-2019).
 
-[Appendix C](#appendix-exposures) provides information about about the treatment responses at baseline (NZAVS time 10) and in the treatment wave (NZAVS time 11, years 2019-2020).
+[Appendix C](#appendix-exposures) provides information about the treatment responses at baseline (NZAVS time 10) and in the treatment wave (NZAVS time 11, years 2019-2020).
 
 [Appendix D](#appendix-outcomes) provides information about about the outcome variables responses at baseline (NZAVS time 10) and in the treatment wave (NZAVS time 12, years 2020-2021).
 
@@ -502,7 +514,7 @@ Criteria for inclusion were pre-specified and pre-registered in advance of the a
 ##### Excluded 
 
 - Participants who had missing responses to the treatment variables at baseline or in the treatment wave, or both.
-- We allowed loss-to-follow up in the outcome wave (NZAVS wave 2020)
+- We allowed loss-to-follow-up in the outcome wave (NZAVS wave 2020)
 - Missing data for all variables at baseline were allowed. Missing data at baseline were imputed through the `mice` package [@vanbuuren2018].
 - Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave [@williams2021])
 
@@ -537,15 +549,15 @@ $$ \text{Average Treatment Effect} = E[Y(a^*)|\textcolor{red}{f(A)},L] - E[Y(a)|
 
 To consistently estimate causal effects, we rely on three key assumptions:
 
-1. **Causal Consistency:** potential outcomes must align with observed outcomes under the treatments in our data. Essentially, we assume potential outcomes don not depend on the specific way treatment was administered, as long as we take into account measured covariates. 
+1. **Causal Consistency:** potential outcomes must align with observed outcomes under the treatments in our data. Essentially, we assume potential outcomes do not depend on the specific way treatment was administered, as long as we consider measured covariates. 
 
 2. **Conditional Exchangeability:** given the observed covariates, we assume treatment assignment is independent of potential outcomes. In simpler terms, this means "no unmeasured confounding" – any factors influencing both treatment assignment and outcomes must be included in our measured covariates.
 
-3. **Positivity:** for unbiased estimation, every subject must have a non-zero chance of receiving the treatment, regardless of their covariate values. We evaluate this assumption in each study by examining changes in psychopathy "treatments" from baseline (NZAVS time 10) to the treatment wave (NZAVS time 11). It is the initiation of a psychopathic trait, and their combinations, whose causal effect we seek to quantify
+3. **Positivity:** for unbiased estimation, every subject must have a non-zero chance of receiving the treatment, regardless of their covariate values. We evaluate this assumption in each study by examining changes in psychopathy "treatments" from baseline (NZAVS time 10) to the treatment wave (NZAVS time 11). It is the initiation of a psychopathic trait and their combinations, whose causal effect we seek to quantify
 
 **Considerations:**
 
-Neither causal consistency nor conditional exchangeability can be directly tested with data.Because unmeasured confounding cannot be tested, we perform sensitivity analysis by estimating the magnitude of unmeasured confounding required to explain away a result (E-values).
+Neither causal consistency nor conditional exchangeability can be directly tested with data. Because unmeasured confounding cannot be tested, we perform sensitivity analysis by estimating the magnitude of unmeasured confounding required to explain away a result (E-values).
 
 
 ### Analysis
@@ -561,20 +573,22 @@ We followed @vanderweele2020's *minimally modified disjunctive criteria* for con
 
 2. **Remove instrumental variables**: we removed variables that are identified as instrumental variables, i.e., those influencing the exposure but not the outcome. Their inclusion can reduce the efficiency of the analysis.
 
-3. **Inclusion of proxy variables**: for unmeasured variables that affect both the exposure and outcome, include proxy variables wherever possible. These proxies act as indicators for the unmeasured common causes.
+3. **Inclusion of proxy variables**: for unmeasured variables that affect both the exposure and outcome, include proxy variables wherever possible. These proxies act as indicators for the unmeasured common causes. [Appendix B](#appendix-demographics) lists covariates we used for confounding control. These protocols follow advice in [@bulbulia2024PRACTICAL] as prespecified in [https://osf.io/ce4t9/](https://osf.io/ce4t9/).
 
-[Appendix B](#appendix-demographics) provides a list of covariates we used for confounding control. These protocols follow advice in [@bulbulia2024PRACTICAL] as prespecified in [https://osf.io/ce4t9/](https://osf.io/ce4t9/).
+4. **Baseline exposure control**: we included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. Accounting for prior exposure also allowed us to recover an incident exposure effect as opposed to a prevalent exposure effect: that is, we were able to focus on the one-year effect on partner well-being from initiation to psychopathy or a psychopathic trait [@danaei2012; @hernan2023].
 
-4. **Baseline exposure control**: we included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. Accounting for prior exposure also also allowed us to recover an incident exposure effect as opposed to prevalent exposure effect: that is, we were able to focus on the one-year effect on partner well-being from an initiation to psychopathy or a psychopathic trait [@danaei2012; @hernan2023].
+5. **Baseline outcome control**: we also included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. This strategy also minimises the possibility of reverse causation.
 
-5. **Baseline outcome control**: we also included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. This strategy also minimises the possibility for reverse causation.
+
+Additionally, we adopted the following confounding-control strategies:
+
 
 6. **Partner's covariates**: because the effect of changes in one individual's variables on their partner's outcomes is assessed, we include baseline measures for the partner's covariates, as we as of the focal partner. Additionally, we clustered individuals with their dyadic partnerships, which helps adjust for unmeasured features that might affect results.
 
 7. **Handling missing data**: to better ensure that the analyses were robust to potential biases introduced by missing data, we adopted the following strategies:
 
   - **Baseline missingness**: we imputed missing data to recover baseline missing data (`mice` package in R) [@vanbuuren2018].
-  - **Follow-up missingness**: we used the  `lmtp` packages build-in censoring weighting to adjust for loss-to-follow up/sample attrition [@williams2021].
+  - **Follow-up missingness**: we used the  `lmtp` packages build-in censoring weighting to adjust for loss-to-follow-up/sample attrition [@williams2021].
 
 <!-- Valid inferences for the New Zealand population were secured by applying post-stratification census weights for age, European ethnicity, and gender. -->
 
@@ -584,34 +598,32 @@ We followed @vanderweele2020's *minimally modified disjunctive criteria* for con
 
 We employ a semi-parametric estimator known as Targeted Minimum Loss-based Estimation (TMLE), which is able to estimate the causal effect of modified treatment policies on outcomes over time [@vanderlaan2011; @vanderlaan2018]. Estimation was performed using `lmtp` package [@williams2021; @díaz2021; @hoffman2023]. TMLE is a robust method that combines machine learning techniques with traditional statistical models to estimate causal effects while providing valid statistical uncertainty measures for these estimates.
 
-TMLE operates through a two-step process involving both outcome and treatment (exposure) models. Initially, it employes machine learning algorithms to flexibly model the relationship between treatments, covariates, and outcomes. This flexibility allows TMLE to account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions. The outcome of this step is a set of initial estimates for these relationships.
+TMLE operates through a two-step process involving outcome and treatment (exposure) models. Initially, it employes machine learning algorithms to flexibly model the relationship between treatments, covariates, and outcomes. This flexibility allows TMLE to account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions. The outcome of this step is a set of initial estimates for these relationships.
 
-The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible to the true causal effect while still being robust to model misspecification in either the outcome or treatment model.
+The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible to the true causal effect while remaining robust to model misspecification in either the outcome or treatment model.
 
 A central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid overfitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects on of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]
 
 
 #### Estimation
 
-We used the `lmtp` R package for estimating the causal effects of treatments on well-being outcomes for each of the four trait dimensions and the composite measure. Measurements of the treatments and outcomes were included  with baseline covariates. Our models included an indicator for censorship in the next wave (C) which adjusted for loss to follow-up/attrition conditional on measured covariates. As mentioned, models estimated the effects of shifting the treatment variable by one unit (both increase and decrease) using custom shift functions (f and f_1), which adjust the treatment variable within the observed range. Two custom shift functions were defined to model the hypothetical intervention of increasing or decreasing the treatment variable by one unit, and these were contrasted against the expectation from a 'null' model.
+We used the `lmtp` R package to estimate treatments' causal effects on well-being outcomes for each of the four trait dimensions and the composite measure. Measurements of the treatments and outcomes were included with baseline covariates. Our models included an indicator for censorship in the next wave (C) which adjusted for loss to follow-up/attrition conditional on measured covariates. As mentioned, models estimated the effects of shifting the treatment variable by one unit (both increase and decrease) using custom shift functions (f and f_1), which adjust the treatment variable within the observed range. Two custom shift functions were defined to model the hypothetical intervention of increasing or decreasing the treatment variable by one unit, and these were contrasted against the expectation from a 'null' model.
 
-- ** increase +1 function**: increases the treatment variable by one unit, capped at the maximum observed score.
-- ** decrease -1 function**: decreases the treatment variable by one unit, floored at the minimum observed score.
-- ** 'null'model Specification** the null model was specified identically to the treatment effect models in terms of the included covariates, outcome variable, and model structure but without applying any shift to the treatment variable. This ensures that any differences observed between the treatment models and the null model can be attributed to the treatment effect rather than differences in model specification.
+- **increase +1 function**: increases the treatment variable by one unit, capped at the maximum observed score.
+- **decrease -1 function**: decreases the treatment variable by one unit, floored at the minimum observed score.
+- **'null' model:** the null model was specified identically to the treatment effect models in terms of the included covariates, outcome variable, and model structure but without applying any shift to the treatment variable. This ensured that any differences observed between the treatment models and the null model can be attributed to the treatment effect rather than differences in model specification. By estimating a model under the assumption of no change in the treatment status, we obtained clear baselines against which the effects of treatment shifts could be assessed.
 
-Estimation of Null Model: as with the treatment models, the null model is estimated using the `lmtp_tmle` function within the lmtp package. However, the shift parameter is set to NULL, indicating that no intervention is applied to the treatment variable. This model estimates the outcome under the assumption of no change in the treatment status, providing a baseline against which the effects of treatment shifts can be assessed.
-
-`lmtp` draws on the the `SuperLearner` library, which comprises various machine learning algorithms [@SuperLearner2023]. Given the relatively sample (N=1070) we used the `Ranger` and `randomForest` estimators - both causal forest estimators --  a subset of non-parametric estimators distinguished by their resilience against overfitting [Ranger2017; randomForest2002].  Causal forests excel in identifying complex, non-linear relationships between variables without presupposing a specific model form, and thus making fewer assumptions about the underlying data distribution, 
+`lmtp` draws on the the `SuperLearner` library, which comprises various machine learning algorithms [@SuperLearner2023]. Given the relatively sample (N=1070) we used the `Ranger` and `randomForest` estimators - both causal forest estimators --  a subset of non-parametric estimators distinguished by their resilience against overfitting [Ranger2017; randomForest2002].  Causal forests excel in identifying complex, non-linear relationships between variables without presupposing a specific model form, and thus making fewer assumptions about the underlying data distribution.
 
 
 #### Cross-Validation
 
-We implemented a 10-fold cross-validation. This method partitions the data into ten subsets of approximately equal size. During the cross-validation process, nine subsets are used to train the model, and the remaining subset is used for testing. This process is repeated ten times, with each of the ten subsets used exactly once as the test set. By using different subsets for training and validation, it minimizes the risk of the model being overly complex and fitting the noise in the training dataset, which can lead to poor performance on new data. Moreover, each observation is used for both training and validation, which is particularly beneficial in scenarios where the amount of data is limited. The cross-validation process results in ten estimates of model accuracy, which can be averaged to provide a more comprehensive measure of model performance.
+We implemented a 10-fold cross-validation. This method partitions the data into ten subsets of approximately equal size. During the cross-validation process, nine subsets are used to train the model, and the remaining subset is used for testing. This process is repeated ten times, with each of the ten subsets used exactly once as the test set. Using different subsets for training and validation, minimises the risk of the model being overly complex and fitting the noise in the training dataset, which can lead to poor performance on new data. Moreover, each observation is used for training and validation, which is particularly beneficial in scenarios where the amount of data is limited. The cross-validation process results in ten estimates of model accuracy, which can be averaged to provide a more comprehensive measure of model performance.
 
 
 #### Sensitiviy Analysis Using the E-value
 
-To measure senstivity to unmeasured confounding, we report VanderWeele and Ding's "E-value" for all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain-away the observed exposure-outcome association  [@vanderweele2020; @linden2020EVALUE]. For example, if the E-value were 1.3, it would mean an unmeasured confounder associated with both the treatment and outcome by a risk ratio of 1.3 each (or 30% increase in risk) could potentially explain away the observed effect. Weaker confounding would not suffice. We also report the bound of the E-value closest to 1. If the lower bound of the CI were 1.1, to explain away the result, the strength of an unmeasured confounder in its association with both the treatment and the outcome would need to be at least 1.1 on the risk ratio scale (or a 10% increase in risk) to explain away the result [@vanderweele2017]. 
+To measure senstivity to unmeasured confounding, we report VanderWeele and Ding's "E-value" for all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain-away the observed exposure-outcome association  [@vanderweele2020; @linden2020EVALUE]. For example, if the E-value were 1.3, it would mean an unmeasured confounder associated with both the treatment and outcome by a risk ratio of 1.3 each (or 30% increase in risk) could explain away the observed effect. Weaker confounding would not suffice. We also report the bound of the E-value closest to 1. If the lower bound of the CI were 1.1, to explain away the result, the strength of an unmeasured confounder in its association with both the treatment and the outcome would need to be at least 1.1 on the risk ratio scale (or a 10% increase in risk) to explain away the result [@vanderweele2017]. 
 
 ## Study 1: Antagonism  
 
@@ -640,7 +652,7 @@ antagonism_standard_deviation_exposure
 antagonism_t_tab
 ```
 
-@tbl-transition-antagonism shows a transition matrix captures stability and movement between antagonism responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
+@tbl-transition-antagonism shows a transition matrix captures stability and movement between antagonism responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
 
 |  From   | State 1 | State 2 | State 3 | State 4 | State 5 | State 6 |
 |:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
@@ -675,34 +687,33 @@ plot_antagonism_group_tab_outcomes_gain
 #| label: tbl-results-antagonism-gain
 #| tbl-cap: "Table for antagonism gain on partner multi-dimensional well-being"
 #| eval: true
-#| include: true
+#| include: false
 #| echo: false
 
 antagonism_tab_outcomes_gain |>
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
-
 #interpret_table(antagonism_group_tab_outcomes_gain, "causal_difference", "ATE")
 
 ```
 
 Average Treatment Effect (ATE) represents the expected difference in outcomes between treatment and control groups for the population.
 
-For the outcome 'Gain psychopathy antagonism: partner conflict in relationship', the ATE causal contrast is 0.082. The E-value for this outcome is 1.366;The confidence interval ranges from 0.014 to 0.15. Overall, we find reliable evidence for causality.
+For the outcome 'Gain psychopathy antagonism: partner conflict in a relationship', the ATE causal contrast is 0.082. The E-value for this outcome is 1.366; The confidence interval ranges from 0.014 to 0.15. Overall, we find reliable evidence for causality.
 
-For the outcome 'Gain psychopathy antagonism: partner Kessler 6 depression', the ATE causal contrast is 0.018. The E-value for this outcome is 1.147;The confidence interval ranges from -0.033 to 0.069. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy antagonism: partner Kessler 6 depression', the ATE causal contrast is 0.018. The E-value for this outcome is 1.147; The confidence interval ranges from -0.033 to 0.069. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy antagonism: partner Kessler 6 distress', the ATE causal contrast is 0.012. The E-value for this outcome is 1.117;The confidence interval ranges from -0.04 to 0.065. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy antagonism: partner Kessler 6 distress', the ATE causal contrast is 0.012. The E-value for this outcome is 1.117; The confidence interval ranges from -0.04 to 0.065. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy antagonism: partner Kessler 6 anxiety', the ATE causal contrast is 0.008. The E-value for this outcome is 1.095;The confidence interval ranges from -0.048 to 0.065. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy antagonism: partner Kessler 6 anxiety', the ATE causal contrast is 0.008. The E-value for this outcome is 1.095; The confidence interval ranges from -0.048 to 0.065. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy antagonism: partner pers. wellbeing', the ATE causal contrast is 0. The E-value for this outcome is 1.022;The confidence interval ranges from -0.053 to 0.054. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy antagonism: partner pers. wellbeing', the ATE causal contrast is 0. The E-value for this outcome is 1.022; The confidence interval ranges from -0.053 to 0.054. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy antagonism: partner self-esteem', the ATE causal contrast is -0.009. The E-value for this outcome is 1.098;The confidence interval ranges from -0.066 to 0.048. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy antagonism: partner self-esteem', the ATE causal contrast is -0.009. The E-value for this outcome is 1.098; The confidence interval ranges from -0.066 to 0.048. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy antagonism: partner relationship satisfaction', the ATE causal contrast is -0.074. The E-value for this outcome is 1.342;The confidence interval ranges from -0.152 to 0.005. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy antagonism: partner relationship satisfaction', the ATE causal contrast is -0.074. The E-value for this outcome is 1.342; The confidence interval ranges from -0.152 to 0.005. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy antagonism: partner life satisfaction', the ATE causal contrast is -0.122. The E-value for this outcome is 1.481;The confidence interval ranges from -0.192 to -0.053. Overall, we find reliable evidence for causality.
+For the outcome 'Gain psychopathy antagonism: partner life satisfaction', the ATE causal contrast is -0.122. The E-value for this outcome is 1.481; The confidence interval ranges from -0.192 to -0.053. Overall, we find reliable evidence for causality.
 
 {{< pagebreak >}}
 
@@ -738,21 +749,21 @@ antagonism_tab_outcomes_loss |>
 ```
 
 
-For the outcome 'Loss psychopathy antagonism: partner self-esteem', the ATE causal contrast is 0.017. The E-value for this outcome is 1.141;The confidence interval ranges from -0.036 to 0.07. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy antagonism: partner self-esteem', the ATE causal contrast is 0.017. The E-value for this outcome is 1.141; The confidence interval ranges from -0.036 to 0.07. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy antagonism: partner relationship satisfacton', the ATE causal contrast is 0.016. The E-value for this outcome is 1.138;The confidence interval ranges from -0.058 to 0.09. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy antagonism: partner relationship satisfaction', the ATE causal contrast is 0.016. The E-value for this outcome is 1.138; The confidence interval ranges from -0.058 to 0.09. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy antagonism: partner life satisfaction', the ATE causal contrast is 0.01. The E-value for this outcome is 1.103;The confidence interval ranges from -0.046 to 0.065. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy antagonism: partner life satisfaction', the ATE causal contrast is 0.01. The E-value for this outcome is 1.103; The confidence interval ranges from -0.046 to 0.065. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy antagonism: partner Kessler 6 anxiety', the ATE causal contrast is 0.003. The E-value for this outcome is 1.059;The confidence interval ranges from -0.056 to 0.063. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy antagonism: partner Kessler 6 anxiety', the ATE causal contrast is 0.003. The E-value for this outcome is 1.059; The confidence interval ranges from -0.056 to 0.063. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy antagonism: partner Kessler 6 distress', the ATE causal contrast is -0.008. The E-value for this outcome is 1.092;The confidence interval ranges from -0.058 to 0.042. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy antagonism: partner Kessler 6 distress', the ATE causal contrast is -0.008. The E-value for this outcome is 1.092; The confidence interval ranges from -0.058 to 0.042. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy antagonism: partner pers. wellbeing', the ATE causal contrast is -0.025. The E-value for this outcome is 1.175;The confidence interval ranges from -0.082 to 0.032. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy antagonism: partner pers. wellbeing', the ATE causal contrast is -0.025. The E-value for this outcome is 1.175; The confidence interval ranges from -0.082 to 0.032. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy antagonism: partner Kessler 6 depression', the ATE causal contrast is -0.033. The E-value for this outcome is 1.207;The confidence interval ranges from -0.089 to 0.024. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy antagonism: partner Kessler 6 depression', the ATE causal contrast is -0.033. The E-value for this outcome is 1.207; The confidence interval ranges from -0.089 to 0.024. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy antagonism: partner conflict in relationship', the ATE causal contrast is -0.06. The E-value for this outcome is 1.299;The confidence interval ranges from -0.144 to 0.025. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy antagonism: partner conflict in a relationship', the ATE causal contrast is -0.06. The E-value for this outcome is 1.299; The confidence interval ranges from -0.144 to 0.025. Overall, we find no reliable evidence for causality.
 
 
 
@@ -786,7 +797,7 @@ disinhibition_t_tab
 
 ```
 
-@tbl-transition-disinhibition shows a transition matrix captures stability and movement between disinhibition responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
+@tbl-transition-disinhibition shows a transition matrix captures stability and movement between disinhibition responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
 
 
 
@@ -885,7 +896,7 @@ disinhibition_tab_outcomes_loss |>
 
 Average Treatment Effect (ATE) represents the expected difference in outcomes between treatment and control groups for the population.
 
-For the outcome 'Loss psychopathy disinhibition: partner relationship satisfacton', the ATE causal contrast is 0.013. The E-value for this outcome is 1.122;The confidence interval ranges from -0.05 to 0.076. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy disinhibition: partner relationship satisfaction', the ATE causal contrast is 0.013. The E-value for this outcome is 1.122;The confidence interval ranges from -0.05 to 0.076. Overall, we find no reliable evidence for causality.
 
 For the outcome 'Loss psychopathy disinhibition: partner Kessler 6 depression', the ATE causal contrast is 0.008. The E-value for this outcome is 1.09;The confidence interval ranges from -0.049 to 0.064. Overall, we find no reliable evidence for causality.
 
@@ -933,7 +944,7 @@ emotional_t_tab
 ```
 
 
-@tbl-transition-emotional shows a transition matrix captures stability and movement between emotional stability responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
+@tbl-transition-emotional shows a transition matrix captures stability and movement between emotional stability responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
 
 
 |  From   | State 2 | State 3 | State 4 | State 5 | State 6 | State 7 |
@@ -982,21 +993,21 @@ emotional_tab_outcomes_gain |>
 
 
 ```
-For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 depression', the ATE causal contrast is 0.029. The E-value for this outcome is 1.194;The confidence interval ranges from -0.01 to 0.069. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 depression', the ATE causal contrast is 0.029. The E-value for this outcome is 1.194; The confidence interval ranges from -0.01 to 0.069. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy emotional stability: partner relationship satisfaction', the ATE causal contrast is 0.027. The E-value for this outcome is 1.183;The confidence interval ranges from -0.021 to 0.075. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy emotional stability: partner relationship satisfaction', the ATE causal contrast is 0.027. The E-value for this outcome is 1.183; The confidence interval ranges from -0.021 to 0.075. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy emotional stability: partner pers. wellbeing', the ATE causal contrast is 0.004. The E-value for this outcome is 1.066;The confidence interval ranges from -0.038 to 0.047. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy emotional stability: partner pers. wellbeing', the ATE causal contrast is 0.004. The E-value for this outcome is 1.066; The confidence interval ranges from -0.038 to 0.047. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy emotional stability: partner life satisfaction', the ATE causal contrast is 0.003. The E-value for this outcome is 1.058;The confidence interval ranges from -0.042 to 0.049. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy emotional stability: partner life satisfaction', the ATE causal contrast is 0.003. The E-value for this outcome is 1.058; The confidence interval ranges from -0.042 to 0.049. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 distress', the ATE causal contrast is -0.007. The E-value for this outcome is 1.085;The confidence interval ranges from -0.047 to 0.033. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 distress', the ATE causal contrast is -0.007. The E-value for this outcome is 1.085; The confidence interval ranges from -0.047 to 0.033. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy emotional stability: partner self-esteem', the ATE causal contrast is -0.019. The E-value for this outcome is 1.153;The confidence interval ranges from -0.059 to 0.02. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy emotional stability: partner self-esteem', the ATE causal contrast is -0.019. The E-value for this outcome is 1.153; The confidence interval ranges from -0.059 to 0.02. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy emotional stability: partner conflict in relationship', the ATE causal contrast is -0.02. The E-value for this outcome is 1.157;The confidence interval ranges from -0.064 to 0.024. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy emotional stability: partner conflict in relationship', the ATE causal contrast is -0.02. The E-value for this outcome is 1.157; The confidence interval ranges from -0.064 to 0.024. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 anxiety', the ATE causal contrast is -0.026. The E-value for this outcome is 1.181;The confidence interval ranges from -0.066 to 0.014. Overall, we find no reliable evidence for causality.
+For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 anxiety', the ATE causal contrast is -0.026. The E-value for this outcome is 1.181; The confidence interval ranges from -0.066 to 0.014. Overall, we find no reliable evidence for causality.
 
 ### Results Study 3 B: Emotional Stability Results Loss
 
@@ -1047,8 +1058,9 @@ For the outcome 'Loss psychopathy emotional stability: partner pers. wellbeing',
 For the outcome 'Loss psychopathy emotional stability: partner life satisfaction', the ATE causal contrast is -0.009. The E-value for this outcome is 1.099;The confidence interval ranges from -0.044 to 0.027. Overall, we find no reliable evidence for causality.
 
 For the outcome 'Loss psychopathy emotional stability: partner relationship satisfacton', the ATE causal contrast is -0.028. The E-value for this outcome is 1.188;The confidence interval ranges from -0.068 to 0.013. Overall, we find no reliable evidence for causality
-## Study 4 Narcissism 
 
+
+## Study 4 Narcissism 
 
 #### Histogram of Exposure
 
@@ -1078,7 +1090,7 @@ narcl_standard_deviation_exposure
 ```
 
 
-@tbl-transition-narcissism shows a transition matrix captures stability and movement between narcissism responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
+@tbl-transition-narcissism shows a transition matrix captures stability and movement between narcissism responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
 
 
 |  From   | State 1 | State 2 | State 3 | State 4 | State 5 | State 6 |
@@ -1095,7 +1107,8 @@ narcl_standard_deviation_exposure
 
 
 ### Results Study 4 A: Narcissism Results Gain
-narcissism
+
+
 ```{r}
 #| label: fig-results-narcissism-gain
 #| fig-cap: "Results for Narcissism stability gain on partner multi-dimensional well-being: z-transformed"
@@ -1191,7 +1204,7 @@ For the outcome 'Loss psychopathy narcissism: partner pers. wellbeing', the ATE 
 
 For the outcome 'Loss psychopathy narcissism: partner life satisfaction', the ATE causal contrast is -0.018. The E-value for this outcome is 1.147;The confidence interval ranges from -0.061 to 0.024. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy narcissism: partner conflict in relationship', the ATE causal contrast is -0.036. The E-value for this outcome is 1.22;The confidence interval ranges from -0.1 to 0.027. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy narcissism: partner conflict in a relationship', the ATE causal contrast is -0.036. The E-value for this outcome is 1.22;The confidence interval ranges from -0.1 to 0.027. Overall, we find no reliable evidence for causality.
 
 
 ## Study 5: Psychopathy Combined Score
@@ -1232,13 +1245,11 @@ psychopathy_combined_standard_deviation_exposure
 | State 4 |    0    |   144   | **455** |    3    |
 | State 5 |    0    |    0    |   10    |  **1**  |
 
-@tbl-transition-psychopathy shows a transition matrix captures stability and movement between psychopathy combined-score responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
-
 : Transition matrix for change in treatment from baseline to the treatment wave {#tbl-transition-psychopathy}
 
+@tbl-transition-psychopathy shows a transition matrix captures stability and movement between psychopathy combined-score responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
 
 ### Results Study 5 A: Psychopathy Combined Measure Gain
-narcissism
 
 ```{r}
 #| label: fig-results-psychopathy-gain
@@ -1335,32 +1346,30 @@ For the outcome 'Loss psychopathy: partner Kessler 6 depression', the ATE causal
 
 For the outcome 'Loss psychopathy: partner life satisfaction', the ATE causal contrast is -0.038. The E-value for this outcome is 1.225;The confidence interval ranges from -0.087 to 0.011. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy: partner relationship satisfacton', the ATE causal contrast is -0.039. The E-value for this outcome is 1.229;The confidence interval ranges from -0.104 to 0.027. Overall, we find no reliable evidence for causality.
+For the outcome 'Loss psychopathy: partner relationship satisfaction', the ATE causal contrast is -0.039. The E-value for this outcome is 1.229;The confidence interval ranges from -0.104 to 0.027. Overall, we find no reliable evidence for causality.
 
 For the outcome 'Loss psychopathy: partner conflict in relationship', the ATE causal contrast is -0.039. The E-value for this outcome is 1.231;The confidence interval ranges from -0.118 to 0.039. Overall, we find no reliable evidence for causality.
 
 
-## Discussion
+## Discussion 
 
-- Gain in psychopathy affects partner distress.
-- We do not find this effect from loss of psychopathy.
-- This result differs from individual psychopathy traits, which do no affect partern well-being in measurable ways.
-- The exception is antagonism, a gain of which decreases partner partner life-satisfaction and increases partner's judgement of relationship conflict. 
+We observe that gains and losses in psychopathy traits differently affect partner well-being and relationship dynamics. 
 
+When focussing on the effects of individual psychopathy traits, the results indicate that individual psychopathy traits, by themselves, do not reliably affect partner well-being in a measurable manner.
 
+An exception to this pattern is the trait of antagonism. An increase in antagonism decreases partner life satisfaction and an increases perceived relationship conflict. This suggests that antagonism, among the various facets of psychopathy, has a uniquely adverse effect on relationship dynamics, exacerbating conflict and diminishing partner satisfaction. 
 
-### Assumptions and limitations
+Notably a reduction in antagonism did not exert a corresponding reduction in perceived relationship conflict or an increase in life satisfaction. Speculating, perhaps habituation plays a role. The finding that individual features of psychopathy affect outcomes differently is notably consistent with @eisenbarth2022aspects.
 
-1.  **Causality and confounding**: we employs rigorous causal inference techniques, but these are contingent on the assumption of no unmeasured confounding. For this reason, we perform sensitivity analyses using E-values. 
+However, our findings also reveal that the whole of psychopathy is greater -- and different in its causal effects on well-being -- than the sum of its parts. An increase in the composite measure of psychopathy reliably increases partner distress, as shown by the gains in psychopathy showing a marked increase in Kessler 6 depression and anxiety (as well as the composite score). This effect is absent when psychopathy traits decrease, suggesting that the presence or augmentation of such traits has a more pronounced negative impact on partner well-being than their reduction, speculating again, perhaps from habituation.  The effects are present in embodied features of well-being -- anxiety and depression -- but not in higher-order reflective concepts, such as life satisfaction and relationship conflict. Thus the effects we obtain for antagonism are obscured by the movement of the composite trait, and new effects are evident. 
 
-2.  **Measurement error**: the variables under consideration are self-reported, which might introduce both systematic and random measurement errors. It should be specifically noted that the apparent modesty of the practical effects could arise, in part, to measurement inaccuracy. Given the limitations of self-report measures, the true effect sizes may differ from those estimated. Therefore, while the evidence does suggest a modest impact, the actual real-world effects may be either smaller or larger than the estimates suggest. Given the modest effect sizes and the limitations of self-report measures, future research should explore the use of more objective measures for the questions raised in this study.
+The discovery that compound effects of these psychopathy affect 'embodied' well-being, more than higher-order reflective dimensions has clinical importance and merits future research.  
 
-3.  **Generalisability and transportability**: our findings should be interpreted within the context of the New Zealand population from which the data were sourced. This is a random probability sample of couples in New Zealand who participated in the New Zealand Attitudes and Values Study in two waves (time 10 and time 11). Although the results may have broader relevance, direct extrapolation to different populations or sociocultural settings should be undertaken cautiously.
+Future research should explore using more objective measures for the questions raised in this study. Self-reports introduce possibilities for both systematic and random measurement errors. True effect sizes may differ from those estimated. They might be larger or smaller, than those we observe. We therefore advise caution when interpreting these findings which are preliminary and exploratory.  
 
+Finally, we caution against generalising findings outside the New Zealand population from which the data were sourced. Although our study consists of a random probability sample of couples in New Zealand who participated in the New Zealand Attitudes and Values Study in two waves (time 10 and time 11) -- couples that were not recruited as couples --we cannot extrapolate to different populations or sociocultural settings. This limitation merits future comparative research.
 
-### Theoretical and practical relevance
-
-Aaron TBA
+Despite these limitations, we believe our study demonstrates the interest and power of combining longitudinal data with methods for causal inference to address causal questions inaccessible to experiments that lie at the heart of our interest in the statistical associations we find in observational data. We hope this work will inspire psychological scientists to embrace these tools and approaches more broadly, pushing the boundaries of what we can discover about human behaviour and relationships from observational studies.
 
 {{< pagebreak >}}
 
@@ -1377,11 +1386,11 @@ The New Zealand Attitudes and Values Study is supported by a grant from the Temp
 TBA... e.g. 
 
 
-- AH conceived of and led the study, and wrote the first version of the manuscript. 
-- HE ...  MH ...
+- AH conceived of the study, led the validation study, and developed the theory 
+- HE ...  MH ...contributed to the theory.
 - CS led data collection. 
-- JB developed the inferential approach and did the analysis and graphs.  
-- All authors contributed to writing the final version of the manuscript
+- JB developed the inferential approach and did the analysis.  
+- All authors contributed to writing the final version of the manuscript, which was substantially AH’s work.
 
 {{< pagebreak >}}
 
@@ -1439,7 +1448,7 @@ Participants were asked "If you are a parent, what is the birth date of your eld
 
 <!-- #### Number of Children (waves: 1-3, 4-15) -->
 
-<!-- We measured number of children using one item from @Bulbulia_2015. We asked participants "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or ""How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15). -->
+<!-- We measured the number of children using one item from @Bulbulia_2015. We asked participants "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or ""How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15). -->
 
 <!-- Here, we used responses to create a binary indicator for parenthood: Parent Yes = 1/ No = 0.  -->
 
@@ -1453,7 +1462,7 @@ We measured participants' political orientation using a single item adapted from
 
 #### NZSEI-13 (waves: 8-15)
 
-We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate an score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
 
 Participants were asked "If you are a parent, what is the birth date of your eldest child?".
 
@@ -1477,7 +1486,7 @@ We used the NZ Deprivation Index to assign each participant a score based on whe
 
 <!-- #### Mini-IPIP 6 (waves: 1-3,4-15) -->
 
-<!-- We measured participants personality with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011] which consists of six dimensions and each dimensions is measured with four items: -->
+<!-- We measured participants' personality with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011] which consists of six dimensions and each dimension is measured with four items: -->
 
 <!-- 1.  agreeableness, -->
 
@@ -1545,11 +1554,14 @@ We used the NZ Deprivation Index to assign each participant a score based on whe
 #| echo: false
 #| include: false
 
-
 #table_demography <- readRDS(here::here(push_mods_psychopathy_combined, "table_demography"))
 #table_demography |>  kbl(format = "markdown")
 
 ```
+
+
+
+|**Baseline Variables**                                                    |**N = 1,070**     |
 |:-------------------------------------------------------------------------|:-----------------|
 |__Age__                                                                   |55 (45, 61)       |
 |__Education Level Coarsen__                                               |NA                |
@@ -1586,10 +1598,13 @@ We used the NZ Deprivation Index to assign each participant a score based on whe
 |one                                                                       |29 (2.8%)         |
 |less_four                                                                 |56 (5.3%)         |
 |four_up                                                                   |98 (9.3%)         |
+|__Urban__                                                                 |867 (81%)         |
+
+: Baseline demography statistics {#tbl-table-demography}
+
 
 @tbl-table-demography presents baseline demographic statistics for couples who met inclusion criteria.
 
-: Baseline demography statistics {#tbl-table-demography}
 
 
 
@@ -1602,7 +1617,7 @@ We used the NZ Deprivation Index to assign each participant a score based on whe
 #| eval: false
 #| echo: false
 #| include: false
-table_exposures <- readRDS(here::here(push_mods_psychopathy_combined, "table_exposures"))
+#table_exposures <- readRDS(here::here(push_mods_psychopathy_combined, "table_exposures"))
 
 #table_exposures |>  kbl(format = "markdown")
 
@@ -1630,9 +1645,11 @@ table_exposures <- readRDS(here::here(push_mods_psychopathy_combined, "table_exp
 |alert_level_4                  |0 (0%)              |36 (3.4%)           |
 |Unknown                        |0                   |0                   |
 
+: Baseline demography statistics {#tbl-table-demography}
+
+
 @tbl-table-exposures presents baseline and wave 1 statistics for the exposure variables. Because the exposure wave occurred to New Zealand's COVID-19 pandemic, we all models adjusted for the pandemic alert-level. The pandemic is a not a confounder because a confounder must be related to both the treatment and the outcome. At the end of study measurement, all had be exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. To better ensure validation of this assumption we therefore included the lead value of covid-alert level in all models.
 
-: Baseline demography statistics {#tbl-table-demography}
 
 
 
@@ -1673,9 +1690,12 @@ table_outcomes <- readRDS(here::here(push_mods_psychopathy_combined, "table_outc
 |alert_level_4                  |0 (0%)              |36 (3.4%)           |
 |Unknown                        |0                   |0                   |
 
-@tbl-table-exposures presents baseline and wave 1 statistics for the exposure variables. Because the exposure wave occurred to New Zealand's COVID-19 pandemic, we all models adjusted for the pandemic alert-level. The pandemic is a not a confounder because a confounder must be related to both the treatment and the outcome. At the end of study measurement, all had be exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. To better ensure validation of this assumption we therefore included the lead value of covid-alert level in all models.
+: Baseline demography statistics {#tbl-table-exposures}
 
-: Baseline demography statistics {#tbl-table-demography}
+
+@tbl-table-exposures presents baseline and wave 1 statistics for the exposure variables. Because the exposure wave occurred during New Zealand's COVID-19 pandemic, all models adjusted for the pandemic alert level. The pandemic is not a confounder because a confounder must be related to both the treatment and the outcome. At the end of the study measurement, all had been exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. To better ensure validation of this assumption, we included the lead value of the covid-alert level in all models.
+
+
 
 
 
