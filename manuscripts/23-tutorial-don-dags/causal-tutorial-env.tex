@@ -224,7 +224,7 @@ Inference, Confounding, Environmental, Psychology, Panel},
 
 \title{Causal Inference in Environmental Psychology}
 \author{Joseph A Bulbulia \and Donald W Hine}
-\date{2024-02-29}
+\date{2024-03-10}
 
 \begin{document}
 \maketitle
@@ -2507,10 +2507,9 @@ lead to misleading estimates of the Average Treatment Effect (ATE).
   \item
     The probability of access to green space (\(A\)) is set at 0.5.
   \item
-    The effect of \(A\) on \(L\) (exercise) is quantified by
-    \(\beta = 2\).
+    The effect of \(A\) on \(L\) (exercise) is given by \(\beta = 2\).
   \item
-    The effect of \(L\) on \(Y\) (happiness) is quantified by
+    The effect of \(L\) on \(Y\) (happiness) is given by
     \(\delta = 1.5\).
   \item
     Standard deviations for \(L\) and \(Y\) are set at 1 and 1.5,
@@ -2525,7 +2524,8 @@ lead to misleading estimates of the Average Treatment Effect (ATE).
     \textbf{Model 1} (Correct Assumption): fits a linear regression
     model assuming \(L\) as a mediator, including both \(A\) and \(L\)
     as regressors on \(Y\). This model aligns with the data-generating
-    process and correctly identifies L as a mediator.
+    process, and, by the rules of d-separation, induces mediator bias
+    for the \(A\to Y\) path.
   \item
     \textbf{Model 2} (Incorrect Assumption): fits a linear regression
     model including only \(A\) as a regressor on \(Y\), omitting the
@@ -2534,16 +2534,10 @@ lead to misleading estimates of the Average Treatment Effect (ATE).
   \end{itemize}
 \item
   \textbf{Analysis and Comparison}: the analysis compares the estimated
-  effects of \(A\) on \(Y\) under both model specifications. By
-  including \(L\) as a predictor in Model 1, we account for its
-  mediating role, whereas Model 2 overlooks this aspect by excluding
-  \(L\) from the analysis.
+  effects of \(A\) on \(Y\) under both model specifications.
 \item
   \textbf{Presentation}: the results are displayed in a comparative
-  table formatted for publication. The table contrasts the regression
-  coefficients and significance levels obtained under each model,
-  highlighting the effect of correctly versus incorrectly assuming the
-  role of \(L\) in the relationship between \(A\) and \(Y\).
+  table.
 \end{enumerate}
 
 \begin{Shaded}
@@ -2573,11 +2567,11 @@ lead to misleading estimates of the Average Treatment Effect (ATE).
 \CommentTok{\# make the data frame}
 \NormalTok{data }\OtherTok{=} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{A =}\NormalTok{ A, }\AttributeTok{L =}\NormalTok{ L, }\AttributeTok{Y =}\NormalTok{ Y)}
 
-\CommentTok{\# fit regression in which L is assumed to be a mediator}
+\CommentTok{\# fit regression in which we control for L, a mediator}
 \CommentTok{\# (cross{-}sectional data is consistent with this model)}
 \NormalTok{fit\_1 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{( Y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A }\SpecialCharTok{+}\NormalTok{ L, }\AttributeTok{data =}\NormalTok{ data)}
 
-\CommentTok{\# fit regression in which L is assumed to be a mediator}
+\CommentTok{\# fit regression in which L is assumed to be a mediator, not a confounder.}
 \CommentTok{\# (cross{-}sectional data is also consistent with this model)}
 \NormalTok{fit\_2 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{( Y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ A, }\AttributeTok{data =}\NormalTok{ data)}
 

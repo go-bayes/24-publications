@@ -1263,17 +1263,17 @@ This appendix outlines a simulation designed to demonstrate the potential pitfal
 
 2. **Parameter Definitions**:
    - The probability of access to green space ($A$) is set at 0.5.
-   - The effect of $A$ on $L$ (exercise) is quantified by $\beta = 2$.
-   - The effect of $L$ on $Y$ (happiness) is quantified by $\delta = 1.5$.
+   - The effect of $A$ on $L$ (exercise) is given by $\beta = 2$.
+   - The effect of $L$ on $Y$ (happiness) is given by $\delta = 1.5$.
    - Standard deviations for $L$ and $Y$ are set at 1 and 1.5, respectively.
 
 3. **Model Specifications**:
-   - **Model 1** (Correct Assumption): fits a linear regression model assuming $L$ as a mediator, including both $A$ and $L$ as regressors on $Y$. This model aligns with the data-generating process and correctly identifies L as a mediator.
+   - **Model 1** (Correct Assumption): fits a linear regression model assuming $L$ as a mediator, including both $A$ and $L$ as regressors on $Y$. This model aligns with the data-generating process, and, by the rules of d-separation, induces mediator bias for the $A\to Y$ path.
    - **Model 2** (Incorrect Assumption): fits a linear regression model including only $A$ as a regressor on $Y$, omitting the mediator $L$. This model assesses the direct effect of A on Y without accounting for mediation.
 
-4. **Analysis and Comparison**: the analysis compares the estimated effects of $A$ on $Y$ under both model specifications. By including $L$ as a predictor in Model 1, we account for its mediating role, whereas Model 2 overlooks this aspect by excluding $L$ from the analysis.
+4. **Analysis and Comparison**: the analysis compares the estimated effects of $A$ on $Y$ under both model specifications.
 
-5. **Presentation**: the results are displayed in a comparative table formatted for publication. The table contrasts the regression coefficients and significance levels obtained under each model, highlighting the effect of correctly versus incorrectly assuming the role of $L$ in the relationship between $A$ and $Y$.
+5. **Presentation**: the results are displayed in a comparative table.
 
 
 ```{r}
@@ -1308,11 +1308,11 @@ Y = gamma + delta*L + rnorm(n, 0, sigma_Y) # Y affected only by L,
 # make the data frame
 data = data.frame(A = A, L = L, Y = Y)
 
-# fit regression in which L is assumed to be a mediator
+# fit regression in which we control for L, a mediator
 # (cross-sectional data is consistent with this model)
 fit_1 <- lm( Y ~ A + L, data = data)
 
-# fit regression in which L is assumed to be a mediator
+# fit regression in which L is assumed to be a mediator, not a confounder.
 # (cross-sectional data is also consistent with this model)
 fit_2 <- lm( Y ~ A, data = data)
 
