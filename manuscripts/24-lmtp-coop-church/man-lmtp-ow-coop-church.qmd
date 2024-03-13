@@ -1,0 +1,1615 @@
+---
+title: "Causal effect of religious service attendance on charitable donations and volunteering, minority-group-attitudes, and help-received: evidence from a national panel study"
+abstract: |
+  This outcome-wide study employs panel data from the New Zealand Attitudes and Values Study to examine the causal effect of religious service attendance on prosocial behaviors across three dimensions: (1) charitable donations and volunteering; (2) attitudes towards minority groups ("warmth"); and (3) help received from others —- a novel metric for group-induced cooperation that avoids self-presentation bias (*N* =32.058, years = 2018-2021). To better understand the effects religious community participant we conduct a parallel comparison invetigation the causal effects of greater community engagement; Finally we model the population-wide effects of loss of religious activity and in a separate analysis of community engagelment. **Charitable Donations and Volunteering**:  Findings indicate that regular attendance at religious services increases annual charitable donations by an average of approximately $700 per adult across the population. We do not observed such an effect from greater community engagement. Both religious service and general community engagement, however, similarly elevate volunteering rates. **Prejudice Reduction**: Attendance at religious services enhances warmth towards all social groups. In contrast, general social engagement only reliably improves attitudes towards Māori, New Zealand's largest minority group. **Help Received**: Engagement in regular religious services leads to increased community support and friends, but not to greater support from family. Conversely, general social engagement boosts support from family and friends but not from the community. Finally, discontinuation of any religious service attendance results in reduced volunteering but does not affect charitable donations, suggesting that religious service may foster enduring charitable habits. In summary, acquiring religious service attendance enhances charitable giving and reduces prejudice more effectively than mere social engagement, with the cessation of religious services demonstrating distinct outcomes. This supports theories proposing that religious involvement cultivates charitable dispositions.
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid_id: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland
+    orcid_id: 0000-0002-4064-8800
+keywords:
+  - Causal Inference
+  - Charity
+  - Church
+  - Cooperation
+  - Religion
+  - Shift Intervention
+  - Volunteering
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitize: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [singlecolumn]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=20mm
+      - heightrounded
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+#tinytex::tlmgr_update()
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+source("/Users/joseph/GIT/templates/functions/libs2.R")
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+source("/Users/joseph/GIT/templates/functions/funs.R")
+
+# ALERT: UNCOMMENT THIS AND DOWNLOAD THE FUNCTIONS FROM JB's GITHUB
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+# )
+
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+# )
+
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+pull_path <-
+  fs::path_expand(
+    #"/Users/joseph/v-project\ Dropbox/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs_refactor/nzavs_data_23"
+    "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data"
+  )
+
+# read data: note that you need use the arrow package in R
+### WARNING: THIS PATH WILL NOT WORK FOR YOU. PLEASE SET A PATH TO YOUR OWN COMPUTER!! ###
+### WARNING: FOR EACH NEW STUDY SET UP A DIFFERENT PATH OTHERWISE YOU WILL WRITE OVER YOUR MODELS
+push_mods <-  fs::path_expand(
+  "/Users/joseph/v-project\ Dropbox/data/nzvs_mods/00drafts/23-ow-coop-church-lmtp"
+)
+
+# check path:is this correct?  check so you know you are not overwriting other directors
+push_mods
+
+
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+loadfonts(device = "all")
+
+## Read in data from analysis 
+# imports
+n_participants <-  here_read("n_participants")
+n_participants
+# read standard deviations units of outcome (volunteering/donations) in 2020
+sd_donations <- here_read("sd_donations")
+sd_volunteer <- here_read("sd_volunteer")
+
+
+# verify positivity 
+#church
+transition_table <- here_read("transition_table")
+transition_table
+# binary
+transition_table_2 <- here_read("transition_table_out_church_2")
+transition_table_2
+
+
+# socialising
+transition_table_socialising <- here_read("transition_table_socialising")
+transition_table_socialising
+
+# binary
+transition_table_socialising_shift<- here_read("transition_table_socialising_shift")
+transition_table_socialising_shift
+
+
+# ordinary regressions
+fit_church_on_donate <-here_read("fit_church_on_donate")
+lm_coef_church_on_donate <- tbl_regression(fit_church_on_donate)
+b_cross_church_on_donate <-inline_text(lm_coef_church_on_donate, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+
+# use
+b_cross_church_on_donate
+
+
+fit_church_on_volunteer <-here_read("fit_church_on_volunteer")
+lm_coef_fit_church_on_volunteer <- tbl_regression(fit_church_on_volunteer)
+b_cross_church_on_volunteer <-inline_text(lm_coef_fit_church_on_volunteer, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+
+# use
+b_cross_church_on_volunteer
+
+
+fit_socialising_on_donate<-here_read("fit_socialising_on_donate")
+fit_socialising_on_donate <-here_read("fit_socialising_on_donate")
+lm_coef_fit_socialising_on_donate <- tbl_regression(fit_socialising_on_donate)
+b_cross_socialising_on_donate <-inline_text(lm_coef_fit_socialising_on_donate, variable = hours_community_sqrt_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+
+# use
+b_cross_socialising_on_donate
+
+
+fit_socialising_on_volunteer <-here_read("fit_socialising_on_volunteer")
+fit_socialising_on_volunteer <-here_read("fit_socialising_on_volunteer")
+lm_coef_fit_socialising_on_volunteer <- tbl_regression(fit_socialising_on_volunteer)
+b_cross_socialising_on_volunteer <-inline_text(lm_coef_fit_socialising_on_volunteer, variable = hours_community_sqrt_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+
+# use
+b_cross_socialising_on_volunteer
+
+library(glue)
+# works but not used
+# testlm_coef_church_on_donate <- glue("b = {fit_church_on_donate_x[2, 1]}, SE = {fit_church_on_donate_x[2, 3]}")
+
+
+
+# not this table is too long in most instance 
+# table_baseline<- here_read("table_baseline")
+
+# personality
+table_baseline_personality <- here_read("table_baseline_personality")
+
+# demographic vars
+table_demographic_vars <- here_read("table_demographic_vars")
+
+# self reported behaviours 
+table_virtue_vars <- here_read("table_virtue_vars")
+
+# prejudice 
+table_acceptance_vars<- here_read("table_acceptance_vars")
+
+# help received 
+table_selected_sorted_names_help_received_vars <- here_read("table_selected_sorted_names_help_received_vars")
+
+# density of the exposure 
+graph_density_of_exposure<- here_read("graph_density_of_exposure")
+graph_density_of_exposure_socialising<- here_read("graph_density_of_exposure_socialising")
+
+# graphs
+# graph_density_of_exposure_socialising + ggtitle("Weekly hours socialing")
+#graph_density_of_exposure + ggtitle("Monthly religious service")
+
+# 
+# 
+# #### USE THIS #####
+# # gain
+# tab_compare_church_prosocial_behaviour_raw<-here_read("tab_compare_church_prosocial_behaviour_raw")
+# tab_compare_church_prosocial_behaviour_z<- here_read("tab_compare_church_prosocial_behaviour_z")
+# 
+# 
+# group_tab_compare_church_prosocial_behaviour_z<- here_read("group_tab_compare_church_prosocial_behaviour_z")
+# group_tab_compare_church_prosocial_behaviour_raw<- here_read("group_tab_compare_church_prosocial_behaviour_raw")
+# 
+# #Loss
+# tab_compare_church_prosocial_behaviour_raw<- here_read("tab_compare_church_prosocial_behaviour_raw")
+# tab_compare_church_prosocial_behaviour_z_loss<- here_read("tab_compare_church_prosocial_behaviour_z_loss")
+# 
+# group_tab_compare_church_prosocial_behaviour_z_loss<- here_read("group_tab_compare_church_prosocial_behaviour_z_loss")
+# group_tab_compare_church_prosocial_behaviour_loss_raw <- group_tab(tab_compare_church_prosocial_behaviour_loss_raw, type = "RD")
+# 
+
+
+#### GAIN CHURCH PROSOCIAL
+
+# for reference 
+tab_compare_church_prosocial_behaviour_raw<- here_read("tab_compare_church_prosocial_behaviour_raw")
+group_tab_compare_church_prosocial_behaviour_raw<- here_read("group_tab_compare_church_prosocial_behaviour_raw")
+
+tab_compare_church_prosocial_behaviour_raw
+group_tab_compare_church_prosocial_behaviour_raw
+
+tab_compare_church_prosocial_behaviour_z<- here_read("tab_compare_church_prosocial_behaviour_z")
+group_tab_compare_church_prosocial_behaviour_z<- here_read("group_tab_compare_church_prosocial_behaviour_z")
+
+tab_compare_church_prosocial_behaviour_z
+group_tab_compare_church_prosocial_behaviour_z
+
+
+plot_gain_church_prosocial_z <- margot_plot(
+  group_tab_compare_church_prosocial_behaviour_z,
+  type = "RD",
+  title = "Religious service effect on reported donations and volunteering",
+  subtitle = ">= 1 x weekly religious service attendance",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_gain_church_prosocial_z
+
+
+### LOSS CHURCH PROSOCIAL
+
+tab_compare_church_prosocial_behaviour_loss_raw<- here_read("tab_compare_church_prosocial_behaviour_loss_raw")
+group_tab_compare_church_prosocial_behaviour_loss_raw<- here_read("group_tab_compare_church_prosocial_behaviour_loss_raw")
+
+tab_compare_church_prosocial_behaviour_loss_raw
+group_tab_compare_church_prosocial_behaviour_loss_raw
+
+tab_compare_church_prosocial_behaviour_z_loss<- here_read("tab_compare_church_prosocial_behaviour_z_loss")
+group_tab_compare_church_prosocial_behaviour_z_loss<- here_read("group_tab_compare_church_prosocial_behaviour_z_loss")
+tab_compare_church_prosocial_behaviour_z_loss
+group_tab_compare_church_prosocial_behaviour_z_loss
+
+plot_loss_church_prosocial_z <- margot_plot(
+  group_tab_compare_church_prosocial_behaviour_z_loss,
+  type = "RD",
+  title = "Religious service effect on reported donations and volunteering",
+  subtitle = "Lose any religious service",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+
+
+# combo graph 
+plot_gain_church_prosocial_z / plot_loss_church_prosocial_z + plot_annotation(tag_levels = "A")
+
+#### GAIN CHURCH PREJUDICE
+
+tab_warm_church <- here_read("tab_warm_church")
+group_tab_warm_church <- here_read("group_tab_warm_church")
+
+tab_warm_church
+group_tab_warm_church
+
+plot_prejudice_church <- margot_plot(
+  group_tab_warm_church,
+  type = "RD",
+  title = "Religious service effect on prejudice/acceptance",
+  subtitle = ">= 1 x weekly service attendance",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_prejudice_church
+
+
+
+### LOSS CHURCH PREJUDICE
+
+tab_warm_church_loss <- here_read("tab_warm_church_loss")
+group_tab_warm_church_loss <- here_read("group_tab_warm_church_loss")
+tab_warm_church_loss
+group_tab_warm_church_loss
+
+plot_prejudice_church_loss <- margot_plot(
+  group_tab_warm_church_loss,
+  type = "RD",
+  title = "Religious service effect on prejudice/acceptance",
+  subtitle = "Lose any religious service",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+
+# combo graph 
+plot_prejudice_church / plot_prejudice_church_loss + plot_annotation(tag_levels = "A")
+# 
+# ggsave(
+#   plot_prejudice_church_loss,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 8,
+#   height = 6,
+#   units = "in",
+#   filename ="plot_prejudice_church_loss.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+
+#### GAIN CHURCH HELP RECEIVED
+
+tab_church_help_received <- here_read('tab_church_help_received')
+group_tab_church_help_received <- here_read("group_tab_church_help_received")
+tab_church_help_received
+group_tab_church_help_received
+
+# graph
+plot_group_tab_time_church <- margot_plot(
+  group_tab_church_help_received,
+  type = "RR",
+  title = "Religious service effect on help received",
+  subtitle = ">= 1 x weekly service attendance",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = 0,
+  x_lim_lo = 0,
+  x_lim_hi =  2
+)
+
+plot_group_tab_time_church
+
+
+ggsave(
+  plot_group_tab_time_church,
+  path = here::here(here::here(push_mods, "figs")),
+  width = 8,
+  height = 6,
+  units = "in",
+  filename = "plot_group_tab_time_church.png",
+  device = 'png',
+  limitsize = FALSE,
+  dpi = 600
+)
+
+### LOSS CHURCH HELP RECEIVED
+tab_church_help_received_loss <- here_read('tab_church_help_received_loss')
+group_tab_church_help_received_loss <- here_read("group_tab_church_help_received_loss")
+group_tab_church_help_received_loss
+tab_church_help_received_loss
+
+plot_group_tab_time_church_loss <- margot_plot(
+  group_tab_church_help_received_loss,
+  type = "RR",
+  title = "Religious service effect on help received",
+  subtitle = "Lose any religious service",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = 0,
+  x_lim_lo = 0,
+  x_lim_hi =  2
+)
+
+plot_group_tab_time_church / plot_group_tab_time_church_loss + plot_annotation(tag_levels = "A")
+
+# 
+# ggsave(
+#   plot_group_tab_time_church_loss,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 8,
+#   height = 6,
+#   units = "in",
+#   filename = "plot_group_tab_time_church_loss.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+
+### SOCIALISING GAIN PROSOCIAL
+tab_socializing_prosocial_behaviour_z<- here_read("tab_socializing_prosocial_behaviour_z")
+group_tab_socializing_prosocial_behaviour_z<- here_read("group_tab_socializing_prosocial_behaviour_z")
+tab_socializing_prosocial_behaviour_z
+group_tab_socializing_prosocial_behaviour_z
+
+
+
+
+
+### LOSS SOCIALISING RAW
+tab_socializing_prosocial_behaviour_loss_raw<- here_read("tab_socializing_prosocial_behaviour_loss_raw")
+group_tab_socializing_prosocial_behaviour_loss_raw<- here_read("group_tab_socializing_prosocial_behaviour_loss_raw")
+tab_socializing_prosocial_behaviour_loss_raw
+
+### LOSS SOCIALISING  prosocial Z
+
+tab_socializing_prosocial_behaviour_loss_z<- here_read("tab_socializing_prosocial_behaviour_loss_z")
+group_tab_socializing_prosocial_behaviour_loss_z<- here_read("group_tab_socializing_prosocial_behaviour_loss_z")
+group_tab_socializing_prosocial_behaviour_loss_z
+plot_socializing_prosocial_loss_z<- margot_plot(
+  group_tab_socializing_prosocial_behaviour_loss_z,
+  type = "RD",
+  title = "Socialising effect on charity",
+  subtitle = "any community socialising lost",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_socializing_prosocial/ plot_socializing_prosocial_loss_z +  plot_annotation(tag_levels = "A")
+
+
+
+######################
+### SOCIALISING 
+######################
+
+## SELF REPORTED PROSOCIAL
+
+tab_socializing_prosocial_behaviour_raw<- here_read("tab_socializing_prosocial_behaviour_raw")
+
+
+group_tab_socializing_prosocial_behaviour_raw<- here_read("group_tab_socializing_prosocial_behaviour_raw")
+
+tab_socializing_prosocial_behaviour_z<- here_read("tab_socializing_prosocial_behaviour_z")
+group_tab_socializing_prosocial_behaviour_z<- here_read("group_tab_socializing_prosocial_behaviour_z")
+
+
+plot_socializing_prosocial<- margot_plot(
+  group_tab_socializing_prosocial_behaviour_z,
+  type = "RD",
+  title = "Socialising effect on charity",
+  subtitle = ">= 1.4  x weekly hours socialising",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_socializing_prosocial
+
+
+
+
+## Prejudice
+tab_socialising_prejudice_z  <- here_read("tab_warm_socialising")
+group_table_socialising_prejudice_z  <- here_read("group_tab_warm_socialising")
+
+plot_warm_socialising <- margot_plot(
+  group_table_socialising_prejudice_z,
+  type = "RD",
+  title = "Socialing effect on prejudice/acceptance",
+  subtitle = ">= 1.4  x weekly hours socialising",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_warm_socialising
+
+tab_warm_socialising_loss<- here_read("tab_warm_socialising_loss")
+group_tab_warm_socialising_loss<- here_read("group_tab_warm_socialising_loss")
+
+plot_warm_socialising_loss <- margot_plot(
+  group_tab_warm_socialising_loss,
+  type = "RD",
+  title = "Socialing effect on prejudice/acceptance",
+  subtitle = "Any socialising lost",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_warm_socialising_loss
+# 
+# ggsave(
+#   plot_warm_socialising_loss,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 8,
+#   height = 6,
+#   units = "in",
+#   filename = "plot_warm_socialising_loss.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+### LOSS SOCIALISING PREJUDICE
+tab_warm_socialising_loss<- here_read("tab_warm_socialising_loss")
+group_tab_warm_socialising_loss<- here_read("group_tab_warm_socialising_loss")
+plot_warm_socialising_loss <- margot_plot(
+  group_tab_warm_socialising_loss,
+  type = "RD",
+  title = "Socialing effect on prejudice/acceptance",
+  subtitle = "Any socialising lost",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_warm_socialising_loss
+
+# ggsave(
+#   plot_warm_socialising_loss,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 8,
+#   height = 6,
+#   units = "in",
+#   filename = "plot_warm_socialising_loss.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+
+plot_warm_socialising +  plot_warm_socialising_loss /  plot_annotation(tag_levels = "A")
+
+
+
+# GAIN SOCIALISING HELP RECEIVED
+tab_socialising_help_received <- here_read("tab_socialising_help_received")
+group_tab_socialising_help_received <- here_read("group_tab_socialising_help_received")
+
+plot_socialising_gain_help_received<- margot_plot(
+  group_tab_socialising_help_received,
+  type = "RR",
+  title = "Socialising effect on help recieved",
+  subtitle = ">= 1.4  x weekly hours socialising",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = 0,
+  x_lim_lo = 0,
+  x_lim_hi =  2
+)
+
+plot_socialising_gain_help_received
+# ggsave(
+#   plot_socialising_gain_help_received,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 8,
+#   height = 6,
+#   units = "in",
+#   filename = "plot_socialising_gain_help_received.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+
+## LOSS SOCIALISING HELP RECIEVED
+
+
+tab_socialising_help_received_loss<- here_read("tab_socialising_help_received_loss")
+group_tab_socialising_help_received_loss <- here_read("group_tab_socialising_help_received_loss")
+
+plot_socialising_loss_help_received <- margot_plot(
+  group_tab_socialising_help_received_loss,
+  type = "RR",
+  title = "Socialising effect on help recieved",
+  subtitle = "any community socialising lost",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = 0,
+  x_lim_lo = 0,
+  x_lim_hi =  2
+)
+
+plot_socialising_loss_help_received
+
+############### STRONG INTERVENTIONS #######################
+
+
+##############################################
+### STRONG CONTRASTS  CHURCH ################
+################################################
+
+tab_strong_church_gain_prosocial<- here_read("tab_strong_church_gain_prosocial")
+group_tab_strong_church_gain_prosocial<- here_read("group_tab_strong_church_gain_prosocial")
+
+plot_gain_church_prosocial_strong <- margot_plot(
+  group_tab_strong_church_gain_prosocial,
+  type = "RD",
+  title = "Religious service effect on reported donations and volunteering",
+  subtitle = "Weekly vs. No Religious Service",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_gain_church_prosocial_strong
+dev.off()
+
+## WARM 
+tab_warm_church_strong<- here_read("tab_warm_church_strong")
+group_tab_warm_church_strong <- here_read("group_tab_warm_church_strong")
+
+
+plot_prejudice_church_strong <- margot_plot(
+  group_tab_warm_church_strong,
+  type = "RD",
+  title = "Religious service effect on prejudice/acceptance",
+  subtitle = "Weekly vs. None",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_prejudice_church_strong
+
+ggsave(
+  plot_prejudice_church_strong,
+  path = here::here(here::here(push_mods, "figs")),
+  width = 8,
+  height = 6,
+  units = "in",
+  filename ="plot_prejudice_church_strong.png",
+  device = 'png',
+  limitsize = FALSE,
+  dpi = 600
+)
+
+
+
+# graph strong church help received
+tab_church_help_received_strong <- here_read('tab_church_help_received_strong')
+group_tab_church_help_received_strong <- here_read("group_tab_church_help_received_strong")
+
+
+plot_group_tab_time_church_strong <- margot_plot(
+  group_tab_church_help_received_strong,
+  type = "RR",
+  title = "Religious service effect on help received_strong",
+  subtitle = "Weekly vs. None",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = 0,
+  x_lim_lo = 0,
+  x_lim_hi =  2
+)
+
+plot_group_tab_time_church_strong
+
+
+#  SOCIALISING PROSOCIAL STRONG 
+
+# for reference
+tab_socializing_prosocial_behaviour_loss_raw_strong<- here_read("tab_socializing_prosocial_behaviour_loss_raw_strong")
+group_tab_socializing_prosocial_behaviour_loss_raw_strong<- here_read("group_tab_socializing_prosocial_behaviour_loss_raw_strong")
+
+# view
+tab_socializing_prosocial_behaviour_loss_raw_strong
+group_tab_socializing_prosocial_behaviour_loss_raw_strong
+
+tab_socializing_prosocial_behaviour_loss_z_strong<- here_read("tab_socializing_prosocial_behaviour_loss_z_strong")
+group_tab_socializing_prosocial_behaviour_loss_z_strong<- here_read("group_tab_socializing_prosocial_behaviour_loss_z_strong")
+group_tab_socializing_prosocial_behaviour_loss_z_strong
+plot_group_tab_socializing_prosocial_behaviour_loss_z_strong<- margot_plot(
+  group_tab_socializing_prosocial_behaviour_loss_z_strong,
+  type = "RD",
+  title = "Socialising effect on charity",
+  subtitle = ">= 1.4 Weekly Hours vs None",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_group_tab_socializing_prosocial_behaviour_loss_z_strong
+
+
+
+### Socialising and Warmth
+
+tab_warm_socialising_strong<- here_read("tab_warm_socialising_strong")
+group_tab_warm_warm_socialising_strong <- here_read("group_tab_warm_socialising_strong")
+tab_warm_socialising_strong
+group_tab_warm_warm_socialising_strong
+plot_warm_socialising_strong <- margot_plot(
+  group_tab_warm_warm_socialising_strong,
+  type = "RD",
+  title = "Socialing effect on prejudice/acceptance",
+  subtitle = ">= 1.4 weekly hours socialising vs None",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+plot_warm_socialising_strong
+
+# ggsave(
+#   plot_warm_socialising_strong,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 8,
+#   height = 6,
+#   units = "in",
+#   filename = "plot_warm_socialising_strong.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+## Socialising and Friends
+
+tab_socialising_help_received_strong <- here_read("tab_socialising_help_received_strong")
+group_tab_socialising_help_received_strong <- here_read("group_tab_socialising_help_received_strong")
+
+plot_help_time_strong <- margot_plot(
+  group_tab_socialising_help_received_strong,
+  type = "RR",
+  title = "Socialising effect on help recieved",
+  subtitle = ">= 1.4 weekly hours socialising vs None",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = 0,
+  x_lim_lo = 0,
+  x_lim_hi =  2
+)
+
+plot_help_time_strong
+# ggsave(
+#   plot_help_time_strong,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 8,
+#   height = 6,
+#   units = "in",
+#   filename = "plot_help_time_strong.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+
+```
+
+## Introduction
+
+A central question in the scientific study of religion is whether religion causes cooperation. However, to quantitatively address this question is challenging. Core features of religion cannot are inaccessible to experiments. In observational data, the task of disentangling correlation from causation is formidable, for similar reasons.  Whether investigators have disentangled the specific causal effects of religion from background influences is a question that cannot be verified by the data. Moreover most studies that have investigated religion, even longitudinal studies, fall back on correlational models.
+
+Here, we leveraging the comprehensive panel data from the New Zealand Attitudes and Values Study from over thirty thousand New Zealanders in a nationally representative sample and use minimally restrictive, robust statistical models to investigate the specific effects of inverventions on religious service attendance on prosocial behaviors in three domeains:  charitable giving and volunteerism; (2) attitudes towards minorities, and (3) the reception of aid from the community. By distinguishing and quantifying the specific effects of commencing or discontinuing religious service attendance and comparing these effects to interventions on social engagement, we clarify the specific contributions of religious involvement to prosociality across a diverse, multi-culural western society. 
+
+Finally, we compute the economic value of religious service attendance on prosocial behaviors. This estimation provides a concrete measure of religious involvement's "cash value" in the New Zealand economy [@bulbulia2023a; @bulbulia2023; @bulbulia2022; @vanderweele2015; @hernan2023])
+
+## Method
+
+### Sample
+
+Data were collected as part of The New Zealand Attitudes and Values Study (NZAVS) is an annual longitudinal national probability panel study of social attitudes, personality, ideology and health outcomes. The NZAVS began in 2009. It includes questionnaire responses from more almost 70,000 New Zealand residents. The study includes researchers from many New Zealand universities, including the University of Auckland, Victoria University of Wellington, the University of Canterbury, the University of Otago, and Waikato University. Because the survey asks the same people to respond each year, it can track subtle change in attitudes and values over time, and is an important resource for researchers both in New Zealand and around the world. The NZAVS is university-based, not- for-profit and independent of political or corporate funding.https://doi.org/10.17605/OSF.IO/75SNB
+
+### Causal Contrast 
+
+Here, we leverage panel data to estimate potential outcomes in a hypothetical world in which all individuals were attend at least four religious services per month (weekly) and contrast this estimates against outcomes against the natural values of the treatment observed in the data. 
+
+Thus whereas in standard causal inference, the average treatment effect is given as a simple contrast between the entire population when set to one of two causal contrast conditions: 
+
+$$ \text{Average Treatment Effect} = E[Y(a*)|A,L] - E[Y(a)|A,L] $$
+
+Our casusal estimand is takes a "shift function" or "modified treatment policy" such that: 
+
+
+$$ \text{Average Treatment Effect} = E[Y(a*)|\textcolor{red}{f(A)},L] - E[Y(a)|A,L] $$
+
+Where the intervention the treatment conditoin is defined by a shift function applied to the treatment variable, accross the entire study population. The functional can be stated
+
+$$f(A = a*) = \begin{cases} 4 & \text{if } A < 4  \text{ monthly religious service attendance} \\ \tilde{A} & \text{if } A \geq 4  \text{ monthly religious service attendance} \end{cases} $$
+
+
+
+Where $\tilde{A}$ is is computed the expected outcome when $A$ is set to its naturally occurring value such that
+
+$$\tilde{A} = A|L$$
+
+This same expression is given for the contrast condition, where $Y(a)|A,L$ is given as $Y(a)|\tilde{A}|L$ 
+
+
+**Comparative intervention: the causal effects of socialising at least two hours per week**
+
+For qualitative purposes, we performed an additional set of analyses investigating the causal effects of socialising across the three domains of prosociality that we considered for religious service:
+
+$$f(A) = \begin{cases} 1.4 & \text{if } A \leq 1.4 \text{ hours socialising with community} \\ A & \text{if } A >  1.4  \text{ hours socialising with community}  \end{cases} $$
+
+Thus, we estimate outcomes in a hypothetical world in which all individuals were attend socialise at least for at least the amount of time that church service brings people into contact with a religious community.
+
+Likewise, because loss of socialising might not be equivalent to a gain of religious service attendance, we investigated the causal effect of losing all community socialising :
+
+$$f(A) = 0 $$
+We contrasted this expected values of this shift intervention with those of the naturally occurring expected outcome from socialising at the observed level, again focussing on cooperative behaviours.  
+
+We note that this contrast for socialising is does not afford a direct comparison with religious service attendance. In particular, one of the ways in which one socialises is by attending religious service. Volunteering is often, although not always, a social activity. However, these differences suggest a relatively conservative backdrop with which to compare religious service. If religious service effects, either positive or negative, were to appear relatively strong against this backdrop, we might infer that the effects of religious service comprised features unique to its religious elements. 
+
+#### Loss of religion and of socialing
+
+
+Because the gain of religion might be different from the loss of religion, we additionally contrast the population average outcome were everyone to stop attending monthly religious service verse the expected outcome at the natural treatment values: 
+
+$$f(A) = 0 $$
+
+Thus we estimated outcomes for a hypothetical world in which no individuals attended religious service, contrasting this with expected outcomes for the world as it observed. We conducted a parrallel analysis for socialisation. 
+
+
+### Identification assumptions
+
+The objective of this study is to consistently evaluate magnitudes of causal effects. We cannot observe interventions that did not occur. In observational studies, investigators do not generally have the advantages of randomisation to ensure balance across treatments in the variables that might affect the outcomes within treatments that are compared. Nor do investigators have the power to control the treatments administered. 
+
+The three assumptions needed to consistently estimate causal effects are:
+
+1.  **Causal consistency**: we assume that the outcomes observed under the treatments in the data correspond to the potential outcomes to be compared, and that the potential outcomes are independent of the versions of treatment administered, conditional on measured covariates. 
+
+2.  **Exchangeability**: we assume that, given specific observed covariates, the treatment assignment is independent of potential outcomes. 
+
+3.  **Positivity**: we assume that every subject has a non-zero probability of receiving the treatment, irrespective of covariates. We evaluate this assumption by assessing change in the exposures. 
+
+
+This causal consistency assumption cannot be verified by data. We discuss the implications of treatment-heterogeniety in the discussion. Nor can the conditional exchangeability assumption be verified by data. We use sensitivity analysis to assess the robustness of our results to unmeasured confounding. We evaluate positivity by evaluating and reporting the number of cases in which individuals transitioned from the state of the treatment in the baseline condition to a different state the exposure wave. 
+
+<!-- The shift estimand also eases the demands related to positivity assumptions. Enforcing an intervention where people must relinquish their pets may not be feasible, either ethically or practically. Hence, the shift estimand provides a more attainable and sensible analytical framework. Moreover, as indicated in Appendix C, the shift estimand tends to produce slightly more conservative estimates, which adds an extra layer of robustness to our findings, enhancing their reliability for policy implications. -->
+
+<!-- -   *Random non-positivity*: Occurs when a supposed causal effect pertains to unobserved instances. Data can be employed to validate this. -->
+
+<!-- -   *Deterministic non-positivity*: Arises when a causal effect is fundamentally implausible, such as considering the causal impact of a hysterectomy on biological males [@hernan2023]. -->
+
+
+### Analysis
+
+We employ a semi-parametric estimator known as Targeted Minimum Loss-based Estimation (TMLE), which is adept at estimating the causal effect of modified treatment policies on outcomes over time. Estimatation was performed using `lmtp` package [@williams2021]. TMLE is a robust method that combines machine learning techniques with traditional statistical models to estimate causal effects while providing valid statistical uncertainty measures for these estimates.
+
+TMLE operates through a two-step process involving both outcome and treatment (exposure) models. Initially, it employes machine learning algorithms to flexibly model the relationship between treatments, covariates, and outcomes. This flexibility allows TMLE to account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions. The outcome of this step is a set of initial estimates for these relationships.
+
+The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible to the true causal effect while still being robust to model misspecification in either the outcome or treatment model.
+
+A central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid overfitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects on of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021].
+
+### Eligibility criteria for inclusion in the causal effects of shifting to a gain of weekly religious service attendance
+
+The sample consisted of respondents to NZAVS waves 2018 (baseline), 2019 (exposure wave), and 2020 (outcome wave) (years 2018-2021) (See Appendix A.)
+
+#### Inclusion Criteria:
+
+-   Participants who provided full information about both religious service attendance and hours socialising at the baseline wave (NZAVS time 10, years 2018-10) and exposure wave (NZAVS wave 2019-20) were included.
+-   Missing data for all variables at baseline were allowed. Missing data at baseline were imputed through the `mice` package [@vanbuuren2018].
+-   Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave).  This allow for adjustment owing to attition and loss to follow up (see details of the `lmtp` package [@williams2021])
+
+##### Exluded 
+
+-   Participants who did not respond to the religious service attendance question at baseline or the exposure wave. 
+-   Participants who did not respond to the hours socialising question at baseline or the exposure wave. 
+-   We allowed loss-to-follow up in the outcome wave (NZAVS wave 2020); missing values owing to attrition and non-response were were handled using censoring weights.
+
+There were `r n_participants` NZAVS participants who met these criteria.
+
+### Confounding control
+
+Effects should temporally succeed their causes. To circumvent reverse causation issues, outcomes were assessed in the year succeeding exposure, specifically the 2020 wave of the NZAVS. The causal diagram in @fig-outcomewide-dag outlines our approach to confounding control. We align with @vanderweele2020 in employing a *modified disjunctive cause criterion*, as follows:
+
+1.  **Identify all relevant confounders**: initially, enumerate all covariates affecting either the exposure or the outcomes across five domains, or both. These factors encompass variables influencing exposure or outcome and variables that could be consequences of such factors
+
+2.  **Remove instrumental variables**: subsequently, remove any factors identified as instrumental variables—factors influencing the exposure but not the outcome. The inclusion of instrumental variables diminishes efficiency.
+
+3.  **Include proxy variables for unmeasured common causes**: for unmeasured variables affecting both exposure and outcome, attempt to include a proxy variable. A proxy serves as a consequent of the unmeasured variable.
+
+4.  **Control for baseline exposure**: accounting for prior exposure is imperative for assessing incident exposure as opposed to prevalent exposure. This step enhances confounding control and aids in sidestepping reverse causation and other unmeasured confounders. This ensures that any unmeasured confounder would need to affect both the outcome and the initial exposure, regardless of prior exposure levels, to account for an observed exposure-outcome association [@danaei2012; @hernan2023].
+
+5.  **Control for baseline outcome**: controlling for the outcome at baseline is crucial for ruling out reverse causation. While this does not fully preclude reverse causation, it minimises its impact. Therefore, the baseline outcome, along with a comprehensive set of covariates, should be part of the model to render the confounding control assumption plausible. The baseline outcome often serves as the most potent confounder affecting both the exposure and subsequent outcome [@vanderweele2020].
+
+To mitigate bias from missing data due to non-response or panel attrition, we imputed missing values using the mice package in R [@vanbuuren2018]. To address non-response or missingness at follow-up, we employed censoring weights, integrated into our semi-parametric models. Valid inferences for the New Zealand population were secured by applying post-stratification census weights for age, European ethnicity, and gender.
+
+
+
+### Study 2: socialising 
+
+### Multi-dimensional indicators of prosociality
+
+We assessed well-being following @vanderweele2020 outcome-wide template. Outcomewide studies argue that, rather than cherry-picking one or several domains of well-being, science may advance more rapidly, and with greater hope for replication, by assess well-being across as many range of indicators the data may afford. To assist with interpretation, @vanderweele2020 groups well-being into larger dimensions of interest. Here, we identify five-domains: health, embodied well-being, practical well-being, reflective well-being, and social well-being (see Appendix C.)
+
+{{< pagebreak >}}
+
+```{tikz}
+#| label: fig-outcomewide-dag
+#| fig-cap: "Causal graph: three-wave panel design with selection bias. By controling for confounding at baseline we block back-door paths that might lead to an association between the treatment and the outcome. Adding previous measurments of the exposure and outcome at baseline further reduces confounding. Nevertheless, because we cannot ensure all confounding paths have been blocked, we perform sensitivity analysis. These allow us to ask, how strong would the unmeasured confounder need to be in its association with the treatment and the outcome to explain away the observed association."
+#| out-width: 80%
+#| echo: false
+#| include: true
+#| eval: true
+#| fig-height: 8
+
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{arrows}
+\usetikzlibrary{decorations}
+\tikzstyle{Arrow} = [->, thin, preaction = {decorate}]
+\tikzset{>=latex}
+% Define a simple decoration
+\tikzstyle{cor} = [-, dotted, preaction = {decorate}]
+
+\begin{tikzpicture}[{every node/.append style}=draw]
+
+\node [rectangle, draw=white] (U) at (0, 0) {U};
+\node [rectangle, draw=black, align=left] (L) at (2, 0) {L$_{t0}$ \\A$_{t0}$ \\Y$_{t0}$};
+\node [rectangle, draw=white] (A) at (4, 0) {A$_{t1}$};
+\node [ellipse, draw=white] (US) at (4, -2) {U};
+\node [rectangle, draw=black](S) at (6, 0) {S};
+\node [ellipse, draw=white] (Y) at (8, 0) {Y$_{t2}$};
+
+\draw [-latex, draw=black] (U) to (L);
+\draw [-latex, draw=black] (L) to (A);
+\draw [-latex, bend left=50, draw=black] (L) to (Y);
+\draw [-latex, bend right=50, draw=black, dotted] (U) to (Y);
+\draw [-latex, bend left=50, draw=black, dotted] (U) to (A);
+\draw [-latex, draw=black] (A) to (S);
+\draw [-latex, draw=black] (US) to (S);
+\draw [-latex, draw=black] (US) to (Y);
+\draw [-latex, bend left = 40, draw=red, dashed] (A) to (Y);
+\draw [cor, draw=red, bend right=20, dashed] (A) to (US);
+
+\end{tikzpicture}
+
+
+```
+
+{{< pagebreak >}}
+
+
+
+<!-- ### Definitions -->
+
+<!-- **Treatment Model**: in the context of causal inference, a treatment model estimates the likelihood of receiving the treatment—here, pet ownership—based on observed characteristics (covariates). In ordinary regression, this would be akin to the predictor variables in the model, but modelling the treatment, in this case pet ownership. -->
+
+<!-- **Outcome Model**: this estimates the potential outcomes of interest, here, measures of well-being, conditional on treatment status and other covariates. In traditional regression settings, this model is what you typically fit to understand how predictors influence the outcome.  -->
+
+<!-- By using TMLE to combine both a treatment and outcome model, we can better identify the specific effect of pet ownership on multi-dimensional well-being. Here are the steps:  -->
+
+<!-- 1.  **Treatment model with propensity scores**: the initial phase of our analysis consists of generating propensity scores for the exposure for each participant. These scores quantify the probability of an individual becoming a pet owner, conditional on their set of covariates. The scores emerge from a targeted machine learning model that accounts for high-dimensional confounders to estimate treatment assignment probabilities, namely pet ownership. **In plain terms,** we first calculate a score for each person that indicates how likely they are to own a pet based on various characteristics.This step is like determining each person's odds of having a pet, given their particular life circumstances. -->
+
+<!-- 2.  **Weighting via propensity scores**: upon computing the propensity scores, we assign an inverse probability weight to each dataset entry. These weights serve to equilibrate the distribution of observed covariates between the treated and untreated cohorts, thus attenuating the bias in the causal estimates. **In plain terms,** we use propensity scores to make the contrasts groups more comparable in a manner that emulates randomisation in experiments. -->
+
+<!-- 3.  **Outcome models focused on well-being**: a second targeted machine learning model focuses on the outcome variables, encompassing 18 measures of well-being distributed across four domains. This model incorporates both the individual treatment statuses and the previously calculated weights, enhancing our capacity for causal inference. **In plain terms** we create a model that tries to predict well-being levels based on whether someone owns a pet, while also considering the balancing weights. -->
+<!-- Put differently: this stage is about linking pet ownership to well-being, but with the added advantage of using balanced groups for a more credible result. -->
+
+<!-- 4.  **Counterfactual contrasts**: a core component of TMLE is the projection of counterfactual outcomes. By combining estimates from the treatment and outcome models, TMLE enables the computation of potential well-being levels for each individual under dual treatment conditions—both with and without pet ownership. **In plain terms:** we use the models to estimate what someone's well-being would likely be in both scenarios: owning a pet and not owning one. Note that our shift estimand, described below, helps to make the assumptions required for such contrasts more credible.  We will contrast the average population outcome if all were to own pets with the naturally occurring from the distribution of pet ownership in the treatment year (NZAVS wave 2019) -->
+
+<!-- 5.  **Effect estimation**: the final analytical stage involves determining the average treatment effect by contrasting the estimated counterfactual outcomes. We specifically gauge the differential impact on predicted well-being between the contrasting treatment states—possession and absence of a pet. Thus we calculate the average difference in well-being that owning a pet makes if everyone were to own pets. **In plain terms**, this last step boils down to measuring how much better or worse people are likely to feel if they own a pet. -->
+
+
+
+{{< pagebreak >}}
+
+## Results
+
+### Religious service attendance
+
+### Change in religious service from baseline to exposure wave
+
+```{r}
+#| label: verify-positivity-church
+#| eval: false
+#| echo: false
+
+#transition_table
+
+# transition_table_2
+```
+
+
+@tbl-transition shows a transition matrix captures stability and movement between monthly religious service from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagnal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
+
+
+|  From   |  State 0  | State 1 | State 2 | State 3 | State 4 | State 5 | State 6 | State 7 | State 8 |
+|:-------:|:---------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| State 0 | **25888** |   391   |   166   |   69    |   118   |   24    |   10    |    8    |   64    |
+| State 1 |    628    | **227** |   84    |   42    |   43    |    5    |    2    |    3    |    9    |
+| State 2 |    227    |   93    | **181** |   100   |   93    |   12    |   11    |    2    |   19    |
+| State 3 |    103    |   52    |   104   | **155** |   166   |   17    |    7    |    4    |   14    |
+| State 4 |    141    |   69    |   127   |   199   | **841** |   121   |   59    |   16    |   87    |
+| State 5 |    21     |    7    |   17    |   17    |   140   | **58**  |   24    |    7    |   32    |
+| State 6 |    14     |    5    |   12    |   16    |   82    |   21    | **27**  |    5    |   35    |
+| State 7 |     8     |    0    |    6    |    3    |   16    |    6    |    9    |  **5**  |   18    |
+| State 8 |    67     |   14    |   17    |   14    |   104   |   34    |   40    |   17    | **339** |
+
+: Transition matrix for change in religious service attendance from baseline to the exposure wave {#tbl-transition}
+
+
+@tbl-transition-2 presents a summary of those movements at the boundary of weekly religious service. 28,510 participants attended religious service less than four times per-week in both the baseline wave (NZAVS time 10) and the exposure wave (NAVS time 11); 2143 attending at least weekly in both waves. Of those who did not attend at least least weekly at baseline, 631 initiated attendance. Of those who attended at least weekly 774 attended less than weekly. This table is merely to summarise the movements presented in @tbl-transition.  An advantage of a shift intervention is flexibility in imagined intervention. We do not require, for example that the entire population shifts to for example exactly 1 x weekly religious service attendance, and alternatively that the entire population shifts to exactly zero religious service attendance. Rather we compare a shift intervention in which people attend at least weekly perhaps attending more if that is their natural level attendance, against an intervention in which people attend at the natural level at which they are already attending.  Hence, @tbl-transition-2 is for illustration.
+
+
+|   From    | < weekly  | >= weekly |
+|:---------:|:---------:|:---------:|
+| < weekly  | **28510** |    631    |
+| >= weekly |    774    | **2143**  |
+
+: Transition matrix for change in religious service attendance from baseline to the exposure wave {#tbl-transition-2}
+
+
+### Weekly religious service effects on charitable donations and volunteering
+
+```{r}
+#| label: fig-results-church-on-prosociality
+#| fig-cap: "Results for effect of religious service on charitable donations and volunteering: z-transformed"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 6
+#| fig-width: 8
+
+n_participants
+
+#saveRDS(group_tab_health, here::here(push_mods, "group_tab_health")) # save on first anlaysis, no need after
+
+# print if needed 
+#group_tab_health
+title_church = "Weekly Religious Serive N = 32058"
+# set title
+subtitle_health = "Charity and Volunteering"
+
+plot_gain_church_prosocial_z <- margot_plot(
+  group_tab_compare_church_prosocial_behaviour_z,
+  type = "RD",
+  title = "Religious service effect on reported donations and volunteering",
+  subtitle = ">= 1 x weekly religious service attendance",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+# #check
+# plot_gain_church_prosocial_z
+
+plot_gain_church_prosocial_z / plot_loss_church_prosocial_z + plot_annotation(tag_levels = "A")
+
+# 
+# ggsave(
+#   group_plot_ate_health_cats,
+#   path = here::here(here::here(push_mods, "group_plot_ate_health_cats")),
+#   width = 12,
+#   height = 8,
+#   units = "in",
+#   filename = "group_plot_ate_health_cats.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+#  )
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-results-church-on-prosociality
+#| tbl-cap: "Table of results for effect of religious service on charitable donations and volunteering: data scale"
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_compare_church_prosocial_behaviour_raw |> 
+  kbl(format="markdown")
+
+#interpret_table(group_tab_compare_church_prosocial_behaviour_raw, "causal_difference", "PATE")
+
+#interpret_table(group_tab_compare_church_prosocial_behaviour_z, "causal_difference", "PATE")
+
+
+```
+
+
+### Weekely religious service effects minority-group prejudice/acceptance
+
+```{r}
+#| label: fig-results-church-on-prejudice
+#| fig-cap: "Results for effect of religious service on prejudice: z-transformed outcomes"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 6
+n_participants
+
+#group_tab_health
+title_church = "Weekly Religious Service N = 32058"
+# set title
+subtitle_health = "Prejudice/Acceptance"
+
+plot_church_prejudice<- margot_plot(
+  group_tab_warm_church,
+  type = "RD",
+  title = "Religious service effect on minority-group attitudes",
+  subtitle = ">= 1 x weekly religious service attendance",
+  xlab = "",
+  ylab = "",
+  estimate_scale = 1,
+  base_size = 8,
+  text_size = 2.5,
+  point_size = .5,
+  title_size = 12,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+
+
+#check
+plot_church_prejudice
+# 
+# ggsave(
+#   group_plot_ate_health_cats,
+#   path = here::here(here::here(push_mods, "group_plot_ate_health_cats")),
+#   width = 12,
+#   height = 8,
+#   units = "in",
+#   filename = "group_plot_ate_health_cats.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+#  )
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-results-church-on-prejudice
+#| tbl-cap: "Table of results for effect of religious service on charitable donations and volunteering: data scale"
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_warm_church |> 
+  kbl(format="markdown")
+
+#interpret_table(group_tab_warm_church, "causal_difference", "PATE")
+
+```
+
+@fig-results-church-on-prejudice and @tbl-results-church-on-prejudice presents the Population Average Treatment Effect (PATE) for the embodied domain.
+
+For the outcome 'Perc. Religious Discrim: weekly church >= 1', the PATE causal contrast is 0.371. The confidence interval ranges from 0.335 to 0.408. The E-value for this outcome is 2.152, indicating reliable evidence for causality.
+
+For the outcome 'Warm Overweight: weekly church >= 1', the PATE causal contrast is 0.145. The confidence interval ranges from 0.113 to 0.177. The E-value for this outcome is 1.542, indicating reliable evidence for causality.
+
+For the outcome 'Warm Maori: weekly church >= 1', the PATE causal contrast is 0.144. The confidence interval ranges from 0.116 to 0.172. The E-value for this outcome is 1.54, indicating reliable evidence for causality.
+
+For the outcome 'Warm Refugees: weekly church >= 1', the PATE causal contrast is 0.141. The confidence interval ranges from 0.112 to 0.169. The E-value for this outcome is 1.53, indicating reliable evidence for causality.
+
+For the outcome 'Warm Elderly: weekly church >= 1', the PATE causal contrast is 0.137. The confidence interval ranges from 0.11 to 0.165. The E-value for this outcome is 1.522, indicating reliable evidence for causality.
+
+For the outcome 'Warm Pacific: weekly church >= 1', the PATE causal contrast is 0.124. The confidence interval ranges from 0.094 to 0.153. The E-value for this outcome is 1.484, indicating reliable evidence for causality.
+
+For the outcome 'Warm NZEuro: weekly church >= 1', the PATE causal contrast is 0.117. The confidence interval ranges from 0.089 to 0.146. The E-value for this outcome is 1.467, indicating reliable evidence for causality.
+
+For the outcome 'Warm Immigrants: weekly church >= 1', the PATE causal contrast is 0.103. The confidence interval ranges from 0.075 to 0.132. The E-value for this outcome is 1.427, indicating reliable evidence for causality.
+
+For the outcome 'Warm Asians: weekly church >= 1', the PATE causal contrast is 0.097. The confidence interval ranges from 0.064 to 0.131. The E-value for this outcome is 1.41, indicating reliable evidence for causality.
+
+For the outcome 'Warm Indians: weekly church >= 1', the PATE causal contrast is 0.086. The confidence interval ranges from 0.056 to 0.115. The E-value for this outcome is 1.377, indicating reliable evidence for causality.
+
+For the outcome 'Warm Mental Illness: weekly church >= 1', the PATE causal contrast is 0.073. The confidence interval ranges from 0.043 to 0.103. The E-value for this outcome is 1.34, indicating reliable evidence for causality.
+
+For the outcome 'Warm Chinese: weekly church >= 1', the PATE causal contrast is 0.068. The confidence interval ranges from 0.038 to 0.097. The E-value for this outcome is 1.324, indicating reliable evidence for causality.
+
+For the outcome 'Warm Muslims: weekly church >= 1', the PATE causal contrast is 0.03. The confidence interval ranges from 0 to 0.06. The E-value for this outcome is 1.196, indicating evidence for causality is weak.
+
+{{< pagebreak >}}
+
+
+### Socialisation 
+
+
+```{r}
+#| label: verify-positivity-data-dogs
+#| eval: false
+#| echo: false
+
+# transition_table_socialising
+# transition_table_socialising_shift
+```
+
+@tbl-transition-socialising shows a transition matrix captures the movement between weekly hours socialising during the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagnal). Again, a cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
+
+|  From   |  State 0  | State 1  | State 2 | State 3 | State 4 | State 5 | State 6 | State 7 | State 8 |
+|:-------:|:---------:|:--------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| State 0 | **20039** |   2243   |  1192   |   221   |   25    |   12    |    7    |    3    |    6    |
+| State 1 |   2288    | **1389** |   731   |   103   |   11    |    4    |    3    |    0    |    0    |
+| State 2 |   1328    |   660    | **806** |   161   |   29    |    6    |    2    |    1    |    2    |
+| State 3 |    236    |   101    |   151   | **76**  |   17    |    5    |    1    |    0    |    0    |
+| State 4 |    55     |    16    |   32    |   17    | **11**  |    3    |    1    |    2    |    0    |
+| State 5 |    16     |    5     |    8    |    4    |    3    |  **0**  |    1    |    0    |    0    |
+| State 6 |     8     |    1     |    0    |    0    |    1    |    0    |  **0**  |    0    |    1    |
+| State 7 |     3     |    1     |    1    |    1    |    0    |    0    |    0    |  **0**  |    0    |
+| State 8 |     3     |    1     |    1    |    1    |    1    |    0    |    0    |    0    |  **1**  |
+
+: Transition matrix for change in the square of hours socialing with community each week {#tbl-transition-socialising}
+
+
+
+@@tbl-transition-socialising presents a summary of changes in socialising at the threshold that we compared. When shifting to socialising at least 1.4 hours per week, we imagine 'treating' 25,959 cases. Again this table is for illustration, as the the shift intervention allows us to flexibly contrast cases without projecting the entire population in to one or another cell.  
+
+
+|        From         | < 1.4 weekly hours | >= 1.4 weekly hours |
+|:-------------------:|:------------------:|:-------------------:|
+| < 1.4 weekly hours  |     **25959**      |        2318         |
+| >= 1.4 weekly hours |        2434        |      **1347**       |
+
+: Transition matrix for change in the square of hours socialing with community each week {#tbl-transition-socialising-shift}
+
+
+
+### Summary of findings
+
+
+### Assumptions and limitations
+
+1.  **Causality and confounding**: we employs rigorous causal inference techniques, but these are contingent on the assumption of no unmeasured confounding. (Say more about E-values...)
+
+2.  **Measurement error**: the variables under consideration---exercise and sleep---are self-reported, which might introduce both systematic and random measurement errors. It should be specifically noted that the apparent modesty of the practical effects could arise, in part, to measurement inaccuracy. Given the limitations of self-report measures, the true effect sizes may differ from those estimated. Therefore, while the evidence does suggest a modest impact, the actual real-world effects may be either smaller or larger than the estimates suggest. Given the modest effect sizes and the limitations of self-report measures, future research should explore the use of more objective measures for variables like exercise and sleep. (... etc.)
+
+3.  **Generalisability and transportability**: our findings should be interpreted within the context of the New Zealand population from which the data were sourced. Although the results may have broader relevance, direct extrapolation to different populations or sociocultural settings should be undertaken cautiously.
+
+### Theoretical and practical relevance
+
+
+{{< pagebreak >}}
+
+### Ethics
+
+The NZAVS is reviewed every three years by the University of Auckland Human Participants Ethics Committee. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+### Acknowledgements
+
+The New Zealand Attitudes and Values Study is supported by a grant from the TempletoReligion Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or the decision to publish.
+
+### Author Statement
+
+TBA
+
+{{< pagebreak >}}
+
+## Appendix A. Measures
+
+#### Age (waves: 1-15)
+
+We asked participants' age in an open-ended question ("What is your age?" or "What is your date of birth").
+
+#### Disability (waves: 5-15)
+
+We assessed disability with a one item indicator adapted from @verbrugge1997, that asks "Do you have a health condition or disability that limits you, and that has lasted for 6+ months?" (1 = Yes, 0 = No).
+
+#### Education Attainment (waves: 1, 4-15)
+
+Participants were asked "What is your highest level of qualification?". We coded participans highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
+
+#### Employment (waves: 1-3, 4-11)
+
+We asked participants "Are you currently employed? (This includes self-employed or casual work)". \* note: This question disappeared in the updated NZAVS Technical documents (Data Dictionary).
+
+#### European (waves: 1-15)
+
+Participants were asked "Which ethnic group do you belong to (NZ census question)?" or "Which ethnic group(s) do you belong to? (Open-ended)" (wave: 3). Europeans were coded as 1, whereas other ethnicities were coded as 0.
+
+#### Ethnicity (waves: 3)
+
+Based on the New Zealand Cencus, we asked participants "Which ethnic group(s) do you belong to?". The responses were: (1) New Zealand European; (2) Māori; (3) Samoan; (4) Cook Island Māori; (5) Tongan; (6) Niuean; (7) Chinese; (8) Indian; (9) Other such as DUTCH, JAPANESE, TOKELAUAN. Please state:. We coded their answers into four groups: Maori, Pacific, Asian, and Euro (except for Time 3, which used an open-ended measure).
+
+#### Gender (waves: 1-15)
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male was coded as 1, and gender diverse coded as 3 [@fraser_coding_2020]. (or 0.5 = neither female nor male)
+
+#### Income (waves: 1-3, 4-15)
+
+Participants were asked "Please estimate your total household income (before tax) for the year XXXX". To stablise this indicator, we first took the natural log of the response + 1, and then centred and standardised the log-transformed indicator.
+
+<!-- #### Job Security (waves: 1-3,4-7,9-15) -->
+
+<!-- Participants indicated their feeling of job security by answering "How secure do you feel in your current job?" on a scale from 1 (not secure) to 7 (very secure). -->
+
+<!-- #### Parent (waves: 5-15) -->
+
+<!-- Participants were asked "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. -->
+
+#### Number of Children (waves: 1-3, 4-15)
+
+We measured number of children using one item from @Bulbulia_2015. We asked participants "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or ""How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15).
+
+#### Political Orientation
+
+We measured participants' political orientation using a single item adapted from @jost_end_2006-1.
+
+"Please rate how politically liberal versus conservative you see yourself as being."
+
+(1 = Extremely Liberal to 7 = Extremely Conservative)
+
+#### NZSEI-13 (waves: 8-15)
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate an score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
+
+Participants were asked "If you are a parent, what is the birth date of your eldest child?".
+
+#### Living with Partner
+
+Participants were asekd "Do you live with your partner?" (1 = Yes, 0 = No).
+
+#### Living in an Urban Area (waves: 1-15)
+
+We coded whether they are living in an urban or rural area (1 = Urban, 0 = Rural) based on the addresses provided.
+
+We coded whether they are living in an urban or rural area (1 = Urban, 0 = Rural) based on the addresses provided.
+
+#### NZ Deprivation Index (waves: 1-15)
+
+We used the NZ Deprivation Index to assign each participant a score based on where they live [@atkinson2019]. This score combines data such as income, home ownership, employment, qualifications, family structure, housing, and access to transport and communication for an area into one deprivation score.
+
+#### NZ-Born (waves: 1-2,4-15)
+
+We asked participants "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).
+
+#### Mini-IPIP 6 (waves: 1-3,4-15)
+
+We measured participants personality with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011] which consists of six dimensions and each dimensions is measured with four items:
+
+1.  agreeableness,
+
+    i.  I sympathize with others' feelings.
+    ii. I am not interested in other people's problems. (r)
+    iii. I feel others' emotions.
+    iv. I am not really interested in others. (r)
+
+2.  conscientiousness,
+
+    i.  I get chores done right away.
+    ii. I like order.
+    iii. I make a mess of things. (r)
+    iv. I ften forget to put things back in their proper place. (r)
+
+3.  extraversion,
+
+    i.  I am the life of the party.
+    ii. I don't talk a lot. (r)
+    iii. I keep in the background. (r)
+    iv. I talk to a lot of different people at parties.
+
+4.  honesty-humility,
+
+    i.  I feel entitled to more of everything. (r)
+    ii. I deserve more things in life. (r)
+    iii. I would like to be seen driving around in a very expensive car. (r)
+    iv. I would get a lot of pleasure from owning expensive luxury goods. (r)
+
+5.  neuroticism, and
+
+    i.  I have frequent mood swings.
+    ii. I am relaxed most of the time. (r)
+    iii. I get upset easily.
+    iv. I seldom feel blue. (r)
+
+6.  openness to experience
+
+    i.  I have a vivid imagination.
+    ii. I have difficulty understanding abstract ideas. (r)
+    iii. I do not have a good imagination. (r)
+    iv. I am not interested in abstract ideas. (r)
+
+Each dimension was assessed with four items and participants rated the accuracy of each item as it applies to them from 1 (Very Inaccurate) to 7 (Very Accurate). Items marked with (r) are reverse coded.
+
+#### Honesty-Humility-Modesty Facet (waves: 10-14)
+
+Participants indicated the extent to which they agree with the following four statements from @campbell2004 , and @sibley2011 (1 = Strongly Disagree to 7 = Strongly Agree)
+
+```         
+i.  I want people to know that I am an important person of high status, (Waves: 1, 10-14)
+ii. I am an ordinary person who is no better than others.
+iii. I wouldn't want people to treat me as though I were superior to them.
+iv. I think that I am entitled to more respect than the average person is.
+```
+
+### Exposure variable
+
+HERE
+
+### Health well-being outcomes
+
+### Appendix B. Descriptive Statistics
+
+
+```{r}
+#| label: tbl-table_demographic_vars
+#| tbl-cap: "Baseline outcome and democgraphic statistics for cat ownership study"
+#| eval: true
+#| echo: false
+#| include: false
+
+table_demographic_vars |>  kbl(format = "markdown")
+
+```
+
+### Appendix D. Population Average Treatment Effect {.appendix}
+
+As indicated in the main manuscript, the Average Treatment Effects is obtained by contrasting the expected outcome when a population sampled is exposed to an exposure level, $E[Y(A = a)]$, with the expected outcome under a different exposure level, $E[Y(A=a')]$.
+
+For a binary treatment with levels $A=0$ and $A=1$, the Average Treatment Effect (ATE), on the difference scale, is expressed:
+
+$$ATE_{\text{risk difference}} = E[Y(1)|L] - E[Y(0)|L]$$
+
+On the risk ratio scale, the ATE is expressed:
+
+$$ATE_{\text{risk ratio}} = \frac{E[Y(1)|L]}{E[Y(0)|L]}$$
+
+Other effect scales, such as the incidence rate ratio, incidence rate difference, or hazard ratio, might also be of interest.
+
+Here we estimate the Population Average Treatment Effect (PATE), which denotes the effect the treatment would have on the New Population if applied universally. This quantity can be expressed:
+
+$$PATE_{\text{risk difference}} = f(E[Y(1) - Y(0)|L], W)$$
+
+$$PATE_{\text{risk ratio}} = f\left(\frac{E[Y(1)|L]}{E[Y(0)|L]}, W\right)$$
+
+where $f$ is a function that incorporates post-stratification weights $W$ into the estimation of the expected outcomes from which we obtain causal contrasts. Because the NZAVS is national probability sample, i.e. inverse probability of being sampled 1. However, to incorporate gender, age, and ethnic differences we include post-stratification weight into our outcome wide models.
+
+{{< pagebreak >}}
+
+## References {.appendix}
