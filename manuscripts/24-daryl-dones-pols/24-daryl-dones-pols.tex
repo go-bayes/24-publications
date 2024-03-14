@@ -188,7 +188,7 @@
 Orientation}
 \author{Daryl Van Tongeren \and Don E Davis \and Chris G.
 Sibley \and Joseph A. Bulbulia}
-\date{2024-03-13}
+\date{2024-03-14}
 
 \begin{document}
 \maketitle
@@ -259,10 +259,16 @@ the treatment wave (NZAVS time 12, years 2020-2021).
 
 \subsubsection{Treatment/Exposure}\label{treatmentexposure}
 
-A hypothetical experiment in which all start as religiously affiliated
-in the baseline wave and then either: (1) lose religious affiliation in
-the following wave or (2) retain religious affiliation in the following
-wave.
+\textbf{Study 1 and Study 2}: a hypothetical experiment in which all
+start as religiously affiliated in the baseline wave and then either:
+(1) lose religious affiliation in the following wave or (2) retain
+religious affiliation in the following wave.
+
+\textbf{Study 3}: a hypothetical experiment in which (1) all start as
+religiously affiliated in the baseline wave and then lose their
+religious affiliation in the following wave. This treatment is
+contrasted with a treatment in which all start as religiously
+disaffiliated and remain religious disaffiliated.
 
 \subsubsection{Outcomes}\label{outcomes}
 
@@ -286,7 +292,9 @@ Interest}\label{causal-contrast-of-interest}
 Our causal estimand assumes the form of a ``shift function'' or
 ``modified treatment policy'':
 
-\[ \text{Average Treatment Effect} = E[Y(a^*)|\textcolor{red}{f(A)},L] - E[Y(a)|A,L] \]
+In \textbf{Study 1}, the causal estimand is:
+
+\[ \text{Average Treatment Effect} = E[Y(a^*)|\textcolor{red}{f(A)},L] -  E[Y(a)|\textcolor{red}{f(A)},L] \]
 
 \textbf{Intervention Functions:}
 
@@ -300,6 +308,31 @@ Our causal estimand assumes the form of a ``shift function'' or
   \textbf{CONTRAST: start affiliated and remain affiliated:} \[
    f(A) = \begin{cases} a^* & \text{if religious affilliation is lost, shift to religious affiliation} \\ 
    \tilde{a} & \text{if religious affiliation is retained, do not shift} \end{cases}
+   \]
+\end{itemize}
+
+In \textbf{Study 2}, the causal estimand is the Average Treatment Effect
+in the Religious Population, \(P = p*\)
+
+\[ \text{Average Treatment in the Treated} = E[Y(a^*)|\textcolor{red}{f(A)},L, P=p*] -  E[Y(a)|\textcolor{red}{f(A)},L, P=p*] \]
+Where the shift function is the same as in Study 1.
+
+In \textbf{Study 3} we investigate the average treatement effect in the
+population, as is in Study 1, but we contrast religious disaffiliation
+with the expected average outcomes had the population been disaffiliated
+at baseline and remained disaffilliated in the treatment wave, thus:
+
+\begin{itemize}
+\item
+  \textbf{TREATMENT: start affiliated and then disaffiliate (as in Study
+  1):} \[
+   f(A) = \begin{cases} a^* & \text{if religious affiliation is retained, lose religious affiliation} \\ 
+   \tilde{a} & \text{if religious affiliation is lost, do not shift} \end{cases}
+   \]
+\item
+  \textbf{CONTRAST: start affiliated and remain affiliated:} \[
+   f(A) = \begin{cases} a^* & \text{if religious affiliation is present at baseline, shift to religious disaffiliation} \\ 
+   \tilde{a} & \text{if religious affiliation is present at the exposure wave , shift to religious disaffiliation} \end{cases}
    \]
 \end{itemize}
 
@@ -430,7 +463,7 @@ following strategies:
   (\citeproc{ref-vanbuuren2018}{Van Buuren 2018}). Overall there was
   1.6\% of the baseline data were missing.
 \item
-  \textbf{Follow-up missingness}: We used the \texttt{lmtp} package's
+  \textbf{Follow-up missingness}: we used the \texttt{lmtp} package's
   built-in censoring weighting to adjust for loss-to-follow-up/sample
   attrition (\citeproc{ref-williams2021}{Williams and Díaz 2021}),
   including for the treatment variable in the exposure wave.
@@ -439,21 +472,23 @@ following strategies:
 We obtain valid inferences for the New Zealand population by applying
 post-stratification census weights for age, ethnicity, and gender.
 
-Overall our approach utilises \emph{three-wave} of panel data: 1. The
-baseline wave (NZAVS Time 10), the treatment wave (NZAVS Time 11), and
-the outcome wave (NZAVS Time 12). By controlling for baseline exposure,
-and baseline outcome, as well as for demographic and personality
-variables at baseline, we obtain powerful confounding control.
-Specifically, for any unmeasured variable to be associated with both the
-treatment in the exposure wave and the outcome one year later, this
-association would need to be independent of the measured baseline
-responses for the treatment and the outcome. However, because in
-observational studies, we cannot be certain there is no unmeasured
-confounding, we perform additional sensitivity analysis using the
-E-value as described below. (For further discussion of this strategy,
-see: VanderWeele \emph{et al.} (\citeproc{ref-vanderweele2020}{2020});
-Bulbulia (\citeproc{ref-bulbulia2023}{2023}); Bulbulia
-(\citeproc{ref-bulbulia2024PRACTICAL}{2024})).
+Overall our approach utilises \emph{three-wave} of panel data:
+\textbf{Wave 1}: the baseline wave (NZAVS Time 10), \textbf{Wave 2}: the
+treatment wave (NZAVS Time 11), \textbf{Wave 3}: and the outcome wave
+(NZAVS Time 12). We obtain powerful confounding control by including the
+baseline exposure and baseline outcome with a rich set of demographic
+and personality variables at baseline. Specifically, for any unmeasured
+variable to be associated with both the treatment in the exposure wave
+and the outcome one year later, this association would need to be
+independent of the measured baseline responses for the treatment and the
+outcome as well as for the demographic and personality covariates
+included in the model. Because in observational studies, we cannot be
+certain there is no unmeasured confounding, we perform additional
+sensitivity analysis using the E-value as described below
+(\citeproc{ref-vanderweele2017}{VanderWeele and Ding 2017}). For further
+discussion of our three-wave confounding control strategy, see:
+VanderWeele \emph{et al.} (\citeproc{ref-vanderweele2020}{2020});
+Bulbulia (\citeproc{ref-bulbulia2024PRACTICAL}{2024}).
 
 \paragraph{Estimator}\label{estimator}
 
@@ -508,24 +543,44 @@ measures: political conservativism and right-wing orientation.
 
 Our models included an indicator for censoring in the next wave, which
 adjusted for loss to follow-up/attrition conditional on measured
-covariates. Two custom shift functions were defined to model the
-hypothetical intervention of setting the treatment variable (religious
-affiliation) to ``yes'' in the baseline wave and then to ``no'' in the
-exposure wave; these estimates were contrasted against the expectation
-from a `null' in which religious affiliation was set to ``yes'' in the
-baseline wave and ``yes'' in the exposure wave, without outcomes
-recorded in the wave that followed the exposure wave -- the ``outcome''
-wave.
+covariates.
+
+In Study 1 and Study 2, two custom shift functions were defined to model
+the hypothetical intervention of setting the treatment variable
+(religious affiliation) to ``yes'' in the baseline wave and then to
+``no'' in the exposure wave; these estimates were contrasted against the
+expectation from a `null' in which religious affiliation was set to
+``yes'' in the baseline wave and ``yes'' in the exposure wave, without
+outcomes recorded in the wave that followed the exposure wave -- the
+``outcome'' wave.
 
 Thus we have two interventions:
 
 \begin{itemize}
 \item
-  \textbf{TREATEMENT: all start with religious affiliation and then lose
+  \textbf{TREATMENT: all start with religious affiliation and then lose
   religious affiliation}
 \item
   \textbf{CONTRAST: all start with religious affiliation and then remain
   religiously affiliated}
+\end{itemize}
+
+In Study 3 we investigate the same treatment but contrast it with an
+intervention in which all start with religious disaffiliation and remain
+religiously disaffiliated. This finding helps use to evalate the
+predictions of the religious residual hypothesis, according to which
+features of religious cognition and behaviour remain with disaffiliates
+even after they have lost their religion
+(\citeproc{ref-vantongeren2020}{Van Tongeren \emph{et al.} 2020}). Thus
+we contrast the following interventions:
+
+\begin{itemize}
+\item
+  \textbf{TREATMENT: all start with religious affiliation and then lose
+  religious affiliation}
+\item
+  \textbf{CONTRAST: all start with religious disaffiliation and then
+  remain religiously disaffiliated}
 \end{itemize}
 
 \texttt{lmtp} draws on the the \texttt{SuperLearner} library, which
@@ -565,17 +620,7 @@ that an unmeasured confounder would need to have with both the exposure
 and the outcome (after considering the measured covariates) to explain
 away the observed exposure-outcome association
 (\citeproc{ref-linden2020EVALUE}{Linden \emph{et al.} 2020};
-\citeproc{ref-vanderweele2020}{VanderWeele \emph{et al.} 2020}). For
-example, if the E-value were 1.3, it would mean an unmeasured confounder
-associated with both the treatment and outcome by a risk ratio of 1.3
-each (or 30\% increase in risk) could explain away the observed effect.
-Weaker confounding would not suffice. We also report the bound of the
-E-value closest to 1. If the lower bound of the CI were 1.1, to explain
-away the result, the strength of an unmeasured confounder in its
-association with both the treatment and the outcome would need to be at
-least 1.1 on the risk ratio scale (or a 10\% increase in risk) to
-explain away the result (\citeproc{ref-vanderweele2017}{VanderWeele and
-Ding 2017}).
+\citeproc{ref-vanderweele2020}{VanderWeele \emph{et al.} 2020}).
 
 \newpage{}
 
@@ -611,23 +656,20 @@ standardised) + 1 year after dis-affiliation (ATE).}
 
 The Average Treatment Effect (ATE) represents the expected difference in
 outcomes between treatment and control groups for the population.
-Results for the total population are presented in Figure~\ref{fig-ate}
-and Table~\ref{tbl-ate}. Causal contrasts are given in standardised
-units for the outcome; the contrasts are therefore interpretable as
-standardised effect sizes.
 
-For the outcome `Dis-affiliation Effect: Right Wing', the ATE causal
-contrast is -0.08. The E-value for this outcome is 1.36; The confidence
-interval ranges from -0.14 to -0.02. Overall, we find reliable evidence
-for causality. Religious disaffiliation is expected to cause the
-disaffiliated to become less right-wing (more politically left-wing).
+For the outcome `Dis-affiliation Effect: Right Wing', the ATE is -0.08
+{[}-0.14,-0.02{]}. The E-value for this effect estimate is 1.36 with a
+lower bound of 1.16. At this bound, an unmeasured confounder associated
+with both the treatment and outcome by a risk ratio of 1.16 each could
+explain away the observed effect; weaker confounding would not. Here, we
+find evidence for causality.
 
-For the outcome `Dis-affiliation Effect: Pol. Conservative', the ATE
-causal contrast is -0.19. The E-value for this outcome is 1.67; The
-confidence interval ranges from -0.25 to -0.14. We find even more
-substantial evidence for causality. Religious disaffiliation is expected
-to cause the disaffiliated to become less politically conservative (more
-politically liberal).
+For the outcome `Dis-affiliation Effect: Pol.Conservative', the ATE is
+-0.19 {[}-0.25,-0.14{]}. The E-value for this effect estimate is 1.66
+with a lower bound of 1.51. At this bound, an unmeasured confounder
+associated with both the treatment and outcome by a risk ratio of 1.51
+each could explain away the observed effect; weaker confounding would
+not. Here again, we find evidence for causality.
 
 \newpage{}
 
@@ -665,26 +707,74 @@ dis-affiliation (ATT)}
 \end{table}%
 
 The Average Treatment Effect (ATT) represents the expected difference in
-outcomes between treatment and control groups in the treated population,
-in this case, those who were religiously affiliated at baseline. Results
-for the full population are presented in Figure~\ref{fig-att} and
-Table~\ref{tbl-att}. Again, the causal contrasts we report are given in
-standardised units for the outcome; the contrasts are therefore
-interpretable as standardised effect-sizes.
+outcomes between treatment and control groups for the treated population
+-- here those who were religiously affiliated at baseline.
 
-For the outcome `Dis-affiliation Effect (ATT): Right Wing', the ATT
-causal contrast is -0.07. The E-value for this outcome is 1.32; The
-confidence interval ranges from -0.12 to -0.01. Overall, we find
-reliable evidence for causality. Here, in the religious sub-sample, we
-again find reliable evidence for causality. Religious disaffiliation is
-expected to cause the disaffiliated to become less right-wing (more
-politically left-wing).
+For the outcome `Dis-affiliation Effect (ATT): Right Wing', the ATT is
+-0.07 {[}-0.12,-0.01{]}. The E-value for this effect estimate is 1.33
+with a lower bound of 1.11. At this bound, an unmeasured confounder
+associated with both the treatment and outcome by a risk ratio of 1.11
+each could explain away the observed effect; weaker confounding would
+not. Here, we find evidence for causality.
 
-For the outcome `Dis-affiliation Effect: Pol.Conservative.', the ATT
-causal contrast is -0.22. The E-value for this outcome is 1.74; The
-confidence interval ranges from -0.27 to -0.17. Here, in the religious
-sub-sample, we again find even stronger evidence for a one-year causal
-effect on (lower) political conservativism (more liberal).
+For the outcome `Dis-affiliation Effect: Pol.Conservative', the ATT is
+-0.22 {[}-0.27,-0.17{]}. The E-value for this effect estimate is 1.74
+with a lower bound of 1.59. At this bound, an unmeasured confounder
+associated with both the treatment and outcome by a risk ratio of 1.59
+each could explain away the observed effect; weaker confounding would
+not. Here, again, we find evidence for causality.
+
+\subsection{Study 3 Causal Effect of Religious Disaffiliation on
+Political Conservativism and Right Wing Orientation (both outcomes were
+standardised) contrasted with prevelance effect of consistent
+disaffiliation}\label{study-3-causal-effect-of-religious-disaffiliation-on-political-conservativism-and-right-wing-orientation-both-outcomes-were-standardised-contrasted-with-prevelance-effect-of-consistent-disaffiliation}
+
+\begin{figure}
+
+\centering{
+
+\includegraphics{24-daryl-dones-pols_files/figure-pdf/fig-contrast-1.pdf}
+
+}
+
+\caption{\label{fig-contrast}Figure describing the effect of
+disaffiliation on political conservativism and right-wing orientation
+(both outcomes were standardised) contrasted with the prevalence effect
+of constant dissafiliation + 1 year after treatment (ATE)}
+
+\end{figure}%
+
+\begin{table}
+
+\caption{\label{tbl-att}}
+
+\centering{
+
+\captionsetup{labelsep=none}
+
+}
+
+\end{table}%
+
+For the outcome `Dis-affiliation Contrast (ATE): Pol.Conservative', the
+ATE is 0.07 {[}0.02,0.12{]}. The E-value for this effect estimate is
+1.33 with a lower bound of 1.11. At this bound, an unmeasured confounder
+associated with both the treatment and outcome by a risk ratio of 1.11
+each could explain away the observed effect; weaker confounding would
+not. Here, we find some evidence for causality: a hypothetical world in
+which everyone in the population was religiously affiliated and became
+disaffiliated would be a world in which the population is higher in
+political conservativism compared with a world in which people had not
+been religiously affiliated in the first place, and remained
+unaffiliated.
+
+For the outcome `Dis-affiliation Contrast (ATE): Right Wing', given the
+lower bound of the E-value equals 1, we find no reliable evidence for
+causality. That is, we do not find any difference only right/left wing
+political orientation between the hypothetical world in which everyone
+in the population was religiously affiliated and became disaffiliated
+compared with a world in which people had not been religiously
+affiliated in the first place, and remained unaffiliated.
 
 \subsection{Discussion}\label{discussion}
 
@@ -704,6 +794,73 @@ as a whole (ATE) and the religious subpopulation (ATT). In both cases,
 effects are more pronounced for political conservatism, with about a .2
 SD expected to shift toward liberal orientation. Notably, effects were
 much weaker for (reduced) right-wing orientation.
+
+The previous findings apply to a hypothetical intervention in which
+religious people disaffiliate compared with a hypothetical intervention
+in which they do not. In Study 3 we compare a hypothetical intervention
+in which religious people disaffiliate with one in which the population
+was dissafilliated and remained disaffiliated. In this setting, we find
+some evidence that the disaffiliated population would be more
+politically conservative than the never affiliated population. This
+finding makes sense in light of the Van Tongeren \emph{et al.}
+(\citeproc{ref-vantongeren2020}{2020}), which finds that psychological
+features associated with religious behaviour and cognition appear to
+remain even after conversion, what the authors call, a ``religious
+residue.''
+
+The reasons we observe greater left/right-wing political orientation
+among religious disaffiliates remain unclear. Speculating:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Cross-sectional data limitations}: such data do not provide
+  reliable standards for evidence as they often entangle the timing of
+  confounders, treatments, and outcomes, leading to correlations that
+  may distort true causal relationships
+  (\citeproc{ref-bulbulia2023}{Bulbulia 2023}). This limitation
+  challenges the disentanglement of causal associations.
+\item
+  \textbf{Measurement bias owing to recall}: when treaments and
+  pre-treatment responses are based on memory, there is considerable
+  scope for measurement bias. For instance, individuals recalling their
+  religiosity may misremember their past political conservatism or
+  liberalism, introducing directed measurement error.
+\item
+  \textbf{Unmeasured confounders}: valid causal inferences require
+  satisfying the ``no unmeasured confounder'' assumption. It is
+  plausible that individuals more open to religious change may also lean
+  towards left-leaning or liberal ideologies. Failure to control for
+  such openness, or any other potential confounder, with time-series
+  data in which these variables (or proxies) are measured at baseline
+  renders our causal effect estimates unreliable.
+\item
+  \textbf{Challenges in observing the incident-exposure effect}:
+  assessing the effect of religious change accurately requires time
+  series data where conversion is observed \emph{in vivo}. Despite our
+  large sample size of over 42,000 individuals, the New Zealand study
+  only identified approximately 1,000 instances of religious
+  disaffiliation, as noted in Table~\ref{tbl-transition}, presenting
+  significant data collection challenges.
+\item
+  \textbf{Model misspecification}: the methods for obtaining effect
+  estimates differ between the studies; it is possible that one,
+  several, or indeed all of them are misspecified, in the sense that
+  they do not converge to valid inferences.
+\item
+  \textbf{Sampling characteristics}: differences in sampling and the
+  features the underlying popolations may explain differences observed
+  across studies, without confounding or model misspecification bias.
+  The sample of individuals who disaffiliated from religion in the
+  previously reported studies might differ significantly from our New
+  Zealand sample, which exhibits behaviour more closely aligned with the
+  religious residue hypothesis.
+\end{enumerate}
+
+Unfortunately, the data presently do not clarifying whether one or a
+combination of these possible explanations, or perhaps entirely
+different explanations, underpin the observed discrepancies, matters for
+future longitudinal and comparative research.
 
 Notably, our models identify the specific effect of religious
 disaffiliation on political orientations. It might be asked, what are
@@ -892,6 +1049,12 @@ Van Der Laan, MJ, and Rose, S (2018) \emph{Targeted Learning in Data
 Science: Causal Inference for Complex Longitudinal Studies}, Cham:
 Springer International Publishing. Retrieved from
 \url{http://link.springer.com/10.1007/978-3-319-65304-4}
+
+\bibitem[\citeproctext]{ref-vantongeren2020}
+Van Tongeren, DR, DeWall, CN, Chen, Z, Sibley, CG, and Bulbulia, J
+(2020) Religious residue: Cross-cultural evidence that religious
+psychology and behavior persist following deidentification.
+\emph{Journal of Personality and Social Psychology}.
 
 \bibitem[\citeproctext]{ref-vanderweele2017}
 VanderWeele, TJ, and Ding, P (2017) Sensitivity analysis in
