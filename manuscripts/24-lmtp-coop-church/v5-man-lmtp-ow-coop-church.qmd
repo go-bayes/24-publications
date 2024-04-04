@@ -1,7 +1,7 @@
 ---
 title: "Causal effects of religious service attendance on prosociality evidence from a national longitudinal study"
 abstract: |
- We use large-scale national panel data to quantitatively estimate the causal relationship between religion and prosociality within the New Zealand population. We define three causal contrasts for attendance: 1) weekly versus none; 2) weekly versus observed rates 3) no attendance versus observed rates. We measure prosociality is through volunteering hours, charitable donations, perceived social connections, and received personal and financial help. Reported help measures are designed to minimise self-presentation bias. Effects were calculated on difference scales for continuous/ordinal outcomes and risk-ratio scales for binary outcomes. Results indicate a prosocial benefit across most measures, though the extent and quality of benefits vary by estimand and are generally weaker than those suggested by cross-sectional associations. Nevertheless, quantify the economic benefits of religious service reveals considerable economic value. Our approach offers a robust method for quantitatively assessing the causal effects of religious behaviors using observational data.
+   The question of whether religion causes prosociality is poorly defined. To make it precise we must state a causal contrasts of interest, specific our measures of "prosociality," and clarify the target population for whom results are meant to generalise. Here we investigate the causal effects of three hypothetical interventions on religious service attendance across the New Zealand population where the levels of intervention address different theoretical and policy questions. Study 1 investigates the effects of these pre-specified interventions on self-reported social behaviours; Study 2 investigates effects on perceived social connection; Study 3 investigates effects voluntary help received from others; Study 4: investigates effects on money received from others . Notably the measures in studies 3 and 4 avoid self presentation bias. Overall we find evidence that religion supports pro-social behaviours across all measurement domains of prosociality; however, the quality and magnitude of benefit varies depending on the estimand of interest -- whether religious service is gained or lost, and whether the contrast condition is the status quo. Moreover magnitudes of benefit are lower than suggested by unmodelled associations in the data. Nevertheless, the gain of regular religious service has economic considerable economic benefits, it's loss, deficits -- which we compute. These findings illustrate a pathway for quantitative investigations of the causal effects of religious behaviours using longitudinal modified treatment policies. 
 author: 
   - name: Joseph A. Bulbulia
     affiliation: Victoria University of Wellington, New Zealand
@@ -71,6 +71,8 @@ pull_path <-
     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
   )
 
+
+
 push_mods <-  fs::path_expand(
   "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/nzvs_mods/24/ow-coop-church-v5"
 )
@@ -79,10 +81,13 @@ push_mods <-  fs::path_expand(
 #tinytex::tlmgr_update()
 
 # WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
-source("/Users/joseph/GIT/templates/functions/libs2.R")
+#source("/Users/joseph/GIT/templates/functions/libs2.R")
 
-# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
-source("/Users/joseph/GIT/templates/functions/funs.R")
+library(margot)
+library(ggplot2)
+
+# # WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+# source("/Users/joseph/GIT/templates/functions/funs.R")
 
 # ALERT: UNCOMMENT THIS AND DOWNLOAD THE FUNCTIONS FROM JB's GITHUB
 # source(
@@ -100,29 +105,34 @@ source("/Users/joseph/GIT/templates/functions/funs.R")
 # for making graphs
 library("tinytex")
 library("extrafont")
+library("tidyverse")
+library("kableExtra")
+
 loadfonts(device = "all")
 
 ## Read in data from analysis 
 # imports
 n_participants <-  margot::here_read("n_participants")
+n_total <-  margot::here_read("n_total")
+
 #n_participants
 # read standard deviations units of outcome (volunteering/donations) in 2020
 sd_donations <- margot::here_read("sd_donations")
 sd_volunteer <- margot::here_read("sd_volunteer")
 
-conflicts_prefer(stats::filter)
+#conflicts_prefer(stats::filter)
 
 # propensity score graph 
 
-love_plot_base <- margot::here_read("love_plot_base")
-love_plot <- margot::here_read("love_plot")
-# love_plot
-
-# summary of matching
-summary_match_ebal_base <- margot::here_read("summary_match_ebal")
-# summary_match_ebal$summary_match_ebal_base
-
-summary_match_ebal <- margot::here_read("summary_match_ebal")
+# love_plot_base <- margot::here_read("love_plot_base")
+# love_plot <- margot::here_read("love_plot")
+# # love_plot
+# 
+# # summary of matching
+# summary_match_ebal_base <- margot::here_read("summary_match_ebal")
+# # summary_match_ebal$summary_match_ebal_base
+# 
+# summary_match_ebal <- margot::here_read("summary_match_ebal")
 # summary_match_ebal$effective.sample.size
 
 # verify positivity 
@@ -132,46 +142,46 @@ transition_table <- margot::here_read("transition_table")
 # binary
 transition_table_binary <- margot::here_read("transition_table_binary")
 #transition_table_binary
-
-# ordinary regressions
-fit_church_on_hours_charity<- margot::here_read('fit_church_on_hours_charity')
-fit_church_on_charity_donate<-margot:: here_read('fit_church_on_charity_donate')
-fit_church_on_community_time_binary<- margot::here_read('fit_church_on_community_time_binary')
-fit_church_on_community_money_binary<- margot::here_read('fit_church_on_community_money_binary')
-
-
-lm_fit_church_on_hours_charity <- tbl_regression(fit_church_on_hours_charity)
-
-
-# b_church_on_hours_charity <-inline_text(lm_fit_church_on_hours_charity, 
-#                                         variable = religion_church_round, 
-#                                         pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
-# b_church_on_hours_charity
-#here_save(b_church_on_hours_charity, "b_church_on_hours_charity")
-b_church_on_hours_charity<- here_read("b_church_on_hours_charity")
-
-
-# lm_coef_fit_church_on_charity_donate <- tbl_regression(fit_church_on_charity_donate)
-# b_church_on_charity_donate <-inline_text(lm_coef_fit_church_on_charity_donate, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
 # 
-# b_church_on_charity_donate
-# here_save(b_church_on_charity_donate, "b_church_on_charity_donate")
-b_church_on_charity_donate<- here_read("b_church_on_charity_donate")
-
-
-# lm_coef_fit_church_on_community_time_binary <- tbl_regression(fit_church_on_community_time_binary)
-# b_church_on_community_time_binary <-inline_text(lm_coef_fit_church_on_community_time_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # ordinary regressions
+# fit_church_on_hours_charity<- margot::here_read('fit_church_on_hours_charity')
+# fit_church_on_charity_donate<-margot::margot::here_read('fit_church_on_charity_donate')
+# fit_church_on_community_time_binary<- margot::here_read('fit_church_on_community_time_binary')
+# fit_church_on_community_money_binary<- margot::here_read('fit_church_on_community_money_binary')
 # 
-# here_save(b_church_on_community_time_binary, "b_church_on_community_time_binary")
-b_church_on_community_time_binary<- here_read("b_church_on_community_time_binary")
-#b_church_on_community_time_binary
-
-# lm_coef_fit_church_on_community_money_binary <- tbl_regression(fit_church_on_community_money_binary)
-# b_church_on_community_money_binary <-inline_text(lm_coef_fit_church_on_community_money_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
 # 
-# here_save(b_church_on_community_money_binary, "b_church_on_community_money_binary")
-b_church_on_community_money_binary<- here_read("b_church_on_community_money_binary")
-
+# lm_fit_church_on_hours_charity <- tbl_regression(fit_church_on_hours_charity)
+# 
+# 
+# # b_church_on_hours_charity <-inline_text(lm_fit_church_on_hours_charity, 
+# #                                         variable = religion_church_round, 
+# #                                         pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # b_church_on_hours_charity
+# #here_save(b_church_on_hours_charity, "b_church_on_hours_charity")
+# b_church_on_hours_charity<-margot::here_read("b_church_on_hours_charity")
+# 
+# 
+# # lm_coef_fit_church_on_charity_donate <- tbl_regression(fit_church_on_charity_donate)
+# # b_church_on_charity_donate <-inline_text(lm_coef_fit_church_on_charity_donate, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+# # b_church_on_charity_donate
+# # here_save(b_church_on_charity_donate, "b_church_on_charity_donate")
+# b_church_on_charity_donate<-margot::here_read("b_church_on_charity_donate")
+# 
+# 
+# # lm_coef_fit_church_on_community_time_binary <- tbl_regression(fit_church_on_community_time_binary)
+# # b_church_on_community_time_binary <-inline_text(lm_coef_fit_church_on_community_time_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+# # here_save(b_church_on_community_time_binary, "b_church_on_community_time_binary")
+# b_church_on_community_time_binary<-margot::here_read("b_church_on_community_time_binary")
+# #b_church_on_community_time_binary
+# 
+# # lm_coef_fit_church_on_community_money_binary <- tbl_regression(fit_church_on_community_money_binary)
+# # b_church_on_community_money_binary <-inline_text(lm_coef_fit_church_on_community_money_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+# # here_save(b_church_on_community_money_binary, "b_church_on_community_money_binary")
+# b_church_on_community_money_binary<-margot::here_read("b_church_on_community_money_binary")
+# 
 
 
 library(glue)
@@ -181,62 +191,62 @@ library(glue)
 
 
 # not this table is too long in most instance 
-# table_baseline<- here_read("table_baseline")
+# table_baseline<-margot::here_read("table_baseline")
 
 # baseline
-table_baseline <- here_read("table_baseline")
+table_baseline <-margot::here_read("table_baseline")
 
-table_exposures <- here_read("table_exposures")
+table_exposures <-margot::here_read("table_exposures")
 
-table_outcomes <- here_read("table_outcomes")
+table_outcomes <-margot::here_read("table_outcomes")
 
 # density of the exposure 
-graph_density_of_exposure_up<- here_read("graph_density_of_exposure_up")
-graph_density_of_exposure_down<- here_read("graph_density_of_exposure_down")
+graph_density_of_exposure_up<-margot::here_read("graph_density_of_exposure_up")
+graph_density_of_exposure_down<-margot::here_read("graph_density_of_exposure_down")
 
 # results
 # import to manuscript -------------------------------------------------------
 
-tab_all_prosocial <- here_read("tab_all_prosocial")
-tab_all_prosocial_null <- here_read("tab_all_prosocial_null")
-tab_all_prosocial_null_zero <- here_read("tab_all_prosocial_null_zero")
+tab_all_prosocial <-margot::here_read("tab_all_prosocial")
+tab_all_prosocial_null <-margot::here_read("tab_all_prosocial_null")
+tab_all_prosocial_null_zero <-margot::here_read("tab_all_prosocial_null_zero")
 
 
-group_tab_all_prosocial<- here_read("group_tab_all_prosocial")
-group_tab_all_prosocial_null<- here_read("group_tab_all_prosocial_null")
-group_tab_all_prosocial_null_zero<- here_read("group_tab_all_prosocial_null_zero")
+group_tab_all_prosocial<-margot::here_read("group_tab_all_prosocial")
+group_tab_all_prosocial_null<-margot::here_read("group_tab_all_prosocial_null")
+group_tab_all_prosocial_null_zero<-margot::here_read("group_tab_all_prosocial_null_zero")
 ## 
-# tab_all_prosocial_rr <- here_read("tab_all_prosocial_rr")
-# group_tab_all_prosocial_rr <- here_read("group_tab_all_prosocial_rr")
+# tab_all_prosocial_rr <-margot::here_read("tab_all_prosocial_rr")
+# group_tab_all_prosocial_rr <-margot::here_read("group_tab_all_prosocial_rr")
 
-tab_all_perceived_support <- here_read("tab_all_perceived_support")
-tab_all_perceived_support_null <- here_read("tab_all_perceived_support_null")
-tab_all_perceived_support_null_zero <- here_read("tab_all_perceived_support_null_zero")
-
-
-group_tab_all_perceived_support <- here_read("group_tab_all_perceived_support")
-group_tab_all_perceived_support_null <- here_read("group_tab_all_perceived_support_null")
-group_tab_all_perceived_support_null_zero <- here_read("group_tab_all_perceived_support_null_zero")
+tab_all_perceived_support <-margot::here_read("tab_all_perceived_support")
+tab_all_perceived_support_null <-margot::here_read("tab_all_perceived_support_null")
+tab_all_perceived_support_null_zero <-margot::here_read("tab_all_perceived_support_null_zero")
 
 
-tab_all_received_money <- here_read( "tab_all_received_money")
-tab_all_received_money_null <- here_read( "tab_all_received_money_null")
-tab_all_received_money_null_zero <- here_read( "tab_all_received_money_null_zero")
+group_tab_all_perceived_support <-margot::here_read("group_tab_all_perceived_support")
+group_tab_all_perceived_support_null <-margot::here_read("group_tab_all_perceived_support_null")
+group_tab_all_perceived_support_null_zero <-margot::here_read("group_tab_all_perceived_support_null_zero")
 
 
-group_tab_all_received_money <- here_read( "group_tab_all_received_money")
-group_tab_all_received_money_null <- here_read( "group_tab_all_received_money_null")
-group_tab_all_received_money_null_zero <- here_read( "group_tab_all_received_money_null_zero")
+tab_all_received_money <-margot::here_read( "tab_all_received_money")
+tab_all_received_money_null <-margot::here_read( "tab_all_received_money_null")
+tab_all_received_money_null_zero <-margot::here_read( "tab_all_received_money_null_zero")
 
 
-tab_contrast_received_time <- here_read( "tab_contrast_received_time")
-tab_contrast_received_time_null <- here_read( "tab_contrast_received_time_null")
-tab_contrast_received_time_null_zero <- here_read( "tab_contrast_received_time_null_zero")
+group_tab_all_received_money <-margot::here_read( "group_tab_all_received_money")
+group_tab_all_received_money_null <-margot::here_read( "group_tab_all_received_money_null")
+group_tab_all_received_money_null_zero <-margot::here_read( "group_tab_all_received_money_null_zero")
 
 
-group_tab_contrast_received_time <- here_read( "group_tab_contrast_received_time")
-group_tab_contrast_received_time_null <- here_read( "group_tab_contrast_received_time_null")
-group_tab_contrast_received_time_null_zero <- here_read( "group_tab_contrast_received_time_null_zero")
+tab_contrast_received_time <-margot::here_read( "tab_contrast_received_time")
+tab_contrast_received_time_null <-margot::here_read( "tab_contrast_received_time_null")
+tab_contrast_received_time_null_zero <-margot::here_read( "tab_contrast_received_time_null_zero")
+
+
+group_tab_contrast_received_time <-margot::here_read( "group_tab_contrast_received_time")
+group_tab_contrast_received_time_null <-margot::here_read( "group_tab_contrast_received_time_null")
+group_tab_contrast_received_time_null_zero <-margot::here_read( "group_tab_contrast_received_time_null_zero")
 
 
 
@@ -660,11 +670,25 @@ To answer a causal question requires that we first state it. Here, we ask three 
 
 Let $A$  denote religiosu service, the treatment of inteest. We calibrate $f(A)$ according to following rules:
 
+$$
+f(A) = 
+\begin{cases} 
+a, & \text{where } a \text{ is the observed value.}\\
+a^* = 4, & \text{if } a < 4 \times \text{monthly religious service attendance; otherwise, } a^* = a.\\
+a' = 0, & \text{if } a > 0 \text{ and monthly religious service attendance is positive; otherwise, } a' = a. 
+\end{cases}
+$$
 
-$$f(A) = \begin{cases} a^* = 4 & \text{if } a < 4\times   \text{ monthly religious service attendance} & \text{else} & a^* = a\\ a = a & \text{the naturally observed value of}~a  &  \\ a^\prime = 0  & \text{if } a > 0 \times   \text{ monthly religious service attendance} & \text{else} & a^\prime = a  ~ \end{cases} $$
+This function operates as follows:
+
+- **for $a$**: $a$ remains unchanged; estimation is performed for observed value.
+  
+- **for $a^*$**: this conditionally modifies $a$ to $a^* = 4$ if $a$ is less than four times the monthly religious service attendance. If $a$ does not meet this condition, it remains unaltered as $a^*$ equals $a$. This function enforces a minimum threshold for $a^*$ of religious attendance but allows those above this threshold to remain unchanged.
+  
+- **for $a^\prime$**: this condition modifies $a$ to $a' = 0$ when the observed value of $a$ is greater than 0, thus setting all values of religious attendance to 0.
 
 
-Let $Y(\bar{a})$ denote a potential outcome under the treatment rule $f(A)$; Let $L$ denote the set of measured covariates we assume to be sufficient for confounding control.
+We may now formulate our causal contrasts, $Y(\bar{a})$ denote a potential outcome under the treatment rule $f(A)$; $L$ denotes the set of measured covariates we assume to be sufficient for confounding control.
 
 1. Our first causal question asks: "what would be the social consequences of everyone attending religious service compared with no-one attending religious service" which computes the following causal contrast (on the difference scale):
 
@@ -714,7 +738,7 @@ Nevertheless, as with the causal consistency assumption, the conditional exchang
 
 ### Target Population 
 
-The target population is the population of New Zealand at the baseline wave. Although the New Zealand Attitudes and Values Study is a national probability study with good representation of the New Zealand population as a whole, its coverage is not perfect.  For example the study under samples males and asians and over samples women and Māori (New Zealand's indigenous peoples).  The `lmtp` package allows us to pass survey weights when computing marginal treatment effects; in this study we weighted the sample to age, gender and ethnicity, following the pre-stated protocols in @bulbulia2024. 
+The target population is the population of New Zealand at the baseline wave. Although the New Zealand Attitudes and Values Study is a national probability study with good representation of the New Zealand population as a whole, its coverage is not perfect.  For example the study under samples males and asians and over samples women and Māori (New Zealand's indigenous peoples).  The `lmtp` package allows us to pass survey weights when computing marginal treatment effects; in this study we weighted the sample to age, gender and ethnicity, following the pre-stated protocols in @bulbulia2024PRACTICAL. 
 
 
 
@@ -752,53 +776,55 @@ TMLE operates through a two-step process involving both outcome and treatment (e
 
 The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible given the measures and data to the true causal effect, while still being robust to model misspecification in either the outcome model or the treatment model.
 
-Again, a central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid over-fitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects on of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]. We performed estimation using `lmtp` package [@williams2021]. We used the `superlearner` library for non-parametric estimation with the predefined libraries `SL.ranger`, `SL.glmnet`, `SL.xboost`. Graphs, tables and output reorts were created using the `margot` package. 
+Again, a central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid over-fitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects on of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]. We performed estimation using `lmtp` package [@williams2021]. We used the `superlearner` library for non-parametric estimation with the predefined libraries `SL.ranger`, `SL.glmnet`, `SL.xboost`. Graphs, tables and output reorts were created using the `margot` package [@margot2024]. 
 
 
 {{< pagebreak >}}
 
-```{tikz}
-#| label: fig-outcomewide-dag
-#| fig-cap: "Causal graph: three-wave panel design with selection bias. By controling for confounding at baseline we block back-door paths that might lead to an association between the treatment and the outcome. Adding previous measurments of the exposure and outcome at baseline further reduces confounding. Nevertheless, because we cannot ensure all confounding paths have been blocked, we perform sensitivity analysis. These allow us to ask, how strong would the unmeasured confounder need to be in its association with the treatment and the outcome to explain away the observed association."
-#| out-width: 80%
-#| echo: false
-#| include: true
-#| eval: true
-#| fig-height: 8
+<!-- ```{tikz} -->
+<!-- #| label: fig-outcomewide-dag -->
+<!-- #| fig-cap: "Causal graph: three-wave panel design with selection bias. By controling for confounding at baseline we block back-door paths that might lead to an association between the treatment and the outcome. Adding previous measurments of the exposure and outcome at baseline further reduces confounding. Nevertheless, because we cannot ensure all confounding paths have been blocked, we perform sensitivity analysis. These allow us to ask, how strong would the unmeasured confounder need to be in its association with the treatment and the outcome to explain away the observed association." -->
+<!-- #| out-width: 80% -->
+<!-- #| echo: false -->
+<!-- #| include: true -->
+<!-- #| eval: true -->
+<!-- #| fig-height: 8 -->
 
-\usetikzlibrary{positioning}
-\usetikzlibrary{shapes.geometric}
-\usetikzlibrary{arrows}
-\usetikzlibrary{decorations}
-\tikzstyle{Arrow} = [->, thin, preaction = {decorate}]
-\tikzset{>=latex}
-% Define a simple decoration
-\tikzstyle{cor} = [-, dotted, preaction = {decorate}]
+<!-- \usetikzlibrary{positioning} -->
+<!-- \usetikzlibrary{shapes.geometric} -->
+<!-- \usetikzlibrary{arrows} -->
+<!-- \usetikzlibrary{decorations} -->
+<!-- \tikzstyle{Arrow} = [->, thin, preaction = {decorate}] -->
+<!-- \tikzset{>=latex} -->
+<!-- % Define a simple decoration -->
+<!-- \tikzstyle{cor} = [-, dotted, preaction = {decorate}] -->
 
-\begin{tikzpicture}[{every node/.append style}=draw]
+<!-- \begin{tikzpicture}[{every node/.append style}=draw] -->
 
-\node [rectangle, draw=white] (U) at (0, 0) {U};
-\node [rectangle, draw=black, align=left] (L) at (2, 0) {L$_{t0}$ \\A$_{t0}$ \\Y$_{t0}$};
-\node [rectangle, draw=white] (A) at (4, 0) {A$_{t1}$};
-\node [ellipse, draw=white] (US) at (4, -2) {U};
-\node [rectangle, draw=black](S) at (6, 0) {S};
-\node [ellipse, draw=white] (Y) at (8, 0) {Y$_{t2}$};
+<!-- \node [rectangle, draw=white] (U) at (0, 0) {U}; -->
+<!-- \node [rectangle, draw=black](C1) at (0, -1) {C}; -->
+<!-- \node [rectangle, draw=black, align=left] (L) at (2, 0) {L$_{t0}$ \\A$_{t0}$ \\Y$_{t0}$}; -->
+<!-- \node [rectangle, draw=white] (A) at (4, 0) {A$_{t1}$}; -->
+<!-- \node [ellipse, draw=white] (US) at (0, -2) {U}; -->
+<!-- \node [rectangle, draw=black](C2) at (6, 0) {C}; -->
+<!-- \node [ellipse, draw=white] (Y) at (8, 0) {Y$_{t2}$}; -->
 
-\draw [-latex, draw=black] (U) to (L);
-\draw [-latex, draw=black] (L) to (A);
-\draw [-latex, bend left=50, draw=black] (L) to (Y);
-\draw [-latex, bend right=50, draw=black, dotted] (U) to (Y);
-\draw [-latex, bend left=50, draw=black, dotted] (U) to (A);
-\draw [-latex, draw=black] (A) to (S);
-\draw [-latex, draw=black] (US) to (S);
-\draw [-latex, draw=black] (US) to (Y);
-\draw [-latex, bend left = 40, draw=red, dashed] (A) to (Y);
-\draw [cor, draw=red, bend right=20, dashed] (A) to (US);
+<!-- \draw [-latex, draw=black] (U) to (L); -->
+<!-- \draw [-latex, draw=black] (L) to (A); -->
+<!-- \draw [-latex, bend left=50, draw=black] (L) to (Y); -->
+<!-- \draw [-latex, bend right=50, draw=black, dotted] (U) to (Y); -->
+<!-- \draw [-latex, bend left=50, draw=black, dotted] (U) to (A); -->
+<!-- \draw [-latex, draw=black] (A) to (C2); -->
+<!-- draw [-latex, draw=black] (US) to (C1); -->
+<!-- \draw [-latex, draw=black] (US) to (C2); -->
+<!-- \draw [-latex, draw=black] (US) to (Y); -->
+<!-- \draw [-latex, bend left = 40, draw=red, dashed] (A) to (Y); -->
+<!-- \draw [cor, draw=red, bend right=20, dashed] (A) to (US); -->
 
-\end{tikzpicture}
+<!-- \end{tikzpicture} -->
 
 
-```
+<!-- ``` -->
 
 
 
@@ -834,7 +860,7 @@ plot_group_tab_all_prosocial <- margot_plot(
   subtitle = "Self-Reported Prosociality",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -843,7 +869,7 @@ plot_group_tab_all_prosocial <- margot_plot(
   legend_text_size = 10,
   legend_title_size = 10,
   x_offset = -.5,
-  x_lim_lo = -.5,
+  x_lim_lo = -1.5,
   x_lim_hi =  .5
 )
 
@@ -893,7 +919,7 @@ plot_group_tab_all_prosocial_null <- margot_plot(
   subtitle = "Self-Reported Prosociality",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -902,7 +928,7 @@ plot_group_tab_all_prosocial_null <- margot_plot(
   legend_text_size = 10,
   legend_title_size = 10,
   x_offset = -.5,
-  x_lim_lo = -.5,
+  x_lim_lo = -1.5,
   x_lim_hi =  .5
 )
 
@@ -950,7 +976,7 @@ plot_group_tab_all_prosocial_null_zero <- margot_plot(
   subtitle = "Self-Reported Prosociality",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -959,7 +985,7 @@ plot_group_tab_all_prosocial_null_zero <- margot_plot(
   legend_text_size = 10,
   legend_title_size = 10,
   x_offset = -.5,
-  x_lim_lo = -.5,
+  x_lim_lo = -1.5,
   x_lim_hi =  .5
 )
 
@@ -1012,7 +1038,7 @@ plot_group_tab_all_perceived_support <- margot_plot(
   subtitle = "Perceived social connection",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -1021,7 +1047,7 @@ plot_group_tab_all_perceived_support <- margot_plot(
   legend_text_size = 10,
   legend_title_size = 10,
   x_offset = -.5,
-  x_lim_lo = -.5,
+  x_lim_lo = -1.5,
   x_lim_hi =  .5
 )
 
@@ -1073,7 +1099,7 @@ plot_group_tab_all_perceived_support_null<- margot_plot(
   subtitle = "Self-Reported Prosociality",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -1082,7 +1108,7 @@ plot_group_tab_all_perceived_support_null<- margot_plot(
   legend_text_size = 10,
   legend_title_size = 10,
   x_offset = -.5,
-  x_lim_lo = -.5,
+  x_lim_lo = -1.5,
   x_lim_hi =  .5
 )
 
@@ -1139,7 +1165,7 @@ plot_group_tab_all_perceived_support_null_zero<- margot_plot(
   subtitle = "Self-Reported Prosociality",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -1148,7 +1174,7 @@ plot_group_tab_all_perceived_support_null_zero<- margot_plot(
   legend_text_size = 10,
   legend_title_size = 10,
   x_offset = -.5,
-  x_lim_lo = -.5,
+  x_lim_lo = -1.5,
   x_lim_hi =  .5
 )
 
@@ -1196,14 +1222,124 @@ For the outcome 'relig service: neighbourhood community', the lmtp is -0.016 [-0
 #| fig-width: 10
 #| fig-height: 6
 
+margot_plot <- function(.data,
+                        type = c("RD", "RR"),
+                        title,
+                        subtitle,
+                        ylab = "",
+                        estimate_scale = 1,
+                        base_size = 11,
+                        text_size = 2.75,
+                        point_size = .5,
+                        title_size = 10,
+                        subtitle_size = 9,
+                        legend_text_size = 6,
+                        legend_title_size = 6,
+                        x_offset = ifelse(type == "RR", 0, -1.75),
+                        x_lim_lo = ifelse(type == "RR", .1, -1.75),
+                        x_lim_hi = ifelse(type == "RR", 2.5, 1),
+                        simplify_axis = FALSE) {
+  type <- match.arg(type)
+  xintercept <- if (type == "RR") 1 else 0
+  x_axis_label <- if (type == "RR") "Causal risk ratio scale (vertical line marks threshold: risk ratio = 1)" else "Causal difference scale: (vertical line marks threshold: difference = 0)."
+  
+# Define Reliability based on type
+  if (type == "RR") {
+    .data$Reliability <-
+      ifelse(
+        .data$`2.5 %` > 1 & .data$`97.5 %` > 1,
+        "positive",
+        ifelse(
+          .data$`2.5 %` < 1 &
+            .data$`97.5 %` < 1,
+          "negative",
+          "zero_crossing"
+        )
+      )
+  } else {
+    .data$Reliability <-
+      ifelse(
+        .data$`2.5 %` > 0 & .data$`97.5 %` > 0,
+        "positive",
+        ifelse(
+          .data$`2.5 %` < 0 &
+            .data$`97.5 %` < 0,
+          "negative",
+          "zero_crossing"
+        )
+      )
+  }
+  # Add a condition to apply axis simplifications
+  if (simplify_axis) {
+    simplified_theme <- theme(
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank(),
+      legend.position = "top",
+      legend.direction = "horizontal",
+      axis.ticks.y = element_blank(),
+      plot.title = element_text(face = "bold", size = title_size, hjust = 0),
+      plot.subtitle = element_text(face = "bold", size = subtitle_size, hjust = 0),
+      legend.text = element_text(size = legend_text_size),
+      legend.title = element_text(size = legend_title_size),
+      plot.margin = margin(t = 10, r = 10, b = 10, l = 10, unit = "pt")
+    )
+  } else {
+    simplified_theme <- theme(
+      legend.position = "top",
+      legend.direction = "horizontal",
+      axis.ticks.y = element_blank(),
+      plot.title = element_text(face = "bold", size = title_size, hjust = 0),
+      plot.subtitle = element_text(face = "bold", size = subtitle_size, hjust = 0),
+      legend.text = element_text(size = legend_text_size),
+      legend.title = element_text(size = legend_title_size),
+      plot.margin = margin(t = 10, r = 10, b = 10, l = 10, unit = "pt")
+    )
+  }
+  
+  out <- ggplot(
+    data = .data,
+    aes(
+      y = reorder(outcome, .data[[paste0("E[Y(1)]", ifelse(type == "RR", "/", "-"), "E[Y(0)]")]]),
+      x = .data[[paste0("E[Y(1)]", ifelse(type == "RR", "/", "-"), "E[Y(0)]")]],
+      xmin = .data$`2.5 %`,
+      xmax = .data$`97.5 %`,
+      group = Estimate,
+      color = Reliability
+    )
+  ) +
+    geom_errorbarh(aes(color = Reliability), height = .3, position = position_dodge(width = .3)) +
+    geom_point(size = point_size, position = position_dodge(width = 0.3)) +
+    geom_vline(xintercept = xintercept, linetype = "solid") +
+    theme_classic(base_size = base_size) +
+    scale_color_manual(values = c(
+      "positive" = "dodgerblue",
+      "zero_crossing" = "black",
+      "negative" = "orange"
+    )) +
+    labs(
+      x = x_axis_label,
+      y = NULL,
+      title = title,
+      subtitle = subtitle
+    ) +
+      geom_text(
+      aes(x = x_offset * estimate_scale, label = estimate_lab),
+      size = text_size,
+      hjust = 0,
+      fontface = ifelse(.data$Estimate == "unreliable", "plain", "bold")
+    ) +
+    coord_cartesian(xlim = c(x_lim_lo, x_lim_hi)) +
+    simplified_theme 
+  # apply the simplified theme conditionally
+  return(out)
+}
 plot_group_tab_all_received_time <- margot_plot(
   group_tab_contrast_received_time,
   type = "RR",
   title = title,
   subtitle = "Support Received From Others: Time",
-  xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -1211,9 +1347,9 @@ plot_group_tab_all_received_time <- margot_plot(
   subtitle_size = 16,
   legend_text_size = 10,
   legend_title_size = 10,
-  x_offset = 0,
-  x_lim_lo = 0,
-  x_lim_hi =  2.5
+  x_offset = -.5,
+  x_lim_lo = -3,
+  x_lim_hi =  4
 )
 plot_group_tab_all_received_time
 ```
@@ -1267,7 +1403,7 @@ plot_group_tab_all_received_time_null <- margot_plot(
   subtitle = "Support Received From Others: Time",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -1275,9 +1411,9 @@ plot_group_tab_all_received_time_null <- margot_plot(
   subtitle_size = 16,
   legend_text_size = 10,
   legend_title_size = 10,
-  x_offset = 0,
-  x_lim_lo = 0,
-  x_lim_hi =  2.5
+  x_offset = -.5,
+  x_lim_lo = -3,
+  x_lim_hi =  4
 )
 
 plot_group_tab_all_received_time_null
@@ -1331,17 +1467,17 @@ plot_group_tab_all_received_time_null_zero <- margot_plot(
   subtitle = "Support Received From Others: Time",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 6,
   base_size = 18,
-  text_size = 2.5,
+  text_size = 4.5,
   point_size = 3.5,
   title_size = 20,
   subtitle_size = 16,
   legend_text_size = 10,
   legend_title_size = 10,
-  x_offset = 0,
-  x_lim_lo = 0,
-  x_lim_hi =  1
+  x_offset = -.5,
+  x_lim_lo = -3,
+  x_lim_hi =  4
 )
 
 plot_group_tab_all_received_time_null_zero
@@ -1396,17 +1532,17 @@ plot_group_tab_all_received_money <- margot_plot(
   subtitle = "Support Received From Others: Money",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 6,
   base_size = 18,
-  text_size = 3.5,
+  text_size = 4.5,
   point_size = 3.5,
   title_size = 20,
   subtitle_size = 16,
   legend_text_size = 10,
   legend_title_size = 10,
-  x_offset = 0,
-  x_lim_lo = -.15,
-  x_lim_hi =  4.5
+  x_offset = -.5,
+  x_lim_lo = -3,
+  x_lim_hi =  4
 )
 plot_group_tab_all_received_money
 ```
@@ -1457,17 +1593,17 @@ plot_group_tab_all_received_money_null <- margot_plot(
   subtitle = "Support Received From Others: Money",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 6,
   base_size = 18,
-  text_size = 3.5,
+  text_size = 4.5,
   point_size = 3.5,
   title_size = 20,
   subtitle_size = 16,
   legend_text_size = 10,
   legend_title_size = 10,
-  x_offset = 0,
-  x_lim_lo = -.15,
-  x_lim_hi =  4.5
+  x_offset = -.5,
+  x_lim_lo = -3,
+  x_lim_hi =  4
 )
 plot_group_tab_all_received_money_null
 ```
@@ -1521,7 +1657,7 @@ plot_group_tab_all_received_money_null_zero <- margot_plot(
   subtitle = "Support Received From Others: Money",
   xlab = "",
   ylab = "",
-  estimate_scale = 1,
+  estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
   point_size = 3.5,
@@ -1529,9 +1665,9 @@ plot_group_tab_all_received_money_null_zero <- margot_plot(
   subtitle_size = 16,
   legend_text_size = 10,
   legend_title_size = 10,
-  x_offset = 0,
-  x_lim_lo = -.15,
-  x_lim_hi =  1.5
+  x_offset = -.5,
+  x_lim_lo = -3,
+  x_lim_hi =  4
 )
 plot_group_tab_all_received_money_null_zero
 ```
@@ -2150,7 +2286,7 @@ table_baseline <- read_here("table_baseline")
 #| eval: false
 #| echo: false
 #| include: false
-table_exposures <- here_read("table_exposures")
+table_exposures <-margot::here_read("table_exposures")
 
 #table_exposures |>  kbl(format = "markdown")
 ```
@@ -2195,7 +2331,7 @@ table_exposures <- here_read("table_exposures")
 #| eval: false
 #| echo: false
 
-transition_table <- here_read("transition_table")
+transition_table <-margot::here_read("transition_table")
 #transition_table
 ```
 
@@ -2222,7 +2358,7 @@ transition_table <- here_read("transition_table")
 #| eval: false
 #| echo: false
 #| include: false
-table_outcomes <- here_read("table_outcomes")
+table_outcomes <-margot::here_read("table_outcomes")
 table_outcomes |>  kbl(format = "markdown")
 
 ```
