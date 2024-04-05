@@ -1,7 +1,7 @@
 ---
 title: "Causal effects of religious service attendance on prosociality evidence from a national longitudinal study"
 abstract: |
-   The question of whether religion causes prosociality is poorly defined. To make it precise we must state a causal contrasts of interest, specific our measures of "prosociality," and clarify the target population for whom results are meant to generalise. Here we investigate the causal effects of three hypothetical interventions on religious service attendance across the New Zealand population where the levels of intervention address different theoretical and policy questions. Study 1 investigates the effects of these pre-specified interventions on self-reported social behaviours; Study 2 investigates effects on perceived social connection; Study 3 investigates effects voluntary help received from others; Study 4: investigates effects on money received from others . Notably the measures in studies 3 and 4 avoid self presentation bias. Overall we find evidence that religion supports pro-social behaviours across all measurement domains of prosociality; however, the quality and magnitude of benefit varies depending on the estimand of interest -- whether religious service is gained or lost, and whether the contrast condition is the status quo. Moreover magnitudes of benefit are lower than suggested by unmodelled associations in the data. Nevertheless, the gain of regular religious service has economic considerable economic benefits, it's loss, deficits -- which we compute. These findings illustrate a pathway for quantitative investigations of the causal effects of religious behaviours using longitudinal modified treatment policies. 
+   Whether religion causes prosociality is poorly defined. To make it precise, we must state a causal contrast of interest, specify our measures of "prosociality," and clarify the target population for whom results are meant to generalise. Here, we investigate three hypothetical interventions or "treatment policies" for religious service attendance across New Zealand. Each treatment policy addresses a causal question motivated by distinct theoretical or practical interests. Study 1 investigates the effects of these treatment policies on self-reported social behaviours; Study 2 investigates treatment-policy effects on perceived social connection; Study 3 investigates the effects of voluntary help received from others; Study 4 investigates the effects of money received from others. Notably, our measures in Studies 3 and 4 avoid self-presentation bias. Overall, we find evidence that religion supports pro-social behaviours across all four measurement domains of prosociality. However, the magnitude of benefit varies depending on the treatment policy of interest -- especially whether religious service is gained or lost. Notably, magnitudes of benefit are lower than suggested by the approaches human scientists typically employ. Nevertheless, the gain and loss of regular religious service have considerable social consequences, which we compute. Collectively, these findings illustrate a pathway for quantitative causal investigations into the social consequences of religious behaviours. 
 author: 
   - name: Joseph A. Bulbulia
     affiliation: Victoria University of Wellington, New Zealand
@@ -62,8 +62,6 @@ csl: /Users/joseph/GIT/templates/csl/camb-a.csl
 #| include: false
 #| eval: true
 
-
-
 ## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
 pull_path <-
   fs::path_expand(
@@ -85,7 +83,8 @@ push_mods <-  fs::path_expand(
 
 library(margot)
 library(ggplot2)
-
+library(tidyverse)
+library(gtsummary)
 # # WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
 # source("/Users/joseph/GIT/templates/functions/funs.R")
 
@@ -124,10 +123,10 @@ sd_volunteer <- margot::here_read("sd_volunteer")
 
 # propensity score graph 
 
-# love_plot_base <- margot::here_read("love_plot_base")
-# love_plot <- margot::here_read("love_plot")
-# # love_plot
-# 
+love_plot_base <- margot::here_read("love_plot_base")
+love_plot <- margot::here_read("love_plot")
+# love_plot
+
 # # summary of matching
 # summary_match_ebal_base <- margot::here_read("summary_match_ebal")
 # # summary_match_ebal$summary_match_ebal_base
@@ -144,52 +143,55 @@ transition_table_binary <- margot::here_read("transition_table_binary")
 #transition_table_binary
 # 
 # # ordinary regressions
-# fit_church_on_hours_charity<- margot::here_read('fit_church_on_hours_charity')
-# fit_church_on_charity_donate<-margot::margot::here_read('fit_church_on_charity_donate')
+fit_church_on_hours_charity<- margot::here_read('fit_church_on_hours_charity')
+fit_church_on_charity_donate<-margot::here_read('fit_church_on_charity_donate')
+
+
 # fit_church_on_community_time_binary<- margot::here_read('fit_church_on_community_time_binary')
 # fit_church_on_community_money_binary<- margot::here_read('fit_church_on_community_money_binary')
-# 
-# 
+library(gtsummary)
+library(glue)
+
 # lm_fit_church_on_hours_charity <- tbl_regression(fit_church_on_hours_charity)
 # 
+# # 
+# b_church_on_hours_charity <-inline_text(lm_fit_church_on_hours_charity,
+#                                         variable = religion_church_round,
+#                                         pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# b_church_on_hours_charity
+#here_save(b_church_on_hours_charity, "b_church_on_hours_charity")
+
+b_church_on_hours_charity<-margot::here_read("b_church_on_hours_charity")
+
 # 
-# # b_church_on_hours_charity <-inline_text(lm_fit_church_on_hours_charity, 
-# #                                         variable = religion_church_round, 
-# #                                         pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
-# # b_church_on_hours_charity
-# #here_save(b_church_on_hours_charity, "b_church_on_hours_charity")
-# b_church_on_hours_charity<-margot::here_read("b_church_on_hours_charity")
 # 
-# 
-# # lm_coef_fit_church_on_charity_donate <- tbl_regression(fit_church_on_charity_donate)
+# # lm_coef_fit_church_on_charity_donate <- tbl-regression(fit_church_on_charity_donate)
 # # b_church_on_charity_donate <-inline_text(lm_coef_fit_church_on_charity_donate, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
 # # 
 # # b_church_on_charity_donate
 # # here_save(b_church_on_charity_donate, "b_church_on_charity_donate")
-# b_church_on_charity_donate<-margot::here_read("b_church_on_charity_donate")
+b_church_on_charity_donate<-margot::here_read("b_church_on_charity_donate")
+b_church_on_charity_donate
 # 
 # 
-# # lm_coef_fit_church_on_community_time_binary <- tbl_regression(fit_church_on_community_time_binary)
+# # lm_coef_fit_church_on_community_time_binary <- tbl-regression(fit_church_on_community_time_binary)
 # # b_church_on_community_time_binary <-inline_text(lm_coef_fit_church_on_community_time_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
 # # 
 # # here_save(b_church_on_community_time_binary, "b_church_on_community_time_binary")
 # b_church_on_community_time_binary<-margot::here_read("b_church_on_community_time_binary")
 # #b_church_on_community_time_binary
 # 
-# # lm_coef_fit_church_on_community_money_binary <- tbl_regression(fit_church_on_community_money_binary)
+# # lm_coef_fit_church_on_community_money_binary <- tbl-regression(fit_church_on_community_money_binary)
 # # b_church_on_community_money_binary <-inline_text(lm_coef_fit_church_on_community_money_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
 # # 
 # # here_save(b_church_on_community_money_binary, "b_church_on_community_money_binary")
 # b_church_on_community_money_binary<-margot::here_read("b_church_on_community_money_binary")
 # 
 
-
+library(margot)
 library(glue)
 # works but not used
-# testlm_coef_church_on_donate <- glue("b = {fit_church_on_donate_x[2, 1]}, SE = {fit_church_on_donate_x[2, 3]}")
-
-
-
+#testlm_coef_church_on_donate <- glue("b = {fit_church_on_donate_x[2, 1]}, SE = {fit_church_on_donate_x[2, 3]}")
 # not this table is too long in most instance 
 # table_baseline<-margot::here_read("table_baseline")
 
@@ -207,53 +209,73 @@ graph_density_of_exposure_down<-margot::here_read("graph_density_of_exposure_dow
 # results
 # import to manuscript -------------------------------------------------------
 
-tab_all_prosocial <-margot::here_read("tab_all_prosocial")
-tab_all_prosocial_null <-margot::here_read("tab_all_prosocial_null")
-tab_all_prosocial_null_zero <-margot::here_read("tab_all_prosocial_null_zero")
+tab_all_prosocial <- here_read("tab_all_prosocial")
+tab_all_prosocial_null <- here_read("tab_all_prosocial_null")
+tab_all_prosocial_null_zero <- here_read("tab_all_prosocial_null_zero")
+tab_all_prosocial
+tab_all_prosocial_null
+tab_all_prosocial_null_zero
 
 
-group_tab_all_prosocial<-margot::here_read("group_tab_all_prosocial")
-group_tab_all_prosocial_null<-margot::here_read("group_tab_all_prosocial_null")
-group_tab_all_prosocial_null_zero<-margot::here_read("group_tab_all_prosocial_null_zero")
-## 
-# tab_all_prosocial_rr <-margot::here_read("tab_all_prosocial_rr")
-# group_tab_all_prosocial_rr <-margot::here_read("group_tab_all_prosocial_rr")
+group_tab_all_prosocial<- here_read("group_tab_all_prosocial")
+group_tab_all_prosocial_null<- here_read("group_tab_all_prosocial_null")
+group_tab_all_prosocial_null_zero<- here_read("group_tab_all_prosocial_null_zero")
 
-tab_all_perceived_support <-margot::here_read("tab_all_perceived_support")
-tab_all_perceived_support_null <-margot::here_read("tab_all_perceived_support_null")
-tab_all_perceived_support_null_zero <-margot::here_read("tab_all_perceived_support_null_zero")
+group_tab_all_prosocial
+group_tab_all_prosocial_null
+group_tab_all_prosocial_null_zero
+# # 
+# tab_all_prosocial_rr <- here_read("tab_all_prosocial_rr")
+# group_tab_all_prosocial_rr <- here_read("group_tab_all_prosocial_rr")
+
+tab_all_perceived_support <- here_read("tab_all_perceived_support")
+tab_all_perceived_support_null <- here_read("tab_all_perceived_support_null")
+tab_all_perceived_support_null_zero <- here_read("tab_all_perceived_support_null_zero")
+# tab_all_perceived_support
+# tab_all_perceived_support_null
+# tab_all_perceived_support_null_zero
+
+group_tab_all_perceived_support <- here_read("group_tab_all_perceived_support")
+group_tab_all_perceived_support_null <- here_read("group_tab_all_perceived_support_null")
+group_tab_all_perceived_support_null_zero <- here_read("group_tab_all_perceived_support_null_zero")
+# group_tab_all_perceived_support
+# group_tab_all_perceived_support_null
+# group_tab_all_perceived_support_null_zero
+
+tab_all_received_money <- here_read( "tab_all_received_money")
+tab_all_received_money_null <- here_read( "tab_all_received_money_null")
+tab_all_received_money_null_zero <- here_read( "tab_all_received_money_null_zero")
+# tab_all_received_money
+# tab_all_received_money_null
+# tab_all_received_money_null_zero
+
+group_tab_all_received_money <- here_read( "group_tab_all_received_money")
+group_tab_all_received_money_null <- here_read( "group_tab_all_received_money_null")
+group_tab_all_received_money_null_zero <- here_read( "group_tab_all_received_money_null_zero")
+# group_tab_all_received_money
+# group_tab_all_received_money_null
+# group_tab_all_received_money_null_zero
+
+tab_contrast_received_time <- here_read( "tab_contrast_received_time")
+tab_contrast_received_time_null <- here_read( "tab_contrast_received_time_null")
+tab_contrast_received_time_null_zero <- here_read( "tab_contrast_received_time_null_zero")
+# tab_contrast_received_time
+# tab_contrast_received_time_null
+# tab_contrast_received_time_null_zero
 
 
-group_tab_all_perceived_support <-margot::here_read("group_tab_all_perceived_support")
-group_tab_all_perceived_support_null <-margot::here_read("group_tab_all_perceived_support_null")
-group_tab_all_perceived_support_null_zero <-margot::here_read("group_tab_all_perceived_support_null_zero")
-
-
-tab_all_received_money <-margot::here_read( "tab_all_received_money")
-tab_all_received_money_null <-margot::here_read( "tab_all_received_money_null")
-tab_all_received_money_null_zero <-margot::here_read( "tab_all_received_money_null_zero")
-
-
-group_tab_all_received_money <-margot::here_read( "group_tab_all_received_money")
-group_tab_all_received_money_null <-margot::here_read( "group_tab_all_received_money_null")
-group_tab_all_received_money_null_zero <-margot::here_read( "group_tab_all_received_money_null_zero")
-
-
-tab_contrast_received_time <-margot::here_read( "tab_contrast_received_time")
-tab_contrast_received_time_null <-margot::here_read( "tab_contrast_received_time_null")
-tab_contrast_received_time_null_zero <-margot::here_read( "tab_contrast_received_time_null_zero")
-
-
-group_tab_contrast_received_time <-margot::here_read( "group_tab_contrast_received_time")
-group_tab_contrast_received_time_null <-margot::here_read( "group_tab_contrast_received_time_null")
-group_tab_contrast_received_time_null_zero <-margot::here_read( "group_tab_contrast_received_time_null_zero")
-
+group_tab_contrast_received_time <- here_read( "group_tab_contrast_received_time")
+group_tab_contrast_received_time_null <- here_read( "group_tab_contrast_received_time_null")
+group_tab_contrast_received_time_null_zero <- here_read( "group_tab_contrast_received_time_null_zero")
+# group_tab_contrast_received_time
+# group_tab_contrast_received_time_null
+# group_tab_contrast_received_time_null_zero
 
 
 # graphs ------------------------------------------------------------------
 title = "Weekly Religious Service vs No Religious Service"
 title_null = "Weekly Religious Service vs Status Quo"
-title_null_zero = "No Religious Service vs Status Que"
+title_null_zero = "No Religious Service vs Status Quo"
 # 
 # 
 # plot_group_tab_all_prosocial <- margot_plot(
@@ -619,22 +641,22 @@ title_null_zero = "No Religious Service vs Status Que"
 
 ## Introduction
 
-A central question in the scientific study of religion is whether religion causes cooperation. However, to address this question is challenging. Most features of religion are inaccessible to experiments. On the other hand, to quantify causality from non-experimental data requires the appropriate modelling of time-series data. Obtaining valid causal inferences from observational data requires a combination of rich time-series data and robust causal inferential methods. Presently such combinations are rare.
+A central question in the scientific study of religion is whether religion causes cooperation. However, to address this question is challenging. Most features of religion are inaccessible to experiments. Yet to obtain valid causal inferences from non-experimental data requires a combination of high-resolution time-series data and robust causal inferential methods. Few studies that combine these features. 
 
-Perhaps more fundamental, the question of whether religion causes prosociality is poorly defined. To make this question precise we must to state the causal contrasts of interest, specific measures of "prosociality," and the target population for whom results are meant to generalise. 
+Conceptually, the question of" "whether religion causes prosociality" is poorly defined. To make this question precise, we must state the causal contrasts of interest, the specific measures of "prosociality" of interest, and the target population for whom results are meant to generalise. 
 
-Here, we leverage comprehensive panel data from `n_participants` who participated in the New Zealand Attitudes and Values Study from years 2018-2021 and measure the one-year effect of religious attendance across four domains of prosociality. For each domain we compute three estimands: (1) weekly (or more) religious service attendance vs zero attendance. This estimand addresses the question: "what would be the difference if everyone attended weekly religious service compared with if no-one attended?"; (2) weekly (or more) religious service attendance vs the observed attenendance rate, which addresses the question: "what would be the difference if everyone in the country that was not attending weekly religious service switched to regular attendance?" (3) No religious service attendance vs the observed attenendance rate, which addresses the question: "what would be the difference if religious service attendance disappeared altogether?"  The first estimand holds theoretical interest.  The second estimand allows us to evaluate the policy effect of supporting greater religious service attendance. The second estimand allows us to evaluate the policy effect of supporting lower religious service attendance. It is interesting to separately investigate the social consequences of a gain and loss of religious service attendance because these quantities and advice might differ. 
+Here, we leverage comprehensive panel data from `r n_participants` who participated in the New Zealand Attitudes and Values Study from 2018-2021 and investigate the effects of well-defined population-level shifts in religious attendance across four measurement domains of pro-sociality. The target quantities for each of the four domains are longitudinal modified shift policies. The first treatment policy addresses the theoretical question: "What would the population-wide difference be on a well-defined measure  of pro-sociality if everyone attended weekly religious service compared with if no one attended?" This question holds theoretical interest. The second treatment policy addresses the practical question: "What would the population-wide difference on a well-defined measure domain of pro-sociality if everyone attended weekly religious service compared to the status quo?"  Here, the contrast does not require shifting those people who regularly attend religious services. The question reflects policy interests in supporting the *gain* of religious attendance. The third treatment policy addresses the practical question: "What would be the population-wide difference on a well-defined measure domain of pro-sociality if everyone stopped attending weekly religious service compared to the status quo." Here, the contrast does not require shifting those who never attend religious services; it reflects policy interests in supporting the *loss* of religious attendance (or in the New Zealand setting, where loss exceeds gain, of failing to inhibit the loss of regular religious service). 
 
 
 ## Method
 
 ### Sample
 
-Data were collected as part of The New Zealand Attitudes and Values Study (NZAVS), an annual longitudinal national probability panel study of social attitudes, personality, ideology and health outcomes. The NZAVS began in 2009. It includes questionnaire responses `r n_total` New Zealand residents. Because the NZAVS follows the same people over time, with strong retention, it can track subtle change in attitudes and values over time. The NZAVS is university-based, not- for-profit and independent of political or corporate funding: see: https://doi.org/10.17605/OSF.IO/75SNB
+Data were collected as part of The New Zealand Attitudes and Values Study (NZAVS), an annual longitudinal national probability panel study of social attitudes, personality, ideology and health outcomes. The NZAVS began in 2009. It includes questionnaire responses `r n_total` New Zealand residents. Because the NZAVS follows the same people over time, with solid retention, it can track subtle changes in attitudes and values over time. The NZAVS is university-based, not-for-profit and independent of political or corporate funding; see https://doi.org/10.17605/OSF.IO/75SNB.  Sample descriptive information is given in Appendices B-D.
 
 ### Outcome-wide measures of prosociality
 
-Rather than cheery picking one or several measures of prosociality, we adopted an unrestrictive "outcome-wide" approach that used a rich array of measures to assess multiple-dimensions of a potentially multi-dimensional construct. The measures we use to investigate this construct: 
+Rather than cherry-picking one or several measures of prosociality, we adopted an unrestrictive "outcome-wide" approach that used a rich array of measures to assess multiple dimensions of a potentially multi-dimensional construct []. The measures we use to investigate this construct: 
 
 **Study 1. Self-reported prosocial behaviours** as measured by:
 
@@ -659,16 +681,18 @@ Rather than cheery picking one or several measures of prosociality, we adopted a
 (b) friends (yes/no)
 (c) community (yes/no)
 
+The wording and sources of all measures is provided in Appendix A. 
 
-We note that Studies 2-4 avoid self-presentation bias by using individuals as measures of prosociality. That is, if religious service attendance were to induce greater within-group prosociality, then regular religious service attendance would increase prosocial exposures. Studies 3 and 4 are especially robust to self-presentation bias because they rely on self-reported dependency.
+
+Studies 2-4  (and perhaps Study 2) avoid self-presentation bias by using individuals as measures of prosocial effects from exposure to others who attend religious services. The argument for including these measures is as follows: if religious service attendance induced greater within-group prosociality, then regular religious service attendance would increase interaction with a prosocial community. Studies 3 and 4 are especially robust to self-presentation bias because they rely on self-reported dependency.
 
 
 ### Causal Contrasts
 
 
-To answer a causal question requires that we first state it. Here, we ask three distinct causal questions.
+We again emphasise that the question "Does religious service attendance cause prosociality?" is ill-defined. Answering a causal question requires that we first clearly and precisely state the interventions that are to be contrasted, the outcomes of interest, the scale at which contrasts will be computed, and the population for whom effects are meant to be generalised []. 
 
-Let $A$  denote religiosu service, the treatment of inteest. We calibrate $f(A)$ according to following rules:
+The contrasts of interest in this study take the form of longitudinal modified treatment policies. To precisely state these policies, let $A$  denote the intervention of interest monthly frequency of religious service. Our treatment policies evaluate interventions that take the form of differing shift functions $f(A)$:
 
 $$
 f(A) = 
@@ -679,111 +703,112 @@ a' = 0, & \text{if } a > 0 \text{ and monthly religious service attendance is po
 \end{cases}
 $$
 
-This function operates as follows:
+where,
 
-- **for $a$**: $a$ remains unchanged; estimation is performed for observed value.
+- **for $f(A=a)$**: the observed value of $a$ remains unchanged, and estimation is performed for the observed value.
   
-- **for $a^*$**: this conditionally modifies $a$ to $a^* = 4$ if $a$ is less than four times the monthly religious service attendance. If $a$ does not meet this condition, it remains unaltered as $a^*$ equals $a$. This function enforces a minimum threshold for $a^*$ of religious attendance but allows those above this threshold to remain unchanged.
+- **for $f(A =a^*)$**: $a^* = 4$ if the observed value of $a$ is less than four times the monthly religious service attendance. If the observed value of $a$ is four or greater, no intervention is performed, and $a^*$ equals $a$. This function enforces a minimum threshold for religious attendance at four but allows those who meet or exceed this threshold to remain unchanged.
   
-- **for $a^\prime$**: this condition modifies $a$ to $a' = 0$ when the observed value of $a$ is greater than 0, thus setting all values of religious attendance to 0.
+- **for $a^\prime$**: this condition modifies $a$ to $a' = 0$ when the observed value of $a$ is greater than 0, thus setting all values of religious attendance to 0 if they are not already at 0. Again, the intervention only applies to those who attend religious services at any frequency.
+
+We next formulate our causal contrasts precisely. Let $Y(\bar{a})$ denote a potential outcome at the end of the study under the treatment rule $f(A)$. In this three-wave panel study, we consider two intervention intervals, one at baseline and one at the baseline + 1 wave. Outcomes are subsequently assessed in the baseline + 2 wave. $L$ denotes the set of measured covariates we assume sufficient for confounding control. Measurements of $L$ are obtained from the baseline wave. Because causes precede effects, panel data allow us to order measurements such that confounders $L$ preceded causes $A$ and causes $A$ precede effects $Y$. 
+
+1. Our first causal question asks: "What would be the social consequences one year after an intervention in which everyone attended religious service for two years compared with an intervention in which no one attended religious service for two years?" For continuous outcomes, we compute the causal contrast from this longitudinal modified treatment policy (LMTP) on the difference scale as:
+
+$$ \text{LMTP: ALL GAIN vs ALL LOSS} = E[Y(a*,a*)|\textcolor{red}{f(A)},L] - E[Y(a^\prime,a^\prime)|\textcolor{red}{f(A)},L] $$
+
+Again this causal question reflects a classical theoretical interest in which we compare the population estimates with everyone attending regularly vs the population estimates with no one attending regularly on each measurement domain of interest. 
 
 
-We may now formulate our causal contrasts, $Y(\bar{a})$ denote a potential outcome under the treatment rule $f(A)$; $L$ denotes the set of measured covariates we assume to be sufficient for confounding control.
+2. Our second causal question asks: "What would be the social consequences if everyone who was not attending weekly religious service in New Zealand were to do so?"  The contrast conditions for this estimand are given by (a) regular religious service attendance and (b) the status quo, which can be written on the difference scale:
 
-1. Our first causal question asks: "what would be the social consequences of everyone attending religious service compared with no-one attending religious service" which computes the following causal contrast (on the difference scale):
+$$  \text{LMTP: ALL GAIN vs. STATUS QUO}  = E[Y(a*,a*)|\textcolor{red}{f(A)},L] - E[Y(a,a)|\textcolor{red}{f(A)},L] $$
 
-$$ \text{Longitudinal Modified Treatment Policy}^1 = E[Y(a*,a*)|\textcolor{red}{f(A)},L] - E[Y(a^\prime,a^\prime)|\textcolor{red}{f(A)},L] $$
-
-This causal question reflects the theoretical interest. Everyone attending regularly vs. non-one attending regularly. 
+Again this causal question reflects a practical interest in comparing the population estimates with everyone attending regularly vs the population at its status quo on each measurement domain of interest. The question helps us understand the implications of promoting religious service attendance.
 
 
-2. Our second causal question asks: "what would be the social consequences if everyone who was not attending weekly religious service in New Zealand were to do so?"  The contrast conditions for this estimand are given by (a) regular religious service attendance and (b) the status quo, which can be written:
 
-$$ \text{Longitudinal Modified Treatment Policy}^2 = E[Y(a*,a*)|\textcolor{red}{f(A)},L] - E[Y(a,a)|\textcolor{red}{f(A)},L] $$
-
-This contrasts helps us to evaluate the social effects of a policy that promoted the society-wide adoption of religious service attendance across the contemporary target population. 
+2. Our third causal question asks: "What would be the social consequences if everyone attending weekly religious service in New Zealand were to stop?"  The contrast conditions for this estimand are given by (a) no religious service attendance and (b) the status quo, which can be written on the difference scale:
 
 
-3. What would be the social consequences if everyone who was attending religious service in New Zealand were stop.  The contrast conditions are thus no religious service attendance and the status quo, which can be written: 
+$$ \text{LMTP: ALL LOSS vs. STATUS QUO}  = E[Y(a^\prime,a^\prime)|\textcolor{red}{f(A)},L] - E[Y(a,a)|\textcolor{red}{f(A)},L] $$
 
-
-$$ \text{Longitudinal Modified Treatment Policy}^3 = E[Y(a*,a*)|\textcolor{red}{f(A)},L] - E[Y(a,a)|\textcolor{red}{f(A)},L] $$
-
-This contrasts helps us to evaluate the social effects of a policy that promoted the society-wide loss of religious service attendance in the contemporary population. 
+This contrast allows us to evaluate the social effects of a policy that promoted the society-wide loss of religious service attendance in the contemporary population. In the case of New Zealand, where religious service is on the decline, we may use this quantity to clarify the social consequences of failing to prevent loss.
 
 
 ### Identification assumptions
 
-To obtain valid causal effect estimates we must satisfy three identification assumptions.
+To obtain valid causal effect estimates, we must satisfy three identification assumptions.
 
-1.  **Causal consistency**: it must be credible in our study that each outcomes observed in the data corresponds to at least one of the potential outcomes to be compared. Relatedly, this assumption demands that potential outcomes we consider are independent of the versions of treatment administered, conditional on measured covariates. 
+1.  **Causal consistency**: each outcome observed in the data corresponds to at least one of the potential outcomes to be contrasted []. Moreover, multiple treatment versions must be independent of the potential outcomes conditional on measured covariates []. 
 
-This assumption cannot be verified by data.
+2.  **Conditional exchangeability**: given the observed covariates, treatment assignment is independent of the potential outcomes under consideration. Put differently, our statistical models obtain balance in confounding covariates across the treatments of interest.
 
-2.  **Conditional exchangeability**: it must be credible in our study that given the observed covariates, treatment assignment is independent of each of the potential outcomes that we consider. Put differently, it must be credible that our statistical models obtain balance in confounding co-variates in the treatments to be compared.
-
-To improve crediblity for this assumption we conduct analysis using semi-parametric doubly robust estimators. Such estimators minimise restrictive assumptions about a statisitcal model's functional form; they are "doubly-robust" in the sense two models are deployed, one that seeks to obtain balance for all confounders on the treatment, and the other that seeks obtain balance for all confounders in the distribution of potential outcome -- and only one of the two models needs to be correctly estimated to consistently estimate a causal effect. 
-
-Nevertheless, as with the causal consistency assumption, the conditional exchangeability assumption cannot be verified by data. Hence we perform sensitivity analyses, as described below. 
-
-3.  **Positivity**: it must be credible in our study that every subject has a non-zero probability of receiving the treatment, irrespective of their covariates. Below, we evaluate the positivity assumption by reporting the number of instances in which individuals transitioned from one state of religious service in the baseline wave to another state of religious service in the treatment wave.  
-
-<!-- However, although we observe the relevant state changes it is arguably not plausible that everyone would does not attend religious service could be made to do so, weekly, and likewise, that everyone who is regularly attending could be made to desist. Note that wWereas typically a causal estimate requires projecting the entire population into one of two states to be contrasted, a longitudinal modified treatment policy is less restrictive. We do not require of those attending religious service more than weekly that they reduce attendance under the intervention:  $f(A = a^* = a)$.[^note_attend].  -->
-
-<!-- [^note_attend]: Similarly, for those who never attend religious service  $f(A = a^\prime = a)$, however because this intervention is bounded by zero, the zero intervention corresponds to the familiar average treatment effect projection.  -->
+To improve the credibility of this assumption, we conduct analysis using semi-parametric doubly robust estimators, as explained below.
 
 
-<!-- However, to the extent that religious behaviours are deterministic, results lack a clear causal interpretation.  -->
+3.  **Positivity**: every subject has a non-zero probability of receiving each treatment to be compared. Below, we evaluate the positivity assumption by reporting the number of instances in which individuals transitioned from one state of religious service in the baseline wave to another in the treatment wave.  
 
 
 ### Target Population 
 
-The target population is the population of New Zealand at the baseline wave. Although the New Zealand Attitudes and Values Study is a national probability study with good representation of the New Zealand population as a whole, its coverage is not perfect.  For example the study under samples males and asians and over samples women and Māori (New Zealand's indigenous peoples).  The `lmtp` package allows us to pass survey weights when computing marginal treatment effects; in this study we weighted the sample to age, gender and ethnicity, following the pre-stated protocols in @bulbulia2024PRACTICAL. 
+The target population is the population of New Zealand at the baseline wave (years 2018-2019). The New Zealand Attitudes and Values Study is a national probability study with a good representation of the New Zealand population. However, its coverage is not perfect. For example, the study under-samples males and Asians and over-samples women and Māori (New Zealand's indigenous peoples). Therefore, we pass New Zealand Census survey weights when computing marginal treatment effects; in this study we weighted the sample to age, gender and ethnicity. Methods for these weights are described in [].
 
 
 
 ### Eligibility criteria 
 
 -   Enrolled in the New Zealand Attitudes and Values Study in 2018 (NZAVS time 10).
--   Missing data for all variables at baseline were allowed, and imputed using the `ppm` algorith from the `mice` package [@vanbuuren2018].
--   Attrition/loss to follow up was permented. Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave). See details of the `lmtp` package [@williams2021])
+-   Missing data for all variables at baseline were allowed and imputed using the `ppm` algorithm from the `mice` package [@vanbuuren2018].
+-   Attrition/loss to follow-up was permitted. Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave). See details of the `lmtp` package [@williams2021])
 
 There were `r n_participants` who met these criteria.
 
 
 ### Confounding control
 
-We use @vanderweele2020 *modified disjunctive cause criterion* in which we (1) identified all common causes of the treatment and outcomes; (2) removed any variables identified that might influence the exposure but not the outcome -- instrumental variables -- because instrumental variables are known to reduce efficiency; (3) included proxies for any unmeasured variables affecting both exposure and outcome -- including instrumental variables, because by the rules of d-separation, conditioning on a proxy is akin to conditioning on its parent (in this case, a confounder) (4) **control for baseline exposure** and (5) **control for baseline outcome** both of which serve as proxies for unmeasured common causes [@vanderweele2020]. Note that our shift interventions obtain controlled effects for baseline-treatment and exposure wave-treatment, with the naturally observed treatment levels being explicitly modelled from the data, see [] for details. 
+We use @vanderweele2020 *modified disjunctive cause criterion* in which we (1) identified all common causes of the treatment and outcomes; (2) removed any variables identified that might influence the exposure but not the outcome -- instrumental variables -- because instrumental variables are known to reduce efficiency; (3) included proxies for any unmeasured variables affecting both exposure and outcome -- including instrumental variables, because by the rules of d-separation, conditioning on a proxy is akin to conditioning on its parent (in this case, a confounder) (4) **control for baseline exposure** and (5) **control for baseline outcome** Both serve as proxies for unmeasured common causes [@vanderweele2020]. Note that our shift interventions obtain controlled effects for baseline treatment and exposure wave treatment, with the naturally observed treatment levels being explicitly modelled from the data, see [] for details. 
 
 
 
 #### Sensitivity Analysis Using the E-value
 
-To assess sensitivity of results to unmeasured confounding, we report VanderWeele and Ding's "E-value" in all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE]. To evaluate strength of evidence, we use the bound of the E-value's 95% confidence interval that is closest to 1.
+To assess the sensitivity of results to unmeasured confounding, we report VanderWeele and Ding's "E-value" in all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE]. To evaluate the strength of evidence, we use the bound of the E-value 95% confidence interval closest to 1.
 
-### Analysis
+### Analytic Approach
 
-<!-- We use a Sequentially Doubly-Robust (SDR) estimator designed for the analysis of longitudinal data within causal inference frameworks [@díaz2021]. The estimator is grounded in the principles of robust semi-parametric statistics, and is characterised first by its sequential approach to handling time-varying treatments and outcomes, and secondly by its double robustness property. -->
+<!-- We use a Sequentially Doubly-Robust (SDR) estimator designed for the analysis of longitudinal data within causal inference frameworks [@díaz2021]. The estimator is grounded in the principles of robust semi-parametric statistics and is characterised first by its sequential approach to handling time-varying treatments and outcomes, and secondly by its double robustness property. -->
 
 <!-- Fundamentally, the SDR estimator operates by iteratively regressing pseudo-outcomes on observed treatments and covariates at each time point, starting from the end of the observation period and proceeding backwards. This iterative process employs the concept of pseudo-outcomes, which are updated at each step based on the outcome of the regression, incorporating information from both the treatment mechanism and the outcome model. -->
 
-<!-- A key feature of the SDR estimator is its 'multiply robust' property, implying that the estimator remains consistent if, for each time point, either the model for the treatment assignment or the model for the outcome, conditional on past treatments and covariates, is correctly specified. This property significantly enhances the estimator's applicability to real-world scenarios such as ours, where model misspecification is a common challenge. Furthermore, the marriage of SDR and machine learning  reduces the dependence of inference on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]. Estimation was performed using `lmtp` package [@williams2021].  -->
+<!-- A key feature of the SDR estimator is its 'multiply robust' property, implying that the estimator remains consistent if, for each time point, either the model for the treatment assignment or the model for the outcome, conditional on past treatments and covariates, is correctly specified. This property significantly enhances the estimator's applicability to real-world scenarios such as ours, where model misspecification is a common challenge. Furthermore, the marriage of SDR and machine learning reduces the dependence of inference on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]. Estimation was performed using the `lmtp` package [@williams2021].  -->
 
 
-We employ a semi-parametric estimator known as Targeted Minimum Loss-based Estimation (TMLE). TMLE is a robust method that combines machine learning techniques with traditional statistical models to estimate causal effects while providing valid statistical uncertainty measures for these estimates.
+We employ a semi-parametric Targeted Minimum Loss-based Estimation (TMLE) estimator. TMLE is a robust method that combines machine learning techniques with traditional statistical models to estimate causal effects while providing valid statistical uncertainty measures for these estimates.
 
-TMLE operates through a two-step process involving both outcome and treatment (exposure) models. Initially, it employes machine learning algorithms to flexibly model the relationship between treatments, covariates, and outcomes. This flexibility allows TMLE to account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions. The outcome of this step is a set of initial estimates for these relationships.
+TMLE operates through a two-step process involving both the outcome and treatment (exposure) models. Initially, it employs machine learning algorithms to flexibly model the relationship between treatments, covariates, and outcomes. This flexibility allows TMLE to account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions. The outcome of this step is a set of initial estimates for these relationships.
 
-The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible given the measures and data to the true causal effect, while still being robust to model misspecification in either the outcome model or the treatment model.
+The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible, given the measures and data to the true causal effect, while still being robust to model misspecification in either the outcome model or the treatment model.
 
-Again, a central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid over-fitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects on of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]. We performed estimation using `lmtp` package [@williams2021]. We used the `superlearner` library for non-parametric estimation with the predefined libraries `SL.ranger`, `SL.glmnet`, `SL.xboost`. Graphs, tables and output reorts were created using the `margot` package [@margot2024]. 
+Again, a central feature of TMLE is its double-robustness property. This means that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid over-fitting and ensure that the estimator performs well in finite samples. Each step contributes to a robust methodology for examining the *causal* effects of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]. We performed estimation using the `lmtp` package [@williams2021]. We used the `superlearner` library for non-parametric estimation with the predefined libraries `SL.ranger`, `SL.glmnet`, and `SL.xboost`. Graphs, tables and output reports were created using the `margot` package [@margot2024]. All analysis methods follow pre-stated protocols in @bulbulia2024PRACTICAL. 
 
 
 {{< pagebreak >}}
 
+@tbl-identification presents our strategy for confounding control. 
+
+::: {#tbl-identification}
+
+```{=latex}
+\lmtptable
+```
+Identification strategy
+:::
+
+
 <!-- ```{tikz} -->
 <!-- #| label: fig-outcomewide-dag -->
-<!-- #| fig-cap: "Causal graph: three-wave panel design with selection bias. By controling for confounding at baseline we block back-door paths that might lead to an association between the treatment and the outcome. Adding previous measurments of the exposure and outcome at baseline further reduces confounding. Nevertheless, because we cannot ensure all confounding paths have been blocked, we perform sensitivity analysis. These allow us to ask, how strong would the unmeasured confounder need to be in its association with the treatment and the outcome to explain away the observed association." -->
+<!-- #| fig-cap: "Causal graph: three-wave panel design with selection bias. By controlling for confounding at baseline we block back-door paths that might lead to an association between the treatment and the outcome. Adding previous measurements of the exposure and outcome at baseline further reduces confounding. Nevertheless, because we cannot ensure all confounding paths have been blocked, we perform sensitivity analysis. These allow us to ask how strong the unmeasured confounder needs to be in its association with the treatment and the outcome to explain away the observed association." -->
 <!-- #| out-width: 80% -->
 <!-- #| echo: false -->
 <!-- #| include: true -->
@@ -830,36 +855,104 @@ Again, a central feature of TMLE is its double-robustness property, meaning that
 
 ### Scope of Interventions
 
+To better understand the scope of the interventions to be contrasted, we recommend presenting histograms showing treatment instances. The following presents responses from baseline + 1 wave. 
 
+The All-GAIN intervention $f(A=a^*)$ intervention is shown in @fig-0up
 
-### Evidence for Change in the Treatment Variable
-
-
-
-## Results
-
-
-
-{{< pagebreak >}}
-
-## Study 1: Causal Effects of Regular Church Attendance on Self-Reported Volunteering and Self Reported Charitable Donations
 
 ```{r}
-#| label: fig_1_1
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on reported charitable behaviours at the end of study. Outcomes are expressed in standard deviation units."
+#| label: fig-0up
+#| fig-cap: "Figure shows a histogram of responses to religious service frequency in the baseline + 1 wave. Responses above eight were assigned to eight and values were rounded to the nearest whole number. The red dashed line shows the population average. All responses in the gold bars are shifted to four on the ALL-GAIN intervention. All those responses in grey (four and above) remain unchanged"
 #| eval: true
 #| include: true
 #| echo: false
 #| fig-width: 10
 #| fig-height: 6
 
-plot_group_tab_all_prosocial <- margot_plot(
+graph_density_of_exposure_up <- margot::here_read("graph_density_of_exposure_up")
+graph_density_of_exposure_up
+```
+
+
+
+Notably, the ALL-GAIN intervention requires shifting a considerable mass of the sample population. However, it does not require shifting those who are attending religious service more frequently that four times per month.
+
+
+
+The All-LOSS intervention $f(A=a^\prime)$ intervention is shown in @fig-0down
+
+```{r}
+#| label: fig-0down
+#| fig-cap: "Figure shows a histogram of responses to religious service frequency in the baseline + 1 wave. Responses above eight were assigned to eight, and values were rounded to the nearest whole number. The red dashed line shows the population average. All responses in the blue bars are shifted to zero on the ALL-LOSS intervention. All those responses in grey (zero) remain unchanged"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+
+graph_density_of_exposure_down <- margot::here_read("graph_density_of_exposure_down")
+graph_density_of_exposure_down
+```
+
+
+Notably, the ALL-LOSS intervention requires shifting a smaller proportion of the sample population than the ALL-GAIN intervention. Because religious service is declining in New Zealand, this intervention holds more policy interest: the implications of loss are relevant to a society where loss is occurring.
+
+
+
+### Evidence for Change in the Treatment Variable
+
+@tbl-transition clarifies the change in the treatment variable from the baseline wave to the baseline + 1 wave across the sample.  Assessing change in a variable is essential for evaluating the positivity assumption and for recovering evidence for the incidence-effect of the treatment variable [].  
+
+```{r}
+#| label: tbl-placeholder
+#| eval: false
+#| echo: false
+
+transition_table <- margot::here_read("transition_table")
+```
+
+|  From   |  State 0  | State 1 | State 2 | State 3 | State 4 | State 5 | State 6 | State 7 | State 8 |
+|:-------:|:---------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| State 0 | **26762** |   405   |   174   |   71    |   126   |   26    |   13    |    8    |   68    |
+| State 1 |    647    | **235** |   85    |   44    |   46    |    5    |    2    |    3    |   10    |
+| State 2 |    236    |   105   | **188** |   104   |   96    |   12    |   13    |    2    |   21    |
+| State 3 |    112    |   54    |   110   | **164** |   173   |   18    |    8    |    4    |   15    |
+| State 4 |    150    |   71    |   127   |   205   | **881** |   124   |   64    |   16    |   91    |
+| State 5 |    24     |    7    |   17    |   17    |   145   | **61**  |   25    |    7    |   33    |
+| State 6 |    14     |    5    |   13    |   17    |   84    |   22    | **29**  |    5    |   37    |
+| State 7 |     9     |    0    |    6    |    3    |   16    |    6    |    9    |  **6**  |   19    |
+| State 8 |    74     |   14    |   17    |   14    |   105   |   34    |   42    |   17    | **351** |
+
+
+: This table presents a transition matrix to evaluate treatment shifts between baseline and treatment wave. Entries along the diagonal (in bold) indicate the number of individuals who **stayed** in their initial state. By contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off-diagonal). Thus cell located at the intersection of row $i$ and column $j$, where $i \neq j$, gives us the counts of individuals moving from state $i$ to state $j$ {#tbl-transition}
+
+
+
+{{< pagebreak >}}
+
+
+## Results
+
+## Study 1: Causal Effects of Regular Church Attendance on Self-Reported Volunteering and Self-Reported Volunteering and Donations
+
+@fig-1_1 and @tbl-1_1 present results for the ALL-GAIN vs. ALL-LOSS treatment policy on self-reported volunteering and charitable donations
+
+
+```{r}
+#| label: fig-1_1
+#| fig-cap: "This figure reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on reported charitable behaviours at the end of the study. Outcomes are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+plot_group_tab_all_prosocial <- margot::margot_plot(
   group_tab_all_prosocial,
   type = "RD",
   title = title,
   subtitle = "Self-Reported Prosociality",
-  xlab = "",
-  ylab = "",
   estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
@@ -876,36 +969,35 @@ plot_group_tab_all_prosocial <- margot_plot(
 plot_group_tab_all_prosocial
 ```
 
-
-::: {#tbl_1_1}
 ```{r}
-#| label: tbl_11
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on reported charitable behaviours at the end of study. Outcomes are expressed in standard deviation units."
+#| label: tbl-1_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on reported charitable behaviours at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
-
 
 tab_all_prosocial |>
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#margot::margot_interpret_table(group_tab_all_prosocial, "causal_difference", "lmtp")
-
+#margot_interpret_table(group_tab_all_prosocial, "causal_difference", "lmtp")
 ```
-:::
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and constrast groups for the target population.
+This longitudinal modified treatment policy computes the target population's expected outcome difference between treatment and contrast groups.
 
-For the outcome 'relig service: donations', the lmtp is 0.173 [0.097,0.25]. The E-value for this effect estimate is 1.617 with a lower bound of 1.409. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.409, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.409) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+The estimate for the outcome 'donations' is 0.173 [0.097,0.25]. The E-value for this effect estimate is 1.617, with a lower bound of 1.409. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.409 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**. 
 
-For the outcome 'relig service: hours volunteer' is positive, however, given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
+On the data scale, this intervention represents a difference of NZD `r round(sd_donations * 0.173, 2)` per adult per year in charitable giving.
+
+For the outcome 'hours volunteer', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.**
 
 {{< pagebreak >}}
 
+@fig-1_2 and @tbl-1_2 present results for the ALL-GAIN vs. STATUS QUO treatment policy on self-reported volunteering and charitable donations
+
 ```{r}
-#| label: fig_1_2
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on reported charitable behaviours at the end of study. Outcomes are expressed in standard deviation units."
+#| label: fig-1_2
+#| fig-cap: "This figure reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on reported charitable behaviours at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -917,8 +1009,6 @@ plot_group_tab_all_prosocial_null <- margot_plot(
   type = "RD",
   title = title_null,
   subtitle = "Self-Reported Prosociality",
-  xlab = "",
-  ylab = "",
   estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
@@ -936,10 +1026,10 @@ plot_group_tab_all_prosocial_null
 ```
 
 
-::: {#tbl_1_2}
+
 ```{r}
-#| label: tbl_1_2
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on reported charitable behaviours at the end of study. Outcomes are expressed in standard deviation units."
+#| label: tbl-1_2
+#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on reported charitable behaviours at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -949,20 +1039,22 @@ tab_all_prosocial_null |>
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-# margot::margot_interpret_table(group_tab_all_prosocial_null, "causal_difference", "lmtp")
+#margot::margot_interpret_table(group_tab_all_prosocial_null, "causal_difference", "lmtp")
 
 ```
-:::
 
-For the outcome 'relig service: donations', the lmtp is 0.096 [0.02,0.171]. The E-value for this effect estimate is 1.407 with a lower bound of 1.154. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.154, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.154) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
 
-For the outcome 'relig service: hours volunteer', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
+The estimate for the outcome 'donations' is 0.096 [0.02,0.171]. The E-value for this effect estimate is 1.407, with a lower bound of 1.154. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.154 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**. 
+
+On the data scale, this intervention represents a difference of NZD `r round(sd_donations * 0.096, 2)` per adult per year in charitable giving.
+
+For the outcome 'hours volunteer', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.** 
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: fig_1_3
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on reported charitable behaviours at the end of study. Outcomes are expressed in standard deviation units."
+#| label: fig-1_3
+#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on reported charitable behaviours at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -974,8 +1066,6 @@ plot_group_tab_all_prosocial_null_zero <- margot_plot(
   type = "RD",
   title = title_null_zero,
   subtitle = "Self-Reported Prosociality",
-  xlab = "",
-  ylab = "",
   estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
@@ -994,10 +1084,9 @@ plot_group_tab_all_prosocial_null_zero
 
 
 
-::: {#tbl_1_3}
 ```{r}
-#| label: tbl_1_3
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on reported charitable behaviours at the end of study. Outcomes are expressed in standard deviation units."
+#| label: tbl-1_3
+#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on reported charitable behaviours at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1010,20 +1099,23 @@ tab_all_prosocial_null_zero |>
 #margot::margot_interpret_table(group_tab_all_prosocial_null_zero, "causal_difference", "lmtp")
 
 ```
-:::
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
+The estimate for the outcome 'hours volunteer' is -0.022 [-0.033,-0.01]. The E-value for this effect estimate is 1.164 with a lower bound of 1.107. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.107 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **weak evidence for causality**.
 
-For the outcome 'relig service: hours volunteer', the lmtp is -0.022 [-0.033,-0.01]. The E-value for this effect estimate is 1.164 with a lower bound of 1.107. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.107, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.107) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+On the data scale, this intervention represents a difference of `r 60 * round(sd_volunteer * -0.022, 2)` volunteer minutes.
 
-For the outcome 'relig service: donations', the lmtp is -0.077 [-0.099,-0.056]. The E-value for this effect estimate is 1.352 with a lower bound of 1.285. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.285, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.285) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+
+The estimate for the outcome 'donations' is -0.077 [-0.099,-0.056]. The E-value for this effect estimate is 1.352 with a lower bound of 1.285. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.285 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
+
+On the data scale, this intervention represents a difference of NZD `r round(sd_donations * -0.077, 2)` per adult per year in charitable giving.
+
 
 {{< pagebreak >}}
 
 ## Study 2: Causal Effects of Regular Church Attendance on Self-Reported Social Connection
 
 ```{r}
-#| label: fig_2_1
+#| label: fig-2_1
 #| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on perceived social connection at the end of study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
@@ -1036,8 +1128,6 @@ plot_group_tab_all_perceived_support <- margot_plot(
   type = "RD",
   title = title,
   subtitle = "Perceived social connection",
-  xlab = "",
-  ylab = "",
   estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
@@ -1054,10 +1144,10 @@ plot_group_tab_all_perceived_support <- margot_plot(
 plot_group_tab_all_perceived_support
 ```
 
-::: {#tbl_2_1}
+
 ```{r}
-#| label: tbl_2_1
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on perceived social connection at the end of study. Outcomes are expressed in standard deviation units."
+#| label: tbl-2_1
+#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on domains of perceived social connection at the end of study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1070,22 +1160,19 @@ tab_all_perceived_support |>
 #margot::margot_interpret_table(group_tab_all_perceived_support, "causal_difference", "lmtp")
 
 ```
-:::
 
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
+The estimate for 'social belonging' is 0.121 [0.031,0.211]. The E-value for this effect estimate is 1.477 with a lower bound of 1.2. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.2 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
-For the outcome 'relig service: social belonging', the lmtp is 0.121 [0.031,0.211]. The E-value for this effect estimate is 1.477 with a lower bound of 1.2. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.2, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.2) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'social support', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.**
 
-For the outcome 'relig service: social suport', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
-
-For the outcome 'relig service: neighbourhood community', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
+For the outcome 'neighbourhood community', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.**
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: fig_2_2
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on perceived social connection at the end of study. Outcomes are expressed in standard deviation units."
+#| label: fig-2_2
+#| fig-cap: "This figure reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on perceived social connection at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1097,8 +1184,6 @@ plot_group_tab_all_perceived_support_null<- margot_plot(
   type = "RD",
   title = title_null,
   subtitle = "Self-Reported Prosociality",
-  xlab = "",
-  ylab = "",
   estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
@@ -1116,10 +1201,9 @@ plot_group_tab_all_perceived_support_null
 ```
 
 
-::: {#tbl_2_2}
 ```{r}
-#| label: tbl_2_2
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on perceved social connection at the end of study. Outcomes are expressed in standard deviation units."
+#| label: tbl-2_2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs. status quo on perceived social connection at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1133,16 +1217,13 @@ tab_all_perceived_support_null |>
 #margot::margot_interpret_table(group_tab_all_perceived_support_null, "causal_difference", "lmtp")
 
 ```
-:::
 
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
+The estimate for 'social belonging' is 0.108 [0.019,0.197]. The E-value for this effect estimate is 1.441 with a lower bound of 1.155. In this context, if an unmeasured confounder is associated with both the treatment and the outcome and this association has a risk ratio of 1.155, such a confounder could negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.155) would not be sufficient to fully account for the observed effect. Here, we find evidence for causality.
 
-For the outcome 'relig service: social belonging', the lmtp is 0.108 [0.019,0.197]. The E-value for this effect estimate is 1.441 with a lower bound of 1.155. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.155, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.155) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'social support', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
 
-For the outcome 'relig service: social suport', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
-
-For the outcome 'relig service: neighbourhood community', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
+For the outcome 'neighbourhood community', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
 > 
 
 
@@ -1150,8 +1231,8 @@ For the outcome 'relig service: neighbourhood community', given the lower bound 
 
 
 ```{r}
-#| label: fig_2_3
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on perceived social connection at the end of study. Outcomes are expressed in standard deviation units."
+#| label: fig-2_3
+#| fig-cap: "This figure reports the results of model estimates for the causal effects of a universal loss of weekly religious service vs. the status quo on perceived social connection at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1163,8 +1244,6 @@ plot_group_tab_all_perceived_support_null_zero<- margot_plot(
   type = "RD",
   title = title_null_zero,
   subtitle = "Self-Reported Prosociality",
-  xlab = "",
-  ylab = "",
   estimate_scale = 3,
   base_size = 18,
   text_size = 4.5,
@@ -1175,17 +1254,18 @@ plot_group_tab_all_perceived_support_null_zero<- margot_plot(
   legend_title_size = 10,
   x_offset = -.5,
   x_lim_lo = -1.5,
-  x_lim_hi =  .5
+  x_lim_hi =  .5,
+  plot_theme = theme_classic()
 )
 
 plot_group_tab_all_perceived_support_null_zero
 ```
 
 
-::: {#tbl_2_3}
+
 ```{r}
-#| label: tbl_2_3
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on perceved social connection at the end of study. Outcomes are expressed in standard deviation units."
+#| label: tbl-2_3
+#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on perceived social connection at the end of the study. Outcomes are expressed in standard deviation units."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1197,15 +1277,12 @@ tab_all_perceived_support_null_zero |>
 #margot::margot_interpret_table(group_tab_all_perceived_support_null_zero, causal_scale = "causal_difference", estimand = "lmtp")
 
 ```
-:::
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
+The estimate for the outcome 'social support' is -0.011 [-0.018,-0.004]. The E-value for this effect estimate is 1.111 with a lower bound of 1.073. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.073 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **the evidence for causality is weak**.
 
-For the outcome 'relig service: social suport', the lmtp is -0.011 [-0.018,-0.004]. The E-value for this effect estimate is 1.111 with a lower bound of 1.073. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.073, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.073) would not be sufficient to fully account for the observed effect.Here, we find the evidence for causality is weak.
+The estimate for the outcome 'social belonging' is -0.013 [-0.019,-0.006]. The E-value for this effect estimate is 1.122 with a lower bound of 1.087. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.087 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **the evidence for causality is weak**.
 
-For the outcome 'relig service: social belonging', the lmtp is -0.013 [-0.019,-0.006]. The E-value for this effect estimate is 1.122 with a lower bound of 1.087. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.087, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.087) would not be sufficient to fully account for the observed effect.Here, we find the evidence for causality is weak.
-
-For the outcome 'relig service: neighbourhood community', the lmtp is -0.016 [-0.023,-0.009]. The E-value for this effect estimate is 1.137 with a lower bound of 1.094. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.094, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.094) would not be sufficient to fully account for the observed effect.Here, we find the evidence for causality is weak.
+The estimate for the outcome 'neighbourhood community' is -0.016 [-0.023,-0.009]. The E-value for this effect estimate is 1.137 with a lower bound of 1.094. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.094 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **the evidence for causality is weak**.
 
 
 {{< pagebreak >}}
@@ -1214,131 +1291,18 @@ For the outcome 'relig service: neighbourhood community', the lmtp is -0.016 [-0
 
 
 ```{r}
-#| label: fig_3_1
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on volunatary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: fig-3_1
+#| fig-cap: "This figure reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on voluntary help received from others during the past week (yes/no) at the end of the study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
 #| fig-width: 10
 #| fig-height: 6
-
-margot_plot <- function(.data,
-                        type = c("RD", "RR"),
-                        title,
-                        subtitle,
-                        ylab = "",
-                        estimate_scale = 1,
-                        base_size = 11,
-                        text_size = 2.75,
-                        point_size = .5,
-                        title_size = 10,
-                        subtitle_size = 9,
-                        legend_text_size = 6,
-                        legend_title_size = 6,
-                        x_offset = ifelse(type == "RR", 0, -1.75),
-                        x_lim_lo = ifelse(type == "RR", .1, -1.75),
-                        x_lim_hi = ifelse(type == "RR", 2.5, 1),
-                        simplify_axis = FALSE) {
-  type <- match.arg(type)
-  xintercept <- if (type == "RR") 1 else 0
-  x_axis_label <- if (type == "RR") "Causal risk ratio scale (vertical line marks threshold: risk ratio = 1)" else "Causal difference scale: (vertical line marks threshold: difference = 0)."
-  
-# Define Reliability based on type
-  if (type == "RR") {
-    .data$Reliability <-
-      ifelse(
-        .data$`2.5 %` > 1 & .data$`97.5 %` > 1,
-        "positive",
-        ifelse(
-          .data$`2.5 %` < 1 &
-            .data$`97.5 %` < 1,
-          "negative",
-          "zero_crossing"
-        )
-      )
-  } else {
-    .data$Reliability <-
-      ifelse(
-        .data$`2.5 %` > 0 & .data$`97.5 %` > 0,
-        "positive",
-        ifelse(
-          .data$`2.5 %` < 0 &
-            .data$`97.5 %` < 0,
-          "negative",
-          "zero_crossing"
-        )
-      )
-  }
-  # Add a condition to apply axis simplifications
-  if (simplify_axis) {
-    simplified_theme <- theme(
-      axis.text.x = element_blank(),
-      axis.ticks.x = element_blank(),
-      legend.position = "top",
-      legend.direction = "horizontal",
-      axis.ticks.y = element_blank(),
-      plot.title = element_text(face = "bold", size = title_size, hjust = 0),
-      plot.subtitle = element_text(face = "bold", size = subtitle_size, hjust = 0),
-      legend.text = element_text(size = legend_text_size),
-      legend.title = element_text(size = legend_title_size),
-      plot.margin = margin(t = 10, r = 10, b = 10, l = 10, unit = "pt")
-    )
-  } else {
-    simplified_theme <- theme(
-      legend.position = "top",
-      legend.direction = "horizontal",
-      axis.ticks.y = element_blank(),
-      plot.title = element_text(face = "bold", size = title_size, hjust = 0),
-      plot.subtitle = element_text(face = "bold", size = subtitle_size, hjust = 0),
-      legend.text = element_text(size = legend_text_size),
-      legend.title = element_text(size = legend_title_size),
-      plot.margin = margin(t = 10, r = 10, b = 10, l = 10, unit = "pt")
-    )
-  }
-  
-  out <- ggplot(
-    data = .data,
-    aes(
-      y = reorder(outcome, .data[[paste0("E[Y(1)]", ifelse(type == "RR", "/", "-"), "E[Y(0)]")]]),
-      x = .data[[paste0("E[Y(1)]", ifelse(type == "RR", "/", "-"), "E[Y(0)]")]],
-      xmin = .data$`2.5 %`,
-      xmax = .data$`97.5 %`,
-      group = Estimate,
-      color = Reliability
-    )
-  ) +
-    geom_errorbarh(aes(color = Reliability), height = .3, position = position_dodge(width = .3)) +
-    geom_point(size = point_size, position = position_dodge(width = 0.3)) +
-    geom_vline(xintercept = xintercept, linetype = "solid") +
-    theme_classic(base_size = base_size) +
-    scale_color_manual(values = c(
-      "positive" = "dodgerblue",
-      "zero_crossing" = "black",
-      "negative" = "orange"
-    )) +
-    labs(
-      x = x_axis_label,
-      y = NULL,
-      title = title,
-      subtitle = subtitle
-    ) +
-      geom_text(
-      aes(x = x_offset * estimate_scale, label = estimate_lab),
-      size = text_size,
-      hjust = 0,
-      fontface = ifelse(.data$Estimate == "unreliable", "plain", "bold")
-    ) +
-    coord_cartesian(xlim = c(x_lim_lo, x_lim_hi)) +
-    simplified_theme 
-  # apply the simplified theme conditionally
-  return(out)
-}
 plot_group_tab_all_received_time <- margot_plot(
   group_tab_contrast_received_time,
   type = "RR",
   title = title,
   subtitle = "Support Received From Others: Time",
-  ylab = "",
   estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
@@ -1349,60 +1313,49 @@ plot_group_tab_all_received_time <- margot_plot(
   legend_title_size = 10,
   x_offset = -.5,
   x_lim_lo = -3,
-  x_lim_hi =  4
+  x_lim_hi =  4,
+  linewidth = .85
 )
 plot_group_tab_all_received_time
 ```
 
-::: {#tbl_3_1}
+
 ```{r}
-#| label: tbl_3_1
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on volunatary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: tbl-3_1
+#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on voluntary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
-
-
 
 tab_contrast_received_time |>
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-
-
-
 #margot::margot_interpret_table(group_tab_contrast_received_time, causal_scale = "risk_ratio" , estimand = "lmtp")
 
 ```
-:::
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
+For the outcome 'community gives time', the estimate is 1.439 [1.046,1.979]. The E-value for this effect estimate is 2.234 with a lower bound of 1.265. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.265 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
-For the outcome 'relig service: community gives time', the lmtp is 1.439 [1.046,1.979]. The E-value for this effect estimate is 2.234 with a lower bound of 1.265. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.265, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.265) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'friends gives time', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.**
 
-For the outcome 'relig service: friends gives time', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
-
-For the outcome 'relig service: family gives time', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
-
+For the outcome 'family gives time', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.**
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: fig_3_2
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on volunatary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: fig-3_2
+#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on voluntary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
 #| fig-width: 10
 #| fig-height: 6
-
 plot_group_tab_all_received_time_null <- margot_plot(
   group_tab_contrast_received_time_null,
   type = "RR",
   title = title_null,
   subtitle = "Support Received From Others: Time",
-  xlab = "",
-  ylab = "",
   estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
@@ -1421,10 +1374,10 @@ plot_group_tab_all_received_time_null
 ```
 
 
-::: {#tbl_3_2}
+
 ```{r}
-#| label: tbl_3_2
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on volunatary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: tbl-3_2
+#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on voluntary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1437,23 +1390,20 @@ tab_contrast_received_time_null |>
 #margot::margot_interpret_table(group_tab_contrast_received_time_null, "risk_ratio", "lmtp")
 
 ```
-:::
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
+For the outcome 'community gives time', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.**
 
-For the outcome 'relig service: community gives time', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
+For the outcome 'friends gives time', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.**
 
-For the outcome 'relig service: friends gives time', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
-
-For the outcome 'relig service: family gives time', given the lower bound of the E-value equals 1, we infer there is no reliable evidence for causality.
-
+For the outcome 'family gives time', given the lower bound of the E-value equals 1; we infer that **evidence for causality is not reliable.**
+> 
 
 {{< pagebreak >}}
 
 
 ```{r}
-#| label: fig_3_3
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on volunatary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: fig-3_3
+#| fig-cap: "This figure reports the results of model estimates for the causal effects of a universal loss of weekly religious service vs. status quo on voluntary help received from others during the past week (yes/no) at the end of the study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1465,8 +1415,6 @@ plot_group_tab_all_received_time_null_zero <- margot_plot(
   type = "RR",
   title = title_null_zero,
   subtitle = "Support Received From Others: Time",
-  xlab = "",
-  ylab = "",
   estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
@@ -1484,10 +1432,10 @@ plot_group_tab_all_received_time_null_zero
 ```
 
 
-::: {#tbl_3_3}
+
 ```{r}
-#| label: tbl_3_3
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on volunatary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: tbl-3_3
+#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on voluntary help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1498,19 +1446,17 @@ tab_contrast_received_time_null_zero |>
   mutate(across(where(is.numeric), ~ round(., 3))) %>%
   kbl(format = "markdown")
 
-#margot::margot_interpret_table(group_tab_contrast_received_time_null_zero, "risk_ratio", "lmtp")
+# margot::margot_interpret_table(group_tab_contrast_received_time_null_zero, "risk_ratio", "lmtp")
 
 
 ```
-:::
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
 
-For the outcome 'relig service: family gives time', the lmtp is 0.976 [0.964,0.987]. The E-value for this effect estimate is 1.183 with a lower bound of 1.129. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.129, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.129) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'family gives time', the estimate is 0.976 [0.964,0.987]. The E-value for this effect estimate is 1.183, with a lower bound of 1.129. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.129 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
-For the outcome 'relig service: friends gives time', the lmtp is 0.966 [0.95,0.982]. The E-value for this effect estimate is 1.226 with a lower bound of 1.155. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.155, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.155) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'friends give time', the estimate is 0.966 [0.95,0.982]. The E-value for this effect estimate is 1.226 with a lower bound of 1.155. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.155 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
-For the outcome 'relig service: community gives time', the lmtp is 0.897 [0.866,0.93]. The E-value for this effect estimate is 1.473 with a lower bound of 1.36. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.36, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.36) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'community gives time', the estimate is 0.897 [0.866,0.93]. The E-value for this effect estimate is 1.473 with a lower bound of 1.36. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.36 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
 {{< pagebreak >}}
 
@@ -1518,8 +1464,8 @@ For the outcome 'relig service: community gives time', the lmtp is 0.897 [0.866,
 
 
 ```{r}
-#| label: fig_4_1
-#| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on financial help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: fig-4_1
+#| fig-cap: "This figure reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on financial help received from others during the past week (yes/no) at the end of the study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1530,8 +1476,6 @@ plot_group_tab_all_received_money <- margot_plot(
   type = "RR",
   title = title,
   subtitle = "Support Received From Others: Money",
-  xlab = "",
-  ylab = "",
   estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
@@ -1547,10 +1491,10 @@ plot_group_tab_all_received_money <- margot_plot(
 plot_group_tab_all_received_money
 ```
 
-::: {#tbl_4_1}
+
 ```{r}
-#| label: tbl_4_1
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on financial help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: tbl-4_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs universal loss of weekly religious service on financial help received from others during the past week (yes/no) at the end of the study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1563,22 +1507,20 @@ tab_all_received_money |>
 #margot::margot_interpret_table(group_tab_all_received_money, "risk_ratio", "lmtp")
 
 ```
-:::
 
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
 
-For the outcome 'relig service: community gives money', the lmtp is 2.663 [1.932,3.671]. The E-value for this effect estimate is 4.767 with a lower bound of 3.274. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 3.274, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 3.274) would not be sufficient to fully account for the observed effect.Here, we find strong evidence for causality.
+For the outcome 'community gives money', the estimate is 2.663 [1.932,3.671]. The E-value for this effect estimate is 4.767, with a lower bound of 3.274. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 3.274 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **the evidence for causality is strong**.
 
-For the outcome 'relig service: friends gives money', the lmtp is 2.052 [1.323,3.184]. The E-value for this effect estimate is 3.521 with a lower bound of 1.977. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.977, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.977) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'friends give money', the estimate is 2.052 [1.323,3.184]. The E-value for this effect estimate is 3.521, with a lower bound of 1.977. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.977 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
-For the outcome 'relig service: family gives money', the lmtp is 1.656 [1.219,2.249]. The E-value for this effect estimate is 2.698 with a lower bound of 1.736. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.736, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.736) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'family gives money', the estimate is 1.656 [1.219,2.249]. The E-value for this effect estimate is 2.698, with a lower bound of 1.736. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.736 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: fig_4_2
+#| label: fig-4_2
 #| fig-cap: "Figure reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on financial help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
@@ -1591,8 +1533,6 @@ plot_group_tab_all_received_money_null <- margot_plot(
   type = "RR",
   title = title_null,
   subtitle = "Support Received From Others: Money",
-  xlab = "",
-  ylab = "",
   estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
@@ -1609,10 +1549,9 @@ plot_group_tab_all_received_money_null
 ```
 
 
-::: {#tbl_4_2}
 ```{r}
-#| label: tbl_4_2
-#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on financial help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
+#| label: tbl-4_2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs status quo on financial help received from others during the past week (yes/no) at the end of the study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
 #| echo: false
@@ -1626,23 +1565,19 @@ tab_all_received_money_null|>
 #margot::margot_interpret_table(group_tab_all_received_money_null, "risk_ratio", "lmtp")
 
 ```
-:::
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
+For the outcome 'community gives money', the estimate is 2.042 [1.59,2.623]. The E-value for this effect estimate is 3.501 with a lower bound of 2.559. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 2.559 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **the evidence for causality is strong**.
 
-For the outcome 'relig service: community gives money', the lmtp is 2.042 [1.59,2.623]. The E-value for this effect estimate is 3.501 with a lower bound of 2.559. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 2.559, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 2.559) would not be sufficient to fully account for the observed effect.Here, we find strong evidence for causality.
+For the outcome 'friends give money', the estimate is 1.718 [1.129,2.616]. The E-value for this effect estimate is 2.829 with a lower bound of 1.511. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.511 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
-For the outcome 'relig service: friends gives money', the lmtp is 1.718 [1.129,2.616]. The E-value for this effect estimate is 2.829 with a lower bound of 1.511. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.511, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.511) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
-
-For the outcome 'relig service: family gives money', the lmtp is 1.467 [1.086,1.981]. The E-value for this effect estimate is 2.295 with a lower bound of 1.392. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.392, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.392) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
-
+For the outcome 'family gives money', the estimate is 1.467 [1.086,1.981]. The E-value for this effect estimate is 2.295 with a lower bound of 1.392. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.392.
 
 
 {{< pagebreak >}}
 
 
 ```{r}
-#| label: fig_4_3
+#| label: fig-4_3
 #| fig-cap: "Figure reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on financial help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
@@ -1655,8 +1590,6 @@ plot_group_tab_all_received_money_null_zero <- margot_plot(
   type = "RR",
   title = title_null_zero,
   subtitle = "Support Received From Others: Money",
-  xlab = "",
-  ylab = "",
   estimate_scale = 6,
   base_size = 18,
   text_size = 4.5,
@@ -1673,9 +1606,8 @@ plot_group_tab_all_received_money_null_zero
 ```
 
 
-::: {#tbl_4_3}
 ```{r}
-#| label: tbl_4_3
+#| label: tbl-4_3
 #| tbl-cap: "Table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs status quo on financial help received from others during the past week (yes/no) at the end of study. Outcomes are expressed on the risk ratio scale."
 #| eval: true
 #| include: true
@@ -1689,51 +1621,163 @@ tab_all_received_money_null_zero|>
 
 #margot::margot_interpret_table(group_tab_all_received_money_null_zero, "risk_ratio", "lmtp")
 ```
-:::
 
-This longitudinal modified treatment policy computes the expected difference in outcomes between treatment and contrast groups for the target population.
+For the outcome 'family gives money', the estimate is 0.886 [0.863,0.91]. The E-value for this effect estimate is 1.51 with a lower bound of 1.429. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.429 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
-For the outcome 'relig service: family gives money', the lmtp is 0.886 [0.863,0.91]. The E-value for this effect estimate is 1.51 with a lower bound of 1.429. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.429, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.429) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'friends gives money', the estimate is 0.837 [0.784,0.894]. The E-value for this effect estimate is 1.677, with a lower bound of 1.483. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.483 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
-For the outcome 'relig service: friends gives money', the lmtp is 0.837 [0.784,0.894]. The E-value for this effect estimate is 1.677 with a lower bound of 1.483. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.483, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.483) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
-
-For the outcome 'relig service: community gives money', the lmtp is 0.767 [0.672,0.875]. The E-value for this effect estimate is 1.933 with a lower bound of 1.547. In this context, if there exists an unmeasured confounder that is associated with both the treatment and the outcome, and this association has a risk ratio of 1.547, then it is possible for such a confounder to negate the observed effect. Conversely, any confounder with a weaker association (i.e., a risk ratio of less than 1.547) would not be sufficient to fully account for the observed effect.Here, we find evidence for causality.
+For the outcome 'community gives money', the estimate is 0.767 [0.672,0.875]. The E-value for this effect estimate is 1.933 with a lower bound of 1.547. In this scenario, assuming all modelled covariates, an unmeasured confounder that exhibits an association with both the treatment and outcome with a minimum strength (on the risk ratio scale) of 1.547 could nullify the observed effect. However, the effect would survive weaker unmeasured confounding. Here, we find **evidence for causality**.
 
 
+## Discussion 
 
-## Summary of findings
+### Summary of findings
+
+First, as expected, we observed that in theoretically relevant contrast, ALL GAIN vs ALL LOSS had stronger effects than the policy-motivated contrast ALL GAIN vs STATUS QUO. For example, whereas the measure of social support revealed a causal effect for the theoretical intervention, the policy-relevant intervention was unreliable. This result suggests caution when inferring policy decisions on the results from theoretically-motivated interventions. 
+
+Second, compared with the STATUS QUO, different policy motivations arise for gaining and losing religious service attendance. In the first place, the confidence intervals around loss expectations were narrower because the underlying shifts involved required less counterfactual projection across the population. 
+
+Third, perhaps most obviously, the measures themselves suggest different interpretations of the importance of religion.  For example, although social connection measures did not generally reveal strong evidence for causal influence from either the gain or loss of regular religious service, except on social belonging in the ALL GAIN vs ALL LOSS intervention, arguably, the concept of social connection does not directly relate to prosociality. One may feel socially connected to people without their help, and one can receive help from strangers [@mccullough2020kindness]. Nevertheless, we include social connection measures to provide a clearer picture of the multi-dimensional pro-social response phenotype. Notably, a long tradition of reflection in the social scientific study of religion implies that religion induces prosociality by collective effervescence, or more recently, by postulated ego-fusion & etc [].  Although rituals may evoke these affective responses, whether and how charitable behaviours and volunteering remain uncertain. 
+
+Fourth, we find corroborating evidence for the effects of religious service attendance on charitable donations, measured by self-report data and help-received responses. Presumably, much of this giving is to religious institutions. Additional support for charitable giving comes from public records, which in New Zealand must be reported because religious institutions are charities that must report their earnings and expenses []. Whatever one may think of churches, the evidence from New Zealand suggests they are efficient charities []. 
+
+
+### Economic value of regular religious service
+
+```{r}
+#| eval: true
+#| include: false
+#| echo: false
+# # model estimates for charity under each intervention
+
+# average annual donations 
+mean_donations <- margot::here_read("mean_donations")
+mean_donations
+
+# benefit of universal gain of religion at weekly or more religious service
+shift_up = (sd_donations *  0.096)
+
+# cost of universal loss of religion at weekly or more religious service
+shift_down = (sd_donations *  -0.077)
+
+# expected giving if all wer to attend religious service
+gain_per_individual = shift_up + mean_donations
+
+# expected giving if all were to lose religious service
+loss_per_individual = mean_donations + shift_down 
+
+
+# #number of people in NZ > 18 year olds in 2021/22
+nz_adult_population <- 3989000
+# 
+
+# annual charity estimate for the population = status quo
+factual_charity_estimate <- nz_adult_population * mean_donations
+
+# counterfactual charity estimate if all were to attend religious service regularly
+counterfactual_factual_charity_estimate_up = nz_adult_population * gain_per_individual
+
+
+# counterfactual charity estimate if all were to lose religious service regularly
+counterfactual_factual_charity_estimate_down = nz_adult_population * loss_per_individual
+net_loss = counterfactual_factual_charity_estimate_down - factual_charity_estimate
+net_gain = counterfactual_factual_charity_estimate_up - factual_charity_estimate
+net_loss
+net_gain
+# 
+# compute differences at the national level : gain
+counterfactual_difference_charity_donate_up = counterfactual_factual_charity_estimate_up - factual_charity_estimate
+
+# compute differences at the national level : loss
+counterfactual_difference_charity_donate_down =  factual_charity_estimate - counterfactual_factual_charity_estimate_down
+counterfactual_difference_charity_donate_down
+
+# differences  - absolute scale
+print(counterfactual_difference_charity_donate_up)
+print(counterfactual_difference_charity_donate_down)
+# 
+# # ~ 2 billion NZD 
+# # 1832306931
+# 
+# nz annual budget in 2021
+
+nz_annual_budget = 14494000000 * 4 # treasury (https://www.treasury.govt.nz/publications/budgets/budget-2021)
+# 
+# # intervention as percentage of gov't annual budget 
+
+gain_per_individual
+
+# percentage of gain/loss as a function of nz government annual budget
+per_gain <- counterfactual_difference_charity_donate_up/ nz_annual_budget
+
+per_lost <- counterfactual_difference_charity_donate_down/ nz_annual_budget
+
+b_church_on_hours_charity<-margot::here_read("b_church_on_hours_charity")
+
+# 
+# 
+# # lm_coef_fit_church_on_charity_donate <- tbl-regression(fit_church_on_charity_donate)
+# # b_church_on_charity_donate <-inline_text(lm_coef_fit_church_on_charity_donate, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+# # b_church_on_charity_donate
+# # here_save(b_church_on_charity_donate, "b_church_on_charity_donate")
+b_church_on_charity_donate<-margot::here_read("b_church_on_charity_donate")
+```
+
+
+We may use results to compute the economic or "cash value" of religious service attendance as follows: 
+
+An increase in religious service attendance results in an enhanced per capita donation rate as `r gain_per_individual`, whereas the expected status-quo rate is `r mean_donations`. Conversely, a decrease in religious service attendance would lead to a charitable donation rate of `r loss_per_individual` compared with `r mean_donations`
+
+
+Our results indicate that the hypothetical benefit from country-wide adoption of regular religious service on charitable donations is: `r net_gain`, whereas, the hypothetical cost from a country-wide loss of regular religious service on charitable donations is: `r net_loss`.  Putting these figures in context, the expected gain from the country-wide adoption of religious service is `r per_gain` of New Zealand's annual government budget in 2021 The expected loss from the country-wide loss of all religious service amounts to `r per_lost` of New Zealand's annual government budget in 2021.
+
+We infer that diminising New Zealand's religious service attendance has economic consequences.
+
+
+### Concerns about the results reported in standard cross-sectional regression models
+
+How do these results compare with an ordinary cross-sectional regression with the same covariates (minus baseline treatment and outcome)? 
+
+For example, the regression coefficient for a one-unit increase in religious service attendance is `r b_church_on_charity_donate`. A four-unit change in this parameter amounts to NZD `r round( 4 * 580, 2)` expected increase in giving, a five fold increase from our the causal contrast ALL GAIN vs. STATUS QUO. Because a regression line is symmetrical, we would obtain even greater distortions when projecting to losses of religious service attendance.  
+
+Recalled we did not find reliable evidence for self-reported volunteering from gains in religious service attendance. However, the coefficients we obtain for volunteering in a cross-sectional model is `r b_church_on_hours_charity`, which translates to `r round( 4 * (60 * .27), 2)` minutes of expected gain in volunteering from regular religious service shifting from no attendance to weekly. 
+
+The results underscore the importance of remembering that cross-sectional regressions are unreliable for estimating causal effects. 
 
 
 ### Assumptions and limitations
 
-1.  **Causality and confounding**: we employs rigorous causal inference techniques, but these are contingent on the assumption of no unmeasured confounding. (Say more about E-values...)
+1.  **Causality and confounding**: we employ rigorous causal inference techniques, but these are contingent on the assumption of no unmeasured confounding. Although our sensitivity analyses allow us to describe the amount of unmeasured confounding needed to explain away our results, it is unclear whether such confounders are present and, if so, how strongly they may be related to the treatments and outcomes. (to say more...)
 
-2.  **Measurement error**: the variables under consideration---exercise and sleep---are self-reported, which might introduce both systematic and random measurement errors. It should be specifically noted that the apparent modesty of the practical effects could arise, in part, to measurement inaccuracy. Given the limitations of self-report measures, the true effect sizes may differ from those estimated. Therefore, while the evidence does suggest a modest impact, the actual real-world effects may be either smaller or larger than the estimates suggest. Given the modest effect sizes and the limitations of self-report measures, future research should explore the use of more objective measures for variables like exercise and sleep. (... etc.)
+2. **Treatment effect heterogeneity**:  even if we assume that the results are independent of the variations in treatments observed, because "religious service attendance" is not homogenous, we cannot give a precise interpretation of the results. Future work should investigate heterogeneity in treatment effects reported here. 
 
-3.  **Generalisability and transportability**: our findings should be interpreted within the context of the New Zealand population from which the data were sourced. Although the results may have broader relevance, direct extrapolation to different populations or sociocultural settings should be undertaken cautiously.
+3. **Measurement error**: Direct and/or correlated measurement errors may lead to bias by implying true effects in their absence. Additionally, uncorrelated measurement errors may lead to bias by attenuating true results in their presence. To some extent, our method for evaluating causation across multiple measures of "prosociality" addresses these threats. However, variability in results may arise from presently unknown combinations of measurement error.... (say more)
 
-### Theoretical and practical relevance
+4.  **Generalisability and transportability**: our findings should be interpreted within the context of the New Zealand population from which the data were sourced and weighted. Although these results may have broader relevance to similar populations, we advise against direct extrapolation to different populations or sociocultural settings.
+
 
 
 {{< pagebreak >}}
 
 ### Ethics
 
-The NZAVS is reviewed every three years by the University of Auckland Human Participants Ethics Committee. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
 
 ### Acknowledgements
 
-The New Zealand Attitudes and Values Study is supported by a grant from the TempletoReligion Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or the decision to publish.
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or the decision to publish.
 
 ### Author Statement
 
-TBA
+- JB conceived of the study and analytic approach.  
+- CS led NZAVS data collection. 
+- All authors contributed to the manuscript.
+
 
 {{< pagebreak >}}
 
-## Appendix A. Measures
-
-## Appendix A: Measurues {#appendix-measures}
+## Appendix A: Measures {#appendix-measures}
 
 #### Age (waves: 1-15)
 
@@ -1744,20 +1788,20 @@ We asked participants' ages in an open-ended question ("What is your age?" or "W
 
 Using one item from @hoverd_religious_2010, we asked participants "How much money have you donated to charity in the last year?". 
 
-<!-- To stablise this indicator, we took the natural log of the response + 1. -->
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
 
 
 #### Charitable Volunteering  (Study 1 outcome)
 
 
-We measured hours of volunterering using one item from @sibley2011: "Hours spent … voluntary/charitable work."
+We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work."
 
-<!-- To stablise this indicator, we took the natural log of the response + 1. -->
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
 
 
 #### Community: Sense of Community (Study 2 outcome)
 
-We measured sense of community with a single item from @sengupta2013: "I feel a sense of community with others in my local neighbourhood." Participants answered on a scale of 1 (strongly disagree) to 7 (strongly agree).
+We measured a sense of community with a single item from @sengupta2013: "I feel a sense of community with others in my local neighbourhood." Participants answered on a scale of 1 (strongly disagree) to 7 (strongly agree).
 
 
 #### Community: Felt Belongingness  (Study 2 outcome)
@@ -1775,7 +1819,7 @@ We assessed disability with a one item indicator adapted from @verbrugge1997, th
 
 #### Education Attainment (waves: 1, 4-15)
 
-We asked participants, "What is your highest level of qualification?". We coded participans highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
+We asked participants, "What is your highest level of qualification?". We coded participants highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
 
 #### Employment (waves: 1-3, 4-11)
 
@@ -1844,21 +1888,21 @@ To stabilise this indicator, we took the natural log of the response + 1.
 
 We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
 
-To stablise this indicator, we took the natural log of the response + 1.
+To stabilise this indicator, we took the natural log of the response + 1.
 
 
 #### Hours of Exercise
 
 We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
 
-To stablise this indicator, we took the natural log of the response + 1.
+To stabilise this indicator, we took the natural log of the response + 1.
 
 
 #### Hours of Housework
 
 We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
 
-To stablise this indicator, we took the natural log of the response + 1.
+To stabilise this indicator, we took the natural log of the response + 1.
 
 
 #### Hours of Sleep
@@ -1873,13 +1917,14 @@ As part of the time usage measures, participants were asked to state how many ho
   - Hours spent … socialising with family
   - Hours spent … socialising with friends
   - Hours spent … socialising with community groups
-  - Hours spent … socialising with religious groups
+  
+  <!-- - Hours spent … socialising with religious groups -->
 
 #### Hours of Work
 
 We measured hours of work using one item from @sibley2011:"Hours spent … working in paid employment."
 
-To stablise this indicator, we took the natural log of the response + 1.
+To stabilise this indicator, we took the natural log of the response + 1.
 
 
 #### Income (waves: 1-3, 4-15)
@@ -1962,15 +2007,14 @@ The New Zealand Attitudes and Values Study allows opt-ins to the study. Because 
 
 #### NZSEI Occupational Prestige and Status (waves: 8-15)
 
-We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017a]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate an score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017a]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
 
 We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
 
 <!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?". -->
+<!-- #### Parent (waves: 5-15) -->
 
-<!-- #### Parent (waves: 5-15) --> -->
-
-<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. --> -->
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. --> 
 
 #### Number of Children (waves: 1-3, 4-15)
 
@@ -2269,7 +2313,7 @@ table_baseline <- read_here("table_baseline")
 |__Urban__                            |38,493 (81%)   |
 |Unknown                              |308            |
 
-: Baseline demography statistics {#tbl-table-demography}
+: Baseline demographic statistics {#tbl-table-demography}
 
 
 @tbl-table-demography presents baseline demographic statistics for couples who met inclusion criteria.
@@ -2318,34 +2362,65 @@ table_exposures <-margot::here_read("table_exposures")
 : Baseline and treatment wave descriptive statistics {#tbl-table-exposures}
 
 
-@tbl-table-exposures presents baseline (NZAVS time 10) and exposure wave (NZAVS time 11) statistics for the exposure variable: religious service attendance (range 0-8). Responses coded as eight or above were coded as "8". This decision to avoid spare treatments was based on theoretical grounds, namel, that daily exposure would be similar in its effects to more than daily exposure. We note that causal contrasts were obtained for projects at either no attendance or four-or-more visits per month. Hence this simplification of the measure is unlikely to affect theoretical and practical inferences. Because the treatment wave (NZAVS time 11) occurred to New Zealand's COVID-19 pandemic, all models adjusted for the pandemic alert-level. The pandemic is a not a "confounder" because a confounder must be related to the treatment and the outcome. At the end of the study, all participants had been exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. Because COVID affected the ability or willingness of individuals to attend religious service, we included the lockdown condition as a covariate [@sibley2012a]. To better enable conditional independence within levels of the treatment variable, we conditioned on the lead value of COVID-alert level at baseline. To mitigate systematic biases arising from attrition, and missingness, the `lmtp` package uses inverse probability of censoring weights, which were use when estimating the causal effects of the exposure on the outcome. 
+@tbl-table-exposures presents baseline (NZAVS time 10) and exposure wave (NZAVS time 11) statistics for the exposure variable: religious service attendance (range 0-8). Responses coded as eight or above were coded as "8". This decision to avoid spare treatments was based on theoretical grounds, namely, that daily exposure would be similar in its effects to more than daily exposure. We note that causal contrasts were obtained for projects at either no attendance or four-or-more visits per month. Hence this simplification of the measure is unlikely to affect theoretical and practical inferences. Because the treatment wave (NZAVS time 11) occurred in New Zealand's COVID-19 pandemic, all models adjusted for the pandemic alert-level. The pandemic is not a "confounder" because a confounder must be related to the treatment and the outcome. At the end of the study, all participants had been exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. Because COVID affected the ability or willingness of individuals to attend religious service, we included the lockdown condition as a covariate [@sibley2012a]. To better enable conditional independence within levels of the treatment variable, we conditioned on the lead value of COVID-alert level at baseline. To mitigate systematic biases arising from attrition, and missingness, the `lmtp` package uses inverse probability of censoring weights, which were used when estimating the causal effects of the exposure on the outcome. 
 
 
 
-
-
-### Transition Table for The Treatment
+### Binary Transition Table for The Treatment
 
 ```{r}
 #| label: transition-table
 #| eval: false
 #| echo: false
 
-transition_table <-margot::here_read("transition_table")
+transition_table_binary <-margot::here_read("transition_table_binary")
+
 #transition_table
 ```
 
-@tbl-transition shows a transition matrix that captures stability and movement between disinhibition responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11) among all participants who responded to the religion question at baseline and in the following year (the censored sample). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
+The table presents a transition matrix to evaluate treatment shifts between baseline and treatment wave. Here we focus on the shift from/to monthly attendance at four or more visits per month. Entries along the diagonal (in bold) indicate the number of individuals who **stayed** in their initial state. By contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off diagonal). Thus the cell located at the intersection of row $i$ and column $j$, where $i \neq j$, gives us the counts of individuals moving from state $i$ to state $j$.
 
 
-|     From      | Not Religious | Religious |
-|:-------------:|:-------------:|:---------:|
-| Not Religious |   **20959**   |   1183    |
-|   Religious   |     1977      | **10624** |
-
-: Transition matrix for change in treatment from baseline to the treatment wave. The diagonal shows stability in response. The off-diagonal shows the number of transitions from the initial state (bold) to another state in the following wave (off-diagonal). {#tbl-transition}
+|   From    | < weekly  | >= weekly |
+|:---------:|:---------:|:---------:|
+| < weekly  | **29496** |    669    |
+| >= weekly |    804    | **2229**  |
 
 
+
+### Imbalance of Confounding Covariates Treatments 
+
+@fig-match_1 shows imbalance of covariates on the treatment at the first wave
+
+```{r}
+#| label: fig-match_1
+#| fig-cap: "Figure imbalance of covariates at the first exposure (baseline) wave"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+love_plot_base <- margot::here_read("love_plot_base")
+love_plot_base
+```
+
+
+@fig-match_2 shows imbalance of covariates on the treatment at the second exposure. Note that church attendance at the first wave shows the strongest relationship with church attendance at the second wave.  At both waves, the `lmtp` automatically adjusts for all covariates, including the exposure at the previous wave. At both waves the natural value of the exposure is used to estimate the policy-level of the exposure. 
+
+
+```{r}
+#| label: fig-match_2
+#| fig-cap: "Figure imbalance of covariates at the second exposure (baseline + 1) wave"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+love_plot <- margot::here_read("love_plot")
+love_plot
+```
 
 
 
@@ -2410,3 +2485,6 @@ table_outcomes |>  kbl(format = "markdown")
 
 
 ## References {.appendix}
+
+
+
