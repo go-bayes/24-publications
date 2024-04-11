@@ -1,0 +1,1279 @@
+---
+title: "How Would a Change in My Perfectionism Affect My Partner's Relationship Attitudes? A National Longitudinal Causal Investigation in Romantic Couples"
+abstract: |
+   Perfectionism can build us up and tear us down. However, its effects on romantic relationships remain unclear. Here, we use combine rigorous methods for causal inference with national-scale panel data (N = 1860 participants in 930 couples, New Zealand Attitudes and Values Study years 2018-2021) to quantitatively investigate how shifts up and down in a focal agent's perfectionism affect their partner's (1) relationship satisfaction (2) perceived conflict within the relationship (3) sexual satisfaction. All models controlled for both focal agent and partner-relationship perceptions at baseline and for demographic and personality measures again for both focal agent and partner. We computed pre-specified interventions for shifts up and down in focal agent perfectionism. We find that a hypothetical intervention that increases perfectionism by two units on a 1-7 Likert scale increases partner-perceived conflict and decreases sexual satisfaction but does not substantially affect partner relationship satisfaction at the end of the study. An intervention that decreases perfectionism by two units across the population of couples is expected to increase partner sexual satisfaction and weakly decrease partner-perceived conflict, without evidence for effects on relationship satisfaction. Let go of perfectionism to improve your love life.
+author: 
+  - name: Aaron T. McLaughlin
+    affiliation: Georgia State University
+    orcid_id: 0000-000-0000-0000
+    corresponding: yes
+  - name: Ken Rice
+    affiliation: Georgia State University 
+  - name: Hannah Weststone
+    affiliation: Georgia State University 
+  - name: Don E Davis
+    affiliation: Georgia State University
+    orcid_id: 0000-0003-3169-6576 
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland
+    orcid_id: 0000-0002-4064-8800
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid_id: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: no
+keywords:
+  - Causal Inference
+  - Perfectionism
+  - Relationships
+  - Dyads
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitize: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [singlecolumn]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=20mm
+      - heightrounded
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+
+push_mods <-
+  fs::path_expand(
+    "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/nzvs_mods/24/aaron-usa-perfect-on-relation-sat"
+  )
+
+#tinytext::tlmgr_update()
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+#source("/Users/joseph/GIT/templates/functions/libs2.R")
+
+library("margot")
+library("ggplot2")
+library("tidyverse")
+library("gtsummary")
+library("tinytex")
+library("extrafont")
+library("tidyverse")
+library("kableExtra")
+
+# # WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+# source("/Users/joseph/GIT/templates/functions/funs.R")
+
+# ALERT: UNCOMMENT THIS AND DOWNLOAD THE FUNCTIONS FROM JB's GITHUB
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+# )
+
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+# )
+
+# check path:is this correct?  check so you know you are not overwriting other directors
+#push_mods
+
+# for latex graphs
+# for making graphs
+
+loadfonts(device = "all")
+
+## Read in data from analysis 
+# imports
+n_participants <-  margot::here_read("n_participants")
+n_total <-  margot::here_read("n_total")
+n_dyads <- margot::here_read("n_dyads")
+n_unique_complete_dyads<-  margot::here_read("n_unique_complete_dyads")
+#n_participants
+# read standard deviations units of outcome (volunteering/donations) in 2020
+# sd_donations <- margot::here_read("sd_donations")
+# sd_volunteer <- margot::here_read("sd_volunteer")
+
+#conflicts_prefer(stats::filter)
+
+# propensity score graph 
+
+love_plot_base <- margot::here_read("love_plot_base")
+love_plot_one <- margot::here_read("love_plot_one")
+# love_plot
+
+# # summary of matching
+# summary_match_ebal_base <- margot::here_read("summary_match_ebal")
+# # summary_match_ebal$summary_match_ebal_base
+# 
+# summary_match_ebal <- margot::here_read("summary_match_ebal")
+# summary_match_ebal$effective.sample.size
+
+# verify positivity 
+#church
+transition_table <- margot::here_read("transition_table")
+#transition_table
+
+#transition_table_binary
+# 
+# # ordinary regressions
+# fit_church_on_hours_charity<- margot::here_read('fit_church_on_hours_charity')
+# fit_church_on_charity_donate<-margot::here_read('fit_church_on_charity_donate')
+# 
+
+# fit_church_on_community_time_binary<- margot::here_read('fit_church_on_community_time_binary')
+# fit_church_on_community_money_binary<- margot::here_read('fit_church_on_community_money_binary')
+library(gtsummary)
+library(glue)
+
+# lm_fit_church_on_hours_charity <- tbl_regression(fit_church_on_hours_charity)
+# 
+# # 
+#b_church_on_hours_charity <-inline_text(lm_fit_church_on_hours_charity,
+                                        # variable = religion_church_round,
+                                        # pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+#b_church_on_hours_charity
+# here_save(b_church_on_hours_charity, "b_church_on_hours_charity")
+
+# b_church_on_hours_charity<-margot::here_read("b_church_on_hours_charity")
+# 
+# # 
+# 
+#lm_coef_fit_church_on_charity_donate <- tbl_regression(fit_church_on_charity_donate)
+#b_church_on_charity_donate <-inline_text(lm_coef_fit_church_on_charity_donate, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+#b_church_on_charity_donate
+#here_save(b_church_on_charity_donate, "b_church_on_charity_donate")
+# b_church_on_charity_donate<-margot::here_read("b_church_on_charity_donate")
+# #b_church_on_charity_donate
+
+#push_mods
+# # lm_coef_fit_church_on_community_time_binary <- tbl-regression(fit_church_on_community_time_binary)
+# # b_church_on_community_time_binary <-inline_text(lm_coef_fit_church_on_community_time_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+# # here_save(b_church_on_community_time_binary, "b_church_on_community_time_binary")
+# b_church_on_community_time_binary<-margot::here_read("b_church_on_community_time_binary")
+# #b_church_on_community_time_binary
+# 
+# # lm_coef_fit_church_on_community_money_binary <- tbl-regression(fit_church_on_community_money_binary)
+# # b_church_on_community_money_binary <-inline_text(lm_coef_fit_church_on_community_money_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+# # here_save(b_church_on_community_money_binary, "b_church_on_community_money_binary")
+# b_church_on_community_money_binary<-margot::here_read("b_church_on_community_money_binary")
+# 
+
+library(margot)
+library(glue)
+# works but not used
+#testlm_coef_church_on_donate <- glue("b = {fit_church_on_donate_x[2, 1]}, SE = {fit_church_on_donate_x[2, 3]}")
+# not this table is too long in most instance 
+# table_baseline<-margot::here_read("table_baseline")
+
+# baseline
+table_baseline <-margot::here_read("table_baseline")
+
+table_exposures <-margot::here_read("table_exposures")
+
+table_outcomes <-margot::here_read("table_outcomes")
+
+# density of the exposure 
+graph_density_of_exposure_both<-margot::here_read("graph_density_of_exposure_both")
+
+title = "Causal effect of a two-unit shift in perfectionism on PARTNER relationship perceptions"
+
+# 
+# # examples
+# mean_volunteer <- margot::here_read("mean_volunteer")
+# 
+# # sample mean at end of study (won't be population mean)
+# mean_donations <- margot::here_read("mean_donations")
+# 
+
+
+# results
+# import to manuscript -------------------------------------------------------
+
+tab_outcomes_gain <- here_read("tab_outcomes_gain")
+group_tab_outcomes_gain <- here_read("group_tab_outcomes_gain")
+
+tab_outcomes_loss <- here_read("tab_outcomes_loss")
+group_tab_outcomes_loss<- here_read("group_tab_outcomes_loss")
+
+
+```
+## Introduction
+
+A central question in the psychology of perfection research is how it causally affects the qualities of romantic relationships. 
+
+
+## Method
+
+### Sample
+
+Data were collected as part of The New Zealand Attitudes and Values Study (NZAVS) is an annual longitudinal national probability panel study of social attitudes, personality, ideology and health outcomes. The NZAVS is university-based, not-for-profit and independent of political or corporate funding.https://doi.org/10.17605/OSF.IO/75SNB.  The NZAVS began in 2009. It includes questionnaire responses from `r n_total` Zealand residents. Through a combination of random sampling and study-opt-in, a total of `r n_unique_complete_dyads` have participated in the NZAVS since 2009. Of those, `r n_dyads` participated in NZAVS wave 2018 and we eligible for this study. 
+
+
+[Appendix A](#appendix-measures) provides statistical information about the measures used in this study.
+
+[Appendix B](#appendix-demographics) provides information about demographic covariates used for confounding control (NZAVS time 10, years 2018-2019).
+
+[Appendix C](#appendix-exposures) provides information about the treatment responses at baseline (NZAVS time 10) and in the treatment wave (NZAVS time 11, years 2019-2020).
+
+[Appendix D](#appendix-outcomes) provides information about about the outcome variables responses at baseline (NZAVS time 10) and in the treatment wave (NZAVS time 12, years 2020-2021).
+
+### Eligibility criteria 
+
+The sample consisted of respondents to NZAVS times 10 (baseline, years 2018-2019), time 11 (treatment wave, years 2019-2020), and time 12 (outcome wave) (years 2020-2021).
+
+
+#### Included
+
+- Participants who were identified as being in couples.   
+- Participants who provided full information to the perfectionism measure at baseline
+
+##### Excluded 
+
+- Participants who had missing responses to the perfectionism at baseline.
+- We allowed loss-to-follow-up in the following waves (NZAVS wave 2019, years 2019-2020, and NZAVS wave 2020, years 2020 - 2021)
+- Missing responses at baseline for all variables except the treatment were permitted and imputed using the ppm algorithm of the `mice` package [@vanbuuren2018].
+- Inverse probability of censoring weights were calculated for those lost to follow up as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave [@williams2021])
+
+There were `r n_participants` NZAVS participants in `r n_dyads` couples who met these criteria.
+
+
+### Causal Contrast
+
+Here, we leverage panel data to estimate potential outcomes in a hypothetical world where partners in couples were shifted up or down by two points on a 1-7 scale for perfectionism.
+
+Our causal estimand takes a "shift function" or "modified treatment policy", where the interventions take the form of interventions defined by the following functions:
+
+* **Shift up by +2 points up to the maximum of the scale range:**
+   $$
+   \mathbf{d}^\lambda (a_t) = \begin{cases} a_t + 2 & \text{if $a_t$ < 5} \\ 
+  a_t = 7 & \text{otherwise} \end{cases}
+   $$
+
+* **Shift down by -2 points up to the minimum of the scale range**
+   $$
+   \mathbf{d}^\phi (a_t) = \begin{cases} a_t - 2 & \text{if $a_t$ > 3} \\ 
+  a_t = 1 & \text{otherwise} \end{cases}
+   $$ 
+
+* **No intervention**
+   $$
+   \mathbf{d}(a_t) = \text{the observed value of $a_t$ is assumed with out modification}
+   $$ 
+
+
+Thus our contrasts were given by the interventions:
+
+- **increase +2 function**: increases the treatment variable by one unit, capped at the maximum observed score.
+- **decrease -2 function**: decreases the treatment variable by one unit, floored at the minimum observed score.
+- **'null' model:** the null model was specified identically to the treatment effect models in terms of the included covariates, outcome variable, and model structure but without applying any shift to the treatment variable. 
+
+A gain contrast was obtained by contrasting the +2 function against the null model:
+
+$$ \text{Longitudinal Motified Treatment Policy: shift up} = E[Y(\mathbf{d}^\lambda)- Y(\mathbf{d})] $$
+
+
+A loss contrast was obtained by contrasting the -2 function against the null model:
+
+
+$$ \text{Longitudinal Motified Treatment Policy: shift down} = E[Y(\mathbf{d}^\phi)- Y(\mathbf{d})] $$
+
+By estimating a model under the assumption of no change in the treatment status, we obtained clear baselines against which the effects of the hypothetical interventions on perfectionism be assessed, as measured by *parnter outcomes*. 
+
+
+### Identification Assumptions
+
+To consistently estimate causal effects, we rely on three key assumptions:
+
+1. **Causal consistency:** potential outcomes must align with observed outcomes under the treatments in our data. Essentially, we assume potential outcomes do not depend on the specific way treatment was administered as long as we consider measured covariates. 
+
+2. **Strong sequential randomization** given the observed covariates, we assume treatment assignment is independent both of the potential outcomes to be contrasted and all future counterfactual responses (see []). In simpler terms, this means "no unmeasured confounding" in each sequential treatment at $\bar{A}_\tau: t \in 1\dots \tau$.
+
+3. **Positivity:** for unbiased estimation, every subject must have a non-zero chance of receiving the treatment, regardless of their covariate values. We evaluate this assumption in each study by examining changes in perfectionism "treatments" from baseline (NZAVS time 10) to the treatment wave (NZAVS time 11). It is the initiation of a shift in perfectionism whose causal effect we seek to quantify
+
+
+### Confounding Control Strategy
+
+We followed @vanderweele2020's *minimally modified disjunctive criteria* for confounding control.
+
+1. **Initial identify confounders**: using causal diagrams, we began by enumerating all covariates that may influence either the treatment (exposure) or outcomes, spanning five domains. This includes variables directly affecting the exposure or outcome and potential consequences of these variables (i.e. proxies.)
+
+2. **Remove instrumental variables**: we removed variables that are identified as instrumental variables, i.e., those influencing the exposure but not the outcome. Their inclusion can reduce the efficiency of the analysis.
+
+3. **Include of proxy variables**: for unmeasured variables that affect both the exposure and outcome, include proxy variables wherever possible. These proxies act as indicators for the unmeasured common causes. [Appendix B](#appendix-demographics) lists covariates we used for confounding control. These protocols follow the advice in [@bulbulia2024PRACTICAL] as prespecified in [https://osf.io/ce4t9/](https://osf.io/ce4t9/).
+
+<!-- 4. **Baseline exposure control**: we included baseline outcome measures to adjust for unmeasured confounding [@vanderweele2020]. Accounting for prior exposure also allowed us to recover an incident exposure effect as opposed to a prevalent exposure effect: that is, we were able to focus on the one-year effect on partner well-being from initiation to psychopathy or a psychopathic trait [@danaei2012; @hernan2023]. -->
+
+3. **Baseline outcome control**: we also included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. This strategy also minimises the possibility of reverse causation.
+
+
+Additionally, we adopted the following confounding-control strategies:
+
+
+6. **Partner's covariates**: because the effect of changes in one individual's variables on their partner's outcomes is assessed, we include baseline measures for the partner's covariates, as we as the focal partner. Additionally, we clustered individuals with their dyadic partnerships, which helps adjust for unmeasured features that might affect results.
+
+7. **Handling missing data**: as mentioned, to better ensure that the analyses were robust to potential biases introduced by missing data, we adopted the following strategies:
+
+  - **Baseline missingness**: we imputed missing data to recover baseline missing data (`mice` package in R) [@vanbuuren2018].
+  - **Follow-up missingness**: We used the `lmtp` package's built-in censoring weighting to adjust for loss-to-follow-up/sample attrition [@williams2021].
+
+<!-- Valid inferences for the New Zealand population were secured by applying post-stratification census weights for age, European ethnicity, and gender. -->
+
+
+
+#### Estimator 
+
+We employ a semi-parametric estimator known as Targeted Minimum Loss-based Estimation (TMLE), which is able to estimate the causal effect of modified treatment policies on outcomes over time [@vanderlaan2011; @vanderlaan2018]. Estimation was performed using `lmtp` package [@williams2021; @díaz2021; @hoffman2023]. TMLE is a robust method that combines machine learning techniques with traditional statistical models to estimate causal effects while providing valid statistical uncertainty measures for these estimates.
+
+TMLE operates through a two-step process involving outcome and treatment (exposure) models. Initially, it employs machine learning algorithms to flexibly model the relationship between treatments, covariates, and outcomes. This flexibility allows TMLE to account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions. The outcome of this step is a set of initial estimates for these relationships.
+
+The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible to the true causal effect while remaining robust to model misspecification in either the outcome or treatment model.
+
+A central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid overfitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]
+
+
+#### Estimation
+
+
+`lmtp` draws on the the `SuperLearner` library, which comprises various machine learning algorithms [@SuperLearner2023]. Given the relatively sample (N=1070) we used the `Ranger` and `randomForest` estimators - both causal forest estimators --  a subset of non-parametric estimators distinguished by their resilience against overfitting [Ranger2017; randomForest2002].  Causal forests excel in identifying complex, non-linear relationships between variables without presupposing a specific model form and thus making fewer assumptions about the underlying data distribution. 
+
+Importantly, members of relationship pairs were identified using the `lmtp` function and by setting `id = `, the character string used to identify each dyad member. 
+
+Graphs, tables and reports were produced using the `margot` package [@margot2024]
+
+
+#### Cross-Validation
+
+We implemented a 10-fold cross-validation. This method partitions the data into ten subsets of approximately equal size. During the cross-validation process, nine subsets are used to train the model, and the remaining subset is used for testing. This process is repeated ten times, with each of the ten subsets used exactly once as the test set. Using different subsets for training and validation minimises the risk of the model being overly complex and fitting the noise in the training dataset, which can lead to poor performance on new data. Moreover, each observation is used for training and validation, which is particularly beneficial in scenarios where the amount of data is limited. The cross-validation process results in ten estimates of model accuracy, which can be averaged to provide a more comprehensive measure of model performance.
+
+
+#### Sensitivity Analysis Using the E-value
+
+To measure sensitivity to unmeasured confounding, we report VanderWeele and Ding's "E-value" for all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association  [@vanderweele2020; @linden2020EVALUE]. For example, if the E-value were 1.3, it would mean an unmeasured confounder associated with both the treatment and outcome by a risk ratio of 1.3 each (or 30% increase in risk) could explain away the observed effect. Weaker confounding would not suffice. We also report the bound of the E-value closest to 1. If the lower bound of the CI were 1.1, to explain away the result, the strength of an unmeasured confounder in its association with both the treatment and the outcome would need to be at least 1.1 on the risk ratio scale (or a 10% increase in risk) to explain away the result [@vanderweele2017]. 
+
+
+## Results 
+
+### Data Exploration
+
+#### Histogram of Exposure
+
+```{r}
+#| label: fig-histogram
+#| fig-cap: "Histogram of the treatment variable (possible response scale = 1-7)"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 6
+#| fig-width: 8
+
+graph_density_of_exposure_both
+```
+
+@fig-histogram presents a histogram of the treatment variable in the wave following baseline (NZAVS wave 2019). Shift interventions in this study target the causal effect of either moving two units up on the perfectionism response scale, or by moving two units down. Because the scale is bounded by 1 and 7, those within the top of the scale range (indicated by gold) were exposed to a level of perfectionism less than two during the gain intervention; likewise, those within the bottom two units of the scale were exposed to a level of perfectionism lower than two in the loss intervention. 
+
+
+
+## Study 1: Causal Effects of Gains in Perfection on Partner Relationship Perceptions
+
+
+### Imbalance of Confounding Covariates Treatments 
+
+@fig-match_base shows the imbalance of covariates on the standard deviation change in the treatment condition at the baseline wave.
+
+```{r}
+#| label: fig-match_base
+#| fig-cap: "Figure imbalance of covariates at the first exposure (baseline) wave"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+
+love_plot_base <- margot::here_read("love_plot_base")
+love_plot_base
+```
+
+
+We offer the following evaluation of this imbalance (to follow)
+
+Strong over-representation in high-perfectionism for 
+- both anxiety and depression features of Kessler 6 anxiety
+- neuroticism
+- relationship conflict
+
+Under-representation in 
+- body satisfaction
+- conscientiousness
+- sexual satisfaction 
+- partner sexual satisfaction
+
+Results would be biased to the extent that these features cause both perfectionism and the outcomes (partner responses).  For this reason, we must adjust for them. 
+
+
+<!-- ```{r} -->
+<!-- #| label: fig-match_one -->
+<!-- #| fig-cap: "Figure imbalance of covariates at the second exposure (baseline + 1) wave" -->
+<!-- #| eval: true -->
+<!-- #| include: true -->
+<!-- #| echo: false -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 6 -->
+
+<!-- love_plot_one <- margot::here_read("love_plot_one") -->
+<!-- love_plot_one -->
+<!-- ``` -->
+
+
+
+#### Transition table
+
+```{r}
+#| label: verify-positivity
+#| eval: false
+#| echo: false
+
+transition_table
+```
+
+@tbl-transition presents a transition matrix that captures state shifts across the treatment intervals. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the treatment at baseline (From), and the columns correspond to the state at the following wave (To). **Diagonal entries** (in **bold**) correspond to the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** correspond to the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts from the baseline state to other states. Overall the matrix suggests relatively strong stability and few instances of extreme shifts. 
+
+|  From   | State 1 | State 2 | State 3 | State 4 | State 5 | State 6 | State 7 |
+|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| State 1 | **76**  |   48    |   19    |    5    |    0    |    0    |    0    |
+| State 2 |   74    | **193** |   80    |   28    |    5    |    1    |    0    |
+| State 3 |   16    |   96    | **127** |   71    |   19    |    4    |    1    |
+| State 4 |    6    |   27    |   84    | **96**  |   51    |   13    |    1    |
+| State 5 |    1    |    9    |   16    |   42    | **48**  |   29    |    2    |
+| State 6 |    0    |    0    |    3    |    8    |   11    | **19**  |    5    |
+| State 7 |    0    |    0    |    0    |    1    |    4    |    6    |  **7**  |
+
+: Transition matrix for change in treatment from baseline to the treatment wave (values rounded to nearest whole number) {#tbl-transition}
+
+
+### Results Study 1: Effects of Gain in Perfectionism on Partner Relationship Attitudes
+
+@fig-results-gain and @tbl-results-gain present the results of the study investigating the one year causal effect of a two point decrease in perfectionism across the stratum of the New Zealand Population represented in the New Zealand Attitudes and Values study at the baseline wave (2018-2019)
+
+```{r}
+#| label: fig-results-gain
+#| fig-cap: "This figure describes the causal effects of two-point GAIN of perfection on PARTNER relationship attitudes at the end of study. Outcomes are z-transformed."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 8
+#| fig-width: 8
+
+plot_group_tab_gain <- margot_plot(
+  group_tab_outcomes_gain,
+  type = "RD",
+  title = title,
+  subtitle = "Gain of Perfectionism, N = 1860",
+  estimate_scale = 1,
+  base_size = 16,
+  text_size = 3.0,
+  point_size = 2,
+  title_size = 18,
+  subtitle_size = 12,
+  legend_text_size = 8,
+  legend_title_size = 8,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+plot_group_tab_gain
+
+
+```
+
+
+```{r}
+#| label: tbl-results-gain
+#| tbl-cap: "This table describes the causal effects of two-point GAIN of perfection on PARTNER relationship attitudes at the end of study. Outcomes are z-transformed."
+#| eval: true
+#| include: true
+#| echo: false
+
+
+tab_outcomes_gain |>
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+#margot_interpret_table(group_tab_outcomes_gain, causal_scale = "causal_difference", estimand = 'LMTP')
+
+```
+
+A Longitudinal Modified Treatment Policy (LMTP) calculates the expected outcome difference between treatment and contrast groups for a specified population, focusing on longitudinal data.
+
+For 'partner perceived conflict', the lmtp effect estimate is 0.092 [0.02, 0.164]. The E-value for this estimate is 1.395, with a lower bound of 1.153. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.153 to negate the observed effect. Weaker associations would not overturn it. We infer **evidence for causality**.
+
+For 'partner relationship satisfaction', the lmtp effect estimate is -0.041 [-0.095, 0.013]. The E-value for this estimate is 1.237, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker associations would not overturn it. We infer **that evidence for causality is not reliable**.
+
+For 'partner sexual satisfaction', the lmtp effect estimate is -0.069 [-0.126, -0.011]. The E-value for this estimate is 1.327, with a lower bound of 1.118. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.118 to negate the observed effect. Weaker associations would not overturn it. We infer **evidence for causality**.
+
+{{< pagebreak >}}
+
+### Results Study 2: Effects of Loss in Perfectionism on Partner Relationship Attitudes
+
+@fig-results-loss and @tbl-results-loss present the results of the study investigating the one year causal effect of a two point decrease in perfectionism across the stratum of the New Zealand Population represented in the New Zealand Attitudes and Values study at the baseline wave (2018-2019)
+
+```{r}
+#| label: fig-results-loss
+#| fig-cap: "This figure describes the causal effects of two-point LOSS of perfection on PARTNER relationship attitudes at the end of study. Outcomes are z-transformed."
+#| fig-height: 8
+#| fig-width: 8
+#| eval: true
+#| include: true
+#| echo: false
+
+plot_group_tab_loss <- margot_plot(
+  group_tab_outcomes_loss,
+  type = "RD",
+  title = title,
+  subtitle = "Loss of Perfectionism, N = 1860",
+  estimate_scale = 1,
+  base_size = 16,
+  text_size = 3.0,
+  point_size = 2,
+  title_size = 18,
+  subtitle_size = 12,
+  legend_text_size = 8,
+  legend_title_size = 8,
+  x_offset = -1,
+  x_lim_lo = -1,
+  x_lim_hi =  .5
+)
+plot_group_tab_loss
+
+```
+
+```{r}
+#| label: tbl-results-loss
+#| tbl-cap: "This table describes the causal effects of a two-point loss of perfection on partner relationship attitudes at the end of the study. Outcomes are z-transformed."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_outcomes_loss |>
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+#margot_interpret_table(group_tab_outcomes_loss, causal_scale = "causal_difference", estimand = 'LMTP')
+
+```
+
+For 'partner sexual satisfaction', the effect estimate is 0.147 [0.067, 0.226]. The E-value for this estimate is 1.548, with a lower bound of 1.321. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.321 to negate the observed effect. Weaker associations would not overturn it. We infer **evidence for causality**.
+
+The effect estimate for 'partner relationship satisfaction' is 0.015 [-0.052, 0.081]. The E-value for this estimate is 1.132, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker associations would not overturn it. We infer **that evidence for causality is not reliable**.
+
+The effect estimate for 'partner perceived conflict' is -0.04 [-0.121, 0.04]. The E-value for this estimate is 1.233, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker associations would not overturn it. We infer **that evidence for causality is not reliable**.
+
+## Discussion
+
+### Perfectionism GAIN
+
+**Partner perceived conflict**: a two-point "gain" in perfectionism is expected to yield a slight increase in average partner perceived conflict (b = 0.092 [0.02, 0.164]). The corresponding E-value of 1.395 suggests that any unmeasured confounder would need a minimum association strength of at least 1.395 (or 1.153 at the interval closest to 1) to invalidate the observed result. This suggests modest robustness to potential unmeasured confounding supporting a causal relationship.
+
+**Partner Sexual Satisfaction**: a two-point "gain" in perfectionism is expected to yield reduced partner sexual satisfaction, with an effect estimate of b = -0.069 [-0.126, -0.011]. The robustness of this finding is indicated by an E-value of 1.327, indicating that unmeasured confounders would require a relatively strong association with both the intervention sequence and outcome to negate the observed causal effect.
+
+**Partner Relationship Satisfaction**: no evidence for a reliable effect from this shift intervention.
+
+### Loss of Perfectionism
+
+**Partner Sexual Satisfaction:** The LMTP effect estimate for a two-point decrease in perfectionism on partner sexual satisfaction is the **most robust** result we observed in this study -- with an estimate of b = 0.147 [0.067, 0.226]. The robustness of this finding is supported by an E-value of 1.548, indicating that a substantial strength of association by unmeasured confounders would be required to negate the observed causal effect. This suggests that interventions leading to reduced perfectionism can benefit aspects of intimate relationships.
+
+Our analysis of **Partner Relationship Satisfaction**  and **Partner Perceived Conflict** does offer evidence that a loss of perfectionism makes a reliable difference, on average, to these parameters. 
+
+
+
+#### Strengths of Study
+
+- Time-series data with which to evaluate causal effects
+- Clearly defined causal questions with appropriate causal control. 
+- Unrestrictive modelling assumptions (i.e. about functional form.)
+- ... 
+
+#### Future directions
+
+- Time in relationships -- habituation? etc... 
+- Gender differences and heterogeneity
+- The shift we assess here -- two units down -- is a strong intervention. This helps us to evaluate a theoretical question comparable to an experiment.  However, whether the insights we obtain here have practical applications relies on whether interventions can shift people up or down by two points on the perfectionism scale. 
+- Results might not generalise to other countries...
+
+
+### Ethics
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+### Acknowledgements
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+### Author Statement
+
+
+  - AM, KR, DD, HW conceived of the study.
+  - JB conceived of an analytic approach and did the analysis.
+  - CS led NZAVS data collection. 
+  - All authors contributed to the manuscript.
+
+
+{{< pagebreak >}}
+
+## Appendix A: Measures {#appendix-measures}
+
+#### Age (waves: 1-15)
+
+We asked participants' ages in an open-ended question ("What is your age?" or "What is your date of birth").
+
+
+<!-- #### Charitable Donations  (Study 1 outcome) -->
+
+<!-- Using one item from @hoverd_religious_2010, we asked participants, "How much money have you donated to charity in the last year?".  -->
+
+<!-- <!-- To stabilise this indicator, we took the natural log of the response + 1. --> -->
+
+
+<!-- #### Charitable Volunteering  (Study 1 outcome) -->
+
+
+<!-- We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work." -->
+
+<!-- <!-- To stabilise this indicator, we took the natural log of the response + 1. --> -->
+
+
+
+#### Body Satisfaction
+
+We measured body satisfaction with one item from @stronge_facebook_2015: "I am satisfied with the appearance, size and shape of my body", which participants rated from 1 (very inaccurate) to 7 (very accurate).
+
+
+
+<!-- #### Community: Sense of Community (Study 2 outcome) -->
+
+<!-- We measured a sense of community with a single item from @sengupta2013: "I feel a sense of community with others in my local neighbourhood." Participants answered on a scale of 1 (strongly disagree) to 7 (strongly agree). -->
+
+
+<!-- #### Community: Felt Belongingness  (Study 2 outcome) -->
+
+<!-- We assessed felt belongingness with three items adapted from the Sense of Belonging Instrument [@hagerty1995]: (1) "Know that people in my life accept and value me"; (2) "Feel like an outsider"; (3) "Know that people around me share my attitudes and beliefs". Participants responded on a scale from 1 (Very Inaccurate) to 7 (Very Accurate). The second item was reversely coded. -->
+
+<!-- #### Community: Social Support (Study 2 outcome) -->
+
+<!-- Participants' perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated the extent to which they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+<!-- #### Disability -->
+
+<!-- We assessed disability with a one item indicator adapted from @verbrugge1997, that asks "Do you have a health condition or disability that limits you, and that has lasted for 6+ months?" (1 = Yes, 0 = No). -->
+
+
+#### Education Attainment (waves: 1, 4-15)
+
+We asked participants, "What is your highest level of qualification?". We coded participants' highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
+
+#### Employment (waves: 1-3, 4-11)
+
+We asked participants, "Are you currently employed? (This includes self-employed or casual work)". \* note: This question disappeared in the updated NZAVS Technical documents (Data Dictionary).
+
+<!-- #### European (waves: 1-15) -->
+
+<!-- Participants were asked "Which ethnic group do you belong to (NZ census question)?" or "Which ethnic group(s) do you belong to? (Open-ended)" (wave: 3). Europeans were coded as 1, whereas other ethnicities were coded as 0. -->
+
+#### Ethnicity
+
+Based on the New Zealand Census, we asked participants, "Which ethnic group(s) do you belong to?". The responses were: (1) New Zealand European; (2) Māori; (3) Samoan; (4) Cook Island Māori; (5) Tongan; (6) Niuean; (7) Chinese; (8) Indian; (9) Other such as DUTCH, JAPANESE, TOKELAUAN. Please state:. We coded their answers into four groups: Maori, Pacific, Asian, and Euro (except for Time 3, which used an open-ended measure).
+
+
+<!-- #### Fatigue -->
+
+<!-- We assessed subjective fatigue by asking participants, "During the last 30 days, how often did ... you feel exhausted?" Responses were collected on an ordinal scale (0 = None of The Time, 1 = A little of The Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time). -->
+
+
+
+
+#### Gender (waves: 1-15)
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male was coded as 1, and gender diverse coded as 3 [@fraser_coding_2020]. (or 0.5 = neither female nor male)
+
+Here, we coded all those who responded as Male as 1, and those who did not as 0.
+
+
+#### Honesty-Humility-Modesty Facet (waves: 10-14)
+
+Participants indicated the extent to which they agree with the following four statements from @campbell2004 , and @sibley2011 (1 = Strongly Disagree to 7 = Strongly Agree)
+
+```
+i.  I want people to know that I am an important person of high status, (Waves: 1, 10-14)
+ii. I am an ordinary person who is no better than others.
+iii. I wouldn't want people to treat me as though I were superior to them.
+iv. I think that I am entitled to more respect than the average person is.
+```
+#### Has Siblings
+
+"Do you have siblings?" [@stronge2019onlychild]
+
+#### Hours of Childcare
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Housework
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+#### Hours of Exercise
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+<!-- #### Hours Volunteering -->
+
+<!-- We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work." -->
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+#### Hours of Childcare
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Exercise
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Housework
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Sleep
+
+Participants were asked "During the past month, on average, how many hours of *actual sleep* did you get per night".
+
+
+#### Socialising (time 10, time 11)
+
+As part of the time usage measures, participants were asked to state how many hour the spent in activities related to socialising with the following groups:
+
+  - Hours spent … socialising with family
+  - Hours spent … socialising with friends
+  - Hours spent … socialising with community groups
+  
+  <!-- - Hours spent … socialising with religious groups -->
+
+#### Hours of Work
+
+We measured hours of work using one item from @sibley2011:"Hours spent … working in paid employment."
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Income (waves: 1-3, 4-15)
+
+Participants were asked "Please estimate your total household income (before tax) for the year XXXX". To stabilise this indicator, we first took the natural log of the response + 1, and then centred and standardised the log-transformed indicator.
+
+<!-- #### Job Security (waves: 1-3,4-7,9-15) -->
+
+<!-- Participants indicated their feeling of job security by answering "How secure do you feel in your current job?" on a scale from 1 (not secure) to 7 (very secure). -->
+
+
+#### Living in an Urban Area (waves: 1-15)
+
+We coded whether they are living in an urban or rural area (1 = Urban, 0 = Rural) based on the addresses provided.
+
+We coded whether they were living in an urban or rural area (1 = Urban, 0 = Rural) based on the addresses provided.
+
+#### Mini-IPIP 6 (waves: 1-3,4-15)
+
+We measured participants' personalities with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011], which consists of six dimensions and each dimension is measured with four items:
+
+1.  agreeableness,
+
+    i.  I sympathize with others' feelings.
+    ii. I am not interested in other people's problems. (r)
+    iii. I feel others' emotions.
+    iv. I am not really interested in others. (r)
+
+2.  conscientiousness,
+
+    i.  I get chores done right away.
+    ii. I like order.
+    iii. I make a mess of things. (r)
+    iv. I often forget to put things back in their proper place. (r)
+
+3.  extraversion,
+
+    i.  I am the life of the party.
+    ii. I don't talk a lot. (r)
+    iii. I keep in the background. (r)
+    iv. I talk to a lot of different people at parties.
+
+4.  honesty-humility,
+
+    i.  I feel entitled to more of everything. (r)
+    ii. I deserve more things in life. (r)
+    iii. I would like to be seen driving around in a very expensive car. (r)
+    iv. I would get a lot of pleasure from owning expensive luxury goods. (r)
+
+5.  neuroticism, and
+
+    i.  I have frequent mood swings.
+    ii. I am relaxed most of the time. (r)
+    iii. I get upset easily.
+    iv. I seldom feel blue. (r)
+
+6.  openness to experience
+
+    i.  I have a vivid imagination.
+    ii. I have difficulty understanding abstract ideas. (r)
+    iii. I do not have a good imagination. (r)
+    iv. I am not interested in abstract ideas. (r)
+
+Each dimension was assessed with four items and participants rated the accuracy of each item as it applies to them from 1 (Very Inaccurate) to 7 (Very Accurate). Items marked with (r) are reverse coded.
+
+
+#### NZ-Born (waves: 1-2,4-15)
+
+We asked participants, "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).
+
+
+#### NZ Deprivation Index (waves: 1-15)
+
+We used the NZ Deprivation Index to assign each participant a score based on where they live [@atkinson2019]. This score combines data such as income, home ownership, employment, qualifications, family structure, housing, and access to transport and communication for an area into one deprivation score.
+
+#### Opt-in
+
+The New Zealand Attitudes and Values Study allows opt-ins to the study. Because the opt-in population may differ from those sampled randomly from the New Zealand electoral roll; although the opt-in rate is low, we include an indicator (yes/no) for this variable.
+
+
+#### NZSEI Occupational Prestige and Status (waves: 8-15)
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017a]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation.
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?". -->
+<!-- #### Parent (waves: 5-15) -->
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. --> 
+
+#### Number of Children (waves: 1-3, 4-15)
+
+We measured the number of children using one item from @Bulbulia_2015. We asked participants, "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or ""How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15).
+
+<!-- Here, we used responses to create a binary indicator for parenthood: Parent Yes = 1/ No = 0.  -->
+
+<!-- #### Partner: Has -->
+
+<!-- "What is your relationship status?" (e.g., single, married, de-facto, civil union, widowed, living together, etc.) -->
+
+
+#### Perfectionism
+
+We assessed participants' perfectionism using three items from @rice_short_2014: (1) Doing my best never seems to be enough; (2) My performance rarely measures up to my standards; (3) I am hardly ever satisfied with my performance. Participants indicated the extent to which they agree with these items (1 = Strongly Disagree to 7 = Strongly Agree).
+
+#### Politically Conservative 
+
+We measured participants' political conservative orientation using a single item adapted from @jost_end_2006-1.
+
+"Please rate how politically liberal versus conservative you see yourself as being."
+
+(1 = Extremely Liberal to 7 = Extremely Conservative)
+
+<!-- #### Politically Right Wing  -->
+
+<!-- We measured participants' political right-wing orientation using a single item adapted from @jost_end_2006-1. -->
+
+<!-- "Please rate how politically left-wing versus right-wing you see yourself as being.." -->
+
+<!-- (1 = Extremely left-wing to 7 = Extremely right-wing) -->
+
+<!-- #### Religion Affiliation -->
+
+<!-- Participants were asked to indicate their religion identification ("Do you identify with a religion and/or spiritual group?") on a binary response (1 = Yes, 0 = No). We then asked, "What religion or spiritual group?" These questions are used in the New Zealand Census -->
+
+
+<!-- #### Support -->
+
+<!-- Participants' perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated the extent to which they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+#### Religion: Frequency of Religious Service Attendance
+
+If participants answered *yes* to "Do you identify with a religion and/or spiritual group?" we measured their frequency of church attendence using one item from @sibley2012: "how many times did you attend a church or place of worship in the last month?". Those participants who were not religious were imputed a score of "0".  Here we used a binary indicator of religious service where 1 = "yes".
+
+
+
+
+
+#### Sample Opt-in
+
+The New Zealand Attitudes and Values Study allows opt-ins to the study. Because the opt-in population may differ from those sampled randomly from the New Zealand electoral roll; although the opt-in rate is low, we include an indicator (yes/no) for this variable.
+
+
+
+#### Sample Origin
+
+NZAVS wave participant joined.
+
+
+
+<!-- #### Short-Form Health -->
+
+<!-- Participants' subjective health was measured using one item ("Do you have a health condition or disability that limits you, and that has lasted for 6+ months?"; 1 = Yes, 0 = No) adapted from @verbrugge1997. -->
+
+
+<!-- #### Support received: money (waves 10-13) (Study 4 outcomes) -->
+
+<!-- The NZAVS has a 'revealed' measure of received help and support measured in hours of support in the previous week. The items are:  -->
+
+<!-- Received help and support - money -->
+<!--   - family -->
+<!--   - friends -->
+<!--   - others in my community -->
+
+
+<!-- #### Support received: time (waves 10-13) (Study 3 outcomes) -->
+
+<!-- The NZAVS has a 'revealed' measure of received help and support measured in hours of support in the previous week. The items are:  -->
+
+<!-- Received help and support - hours -->
+<!--   - family -->
+<!--   - friends -->
+<!--   - others in my community -->
+
+
+<!-- #### Total Siblings -->
+
+<!-- Participants were asked the following questions related to sibling counts:  -->
+
+<!--  - Were you the 1st born, 2nd born, or 3rd born, etc, child of your mother? -->
+<!--  - Do you have siblings? -->
+<!--  - How many older sisters do you have? -->
+<!--  - How many younger sisters do you have? -->
+<!--  - How many older brothers do you have? -->
+<!--  - How many younger brothers do you have? -->
+
+<!-- A single score was obtained from sibling counts by summing responses to the "How many..." items. From these scores an ordered factor was created ranging from 0 to 7, where participants with more than 7 siblings were grouped into the highest category.  -->
+
+
+<!-- #### Volunteers -->
+
+<!-- We asked participants,"Please estimate how many hours you spent doing each of the following things last week" and responded to an item ("voluntary/charitable work") from [@sibley2011]. -->
+
+
+## Appendix B. Baseline Demographic Statistics {#appendix-demographics}
+
+::: {#tbl-B}
+
+```{r}
+#| label: tbl-table-demography-code
+#| tbl-cap: "Baseline demographic statistics"
+#| eval: false
+#| echo: false
+#| include: false
+
+table_baseline <- read_here("table_baseline")
+table_baseline |>  kbl(format = "markdown")
+```
+:::
+
+**Exposure + Demographic Variables** |**N = 1,860** |
+|:------------------------------------|:-------------|
+|__Age__                              |NA            |
+|Mean (SD)                            |51 (12)       |
+|Range                                |19, 90        |
+|IQR                                  |42, 60        |
+|__Agreeableness__                    |NA            |
+|Mean (SD)                            |5.27 (1.03)   |
+|Range                                |1.00, 7.00    |
+|IQR                                  |4.75, 6.00    |
+|Unknown                              |9             |
+|__Bodysat__                          |NA            |
+|1                                    |105 (5.7%)    |
+|2                                    |175 (9.5%)    |
+|3                                    |312 (17%)     |
+|4                                    |307 (17%)     |
+|5                                    |360 (20%)     |
+|6                                    |448 (24%)     |
+|7                                    |135 (7.3%)    |
+|Unknown                              |18            |
+|__Born Nz__                          |1,415 (77%)   |
+|Unknown                              |15            |
+|__Children Num__                     |NA            |
+|0                                    |414 (22%)     |
+|1                                    |164 (8.9%)    |
+|2                                    |729 (39%)     |
+|3                                    |366 (20%)     |
+|4                                    |120 (6.5%)    |
+|5                                    |37 (2.0%)     |
+|6                                    |12 (0.6%)     |
+|7                                    |3 (0.2%)      |
+|8                                    |3 (0.2%)      |
+|Unknown                              |12            |
+|__Conscientiousness__                |NA            |
+|Mean (SD)                            |5.12 (1.03)   |
+|Range                                |1.00, 7.00    |
+|IQR                                  |4.50, 6.00    |
+|Unknown                              |9             |
+|__Education Level Coarsen__          |NA            |
+|no_qualification                     |24 (1.3%)     |
+|cert_1_to_4                          |574 (32%)     |
+|cert_5_to_6                          |223 (12%)     |
+|university                           |513 (28%)     |
+|post_grad                            |232 (13%)     |
+|masters                              |189 (10%)     |
+|doctorate                            |62 (3.4%)     |
+|Unknown                              |43            |
+|__Employed__                         |1,540 (83%)   |
+|Unknown                              |3             |
+|__Eth Cat__                          |NA            |
+|euro                                 |1,549 (84%)   |
+|maori                                |165 (9.0%)    |
+|pacific                              |36 (2.0%)     |
+|asian                                |86 (4.7%)     |
+|Unknown                              |24            |
+|__Extraversion__                     |NA            |
+|Mean (SD)                            |3.87 (1.19)   |
+|Range                                |1.00, 7.00    |
+|IQR                                  |3.00, 4.75    |
+|Unknown                              |9             |
+|__Has Siblings__                     |1,736 (95%)   |
+|Unknown                              |39            |
+|__Hlth Disability__                  |350 (19%)     |
+|Unknown                              |39            |
+|__Honesty Humility__                 |NA            |
+|Mean (SD)                            |5.45 (1.16)   |
+|Range                                |1.00, 7.00    |
+|IQR                                  |4.75, 6.25    |
+|Unknown                              |9             |
+|__Hours Children log__               |NA            |
+|Mean (SD)                            |1.18 (1.58)   |
+|Range                                |0.00, 5.13    |
+|IQR                                  |0.00, 2.40    |
+|Unknown                              |52            |
+|__Hours Exercise log__               |NA            |
+|Mean (SD)                            |1.56 (0.83)   |
+|Range                                |0.00, 4.39    |
+|IQR                                  |1.10, 2.08    |
+|Unknown                              |52            |
+|__Hours Housework log__              |NA            |
+|Mean (SD)                            |2.12 (0.76)   |
+|Range                                |0.00, 4.72    |
+|IQR                                  |1.61, 2.71    |
+|Unknown                              |52            |
+|__Hours Work log__                   |NA            |
+|Mean (SD)                            |2.81 (1.51)   |
+|Range                                |0.00, 4.39    |
+|IQR                                  |2.40, 3.83    |
+|Unknown                              |52            |
+|__Household Inc log__                |NA            |
+|Mean (SD)                            |11.63 (0.65)  |
+|Range                                |9.21, 13.59   |
+|IQR                                  |11.24, 12.07  |
+|Unknown                              |45            |
+|__Kessler Latent Anxiety__           |NA            |
+|Mean (SD)                            |1.15 (0.74)   |
+|Range                                |0.00, 4.00    |
+|IQR                                  |0.67, 1.67    |
+|Unknown                              |11            |
+|__Kessler Latent Depression__        |NA            |
+|Mean (SD)                            |0.49 (0.68)   |
+|Range                                |0.00, 4.00    |
+|IQR                                  |0.00, 0.67    |
+|Unknown                              |11            |
+|__Male__                             |904 (49%)     |
+|__Modesty__                          |NA            |
+|Mean (SD)                            |6.01 (0.94)   |
+|Range                                |1.00, 7.00    |
+|IQR                                  |5.50, 6.75    |
+|__Neuroticism__                      |NA            |
+|Mean (SD)                            |3.39 (1.15)   |
+|Range                                |1.00, 7.00    |
+|IQR                                  |2.50, 4.25    |
+|Unknown                              |9             |
+|__Nz Dep2018__                       |NA            |
+|Mean (SD)                            |4.48 (2.60)   |
+|Range                                |1.00, 10.00   |
+|IQR                                  |2.00, 6.00    |
+|Unknown                              |2             |
+|__Nzsei 13 l__                       |NA            |
+|Mean (SD)                            |56 (16)       |
+|Range                                |10, 90        |
+|IQR                                  |44, 69        |
+|Unknown                              |14            |
+|__Openness__                         |NA            |
+|Mean (SD)                            |5.00 (1.13)   |
+|Range                                |1.50, 7.00    |
+|IQR                                  |4.25, 6.00    |
+|Unknown                              |9             |
+|__Parent__                           |1,434 (78%)   |
+|Unknown                              |12            |
+|__Perfectionism__                    |NA            |
+|Mean (SD)                            |3.09 (1.33)   |
+|Range                                |1.00, 7.00    |
+|IQR                                  |2.00, 4.00    |
+|__Political Conservative__           |NA            |
+|1                                    |105 (6.0%)    |
+|2                                    |384 (22%)     |
+|3                                    |379 (21%)     |
+|4                                    |468 (27%)     |
+|5                                    |270 (15%)     |
+|6                                    |125 (7.1%)    |
+|7                                    |32 (1.8%)     |
+|Unknown                              |97            |
+|__Religion Church Binary__           |302 (17%)     |
+|Unknown                              |51            |
+|__Rural Gch 2018 l__                 |NA            |
+|1                                    |1,147 (62%)   |
+|2                                    |368 (20%)     |
+|3                                    |244 (13%)     |
+|4                                    |82 (4.4%)     |
+|5                                    |17 (0.9%)     |
+|Unknown                              |2             |
+|__Sample Frame Opt in__              |99 (5.3%)     |
+|__Sample Origin__                    |NA            |
+|1-2                                  |71 (3.8%)     |
+|3-3.5                                |111 (6.0%)    |
+|4                                    |77 (4.1%)     |
+|5-6-7                                |190 (10%)     |
+|8-9                                  |218 (12%)     |
+|10                                   |1,193 (64%)   |
+: Baseline demographic statistics {#tbl-table-demography}
+
+
+@tbl-table-demography presents baseline demographic statistics for couples who met inclusion criteria.
+
+
+
+
+##  Appendix C: Treatment Statistics {#appendix-exposures}
+
+
+```{r}
+#| label: tbl-table-exposures-code
+#| tbl-cap: "Exposures at baseline and baseline + 1 (treatment) wave"
+#| eval: false
+#| echo: false
+#| include: false
+table_exposures <-margot::here_read("table_exposures")
+
+table_exposures |>  kbl(format = "markdown")
+```
+
+
+
+|**Exposure Variables by Wave** |**2018**, N = 1,860 |**2019**, N = 1,860 |
+|:------------------------------|:-------------------|:-------------------|
+|__Perfectionism__              |3.00 (2.00, 4.00)   |3.00 (2.00, 4.00)   |
+|Unknown                        |0                   |508                 |
+|__Alert Level Combined__       |NA                  |NA                  |
+|no_alert                       |1,860 (100%)        |1,027 (76%)         |
+|early_covid                    |0 (0%)              |123 (9.1%)          |
+|alert_level_1                  |0 (0%)              |100 (7.4%)          |
+|alert_level_2                  |0 (0%)              |32 (2.4%)           |
+|alert_level_2_5_3              |0 (0%)              |21 (1.6%)           |
+|alert_level_4                  |0 (0%)              |49 (3.6%)           |
+|Unknown                        |0                   |508                 |
+
+: Baseline and treatment wave descriptive statistics {#tbl-table-exposures}
+
+
+@tbl-table-exposures presents baseline (NZAVS time 10) and exposure wave (NZAVS time 11) statistics for the exposure variable: perfectionism (range 1-7).  Because the treatment wave (NZAVS time 11) occurred in New Zealand's COVID-19 pandemic, all models adjusted for the pandemic alert-level. The pandemic is not a "confounder" because a confounder must be related to the treatment and the outcome. At the end of the study, all participants had been exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. Because COVID affected the ability or willingness of individuals to attend religious service, we included the lockdown condition as a covariate [@sibley2012a]. To better enable conditional independence within levels of the treatment variable, we conditioned on the value of COVID-alert level at the second wave. To mitigate systematic biases arising from attrition and missingness, the `lmtp` package uses inverse probability of censoring weights, which were used when estimating the causal effects of the exposure on the outcome. 
+
+##  Appendix D: Baseline and End of Study Outcome Statistics {#appendix-outcomes}
+
+
+```{r}
+#| label: tbl-table-demographic_vars-code
+#| tbl-cap: "Outcomes at baseline and end-of-study"
+#| eval: false
+#| echo: false
+#| include: false
+table_outcomes <-margot::here_read("table_outcomes")
+table_outcomes |>  kbl(format = "markdown")
+
+```
+
+|**Outcome Variables by Wave** |**2018**, N = 1,860 |**2020**, N = 1,860 |
+|:-----------------------------|:-------------------|:-------------------|
+|__Conflict in Relationship__  |NA                  |NA                  |
+|1                             |169 (9.8%)          |128 (9.4%)          |
+|2                             |800 (46%)           |611 (45%)           |
+|3                             |272 (16%)           |219 (16%)           |
+|4                             |232 (13%)           |186 (14%)           |
+|5                             |158 (9.1%)          |167 (12%)           |
+|6                             |76 (4.4%)           |45 (3.3%)           |
+|7                             |21 (1.2%)           |7 (0.5%)            |
+|Unknown                       |132                 |497                 |
+|__Sat Relationship__          |NA                  |NA                  |
+|1                             |8 (0.5%)            |4 (0.3%)            |
+|2                             |17 (1.0%)           |14 (1.0%)           |
+|3                             |34 (2.0%)           |33 (2.4%)           |
+|4                             |66 (3.8%)           |52 (3.8%)           |
+|5                             |176 (10%)           |155 (11%)           |
+|6                             |603 (35%)           |498 (37%)           |
+|7                             |829 (48%)           |605 (44%)           |
+|Unknown                       |127                 |499                 |
+|__Sexual Satisfaction__       |NA                  |NA                  |
+|1                             |88 (5.1%)           |84 (6.1%)           |
+|2                             |140 (8.1%)          |119 (8.6%)          |
+|3                             |137 (7.9%)          |129 (9.4%)          |
+|4                             |297 (17%)           |257 (19%)           |
+|5                             |342 (20%)           |318 (23%)           |
+|6                             |455 (26%)           |299 (22%)           |
+|7                             |273 (16%)           |172 (12%)           |
+|Unknown                       |128                 |482                 |
+
+: Outcomes measured at baseline and end-of-study  {#tbl-table-outcomes}
+
+@tbl-table-outcomes presents baseline and end-of-study descriptive statistics for the outcome variables.  
+
+
+
+
+
+
+
+
+
+## References {.appendix}
+
+
+
+
+
+
