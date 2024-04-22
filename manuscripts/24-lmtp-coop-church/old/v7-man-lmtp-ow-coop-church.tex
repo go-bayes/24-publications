@@ -3,8 +3,14 @@
 \PassOptionsToPackage{hyphens}{url}
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 %
+
+
+\PassOptionsToPackage{table}{xcolor}
+
 \documentclass[
-  single column]{article}
+  10pt,
+  letterpaper,
+]{article}
 
 \usepackage{amsmath,amssymb}
 \usepackage{iftex}
@@ -38,18 +44,9 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
-\usepackage[top=30mm,left=20mm,heightrounded]{geometry}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-% Make \paragraph and \subparagraph free-standing
-\ifx\paragraph\undefined\else
-  \let\oldparagraph\paragraph
-  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
-\fi
-\ifx\subparagraph\undefined\else
-  \let\oldsubparagraph\subparagraph
-  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
-\fi
 
 
 \providecommand{\tightlist}{%
@@ -76,40 +73,74 @@
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
-% definitions for citeproc citations
-\NewDocumentCommand\citeproctext{}{}
-\NewDocumentCommand\citeproc{mm}{%
-  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
-\makeatletter
- % allow citations to break across lines
- \let\@cite@ofmt\@firstofone
- % avoid brackets around text for \cite:
- \def\@biblabel#1{}
- \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
-\makeatother
-\newlength{\cslhangindent}
-\setlength{\cslhangindent}{1.5em}
-\newlength{\csllabelwidth}
-\setlength{\csllabelwidth}{3em}
-\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
- {\begin{list}{}{%
-  \setlength{\itemindent}{0pt}
-  \setlength{\leftmargin}{0pt}
-  \setlength{\parsep}{0pt}
-  % turn on hanging indent if param 1 is 1
-  \ifodd #1
-   \setlength{\leftmargin}{\cslhangindent}
-   \setlength{\itemindent}{-1\cslhangindent}
-  \fi
-  % set entry spacing
-  \setlength{\itemsep}{#2\baselineskip}}}
- {\end{list}}
-\usepackage{calc}
-\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
-\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
-\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
-\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
+% Use adjustwidth environment to exceed column width (see example table in text)
+\usepackage{changepage}
+
+% marvosym package for additional characters
+\usepackage{marvosym}
+
+% cite package, to clean up citations in the main text. Do not remove.
+% Using natbib instead
+% \usepackage{cite}
+
+% Use nameref to cite supporting information files (see Supporting Information section for more info)
+\usepackage{nameref,hyperref}
+
+% line numbers
+\usepackage[right]{lineno}
+
+% ligatures disabled
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+
+% create "+" rule type for thick vertical lines
+\newcolumntype{+}{!{\vrule width 2pt}}
+
+% create \thickcline for thick horizontal lines of variable length
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
+}
+
+% \thickhline command for thick horizontal lines that span the table
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
+
+% Text layout
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in 
+\textheight 8.75in
+
+% Bold the 'Figure #' in the caption and separate it from the title/caption with a period
+% Captions will be left justified
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
+
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+% Header and Footer with logo
+\usepackage{lastpage,fancyhdr}
+\usepackage{epstopdf}
+%\pagestyle{myheadings}
+\pagestyle{fancy}
+\fancyhf{}
+%\setlength{\headheight}{27.023pt}
+%\lhead{\includegraphics[width=2.0in]{PLOS-submission.eps}}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\today}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
@@ -169,6 +200,8 @@
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
+\usepackage[numbers,square,comma]{natbib}
+\bibliographystyle{plos2015}
 \usepackage{bookmark}
 
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
@@ -186,15 +219,60 @@ Intervention, Volunteering},
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
 
-\title{Causal Effects of Religious Service Attendance: Evidence Using
-Novel Measures From A National Longitudinal Panel}
-\author{Joseph A. Bulbulia \and Don E Davis \and Kenneth G.
-Rice \and Chris G. Sibley \and Geoffrey Troughton}
-\date{2024-04-17}
+
 
 \begin{document}
-\maketitle
-\begin{abstract}
+\vspace*{0.2in}
+
+% Title must be 250 characters or less.
+\begin{flushleft}
+{\Large
+\textbf\newline{Causal Effects of Religious Service Attendance: Evidence
+Using Novel Measures From A National Longitudinal
+Panel} % Please use "sentence case" for title and headings (capitalize only the first word in a title (or heading), the first word in a subtitle (or subheading), and any proper nouns).
+}
+\newline
+\\
+% Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
+Joseph A. Bulbulia\textsuperscript{1*}, Don E
+Davis\textsuperscript{2}, Kenneth G. Rice\textsuperscript{2}, Chris G.
+Sibley\textsuperscript{3}, Geoffrey Troughton\textsuperscript{4}
+\\
+\bigskip
+\textbf{1} Victoria University of Wellington, New
+Zealand, \\ \textbf{2} Georgia State University, \\ \textbf{3} School of
+Psychology, University of Auckland, \\ \textbf{4} Victoria University of
+Wellington, 
+\bigskip
+
+% Insert additional author notes using the symbols described below. Insert symbol callouts after author names as necessary.
+% 
+% Remove or comment out the author notes below if they aren't used.
+%
+% Primary Equal Contribution Note
+\Yinyang These authors contributed equally to this work.
+
+% Additional Equal Contribution Note
+% Also use this double-dagger symbol for special authorship notes, such as senior authorship.
+%\ddag These authors also contributed equally to this work.
+
+% Current address notes
+\textcurrency Current Address: Dept/Program/Center, Institution Name, City, State, Country % change symbol to "\textcurrency a" if more than one current address note
+% \textcurrency b Insert second current address 
+% \textcurrency c Insert third current address
+
+% Deceased author note
+\dag Deceased
+
+% Group/Consortium Author Note
+\textpilcrow Membership list can be found in the Acknowledgments section.
+
+% Use the asterisk to denote corresponding authorship and provide email address in note below.
+* joseph.bulbulia@vuw.ac.nz
+
+\end{flushleft}
+
+\section*{Abstract}
 Causal investigations for the effects of religion on prosociality must
 be precise. One must articulate a specific causal contrast for a feature
 of religion, select appropriate prosociality measures, define the target
@@ -215,28 +293,22 @@ annual spending. This research underscores the essential role of
 formulating precise causal questions and establishes a methodological
 framework for answering them in the scientific study of cultural
 practices.
-\end{abstract}
 
+
+\linenumbers
 \subsection{Introduction}\label{introduction}
 
 A central question in the scientific study of religion is whether
-religion fosters cooperation (\citeproc{ref-bulbuliaj.2013}{Bulbulia, J.
-\emph{et al.} 2013}; \citeproc{ref-johnson2005}{Johnson 2005};
-\citeproc{ref-norenzayan2016}{Norenzayan \emph{et al.} 2016};
-\citeproc{ref-sibley2012a}{Sibley and Bulbulia 2012};
-\citeproc{ref-sosis2003cooperation}{Sosis and Bressler 2003};
-\citeproc{ref-watts2015}{Watts \emph{et al.} 2015};
-\citeproc{ref-watts2016}{Watts \emph{et al.} 2016}). However,
-quantifying causal effects for religion, and many other social
+religion fosters cooperation
+\citep{johnson2005, norenzayan2016, bulbuliaj.2013, watts2016, watts2015, sosis2003cooperation, sibley2012a}.
+However, quantifying causal effects for religion, and many other social
 behaviours, presents significant challenges. Much of religion eludes
 randomised experiments. Additionally, valid causal conclusions from
 observational data require both high-resolution time-series data and
 robust methods for causal inference. Few studies combine these
-characteristics (refer to Kelly \emph{et al.}
-(\citeproc{ref-kelly2024religiosity}{2024}) for a recent research
-summary and Chen \emph{et al.} (\citeproc{ref-chen2020religious}{2020})
-for a well-designed observational study on religious service and mental
-health).
+characteristics (refer to \citet{kelly2024religiosity} for a recent
+research summary and \citet{chen2020religious} for a well-designed
+observational study on religious service and mental health).
 
 Moreover, the question ``Does religion cause prosociality?'' lacks
 specificity. To refine this question, we must articulate clear causal
@@ -245,10 +317,8 @@ define our target population, gather appropriate time-series data, and,
 assuming that causal assumptions and identification criteria are met,
 calculate statistical estimates. Having obtained these estimates, which
 rely on assumptions, we must evaluate robustness using sensitivity
-analyses (\citeproc{ref-bulbulia2022}{Bulbulia 2022};
-\citeproc{ref-hernan2024WHATIF}{Hernan and Robins 2024};
-\citeproc{ref-linden2020EVALUE}{Linden \emph{et al.} 2020};
-\citeproc{ref-ogburn2021}{Ogburn and Shpitser 2021}).
+analyses
+\citep{hernan2024WHATIF, ogburn2021, bulbulia2022, linden2020EVALUE}.
 
 Here, we use comprehensive panel data from 33,198 participants in the
 New Zealand Attitudes and Values Study from 2018-2021 to quantify the
@@ -259,18 +329,13 @@ self-reported giving as well as help received.
 
 We define causal effects as quantitative contrasts between potential
 outcomes under intervention on religious service attendance, the
-``treatment,'' within a specified population (see Rubin
-(\citeproc{ref-rubin2005}{2005}); Splawa-Neyman \emph{et al.}
-(\citeproc{ref-neyman1923}{1990}), Robins
-(\citeproc{ref-robins1986}{1986}); our approach is consistent with the
-counterfactual approaches Pearl (\citeproc{ref-pearl2009}{2009}), Van
-Der Laan and Rose (\citeproc{ref-vanderlaan2018}{2018})). We express
-these interventions as ``modified treatment policies'' and obtain causal
-inferences by contrasting inferred population treatment averages
-(\citeproc{ref-duxedaz2021}{Díaz \emph{et al.} 2021},
-\citeproc{ref-diaz2023lmtp}{2023};
-\citeproc{ref-haneuse2013estimation}{Haneuse and Rotnitzky 2013};
-\citeproc{ref-hoffman2023}{Hoffman \emph{et al.} 2023}).
+``treatment,'' within a specified population (see \citet{rubin2005};
+\citet{neyman1923}, \citet{robins1986}; our approach is consistent with
+the counterfactual approaches \citet{pearl2009},
+\citet{vanderlaan2018}). We express these interventions as ``modified
+treatment policies'' and obtain causal inferences by contrasting
+inferred population treatment averages
+\citep{haneuse2013estimation, diaz2023lmtp, díaz2021, hoffman2023}.
 
 Our initial causal contrast investigates: ``What would be the average
 difference across the New Zealand population if everyone attended
@@ -298,7 +363,7 @@ and policy interests.
 Consider that our approach does not focus on testing predefined
 hypotheses; instead, we aim to compute causal effects with high accuracy
 by combining appropriate time-series data and robust methods for causal
-inference (\citeproc{ref-hernan2024stating}{Hernán and Greenland 2024}).
+inference \citep{hernan2024stating}.
 
 \subsection{Method}\label{method}
 
@@ -411,9 +476,7 @@ We provide comprehensive details of all measures in \textbf{Appendix A}.
 
 We define three targeted causal contrasts (\emph{causal estimands}) as
 interventions on prespecified modified treatment policies
-(\citeproc{ref-diaz2023lmtp}{Díaz \emph{et al.} 2023};
-\citeproc{ref-diaz2021nonparametric}{Dı́az \emph{et al.} 2021};
-\citeproc{ref-haneuse2013estimation}{Haneuse and Rotnitzky 2013}). Let
+\citep{haneuse2013estimation, diaz2021nonparametric, diaz2023lmtp}. Let
 \(A_t\) denote the treatment, the monthly frequency of religious
 service. There are three time points, \(t\in{0,1,2}\), where \(t=0\)
 denotes the baseline wave, \(t=1\), the treatment wave, and \(t=2\) the
@@ -425,9 +488,7 @@ case symbol \(a_1\). In this study the functions defined by
 
 We define three targeted causal contrasts (\emph{causal estimands})
 using modified treatment policies as outlined in
-(\citeproc{ref-diaz2023lmtp}{Díaz \emph{et al.} 2023};
-\citeproc{ref-diaz2021nonparametric}{Dı́az \emph{et al.} 2021};
-\citeproc{ref-haneuse2013estimation}{Haneuse and Rotnitzky 2013}). Let
+\citep{haneuse2013estimation, diaz2021nonparametric, diaz2023lmtp}. Let
 \(A_t\) represent the treatment variable, the monthly frequency of
 religious service. This study has three distinct measurement intervals,
 \(t \in \{0, 1, 2\}\), where \(t=0\) is the baseline wave, \(t=1\) is
@@ -531,24 +592,20 @@ assumptions:
   observed outcomes under the treatments in the data. Essentially, we
   assume potential outcomes do not depend on how the treatment was
   administered, conditional on measured covariates
-  (\citeproc{ref-vanderweele2009}{VanderWeele 2009};
-  \citeproc{ref-vanderweele2013}{VanderWeele and Hernan 2013}).
+  \citep{vanderweele2009, vanderweele2013}.
 \item
   \textbf{Exchangeability} given observed covariates, we assume
   treatment assignment is independent of the potential outcomes to be
   contrasted. In other words, there is ``no unmeasured confounding''
-  (\citeproc{ref-chatton2020}{Chatton \emph{et al.} 2020};
-  \citeproc{ref-hernan2024WHATIF}{Hernan and Robins 2024}).
+  \citep{hernan2024WHATIF, chatton2020}.
 \item
   \textbf{Positivity:} for unbiased estimation, every subject must have
   a non-zero chance of receiving the treatment, regardless of their
-  covariate values Westreich and Cole
-  (\citeproc{ref-westreich2010}{2010}). We evaluate this assumption in
+  covariate values \citet{westreich2010}. We evaluate this assumption in
   each study by examining changes in religious service attendance from
   baseline (NZAVS time 10) to the treatment wave (NZAVS time 11). For
   further discussion of these assumptions in the context of NZAVS
-  studies, see Bulbulia \emph{et al.}
-  (\citeproc{ref-bulbulia2023a}{2023}).
+  studies, see \citet{bulbulia2023a}.
 \end{enumerate}
 
 \subsubsection{Target Population}\label{target-population}
@@ -565,8 +622,7 @@ these disparities and enhance the accuracy of our findings, we apply New
 Zealand Census survey weights to the sample data. These weights adjust
 for variations in age, gender, and ethnicity to better approximate the
 national demographic composition. Detailed methodologies related to the
-application of these weights are discussed in Sibley
-(\citeproc{ref-sibley2021}{2021}).
+application of these weights are discussed in \citet{sibley2021}.
 
 \subsubsection{Eligibility Criteria}\label{eligibility-criteria}
 
@@ -599,9 +655,8 @@ in the study.
 \caption{\label{tbl-02}This table presents three Single World
 Intervention Graphs (SWIGs), one for each of the treatment conditions we
 compare. Note that we obtain strong confounding control by including
-baseline measures for both the treatments and outcomes, see VanderWeele
-\emph{et al.} (\citeproc{ref-vanderweele2020}{2020}), Bulbulia
-(\citeproc{ref-bulbulia2024PRACTICAL}{2024a}).}
+baseline measures for both the treatments and outcomes, see
+\citet{vanderweele2020}, \citet{bulbulia2024PRACTICAL}.}
 
 \centering{
 
@@ -613,26 +668,19 @@ baseline measures for both the treatments and outcomes, see VanderWeele
 
 Table~\ref{tbl-02} presents three Single World Intervention Graphs
 (SWIGs) that outline our identification strategy
-(\citeproc{ref-richardson2023nested}{Richardson \emph{et al.} 2023};
-\citeproc{ref-richardson2013swigsprimer}{Richardson and Robins 2013},
-\citeproc{ref-richardson2023potential}{2023};
-\citeproc{ref-robins2010alternative}{Robins and Richardson 2010};
-\citeproc{ref-shpitser2022multivariate}{Shpitser \emph{et al.} 2022};
-\citeproc{ref-shpitser2016causal}{Shpitser and Tchetgen 2016}). Our
-approach consistently applies the same identification strategy across
-all functions estimated in this study. Note that the natural value of
-the treatment \(A\) is obtained from its observed instances and baseline
-historical data. This method ensures that our analysis accurately
-captures the causal effects of flexible treatment regimes
-(\citeproc{ref-diaz2021nonparametric}{Dı́az \emph{et al.} 2021};
-\citeproc{ref-diaz2012population}{Muñoz and Van Der Laan 2012};
-\citeproc{ref-young2014identification}{Young \emph{et al.} 2014}).
+\citep{robins2010alternative, richardson2013swigsprimer, shpitser2022multivariate, richardson2023nested, richardson2023potential, shpitser2016causal}.
+Our approach consistently applies the same identification strategy
+across all functions estimated in this study. Note that the natural
+value of the treatment \(A\) is obtained from its observed instances and
+baseline historical data. This method ensures that our analysis
+accurately captures the causal effects of flexible treatment regimes
+\citep{diaz2012population, young2014identification, diaz2021nonparametric}.
 
 \subsubsection{Confounding Control}\label{confounding-control}
 
-To manage confounding in our analysis, we implemented VanderWeele
-(\citeproc{ref-vanderweele2019}{2019})'s \emph{modified disjunctive
-cause criterion} by following these steps:
+To manage confounding in our analysis, we implemented
+\citet{vanderweele2019}'s \emph{modified disjunctive cause criterion} by
+following these steps:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -658,8 +706,8 @@ cause criterion} by following these steps:
 
 \hyperref[appendix-demographics]{Appendix B} details the covariates we
 included for confounding control. These methods adhere to the guidelines
-provided in (\citeproc{ref-bulbulia2024PRACTICAL}{Bulbulia 2024a}) and
-were pre-specified in our study protocol \url{https://osf.io/ce4t9/}.
+provided in \citep{bulbulia2024PRACTICAL} and were pre-specified in our
+study protocol \url{https://osf.io/ce4t9/}.
 
 \subsubsection{Missing Data}\label{missing-data}
 
@@ -668,19 +716,18 @@ enhance the robustness of our analyses, we implemented the following
 strategies:
 
 \textbf{Baseline missingness}: we employed the \texttt{ppm} algorithm
-from the \texttt{mice} package in R (\citeproc{ref-vanbuuren2018}{Van
-Buuren 2018}) to impute missing baseline data. This method allowed us to
-reconstruct incomplete datasets by estimating a plausible value for
-missing observation. Because we could only pass one data set to the
-\texttt{lmtp}, we employed a single imputation. About 2\% of covariate
-values were missing at baseline. Eligibility for the study required
-fully observed baseline treatment measures as well as treatment wave
-treatment measures.
+from the \texttt{mice} package in R \citep{vanbuuren2018} to impute
+missing baseline data. This method allowed us to reconstruct incomplete
+datasets by estimating a plausible value for missing observation.
+Because we could only pass one data set to the \texttt{lmtp}, we
+employed a single imputation. About 2\% of covariate values were missing
+at baseline. Eligibility for the study required fully observed baseline
+treatment measures as well as treatment wave treatment measures.
 
 \textbf{Outcome missingness}: to address confounding and selection bias
 arising from missing responses and panel attrition, we applied
 non-parametrically estimated censoring weights using the \texttt{lmtp}
-package in R (\citeproc{ref-williams2021}{Williams and Díaz 2021}).
+package in R \citep{williams2021}.
 
 \subsubsection{Statistical Estimator}\label{statistical-estimator}
 
@@ -689,8 +736,7 @@ Learning, specifically a Targeted Minimum Loss-based Estimation (TMLE)
 estimator. TMLE is a robust method that combines machine learning
 techniques with traditional statistical models to estimate causal
 effects while providing valid statistical uncertainty measures for these
-estimates (\citeproc{ref-van2012targeted}{Laan and Gruber 2012};
-\citeproc{ref-van2014targeted}{Van der Laan 2014}).
+estimates \citep{van2014targeted, van2012targeted}.
 
 TMLE operates through a two-step process that involves modelling both
 the outcome and treatment (exposure). Initially, TMLE employs machine
@@ -698,10 +744,8 @@ learning algorithms to flexibly model the relationship between
 treatments, covariates, and outcomes. This flexibility allows TMLE to
 account for complex, high-dimensional covariate spaces
 \emph{efficiently} without imposing restrictive model assumptions
-(\citeproc{ref-van2014discussion}{Laan \emph{et al.} 2014};
-\citeproc{ref-vanderlaan2011}{Van Der Laan and Rose 2011},
-\citeproc{ref-vanderlaan2018}{2018}). The outcome of this step is a set
-of initial estimates for these relationships.
+\citep{van2014discussion, vanderlaan2011, vanderlaan2018}. The outcome
+of this step is a set of initial estimates for these relationships.
 
 The second step of TMLE involves ``targeting'' these initial estimates
 by incorporating information about the observed data distribution to
@@ -723,56 +767,47 @@ contributes to a robust methodology for examining an intervention's
 learning technologies reduces the dependence on restrictive modelling
 assumptions and introduces an additional layer of robustness. For
 further details of the specific targeted learning strategy we favour,
-see (\citeproc{ref-duxedaz2021}{Díaz \emph{et al.} 2021};
-\citeproc{ref-hoffman2022}{Hoffman \emph{et al.} 2022},
-\citeproc{ref-hoffman2023}{2023}). We performed estimation using the
-\texttt{lmtp} package (\citeproc{ref-williams2021}{Williams and Díaz
-2021}). We used the \texttt{superlearner} library for non-parametric
-estimation with the predefined libraries \texttt{SL.ranger},
-\texttt{SL.glmnet}, and \texttt{SL.xgboost}
-(\citeproc{ref-xgboost2023}{Chen \emph{et al.} 2023};
-\citeproc{ref-polley2023}{Polley \emph{et al.} 2023};
-\citeproc{ref-Ranger2017}{Wright and Ziegler 2017}). We created graphs,
-tables and output reports using the \texttt{margot} package
-(\citeproc{ref-margot2024}{Bulbulia 2024b}). All analysis methods follow
-pre-stated protocols in Bulbulia
-(\citeproc{ref-bulbulia2024PRACTICAL}{2024a}).
+see \citep{hoffman2022, hoffman2023, díaz2021}. We performed estimation
+using the \texttt{lmtp} package \citep{williams2021}. We used the
+\texttt{superlearner} library for non-parametric estimation with the
+predefined libraries \texttt{SL.ranger}, \texttt{SL.glmnet}, and
+\texttt{SL.xgboost} \citep{polley2023, xgboost2023, Ranger2017}. We
+created graphs, tables and output reports using the \texttt{margot}
+package \citep{margot2024}. All analysis methods follow pre-stated
+protocols in \citet{bulbulia2024PRACTICAL}.
 
 \subsubsection{Sensitivity Analysis Using the
 E-value}\label{sensitivity-analysis-using-the-e-value}
 
 To assess the sensitivity of results to unmeasured confounding, we
 report VanderWeele and Ding's ``E-value'' in all analyses
-(\citeproc{ref-vanderweele2017}{VanderWeele and Ding 2017}). The E-value
-quantifies the minimum strength of association (on the risk ratio scale)
-that an unmeasured confounder would need to have with both the exposure
-and the outcome (after considering the measured covariates) to explain
-away the observed exposure-outcome association
-(\citeproc{ref-linden2020EVALUE}{Linden \emph{et al.} 2020};
-\citeproc{ref-vanderweele2020}{VanderWeele \emph{et al.} 2020}). To
-evaluate the strength of evidence, we use the bound of the E-value 95\%
-confidence interval closest to 1.
+\citep{vanderweele2017}. The E-value quantifies the minimum strength of
+association (on the risk ratio scale) that an unmeasured confounder
+would need to have with both the exposure and the outcome (after
+considering the measured covariates) to explain away the observed
+exposure-outcome association \citep{vanderweele2020, linden2020EVALUE}.
+To evaluate the strength of evidence, we use the bound of the E-value
+95\% confidence interval closest to 1.
 
 \subsubsection{Scope of Interventions}\label{scope-of-interventions}
 
 To illustrate the magnitude of the shift interventions we contrast, we
-provide histograms in Figure~\ref{fig-hist}, which display the
-distribution of treatment levels during the treatment wave.
-Figure~\ref{fig-hist} \emph{A}: The intervention for regular religious
-service, represented in these histograms, affects a larger portion of
-the sample compared to the zero religious service intervention.
-Figure~\ref{fig-hist} \emph{B}: presents the intervention for zero
-religious service. It affects a smaller portion of the sample compared
-to the regular religious service intervention. The comparative analysis
-of the `Regular' versus `Zero' interventions addresses the
-scientifically intriguing question: what is the effect difference in a
-scenario where religious service is universally attended versus
-completely absent? The intervention that increases attendance to regular
-service levels from the status quo allows us to consider the potential
-costs and benefits of widespread religious practice across society. The
-intervention that eliminates religious service allows us to consider the
-potential costs and benefits of the widespread loss of religious
-practice across society.
+provide histograms in Fig~\ref{fig-hist}, which display the distribution
+of treatment levels during the treatment wave. Fig~\ref{fig-hist}
+\emph{A}: The intervention for regular religious service, represented in
+these histograms, affects a larger portion of the sample compared to the
+zero religious service intervention. Fig~\ref{fig-hist} \emph{B}:
+presents the intervention for zero religious service. It affects a
+smaller portion of the sample compared to the regular religious service
+intervention. The comparative analysis of the `Regular' versus `Zero'
+interventions addresses the scientifically intriguing question: what is
+the effect difference in a scenario where religious service is
+universally attended versus completely absent? The intervention that
+increases attendance to regular service levels from the status quo
+allows us to consider the potential costs and benefits of widespread
+religious practice across society. The intervention that eliminates
+religious service allows us to consider the potential costs and benefits
+of the widespread loss of religious practice across society.
 
 \begin{figure}
 
@@ -802,14 +837,13 @@ Table~\ref{tbl-transition} clarifies the change in the treatment
 variable from the baseline wave to the baseline + 1 wave across the
 sample. Assessing change in a variable is essential for evaluating the
 positivity assumption and recovering evidence for the incident exposure
-effect of the treatment variable (\citeproc{ref-danaei2012}{Danaei
-\emph{et al.} 2012}; \citeproc{ref-hernan2024WHATIF}{Hernan and Robins
-2024}; \citeproc{ref-vanderweele2020}{VanderWeele \emph{et al.} 2020}).
-We find that state 4 (weekly attendance) and state 0 present the highest
-overall. However, we also find that movement between these states
-reveals they are not deterministic. States 1, 2, 3, and 5 present
-relatively frequent jumps in and out of these states, suggesting lower
-stability or measurement error.
+effect of the treatment variable
+\citep{vanderweele2020, danaei2012, hernan2024WHATIF}. We find that
+state 4 (weekly attendance) and state 0 present the highest overall.
+However, we also find that movement between these states reveals they
+are not deterministic. States 1, 2, 3, and 5 present relatively frequent
+jumps in and out of these states, suggesting lower stability or
+measurement error.
 
 \begin{longtable}[]{@{}
   >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
@@ -891,7 +925,7 @@ Volunteering}\label{regular-religious-service-vs.-zero-treatment-contrast-for-do
 
 Results for the treatment contrasts between Regular Religious Service
 and Zero Religious Service, focusing on self-reported volunteering and
-charitable donations, are displayed in Figure~\ref{fig-1_1} \emph{A} and
+charitable donations, are displayed in Fig~\ref{fig-1_1} \emph{A} and
 Table~\ref{tbl-1_1}. These results are measured on the difference scale.
 
 \begin{longtable}[]{@{}lrrrrr@{}}
@@ -935,8 +969,8 @@ week in charitable giving.
 for Donations and
 Volunteering}\label{regular-religious-service-vs.-status-quo-treatment-contrast-for-donations-and-volunteering}
 
-Figure~\ref{fig-1_1} \emph{B} and Table~\ref{tbl-1_2} present results
-for the treatment contrasts between Regular Religious Service and Status
+Fig~\ref{fig-1_1} \emph{B} and Table~\ref{tbl-1_2} present results for
+the treatment contrasts between Regular Religious Service and Status
 Quo, focusing on self-reported volunteering and charitable donations.
 These results are measured on the difference scale.
 
@@ -983,10 +1017,10 @@ adult per week in charitable giving.
 for Donations and
 Volunteering}\label{zero-religious-service-vs.-the-status-quo-treatment-contrast-for-donations-and-volunteering}
 
-Figure~\ref{fig-1_1} \emph{C} and Table~\ref{tbl-1_3} present results
-for the treatment contrasts between Zero Religious Service and Status
-Quo, focusing on self-reported volunteering and charitable donations.
-These results are measured on the difference scale.
+Fig~\ref{fig-1_1} \emph{C} and Table~\ref{tbl-1_3} present results for
+the treatment contrasts between Zero Religious Service and Status Quo,
+focusing on self-reported volunteering and charitable donations. These
+results are measured on the difference scale.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2424}}
@@ -1070,7 +1104,7 @@ Time}\label{study-2-causal-effects-of-regular-church-attendance-on-support-recei
 From
 Others}\label{regular-vs.-zero-causal-treatment-contrast-for-time-received-from-others}
 
-Figure~\ref{fig-study2} \emph{A} and Table~\ref{tbl-study2A} present
+Fig~\ref{fig-study2} \emph{A} and Table~\ref{tbl-study2A} present
 results for the treatment contrasts between Regular Religious Service
 and Zero, focusing on voluntary help received from others during the
 past week (yes/no). These results are measured on the risk ratio scale.
@@ -1139,8 +1173,8 @@ the observed effect. Weaker confounding would not overturn it. We infer
 for Time Received From
 Others}\label{regular-religious-service-vs.-status-quo-treatment-contrast-for-time-received-from-others}
 
-Figure~\ref{fig-study2}\emph{B} and Table~\ref{tbl-2-2} present results
-for the treatment contrasts between Regular Religious Service and Status
+Fig~\ref{fig-study2}\emph{B} and Table~\ref{tbl-2-2} present results for
+the treatment contrasts between Regular Religious Service and Status
 Quo, focusing on voluntary help received from others during the past
 week (yes/no). These results are measured on the risk ratio scale
 
@@ -1178,7 +1212,7 @@ E\_Val\_bound
 \bottomrule\noalign{}
 \endlastfoot
 family gives time & 0.958 & 0.913 & 1.006 & 1.258 & 1.000 \\
-friends gives time & 1.128 & 1.061 & 1.199 & 1.508 & 1.315 \\
+friends give time & 1.128 & 1.061 & 1.199 & 1.508 & 1.315 \\
 community gives time & 1.289 & 1.174 & 1.415 & 1.899 & 1.626 \\
 
 \end{longtable}
@@ -1208,7 +1242,7 @@ it. We infer \textbf{that evidence for causality is not reliable}.
 Time Received From
 Others}\label{zero-religious-service-vs.-status-quo-treatment-contrast-for-time-received-from-others}
 
-Figure~\ref{fig-study2} \emph{C} and Table~\ref{tbl-2_3} present results
+Fig~\ref{fig-study2} \emph{C} and Table~\ref{tbl-2_3} present results
 for the treatment contrasts between Zero Religious Service and Status
 Quo, focusing on voluntary help received from others during the past
 week (yes/no). These results are measured on the risk ratio scale.
@@ -1247,7 +1281,7 @@ E\_Val\_bound
 \bottomrule\noalign{}
 \endlastfoot
 family gives time & 1.008 & 0.991 & 1.026 & 1.098 & 1.000 \\
-friends gives time & 0.950 & 0.928 & 0.973 & 1.288 & 1.197 \\
+friends give time & 0.950 & 0.928 & 0.973 & 1.288 & 1.197 \\
 community gives time & 0.936 & 0.889 & 0.985 & 1.339 & 1.140 \\
 
 \end{longtable}
@@ -1299,10 +1333,10 @@ Money}\label{study-3-causal-effects-of-regular-church-attendance-on-support-rece
 \paragraph{Regular vs.~Zero Causal Contrast on Money Received From
 Others}\label{regular-vs.-zero-causal-contrast-on-money-received-from-others}
 
-Figure~\ref{fig-study_3} \emph{A} and Table~\ref{tbl-3_1} present
-results for the treatment contrasts between Regular Religious Service
-and Zero, focusing on money received from others during the past week
-(yes/no). These results are measured on the risk ratio scale.
+Fig~\ref{fig-study_3} \emph{A} and Table~\ref{tbl-3_1} present results
+for the treatment contrasts between Regular Religious Service and Zero,
+focusing on money received from others during the past week (yes/no).
+These results are measured on the risk ratio scale.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.3099}}
@@ -1367,10 +1401,10 @@ it. We infer \textbf{that evidence for causality is not reliable}.
 \paragraph{Regular vs.~Status Quo Causal Contrast on Money Received From
 Others}\label{regular-vs.-status-quo-causal-contrast-on-money-received-from-others}
 
-Figure~\ref{fig-study_3} \emph{B} and Table~\ref{tbl-3_2} present
-results for the treatment contrasts between Regular Religious Service
-and Status Quo, focusing on money received from others during the past
-week (yes/no). These results are measured on the risk ratio scale.
+Fig~\ref{fig-study_3} \emph{B} and Table~\ref{tbl-3_2} present results
+for the treatment contrasts between Regular Religious Service and Status
+Quo, focusing on money received from others during the past week
+(yes/no). These results are measured on the risk ratio scale.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.3099}}
@@ -1435,9 +1469,9 @@ it. We infer \textbf{that evidence for causality is not reliable}.
 \paragraph{Zero vs.~Status Quo Causal Contrast on Money Received From
 Others}\label{zero-vs.-status-quo-causal-contrast-on-money-received-from-others}
 
-Figure~\ref{fig-study_3} \emph{C} and Table~\ref{tbl-3_3} present
-results for the treatment contrasts between Zero Religious Service and
-Status Quo, focusing on money received from others during the past week
+Fig~\ref{fig-study_3} \emph{C} and Table~\ref{tbl-3_3} present results
+for the treatment contrasts between Zero Religious Service and Status
+Quo, focusing on money received from others during the past week
 (yes/no). These results are measured on the risk ratio scale.
 
 \begin{longtable}[]{@{}
@@ -1552,8 +1586,7 @@ the regression.
 For Studies 2 and 3, which focus on community help received, we adjusted
 our analysis for the non-collapsibility of odds ratios by assuming a
 Poisson distribution for the outcome variables
-(\citeproc{ref-huitfeldt2019collapsibility}{Huitfeldt \emph{et al.}
-2019}; \citeproc{ref-vanderweele2020}{VanderWeele \emph{et al.} 2020}):
+\citep{huitfeldt2019collapsibility, vanderweele2020}:
 
 \textbf{Cross-sectional community assistance received result: Time}: the
 exponentiated change in expectation for a one-unit change in religious
@@ -1653,24 +1686,23 @@ Second, \textbf{nonparametric estimation/machine learning remains
 untested}: although the threat of model misspecification is greatly
 diminished in non-parametric estimation, the theoretical properties of
 non-parametric estimators for obtaining valid standard may affect
-precision and accuracy in small samples
-(\citeproc{ref-van2014discussion}{Laan \emph{et al.} 2014}). Against
-this concern, our relatively large sample size, 33,198 offers some
-confidence. However, investigators should be mindful that non-parametric
-estimation and machine learning are presently new and untested areas in
-the psychological sciences. They should be used with caution,
-particularly with small samples.
+precision and accuracy in small samples \citep{van2014discussion}.
+Against this concern, our relatively large sample size, 33,198 offers
+some confidence. However, investigators should be mindful that
+non-parametric estimation and machine learning are presently new and
+untested areas in the psychological sciences. They should be used with
+caution, particularly with small samples.
 
 Third, consider the threat of \textbf{measurement error}: both direct
 and correlated measurement errors can introduce biases, either by
 implying effects where none exist or by attenuating true effects
-(\citeproc{ref-vanderweele2012MEASUREMENT}{VanderWeele and Hernán
-2012}). Although evaluating prosociality using multiple measures helps
-to mitigate concerns about whether religious service affects charitable
-donations and volunteering, unknown measurement error combinations could
-still affect the precision of inferences by overstating or understating
-true causal effects. The outcomes and estimates we report here would be
-best approached as approximations.
+\citep{vanderweele2012MEASUREMENT}. Although evaluating prosociality
+using multiple measures helps to mitigate concerns about whether
+religious service affects charitable donations and volunteering, unknown
+measurement error combinations could still affect the precision of
+inferences by overstating or understating true causal effects. The
+outcomes and estimates we report here would be best approached as
+approximations.
 
 Fourth, we we do not examine \textbf{treatment effect heterogeneity}:
 identifying which subgroups experience the strongest responses remains
@@ -1704,10 +1736,10 @@ not anticipate significant deviations from the status quo after one
 year. Although long-term effects were not investigated, this finding
 might alleviate concerns among those wary of a secular shift. \textbf{We
 recommend future research to distinguish between models of cultural
-gains and losses} (as exemplified by Van Tongeren \emph{et al.}
-(\citeproc{ref-vantongeren2020}{2020})). Moreover, \textbf{researchers
-should clearly define, compute, and discuss different causal contrasts
-according to targeted scientific and policy goals.}
+gains and losses} (as exemplified by \citet{vantongeren2020}). Moreover,
+\textbf{researchers should clearly define, compute, and discuss
+different causal contrasts according to targeted scientific and policy
+goals.}
 
 Second, we caution that traditional \textbf{measures of effect} such as
 Cohen's D or \(R^2\) may give a misleading picture of a finding's
@@ -1731,57 +1763,49 @@ non-attendance. Note that neither our measures of prosocial actions
 (charity/volunteering) nor of community help received (time/money)
 clarify the targets and sources of help. Nevertheless, theories of
 religous prosociality are premised on within group-cooperative benefit
-(\citeproc{ref-johnson2015}{Johnson 2015};
-\citeproc{ref-sosis2003cooperation}{Sosis and Bressler 2003};
-\citeproc{ref-whitehouse2023}{Whitehouse \emph{et al.} 2023}). This
+\citep{sosis2003cooperation, johnson2015, whitehouse2023}. This
 consistency between self-reported giving and help received aligns with
 public data in New Zealand;\footnote{\url{https://www.charities.govt.nz/view-data/}}
 where religious institutional charity accounts for 40\% of the
-charitable sector (refer to McLeod (\citeproc{ref-McLeod2020}{2020}),
-p.17, and also Brooks (\citeproc{ref-brooks2004faith}{2004}); Woodyard
-and Grable (\citeproc{ref-woodyard2014doing}{2014}); Monsma
-(\citeproc{ref-monsma2007religion}{2007})). Additionally, it has been
-suggested that religious institutions are particularly efficient due to
-low administrative costs and high volunteer engagement
-(\citeproc{ref-bekkers2011literature}{Bekkers and Wiepking 2011};
-\citeproc{ref-khanna1995charity}{Khanna \emph{et al.} 1995};
-\citeproc{ref-McLeod2020}{McLeod 2020 p. 26}). We note that the
-community signals of religious giving are consistent with the theory
-that religion promotes altruism outside families and friendships, and
-even among strangers (\citeproc{ref-mccullough2020kindness}{McCullough
-2020}). \textbf{In contexts where investigators are concerned about
-presentation bias in the self-reported donations and volunteering,
-consider measures to capture community-received assistance.}
+charitable sector (refer to \citet{McLeod2020}, p.17, and also
+\citet{brooks2004faith}; \citet{woodyard2014doing};
+\citet{monsma2007religion}). Additionally, it has been suggested that
+religious institutions are particularly efficient due to low
+administrative costs and high volunteer engagement
+\citep[26]{khanna1995charity, bekkers2011literature, McLeod2020}. We
+note that the community signals of religious giving are consistent with
+the theory that religion promotes altruism outside families and
+friendships, and even among strangers \citep{mccullough2020kindness}.
+\textbf{In contexts where investigators are concerned about presentation
+bias in the self-reported donations and volunteering, consider measures
+to capture community-received assistance.}
 
 Fourth, our analysis shows that using standard cross-sectional
 regressions on baseline data tends to considerably overstate the causal
 effects compared to those estimated from principled applications of
 methods to time-series data. It is important to note that associational
 models might also understate true causal relationships, especially if
-adjustments involve mediators (\citeproc{ref-westreich2013}{Westreich
-and Greenland 2013}). Despite their effectiveness and relevance,
-however, causal inference methods are not commonly practiced across many
-fields in the human sciences, where traditional associational methods
-still dominate. Transitioning to causal data science might seem
-daunting. Causation inherently involves timing, with causes preceding
-effects, and quantifying causal effects necessitates contrasting
-counterfactual states---hypothetical scenarios that could have occurred
-under different conditions but did not. Estimating average causal
-effects involves summaries of these counterfactual contrasts, relying on
-a framework of explicit assumptions, clear multi-stepped workflows, and,
-crucially, time-series data. The need for researchers to develop new
-skills and the intensive requirement for collecting time-series data
-have profound implications for research design, funding, and the pace of
-scientific progress. However, causal inference methods have become
-standard in epidemiology and are rapidly gaining traction in economics
-and sociology. The development of global panel studies suited for
-researching religion Johnson and VanderWeele
-(\citeproc{ref-johnson2022global}{2022}), reveal the potential of
-retooling (refer also to Major-Smith
-(\citeproc{ref-major2023exploring}{2023})). \textbf{We strongly
-recommend broader adoption of causal inferential methods to enhance the
-accuracy and reliability of research findings in the the psychology of
-religion.}*
+adjustments involve mediators \citep{westreich2013}. Despite their
+effectiveness and relevance, however, causal inference methods are not
+commonly practiced across many fields in the human sciences, where
+traditional associational methods still dominate. Transitioning to
+causal data science might seem daunting. Causation inherently involves
+timing, with causes preceding effects, and quantifying causal effects
+necessitates contrasting counterfactual states---hypothetical scenarios
+that could have occurred under different conditions but did not.
+Estimating average causal effects involves summaries of these
+counterfactual contrasts, relying on a framework of explicit
+assumptions, clear multi-stepped workflows, and, crucially, time-series
+data. The need for researchers to develop new skills and the intensive
+requirement for collecting time-series data have profound implications
+for research design, funding, and the pace of scientific progress.
+However, causal inference methods have become standard in epidemiology
+and are rapidly gaining traction in economics and sociology. The
+development of global panel studies suited for researching religion
+\citet{johnson2022global}, reveal the potential of retooling (refer also
+to \citet{major2023exploring}). \textbf{We strongly recommend broader
+adoption of causal inferential methods to enhance the accuracy and
+reliability of research findings in the the psychology of religion.}*
 
 Fifth, this study is one of the first to combine robust causal methods
 and national panel data to investigate the social consequences of
@@ -1799,9 +1823,7 @@ variability. A substantial amount of research has explored the
 mechanisms through which religious participation influences individuals,
 yet using data to clarify pathways of operation poses a considerable
 conception and data challenges
-(\citeproc{ref-diaz2021nonparametric}{Dı́az \emph{et al.} 2021},
-\citeproc{ref-Diaz2023}{2023}; \citeproc{ref-robins1992}{Robins and
-Greenland 1992}; \citeproc{ref-vanderweele2015}{VanderWeele 2015}).
+\citep{robins1992, vanderweele2015, Diaz2023, diaz2021nonparametric}.
 However, such challenges are theoretically surmountable using the causal
 approach we have adopted and advocate for here. By carefully navigating
 the uncertainties inherent in observational data and leveraging the
@@ -1860,34 +1882,32 @@ age?'' or ``What is your date of birth?'').
 \paragraph{Charitable Donations (Study 1
 outcome)}\label{charitable-donations-study-1-outcome}
 
-Using one item from Hoverd and Sibley
-(\citeproc{ref-hoverd_religious_2010}{2010}), we asked participants,
-``How much money have you donated to charity in the last year?''.
+Using one item from \citet{hoverd_religious_2010}, we asked
+participants, ``How much money have you donated to charity in the last
+year?''.
 
 \paragraph{Charitable Volunteering (Study 1
 outcome)}\label{charitable-volunteering-study-1-outcome}
 
-We measured hours of volunteering using one item from Sibley \emph{et
-al.} (\citeproc{ref-sibley2011}{2011}): ``Hours spent \ldots{}
-voluntary/charitable work.''
+We measured hours of volunteering using one item from
+\citet{sibley2011}: ``Hours spent \ldots{} voluntary/charitable work.''
 
 \paragraph{Children Number (waves: 1-3,
 4-15)}\label{children-number-waves-1-3-4-15}
 
-We measured the number of children using one item from Bulbulia \emph{et
-al.} (\citeproc{ref-Bulbulia_2015}{2015}). We asked participants, ``How
-many children have you given birth to, fathered, or adopted. How many
-children have you given birth to, fathered, or adopted?'' or ``How many
-children have you given birth to, fathered, or adopted. How many
-children have you given birth to, fathered, and/or parented?'' (waves:
-12-15).
+We measured the number of children using one item from
+\citet{Bulbulia_2015}. We asked participants, ``How many children have
+you given birth to, fathered, or adopted. How many children have you
+given birth to, fathered, or adopted?'' or ``How many children have you
+given birth to, fathered, or adopted. How many children have you given
+birth to, fathered, and/or parented?'' (waves: 12-15).
 
 \paragraph{Disability}\label{disability}
 
-We assessed disability with a one-item indicator adapted from Verbrugge
-(\citeproc{ref-verbrugge1997}{1997}). It asks, ``Do you have a health
-condition or disability that limits you and that has lasted for 6+
-months?'' (1 = Yes, 0 = No).
+We assessed disability with a one-item indicator adapted from
+\citet{verbrugge1997}. It asks, ``Do you have a health condition or
+disability that limits you and that has lasted for 6+ months?'' (1 =
+Yes, 0 = No).
 
 \paragraph{Education Attainment (waves: 1,
 4-15)}\label{education-attainment-waves-1-4-15}
@@ -1926,10 +1946,8 @@ Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time).
 10-14)}\label{honesty-humility-modesty-facet-waves-10-14}
 
 Participants indicated the extent to which they agree with the following
-four statements from Campbell \emph{et al.}
-(\citeproc{ref-campbell2004}{2004}) , and Sibley \emph{et al.}
-(\citeproc{ref-sibley2011}{2011}) (1 = Strongly Disagree to 7 = Strongly
-Agree)
+four statements from \citet{campbell2004} , and \citet{sibley2011} (1 =
+Strongly Disagree to 7 = Strongly Agree)
 
 \begin{verbatim}
 i.  I want people to know that I am an important person of high status, (Waves: 1, 10-14)
@@ -1940,54 +1958,48 @@ iv. I think that I am entitled to more respect than the average person is.
 
 \paragraph{Hours of Childcare}\label{hours-of-childcare}
 
-We measured hours of exercising using one item from Sibley \emph{et al.}
-(\citeproc{ref-sibley2011}{2011}): 'Hours spent \ldots{} looking after
-children.''
+We measured hours of exercising using one item from \citet{sibley2011}:
+'Hours spent \ldots{} looking after children.''
 
 To stabilise this indicator, we took the natural log of the response +
 1.
 
 \paragraph{Hours of Housework}\label{hours-of-housework}
 
-We measured hours of exercising using one item from Sibley \emph{et al.}
-(\citeproc{ref-sibley2011}{2011}): ``Hours spent \ldots{}
-housework/cooking''
+We measured hours of exercising using one item from \citet{sibley2011}:
+``Hours spent \ldots{} housework/cooking''
 
 To stabilise this indicator, we took the natural log of the response +
 1.
 
 \paragraph{Hours of Exercise}\label{hours-of-exercise}
 
-We measured hours of exercising using one item from Sibley \emph{et al.}
-(\citeproc{ref-sibley2011}{2011}): ``Hours spent \ldots{}
-exercising/physical activity''
+We measured hours of exercising using one item from \citet{sibley2011}:
+``Hours spent \ldots{} exercising/physical activity''
 
 To stabilise this indicator, we took the natural log of the response +
 1.
 
 \paragraph{Hours of Childcare}\label{hours-of-childcare-1}
 
-We measured hours of exercising using one item from Sibley \emph{et al.}
-(\citeproc{ref-sibley2011}{2011}): 'Hours spent \ldots{} looking after
-children.''
+We measured hours of exercising using one item from \citet{sibley2011}:
+'Hours spent \ldots{} looking after children.''
 
 To stabilise this indicator, we took the natural log of the response +
 1.
 
 \paragraph{Hours of Exercise}\label{hours-of-exercise-1}
 
-We measured hours of exercising using one item from Sibley \emph{et al.}
-(\citeproc{ref-sibley2011}{2011}): ``Hours spent \ldots{}
-exercising/physical activity''
+We measured hours of exercising using one item from \citet{sibley2011}:
+``Hours spent \ldots{} exercising/physical activity''
 
 To stabilise this indicator, we took the natural log of the response +
 1.
 
 \paragraph{Hours of Housework}\label{hours-of-housework-1}
 
-We measured hours of exercising using one item from Sibley \emph{et al.}
-(\citeproc{ref-sibley2011}{2011}): ``Hours spent \ldots{}
-housework/cooking''
+We measured hours of exercising using one item from \citet{sibley2011}:
+``Hours spent \ldots{} housework/cooking''
 
 To stabilise this indicator, we took the natural log of the response +
 1.
@@ -1999,9 +2011,8 @@ hours of \emph{actual sleep} did you get per night?''.
 
 \paragraph{Hours of Work}\label{hours-of-work}
 
-We measured work hours using one item from Sibley \emph{et al.}
-(\citeproc{ref-sibley2011}{2011}): ``Hours spent \ldots{} working in
-paid employment.''
+We measured work hours using one item from \citet{sibley2011}: ``Hours
+spent \ldots{} working in paid employment.''
 
 To stabilise this indicator, we took the natural log of the response +
 1.
@@ -2033,8 +2044,7 @@ the time''; ``Most of the time''; ``All of the time.''
 We asked participants' gender in an open-ended question: ``what is your
 gender?'' or ``Are you male or female?'' (waves: 1-5). Female was coded
 as 0, Male as 1, and gender diverse coded as 3
-(\citeproc{ref-fraser_coding_2020}{Fraser \emph{et al.} 2020}). (or 0.5
-= neither female nor male)
+\citep{fraser_coding_2020}. (or 0.5 = neither female nor male)
 
 Here, we coded all those who responded as Male as 1, and those who did
 not as 0.
@@ -2043,9 +2053,8 @@ not as 0.
 1-3,4-15)}\label{mini-ipip-6-waves-1-34-15}
 
 We measured participants' personalities with the Mini International
-Personality Item Pool 6 (Mini-IPIP6) (\citeproc{ref-sibley2011}{Sibley
-\emph{et al.} 2011}), which consists of six dimensions and each
-dimension is measured with four items:
+Personality Item Pool 6 (Mini-IPIP6) \citep{sibley2011}, which consists
+of six dimensions and each dimension is measured with four items:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -2156,31 +2165,29 @@ were you born? (please be specific, e.g., which town/city?)'' (waves:
 1-15)}\label{nz-deprivation-index-waves-1-15}
 
 We used the NZ Deprivation Index to assign each participant a score
-based on where they live (\citeproc{ref-atkinson2019}{Atkinson \emph{et
-al.} 2019}). This score combines data such as income, home ownership,
-employment, qualifications, family structure, housing, and access to
-transport and communication for an area into one deprivation score.
+based on where they live \citep{atkinson2019}. This score combines data
+such as income, home ownership, employment, qualifications, family
+structure, housing, and access to transport and communication for an
+area into one deprivation score.
 
 \paragraph{NZSEI Occupational Prestige and Status (waves:
 8-15)}\label{nzsei-occupational-prestige-and-status-waves-8-15}
 
 We assessed occupational prestige and status using the New Zealand
-Socio-economic Index 13 (NZSEI-13) (\citeproc{ref-fahy2017a}{Fahy
-\emph{et al.} 2017a}). This index uses the income, age, and education of
-a reference group, in this case the 2013 New Zealand census, to
-calculate a score for each occupational group. Scores range from 10
-(Lowest) to 90 (Highest). This list of index scores for occupational
-groups was used to assign each participant an NZSEI-13 score based on
-their occupation.
+Socio-economic Index 13 (NZSEI-13) \citep{fahy2017a}. This index uses
+the income, age, and education of a reference group, in this case the
+2013 New Zealand census, to calculate a score for each occupational
+group. Scores range from 10 (Lowest) to 90 (Highest). This list of index
+scores for occupational groups was used to assign each participant an
+NZSEI-13 score based on their occupation.
 
 We assessed occupational prestige and status using the New Zealand
-Socio-economic Index 13 (NZSEI-13) (\citeproc{ref-fahy2017}{Fahy
-\emph{et al.} 2017b}). This index uses the income, age, and education of
-a reference group, in this case, the 2013 New Zealand census, to
-calculate a score for each occupational group. Scores range from 10
-(Lowest) to 90 (Highest). This list of index scores for occupational
-groups was used to assign each participant an NZSEI-13 score based on
-their occupation.
+Socio-economic Index 13 (NZSEI-13) \citep{fahy2017}. This index uses the
+income, age, and education of a reference group, in this case, the 2013
+New Zealand census, to calculate a score for each occupational group.
+Scores range from 10 (Lowest) to 90 (Highest). This list of index scores
+for occupational groups was used to assign each participant an NZSEI-13
+score based on their occupation.
 
 \paragraph{Opt-in}\label{opt-in}
 
@@ -2197,7 +2204,7 @@ civil union, widowed, living together, etc.)
 \paragraph{Politically Conservative}\label{politically-conservative}
 
 We measured participants' political conservative orientation using a
-single item adapted from Jost (\citeproc{ref-jost_end_2006-1}{2006}).
+single item adapted from \citet{jost_end_2006-1}.
 
 ``Please rate how politically liberal versus conservative you see
 yourself as being.''
@@ -2209,27 +2216,26 @@ Attendance}\label{religious-service-attendance}
 
 If participants answered \emph{yes} to ``Do you identify with a religion
 and/or spiritual group?'' we measured their frequency of church
-attendence using one item from Sibley (\citeproc{ref-sibley2012}{2012}):
-``how many times did you attend a church or place of worship in the last
-month?''. Those participants who were not religious were imputed a score
-of ``0''.
+attendence using one item from \citet{sibley2012}: ``how many times did
+you attend a church or place of worship in the last month?''. Those
+participants who were not religious were imputed a score of ``0''.
 
 \paragraph{Rural/Urban Codes}\label{ruralurban-codes}
 
 Participants residence locations were coded according to a five-level
-ordinal categorisation ranging from ``Urban'' to Rural, see Sibley
-(\citeproc{ref-sibley2021}{2021}).
+ordinal categorisation ranging from ``Urban'' to Rural, see
+\citet{sibley2021}.
 
 \paragraph{Short-Form Health}\label{short-form-health}
 
 Participants' subjective health was measured using one item (``Do you
 have a health condition or disability that limits you, and that has
-lasted for 6+ months?''; 1 = Yes, 0 = No) adapted from Verbrugge
-(\citeproc{ref-verbrugge1997}{1997}).
+lasted for 6+ months?''; 1 = Yes, 0 = No) adapted from
+\citet{verbrugge1997}.
 
 \paragraph{Sample Origin}\label{sample-origin}
 
-Wave enrolled in NZAVS, see Sibley (\citeproc{ref-sibley2021}{2021}).
+Wave enrolled in NZAVS, see \citet{sibley2021}.
 
 \paragraph{Support received: money (waves 10-12) (Study 4
 outcomes)}\label{support-received-money-waves-10-12-study-4-outcomes}
@@ -2548,12 +2554,11 @@ during New Zealand's COVID-19 pandemic. The pandemic is not a
 the outcome. At the end of the study, all participants had been exposed
 to the pandemic. However, to satisfy the causal consistency assumption,
 all treatments must be conditionally equivalent within levels of all
-covariates (\citeproc{ref-vanderweele2013}{VanderWeele and Hernan
-2013}). Because COVID affected the ability or willingness of individuals
-to attend religious service, we included the lockdown condition as a
-covariate (\citeproc{ref-sibley2021}{Sibley 2021}). To better enable
-conditional independence within levels of the treatment variable, we
-conditioned on the lead value of COVID-alert level at baseline. To
+covariates \citep{vanderweele2013}. Because COVID affected the ability
+or willingness of individuals to attend religious service, we included
+the lockdown condition as a covariate \citep{sibley2021}. To better
+enable conditional independence within levels of the treatment variable,
+we conditioned on the lead value of COVID-alert level at baseline. To
 mitigate systematic biases arising from attrition and missingness, the
 \texttt{lmtp} package uses inverse probability of censoring weights,
 which were used when estimating the causal effects of the exposure on
@@ -2625,14 +2630,13 @@ to state \(j\).
 \subsubsection{Imbalance of Confounding Covariates
 Treatments}\label{imbalance-of-confounding-covariates-treatments}
 
-Figure~\ref{fig-match_1} shows imbalance of covariates on the treatment
-at the treatment wave. The variable on which there is strongest
-imbalance is the baseline measure of religious service attendance. It is
-important to adjust for this measure both for confounding control and to
-better estimate an incident exposure effect for the religious service at
-the treatment wave (in contrast to merely estimating a prevalence
-effect). See VanderWeele \emph{et al.}
-(\citeproc{ref-vanderweele2020}{2020}).
+Fig~\ref{fig-match_1} shows imbalance of covariates on the treatment at
+the treatment wave. The variable on which there is strongest imbalance
+is the baseline measure of religious service attendance. It is important
+to adjust for this measure both for confounding control and to better
+estimate an incident exposure effect for the religious service at the
+treatment wave (in contrast to merely estimating a prevalence effect).
+See \citet{vanderweele2020}.
 
 \begin{figure}
 
@@ -2711,462 +2715,10 @@ descriptive statistics for the outcome variables.
 
 \newpage{}
 
-\subsection*{References}\label{references}
-\addcontentsline{toc}{subsection}{References}
+\subsection{References}\label{references}
 
-\phantomsection\label{refs}
-\begin{CSLReferences}{1}{0}
-\bibitem[\citeproctext]{ref-atkinson2019}
-Atkinson, J, Salmond, C, and Crampton, P (2019) \emph{NZDep2018 index of
-deprivation, user{'}s manual.}, Wellington.
 
-\bibitem[\citeproctext]{ref-bekkers2011literature}
-Bekkers, R, and Wiepking, P (2011) A literature review of empirical
-studies of philanthropy: Eight mechanisms that drive charitable giving.
-\emph{Nonprofit and Voluntary Sector Quarterly}, \textbf{40}(5),
-924--973.
-
-\bibitem[\citeproctext]{ref-brooks2004faith}
-Brooks, AC (2004) Faith, secularism, and charity. \emph{Faith \&
-Economics}, \textbf{43}(Spring), 1--8.
-
-\bibitem[\citeproctext]{ref-bulbulia2024PRACTICAL}
-Bulbulia, J (2024a) A practical guide to causal inference in three-wave
-panel studies. \emph{PsyArXiv Preprints}.
-doi:\href{https://doi.org/10.31234/osf.io/uyg3d}{10.31234/osf.io/uyg3d}.
-
-\bibitem[\citeproctext]{ref-bulbulia2022}
-Bulbulia, JA (2022) A workflow for causal inference in cross-cultural
-psychology. \emph{Religion, Brain \& Behavior}, \textbf{0}(0), 1--16.
-doi:\href{https://doi.org/10.1080/2153599X.2022.2070245}{10.1080/2153599X.2022.2070245}.
-
-\bibitem[\citeproctext]{ref-margot2024}
-Bulbulia, JA (2024b) \emph{Margot: MARGinal observational
-treatment-effects}.
-doi:\href{https://doi.org/10.5281/zenodo.10907724}{10.5281/zenodo.10907724}.
-
-\bibitem[\citeproctext]{ref-bulbulia2023a}
-Bulbulia, JA, Afzali, MU, Yogeeswaran, K, and Sibley, CG (2023)
-Long-term causal effects of far-right terrorism in {N}ew {Z}ealand.
-\emph{PNAS Nexus}, \textbf{2}(8), pgad242.
-
-\bibitem[\citeproctext]{ref-Bulbulia_2015}
-Bulbulia, JA, Shaver, JH, Greaves, L, Sosis, R, and Sibley, CG \& (2015)
-Religion and parental cooperation: An empirical test of slone's sexual
-signaling model. In S. J. D. amd Van Slyke J., ed., \emph{The attraction
-of religion: A sexual selectionist account}, Bloomsbury Press, 29--62.
-
-\bibitem[\citeproctext]{ref-bulbuliaj.2013}
-Bulbulia, J., Geertz, AW, Atkinson, QD, \ldots{} Wilson, DS (2013) The
-cultural evolution of religion. In P. J. Richerson and M. Christiansen,
-eds., Cambridge, MA: MIT press, 381404.
-
-\bibitem[\citeproctext]{ref-campbell2004}
-Campbell, WK, Bonacci, AM, Shelton, J, Exline, JJ, and Bushman, BJ
-(2004) Psychological entitlement: interpersonal consequences and
-validation of a self-report measure. \emph{Journal of Personality
-Assessment}, \textbf{83}(1), 29--45.
-doi:\href{https://doi.org/10.1207/s15327752jpa8301_04}{10.1207/s15327752jpa8301\_04}.
-
-\bibitem[\citeproctext]{ref-chatton2020}
-Chatton, A, Le Borgne, F, Leyrat, C, \ldots{} Foucher, Y (2020)
-G-computation, propensity score-based methods, and targeted maximum
-likelihood estimator for causal inference with different covariates
-sets: a comparative simulation study. \emph{Scientific Reports},
-\textbf{10}(1), 9219.
-doi:\href{https://doi.org/10.1038/s41598-020-65917-x}{10.1038/s41598-020-65917-x}.
-
-\bibitem[\citeproctext]{ref-xgboost2023}
-Chen, T, He, T, Benesty, M, \ldots{} Yuan, J (2023) \emph{Xgboost:
-Extreme gradient boosting}. Retrieved from
-\url{https://CRAN.R-project.org/package=xgboost}
-
-\bibitem[\citeproctext]{ref-chen2020religious}
-Chen, Y, Kim, ES, and VanderWeele, TJ (2020) Religious-service
-attendance and subsequent health and well-being throughout adulthood:
-Evidence from three prospective cohorts. \emph{International Journal of
-Epidemiology}, \textbf{49}(6), 2030--2040.
-
-\bibitem[\citeproctext]{ref-danaei2012}
-Danaei, G, Tavakkoli, M, and Hernán, MA (2012) Bias in observational
-studies of prevalent users: lessons for comparative effectiveness
-research from a meta-analysis of statins. \emph{American Journal of
-Epidemiology}, \textbf{175}(4), 250--262.
-doi:\href{https://doi.org/10.1093/aje/kwr301}{10.1093/aje/kwr301}.
-
-\bibitem[\citeproctext]{ref-duxedaz2021}
-Díaz, I, Williams, N, Hoffman, KL, and Schenck, EJ (2021) Non-parametric
-causal effects based on longitudinal modified treatment policies.
-\emph{Journal of the American Statistical Association}.
-doi:\href{https://doi.org/10.1080/01621459.2021.1955691}{10.1080/01621459.2021.1955691}.
-
-\bibitem[\citeproctext]{ref-diaz2023lmtp}
-Díaz, I, Williams, N, Hoffman, KL, and Schenck, EJ (2023) Nonparametric
-causal effects based on longitudinal modified treatment policies.
-\emph{Journal of the American Statistical Association},
-\textbf{118}(542), 846--857.
-doi:\href{https://doi.org/10.1080/01621459.2021.1955691}{10.1080/01621459.2021.1955691}.
-
-\bibitem[\citeproctext]{ref-diaz2021nonparametric}
-Dı́az, I, Hejazi, NS, Rudolph, KE, and Der Laan, MJ van (2021)
-Nonparametric efficient causal mediation with intermediate confounders.
-\emph{Biometrika}, \textbf{108}(3), 627--641.
-
-\bibitem[\citeproctext]{ref-Diaz2023}
-Dı́az, I, Williams, N, and Rudolph, KE (2023) \emph{Journal of Causal
-Inference}, \textbf{11}(1), 20220077.
-doi:\href{https://doi.org/doi:10.1515/jci-2022-0077}{doi:10.1515/jci-2022-0077}.
-
-\bibitem[\citeproctext]{ref-fahy2017}
-Fahy, KM, Lee, A, and Milne, BJ (2017b) \emph{New Zealand socio-economic
-index 2013}, Wellington, New Zealand: Statistics New Zealand-Tatauranga
-Aotearoa.
-
-\bibitem[\citeproctext]{ref-fahy2017a}
-Fahy, KM, Lee, A, and Milne, BJ (2017a) \emph{New Zealand socio-economic
-index 2013}, Wellington, New Zealand: Statistics New Zealand-Tatauranga
-Aotearoa.
-
-\bibitem[\citeproctext]{ref-fraser_coding_2020}
-Fraser, G, Bulbulia, J, Greaves, LM, Wilson, MS, and Sibley, CG (2020)
-Coding responses to an open-ended gender measure in a {N}ew {Z}ealand
-national sample. \emph{The Journal of Sex Research}, \textbf{57}(8),
-979--986.
-doi:\href{https://doi.org/10.1080/00224499.2019.1687640}{10.1080/00224499.2019.1687640}.
-
-\bibitem[\citeproctext]{ref-haneuse2013estimation}
-Haneuse, S, and Rotnitzky, A (2013) Estimation of the effect of
-interventions that modify the received treatment. \emph{Statistics in
-Medicine}, \textbf{32}(30), 5260--5277.
-
-\bibitem[\citeproctext]{ref-hernan2024WHATIF}
-Hernan, MA, and Robins, JM (2024) \emph{Causal inference: What if?},
-Taylor \& Francis. Retrieved from
-\url{https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/}
-
-\bibitem[\citeproctext]{ref-hernan2024stating}
-Hernán, MA, and Greenland, S (2024) Why stating hypotheses in grant
-applications is unnecessary. \emph{JAMA}, \textbf{331}(4), 285--286.
-
-\bibitem[\citeproctext]{ref-hoffman2023}
-Hoffman, KL, Salazar-Barreto, D, Rudolph, KE, and Díaz, I (2023)
-Introducing longitudinal modified treatment policies: A unified
-framework for studying complex exposures.
-doi:\href{https://doi.org/10.48550/arXiv.2304.09460}{10.48550/arXiv.2304.09460}.
-
-\bibitem[\citeproctext]{ref-hoffman2022}
-Hoffman, KL, Schenck, EJ, Satlin, MJ, \ldots{} Díaz, I (2022) Comparison
-of a target trial emulation framework vs cox regression to estimate the
-association of corticosteroids with COVID-19 mortality. \emph{JAMA
-Network Open}, \textbf{5}(10), e2234425.
-doi:\href{https://doi.org/10.1001/jamanetworkopen.2022.34425}{10.1001/jamanetworkopen.2022.34425}.
-
-\bibitem[\citeproctext]{ref-hoverd_religious_2010}
-Hoverd, WJ, and Sibley, CG (2010) Religious and denominational diversity
-in new zealand 2009. \emph{New Zealand Sociology}, \textbf{25}(2),
-59--87.
-
-\bibitem[\citeproctext]{ref-huitfeldt2019collapsibility}
-Huitfeldt, A, Stensrud, MJ, and Suzuki, E (2019) On the collapsibility
-of measures of effect in the counterfactual causal framework.
-\emph{Emerging Themes in Epidemiology}, \textbf{16}, 1--5.
-
-\bibitem[\citeproctext]{ref-johnson2022global}
-Johnson, BR, and VanderWeele, TJ (2022) The global flourishing study: A
-new era for the study of well-being. \emph{International Bulletin of
-Mission Research}, \textbf{46}(2), 272--275.
-
-\bibitem[\citeproctext]{ref-johnson2005}
-Johnson, DD (2005) God{'}s punishment and public goods: A test of the
-supernatural punishment hypothesis in 186 world cultures. \emph{Human
-Nature}, \textbf{16}, 410446.
-
-\bibitem[\citeproctext]{ref-johnson2015}
-Johnson, DD (2015) Big gods, small wonder: Supernatural punishment
-strikes back. \emph{Religion, Brain \& Behavior}, \textbf{5}(4), 290298.
-
-\bibitem[\citeproctext]{ref-jost_end_2006-1}
-Jost, JT (2006) The end of the end of ideology. \emph{American
-Psychologist}, \textbf{61}(7), 651--670.
-doi:\href{https://doi.org/10.1037/0003-066X.61.7.651}{10.1037/0003-066X.61.7.651}.
-
-\bibitem[\citeproctext]{ref-kelly2024religiosity}
-Kelly, JM, Kramer, SR, and Shariff, AF (2024) Religiosity predicts
-prosociality, especially when measured by self-report: A meta-analysis
-of almost 60 years of research. \emph{Psychological Bulletin},
-\textbf{150}(3), 284--318.
-
-\bibitem[\citeproctext]{ref-khanna1995charity}
-Khanna, J, Posnett, J, and Sandler, T (1995) Charity donations in the
-UK: New evidence based on panel data. \emph{Journal of Public
-Economics}, \textbf{56}(2), 257--272.
-
-\bibitem[\citeproctext]{ref-van2012targeted}
-Laan, MJ van der, and Gruber, S (2012) Targeted minimum loss based
-estimation of causal effects of multiple time point interventions.
-\emph{The International Journal of Biostatistics}, \textbf{8}(1).
-
-\bibitem[\citeproctext]{ref-van2014discussion}
-Laan, MJ van der, Luedtke, AR, and Dı́az, I (2014) Discussion of
-identification, estimation and approximation of risk under interventions
-that depend on the natural value of treatment using observational data,
-by {J}essica {Y}oung, {M}iguel {H}ern{á}n, and {J}ames {R}obins.
-\emph{Epidemiologic Methods}, \textbf{3}(1), 21--31.
-
-\bibitem[\citeproctext]{ref-linden2020EVALUE}
-Linden, A, Mathur, MB, and VanderWeele, TJ (2020) Conducting sensitivity
-analysis for unmeasured confounding in observational studies using
-e-values: The evalue package. \emph{The Stata Journal}, \textbf{20}(1),
-162--175.
-
-\bibitem[\citeproctext]{ref-major2023exploring}
-Major-Smith, D (2023) Exploring causality from observational data: An
-example assessing whether religiosity promotes cooperation.
-\emph{Evolutionary Human Sciences}, \textbf{5}, e22.
-
-\bibitem[\citeproctext]{ref-mccullough2020kindness}
-McCullough, ME (2020) \emph{The kindness of strangers: How a selfish ape
-invented a new moral code}, Simon; Schuster.
-
-\bibitem[\citeproctext]{ref-McLeod2020}
-McLeod, J (2020) The new zealand support report: The current state and
-significance of giving in new zealand and the outlook for recipients.,
-JBWere. Retrieved from
-\url{https://www.jbwere.co.nz/media/1qudxw3q/jbwere-nz-support-report-digital.pdf}
-
-\bibitem[\citeproctext]{ref-monsma2007religion}
-Monsma, SV (2007) Religion and philanthropic giving and volunteering:
-Building blocks for civic responsibility. \emph{Interdisciplinary
-Journal of Research on Religion}, \textbf{3}.
-
-\bibitem[\citeproctext]{ref-diaz2012population}
-Muñoz, ID, and Van Der Laan, M (2012) Population intervention causal
-effects based on stochastic interventions. \emph{Biometrics},
-\textbf{68}(2), 541--549.
-
-\bibitem[\citeproctext]{ref-norenzayan2016}
-Norenzayan, A, Shariff, AF, Gervais, WM, \ldots{} Henrich, J (2016) The
-cultural evolution of prosocial religions. \emph{Behavioral and Brain
-Sciences}, \textbf{39}, e1.
-doi:\href{https://doi.org/10.1017/S0140525X14001356}{10.1017/S0140525X14001356}.
-
-\bibitem[\citeproctext]{ref-ogburn2021}
-Ogburn, EL, and Shpitser, I (2021) Causal modelling: The two cultures.
-\emph{Observational Studies}, \textbf{7}(1), 179--183.
-doi:\href{https://doi.org/10.1353/obs.2021.0006}{10.1353/obs.2021.0006}.
-
-\bibitem[\citeproctext]{ref-pearl2009}
-Pearl, J (2009) \emph{\href{https://doi.org/10.1214/09-SS057}{Causal
-inference in statistics: An overview}}.
-
-\bibitem[\citeproctext]{ref-polley2023}
-Polley, E, LeDell, E, Kennedy, C, and Laan, M van der (2023)
-\emph{SuperLearner: Super learner prediction}. Retrieved from
-\url{https://CRAN.R-project.org/package=SuperLearner}
-
-\bibitem[\citeproctext]{ref-richardson2023nested}
-Richardson, TS, Evans, RJ, Robins, JM, and Shpitser, I (2023) Nested
-{M}arkov properties for acyclic directed mixed graphs. \emph{The Annals
-of Statistics}, \textbf{51}(1), 334--361.
-
-\bibitem[\citeproctext]{ref-richardson2013swigsprimer}
-Richardson, TS, and Robins, JM (2013) Single world intervention graphs:
-A primer. In \emph{Second UAI workshop on causal structure learning,
-{B}ellevue, {W}ashington}, Citeseer. Retrieved from
-\url{https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=07bbcb458109d2663acc0d098e8913892389a2a7}
-
-\bibitem[\citeproctext]{ref-richardson2023potential}
-Richardson, TS, and Robins, JM (2023) Potential outcome and decision
-theoretic foundations for statistical causality. \emph{Journal of Causal
-Inference}, \textbf{11}(1), 20220012.
-
-\bibitem[\citeproctext]{ref-robins1986}
-Robins, J (1986) A new approach to causal inference in mortality studies
-with a sustained exposure period---application to control of the healthy
-worker survivor effect. \emph{Mathematical Modelling}, \textbf{7}(9-12),
-1393--1512.
-
-\bibitem[\citeproctext]{ref-robins1992}
-Robins, JM, and Greenland, S (1992) Identifiability and exchangeability
-for direct and indirect effects. \emph{Epidemiology}, \textbf{3}(2),
-143155.
-
-\bibitem[\citeproctext]{ref-robins2010alternative}
-Robins, JM, and Richardson, TS (2010) Alternative graphical causal
-models and the identification of direct effects. \emph{Causality and
-Psychopathology: Finding the Determinants of Disorders and Their Cures},
-\textbf{84}, 103--158.
-
-\bibitem[\citeproctext]{ref-rubin2005}
-Rubin, DB (2005) Causal inference using potential outcomes: Design,
-modeling, decisions. \emph{Journal of the American Statistical
-Association}, \textbf{100}(469), 322--331. Retrieved from
-\url{https://www.jstor.org/stable/27590541}
-
-\bibitem[\citeproctext]{ref-shpitser2022multivariate}
-Shpitser, I, Richardson, TS, and Robins, JM (2022) Multivariate
-counterfactual systems and causal graphical models. In
-\emph{Probabilistic and causal inference: The works of {J}udea {P}earl},
-813--852.
-
-\bibitem[\citeproctext]{ref-shpitser2016causal}
-Shpitser, I, and Tchetgen, ET (2016) Causal inference with a graphical
-hierarchy of interventions. \emph{Annals of Statistics}, \textbf{44}(6),
-2433.
-
-\bibitem[\citeproctext]{ref-sibley2012}
-Sibley, \&B, C. G. (2012) Healing those who need healing: How religious
-practice affects social belonging. \emph{Journal for the Cognitive
-Science of Religion}, \textbf{1}, 29--45.
-
-\bibitem[\citeproctext]{ref-sibley2021}
-Sibley, CG (2021)
-\emph{\href{https://doi.org/10.31234/osf.io/wgqvy}{Sampling procedure
-and sample details for the new zealand attitudes and values study}}.
-
-\bibitem[\citeproctext]{ref-sibley2012a}
-Sibley, CG, and Bulbulia, J (2012) Faith after an earthquake: A
-longitudinal study of religion and perceived health before and after the
-2011 {C}hristchurch {N}ew {Z}ealand earthquake. \emph{PloS One},
-\textbf{7}(12), e49648.
-
-\bibitem[\citeproctext]{ref-sibley2011}
-Sibley, CG, Luyten, N, Purnomo, M, \ldots{} Robertson, A (2011) The
-Mini-IPIP6: Validation and extension of a short measure of the Big-Six
-factors of personality in New Zealand. \emph{New Zealand Journal of
-Psychology}, \textbf{40}(3), 142--159.
-
-\bibitem[\citeproctext]{ref-sosis2003cooperation}
-Sosis, R, and Bressler, ER (2003) Cooperation and commune longevity: A
-test of the costly signaling theory of religion. \emph{Cross-Cultural
-Research}, \textbf{37}(2), 211--239.
-
-\bibitem[\citeproctext]{ref-neyman1923}
-Splawa-Neyman, J, Dabrowska, DM, and Speed, TP (1990) On the application
-of probability theory to agricultural experiments. Essay on principles.
-Section 9. \emph{Statistical Science}, 465--472.
-
-\bibitem[\citeproctext]{ref-vanbuuren2018}
-Van Buuren, S (2018) \emph{Flexible imputation of missing data}, CRC
-press.
-
-\bibitem[\citeproctext]{ref-van2014targeted}
-Van der Laan, MJ (2014) Targeted estimation of nuisance parameters to
-obtain valid statistical inference. \emph{The International Journal of
-Biostatistics}, \textbf{10}(1), 29--57.
-
-\bibitem[\citeproctext]{ref-vanderlaan2011}
-Van Der Laan, MJ, and Rose, S (2011) \emph{Targeted Learning: Causal
-Inference for Observational and Experimental Data}, New York, NY:
-Springer. Retrieved from
-\url{https://link.springer.com/10.1007/978-1-4419-9782-1}
-
-\bibitem[\citeproctext]{ref-vanderlaan2018}
-Van Der Laan, MJ, and Rose, S (2018) \emph{Targeted Learning in Data
-Science: Causal Inference for Complex Longitudinal Studies}, Cham:
-Springer International Publishing. Retrieved from
-\url{http://link.springer.com/10.1007/978-3-319-65304-4}
-
-\bibitem[\citeproctext]{ref-vantongeren2020}
-Van Tongeren, DR, DeWall, CN, Chen, Z, Sibley, CG, and Bulbulia, J
-(2020) Religious residue: Cross-cultural evidence that religious
-psychology and behavior persist following deidentification.
-\emph{Journal of Personality and Social Psychology}.
-
-\bibitem[\citeproctext]{ref-vanderweele2009}
-VanderWeele, TJ (2009) Concerning the consistency assumption in causal
-inference. \emph{Epidemiology}, \textbf{20}(6), 880.
-doi:\href{https://doi.org/10.1097/EDE.0b013e3181bd5638}{10.1097/EDE.0b013e3181bd5638}.
-
-\bibitem[\citeproctext]{ref-vanderweele2015}
-VanderWeele, TJ (2015) \emph{Explanation in causal inference: Methods
-for mediation and interaction}, Oxford University Press.
-
-\bibitem[\citeproctext]{ref-vanderweele2019}
-VanderWeele, TJ (2019) Principles of confounder selection.
-\emph{European Journal of Epidemiology}, \textbf{34}(3), 211219.
-
-\bibitem[\citeproctext]{ref-vanderweele2017}
-VanderWeele, TJ, and Ding, P (2017) Sensitivity analysis in
-observational research: Introducing the e-value. \emph{Annals of
-Internal Medicine}, \textbf{167}(4), 268--274.
-doi:\href{https://doi.org/10.7326/M16-2607}{10.7326/M16-2607}.
-
-\bibitem[\citeproctext]{ref-vanderweele2013}
-VanderWeele, TJ, and Hernan, MA (2013) Causal inference under multiple
-versions of treatment. \emph{Journal of Causal Inference},
-\textbf{1}(1), 120.
-
-\bibitem[\citeproctext]{ref-vanderweele2012MEASUREMENT}
-VanderWeele, TJ, and Hernán, MA (2012) Results on differential and
-dependent measurement error of the exposure and the outcome using signed
-directed acyclic graphs. \emph{American Journal of Epidemiology},
-\textbf{175}(12), 1303--1310.
-doi:\href{https://doi.org/10.1093/aje/kwr458}{10.1093/aje/kwr458}.
-
-\bibitem[\citeproctext]{ref-vanderweele2020}
-VanderWeele, TJ, Mathur, MB, and Chen, Y (2020) Outcome-wide
-longitudinal designs for causal inference: A new template for empirical
-studies. \emph{Statistical Science}, \textbf{35}(3), 437--466.
-
-\bibitem[\citeproctext]{ref-verbrugge1997}
-Verbrugge, LM (1997) A global disability indicator. \emph{Journal of
-Aging Studies}, \textbf{11}(4), 337--362.
-doi:\href{https://doi.org/10.1016/S0890-4065(97)90026-8}{10.1016/S0890-4065(97)90026-8}.
-
-\bibitem[\citeproctext]{ref-watts2016}
-Watts, J, Bulbulia, J. A., Gray, RD, and Atkinson, QD (2016) Clarity and
-causality needed in claims about big gods., \textbf{39}, 41--42.
-doi:\href{https://doi.org/DOI:10.1017/S0140525X15000576}{DOI:10.1017/S0140525X15000576}.
-
-\bibitem[\citeproctext]{ref-watts2015}
-Watts, J, Greenhill, SJ, Atkinson, QD, Currie, TE, Bulbulia, J, and
-Gray, RD (2015) \emph{Broad supernatural punishment but not moralizing
-high gods precede the evolution of political complexity in
-{A}ustronesia} \emph{Proceedings of the Royal Society B: Biological
-Sciences}, Vol. 282, The Royal Society, 20142556.
-
-\bibitem[\citeproctext]{ref-westreich2010}
-Westreich, D, and Cole, SR (2010) Invited commentary: positivity in
-practice. \emph{American Journal of Epidemiology}, \textbf{171}(6).
-doi:\href{https://doi.org/10.1093/aje/kwp436}{10.1093/aje/kwp436}.
-
-\bibitem[\citeproctext]{ref-westreich2013}
-Westreich, D, and Greenland, S (2013) The table 2 fallacy: Presenting
-and interpreting confounder and modifier coefficients. \emph{American
-Journal of Epidemiology}, \textbf{177}(4), 292298.
-
-\bibitem[\citeproctext]{ref-whitehouse2023}
-Whitehouse, H, François, P, Savage, PE, \ldots{} Haar, B ter (2023)
-Testing the big gods hypothesis with global historical data: A review
-and {``}retake{''}. \emph{Religion, Brain \& Behavior}, \textbf{13}(2),
-124166.
-
-\bibitem[\citeproctext]{ref-williams2021}
-Williams, NT, and Díaz, I (2021) \emph{{l}mtp: Non-parametric causal
-effects of feasible interventions based on modified treatment policies}.
-doi:\href{https://doi.org/10.5281/zenodo.3874931}{10.5281/zenodo.3874931}.
-
-\bibitem[\citeproctext]{ref-woodyard2014doing}
-Woodyard, A, and Grable, J (2014) Doing good and feeling well: Exploring
-the relationship between charitable activity and perceived personal
-wellness. \emph{VOLUNTAS: International Journal of Voluntary and
-Nonprofit Organizations}, \textbf{25}, 905--928.
-
-\bibitem[\citeproctext]{ref-Ranger2017}
-Wright, MN, and Ziegler, A (2017) {ranger}: A fast implementation of
-random forests for high dimensional data in {C++} and {R}. \emph{Journal
-of Statistical Software}, \textbf{77}(1), 1--17.
-doi:\href{https://doi.org/10.18637/jss.v077.i01}{10.18637/jss.v077.i01}.
-
-\bibitem[\citeproctext]{ref-young2014identification}
-Young, JG, Hernán, MA, and Robins, JM (2014) Identification, estimation
-and approximation of risk under interventions that depend on the natural
-value of treatment using observational data. \emph{Epidemiologic
-Methods}, \textbf{3}(1), 1--19.
-
-\end{CSLReferences}
-
-
+\nolinenumbers
+  \bibliography{/Users/joseph/GIT/templates/bib/references.bib}
 
 \end{document}
