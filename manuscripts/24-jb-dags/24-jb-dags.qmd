@@ -1,0 +1,1024 @@
+---
+title: "Causal Directed Acyclic Graphs (DAGs): A Practical Guide"
+abstract: |
+  In causal inference, accurately quantifying a causal effect requires contrasting hypothetical counterfactual states simulated from data. This complex task relies on a framework of explicit assumptions and systematic, multi-step workflows that begin by stating a clear causal question and a clear target population for whom inferences are meant to be valid. Causal directed acyclic graphs (DAGs) are tools within this multi-step workflow. We deploy them after we have stated our causal question and stated our target population, to help us understand whether and how the counterfactual contrasts we target can be identified from data, based on assumptions we obtain from previous science (structural assumptions). This guide offers practical advice for constructing causal directed acyclic graphs that are effective and safe. These causal graphs make clear causal inference’s mission-critical demand for obtaining accuracy in the relative timing of events of confounders, treatements, and outcomes, and how, even when timing is ensured, valid causal inferences remain elusive.
+   
+   **KEYWORDS**: *Causal Inference*; *Culture*; *DAGs*;* *Evolution*; *Human Sciences*; *Longitudinal*. 
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+# pull_path <-
+#   fs::path_expand(
+#     #"/Users/joseph/v-project\ Dropbox/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs_refactor/nzavs_data_23"
+#     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
+#   )
+# 
+
+
+push_mods <-  fs::path_expand(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/nzvs_mods/24/church-prosocial-v7"
+)
+
+
+#tinytext::tlmgr_update()
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+#source("/Users/joseph/GIT/templates/functions/libs2.R")
+# # WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+# source("/Users/joseph/GIT/templates/functions/funs.R")
+
+#ALERT: UNCOMMENT THIS AND DOWNLOAD THE FUNCTIONS FROM JB's GITHUB
+
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+# )
+# 
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/funs.R"
+# )
+
+# check path:is this correct?  check so you know you are not overwriting other directors
+#push_mods
+
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+library("tidyverse")
+library("kableExtra")
+
+loadfonts(device = "all")
+```
+
+
+
+## Introduction
+
+Human research begins with two questions: 
+
+> 1. What do I want to know? 
+> 2. For which population does this knowledge generalise?  
+
+
+In many human sciences, our questions are causal. What want to understand what would happen if we were to intervene on the variables of interest. However, in many observational human sciences, in place of causality, we settle for "associations" and "predictions."  Causal directed acyclic graphs -- or causal graphs as we will also cal  them -- were developed to help investigators check whether their causal questions may be answered with data, and how. This is a challenging because to quantitatively address causal questions, we must contrast different ways the world might have been, using data we have accessed from the world as it is.
+
+After briefly reviewing the assumptions required for quantitative causal inference, and explaining where causal graphs fit into the workflow, we provide a users guide
+
+First, we consider **the five elementary graphical structures** employed in causal diagrams. We shall consider how all causal relationships can be examined using these five elementary structures. 
+
+Second, we consider **the four elementary rules** that allow investigators to identify causal effects from the relations assumed in a causal diagram. At first, it might seem strange that relationships must be assumed when learning about relationships. However, understanding this requirement is essential for using causal diagrams responsibly. 
+
+Third, we apply the four elementary rules to problems, revealing that collecting or aligning our data with the presumed order of causality, in which causes precede effects, greatly reduces opportunities for confounding
+
+Fourth, we use to explain failure modes for caual inference, even when temporal order in one's data is assured.
+
+Fifth, we use causal diagrams to clarify confounding in randomised experiments 
+
+
+Finally, we offer practical advice about how to construct causal directed acyclic graphs, and suggest best practices
+
+
+## Preliminaries 
+
+Causal diagrams, also called causal graphs, Directed Acyclic Graphs, and Causal Directed Acyclic Graphs, are graphical tools whose **primary** purpose is to enable investigators to detect confounding biases.
+
+The concept of "confounding bias" helps to clarify what it is at stake when evaluating the *internal validity* of a study.  A
+
+
+**Confounding bias**: there is no confounding bias if:
+  
+  - the distribution of variables that might affect the outcome are imbalanced in the treatment groups to be compared
+  
+Causal graphs allow us to say:  
+  - if there is no open back-door path between the treatment and the path between the treatment and outcome is unblocked, there is no confounding bais.
+
+
+
+Before describing how causal diagrams work, we first define the meanings of their symbols. Note there is no single convention for creating causal diagrams, so it is important that we are clear when defining our meanings.
+
+{{< pagebreak >}}
+## Variable naming conventions
+::: {#tbl-terminology}
+```{=latex}
+\terminologylocalconventions
+```
+Variable naming conventions
+:::
+
+For us:
+
+#### $X$ denotes a random variable without reference to its role;
+
+#### $A$ denotes the "treatment" or "exposure" variable. 
+
+This is the variable for which we seek to understand the effect of intervening on it. It is the "cause;" 
+
+#### $Y$ denotes the outcome or response of an intervention. 
+
+It is the "effect." Last week we considered whether marriage $A$ causes happiness $Y$.
+
+#### $Y(a)$ denotes the counterfactual or potential state of $Y$ in response to setting the level of the exposure to a specific level, $A=a$. 
+
+As we will consider in the second half of the course, to consistently estimate causal effects we will need to evaluate counterfactual or potential states of the world.  Keeping to our example, we will need to do more than evaluate marriage and happiness in people over time. We will need to evaluate how happy the unmarried people would have been had they been married and how happy the married people would have been had they not been married. Of course, these events cannot be directly observed. Thus to address fundamental questions in psychology, we need to contrast counterfactual states of the world. This might seem like science fiction; however, we are already familiar with methods for obtaining such counterfactual contrasts -- namely, randomised controlled experiments! We will return to this concept later, but for now, it will be useful for you to understand the notation. 
+
+#### $L$ denotes a measured confounder or set of confounders 
+
+- This set, if conditioned upon, closes an open back-door path between the treatment $A$ and the outcome $Y$.  
+
+Consider a scenario where happiness at time 0, $L$,  affects both the probability of getting married at time 1, $A$,  and one's happiness at time 2, $Y$. 
+
+In this case, $L$ serves as a confounder because it influences both the treatment (marriage at time 1) and the outcome (happiness at time 2), potentially opening a back-door path that confounds the estimated effect of marriage on happiness.
+
+To accurately estimate the causal effect of marriage on happiness, then, it is essential to control for $L$. With cross-sectional data, such control might be difficult. 
+
+#### $U$ denotes an unmeasured confounder 
+
+- that is a variable that may affect both the treatment and the outcome, but for which we have no direct measurement. Suppose cultural upbringing affects both whether someone gets married and whether they are happy.  
+
+If this variable is not measured, we cannot accurately estimate a causal effect of marriage on happiness.
+
+#### $M$ denotes a mediator or a variable along the path from exposure to outcome. 
+
+For example, perhaps marriage causes wealth and wealth causes happiness. As we shall see, conditioning on "wealth" when estimating the effect of marriage on happiness will make it seem that marriage does not cause happiness when it does, *through* wealth.
+
+#### $\bar{X}$ denotes a sequence of variables, for example, a sequence of treatments.  
+
+Imagine we were interested in the causal effect of marriage and remarriage on well-being. In this case, there are two treatments $A_0$ and $A_1$ and four potential contrasts. For the scenario of marriage and remarriage affecting well-being, we denote the potential outcomes as $Y(a_0, a_1)$, where $a_0$ and $a_1$ represent the specific values taken by $A_0$ and $A_1$, respectively. Given two treatments, $A_0$ and $A_1$, four primary contrasts of interest correspond to the different combinations of these treatments. These contrasts allow us to compare the causal effects of being married versus not and remarried versus not on well-being. The potential outcomes under these conditions can be specified as follows:
+
+1. $Y(0, 0)$: The potential outcome when there is no marriage.
+2. $Y(0, 1)$: The potential outcome when there is marriage. 
+2. $Y(1, 0)$: The potential outcome when there is divorce.
+4. $Y(1, 1)$: The potential outcome from marriage prevalence.
+
+Each of these outcomes allows for a specific contrast to be made, comparing the well-being under different scenarios of marriage and remarriage. Which do we want to contrast?  Note, the question about 'the causal effects of marriage on happiness' is ambiguous because we have not stated the causal contrast we are interested in. 
+
+$\mathcal{R}$ denotes a randomisation or a chance event.
+
+### Elements of our Causal Graphs 
+
+The conventions that describe components of our causal graphs are given in @fig-general.
+
+
+::: {#tbl-general}
+```{=latex}
+\terminologygeneral
+```
+Nodes, Edges, Conditioning Conventions. 
+:::
+
+
+#### Time indexing
+
+
+In our causal diagrams, we will implement two conventions to accurately depict the temporal order of events.
+
+First, the layout of a causal diagram will be structured from left to right to reflect the sequence of causality as it unfolds in reality. This orientation is crucial because causal diagrams must inherently be acyclic and because causality itself is inherently temporal. 
+
+Second, we will enhance the representation of the event sequence within our diagrams by systematically indexing our nodes according to the relative timing of events. If an event represented by $X_0$ precedes another event represented by $X_1$, the indexing will indicate this chronological order.
+
+
+
+#### Representing uncertainty in timing explicitly
+
+In settings in which the sequence of events is ambiguous or cannot be definitively known, particularly in the context of cross-sectional data where all measurements are taken at a single point in time, we adopt a specific convention to express causality under uncertainty: $X_{\phi t}$. This notation allows us to propose a temporal order without clear, time-specific measurements, acknowledging our speculation.
+
+For instance, when the timing between events is unclear, we denote an event that is presumed to occur first as $X_{\phi 0}$ and a subsequent event as $X_{\phi 1}$, indicating a tentative ordering where $X_{\phi 0}$ is thought to precede $X_{\phi 1}$. However, it is essential to underscore that this notation signals our uncertainty regarding the actual timing of events; our measurements do not give us the confidence to assert this sequence definitively.
+
+
+
+#### Arrows
+
+As indicated in @fig-general, black arrows denote causality, red arrows reveal an open backdoor path, dashed black arrows denote attenuation, and red dashed arrows denote bias in a true causal association between $A$ and $Y$. Finally, a blue arrow with a circle point denotes effect-measure modification, also known as "effect modification."  We might be interested in treatment effect heterogeneity without evaluating the causality in the sources of this heterogeneity.  For example, we cannot typically imagine any intervention in which people could be randomised into cultures.  However, we may be interested in whether the effects of an intervention that might be manipulable, such as marriage, differ by culture.  To clarify this interest, we require a non-causal arrow. 
+
+$\mathcal{R}\to A$ denotes a random treatment assignment. 
+
+
+#### Boxes
+
+We use a black box to denote conditioning that reduces confounding or that is inert. 
+
+
+We use a red box to describe settings in which conditioning on a variable introduces confounding bias. 
+
+
+Occasionally we will use a dashed circle do denote a latent variable, that is, a variable that is either not measured or not conditioned upon. 
+
+
+#### Terminology for Conditional Independence
+
+The bottom panel of @fig-general shows some mathematical notation. Do not be alarmed, we are safe! Part 1 of the course will not require more complicated math than this notation. And we shall see that the notation is a compact way to describe intuitions that can be expressed less compactly in words:
+
+- **Statistical Independence ($\coprod$):** in the context of causal inference, statistical independence between the treatment and potential outcomes, denoted as $A \coprod Y(a)$, means the treatment assignment is independent of the potential outcomes. This assumption is critical for estimating causal effects without bias.
+
+- **Statistical Dependence ($\cancel\coprod$):** conversely, $\cancel\coprod$ denotes statistical dependence, indicating that the distribution of one variable is influenced by the other. For example, $A \cancel\coprod Y(a)$ implies that the treatment assignment is related to the potential outcomes, potentially introducing bias into causal estimates.
+
+- **Conditioning ($|$):** conditioning, denoted by the vertical line $|$, allows for specifying contexts or conditions under which independence or dependence holds.
+
+    - **Conditional Independence ($A \coprod Y(a)|L$):** This means that once we account for a set of variables $L$, the treatment and potential outcomes are independent. This condition is often the basis for strategies aiming to control for confounding.
+
+    - **Conditional Dependence ($A \cancel\coprod Y(a)|L$):** States that potential outcomes and treatments are not independent after conditioning on $L$, indicating a need for careful consideration in the analysis to avoid biased causal inferences.
+
+
+
+## The Five Elementary Structures of Causality
+
+
+Judea Pearl proved that all elementary structures of causality can be represented graphically [@pearl2009a].  @fig-directedgraph presents this five elementary structures. 
+
+
+::: {#tbl-fiveelementary}
+
+```{=latex}
+\terminologydirectedgraph
+```
+Elementary structures of causality
+:::
+
+The structures are as follows: 
+
+- **Two Variables:**
+    1. **Causality Absent:** There is no causal effect between variables $A$ and $B$. They do not influence each other, denoted as $A \coprod B$, indicating they are statistically independent.
+    2. **Causality:** Variable $A$ causally affects variable $B$. This relationship suggests an association between them, denoted as $A \cancel\coprod B$, indicating they are statistically dependent.
+
+- **Three Variables:**
+    3. **Fork:** Variable $A$ causally affects both $B$ and $C$. Variables $B$ and $C$ are conditionally independent given $A$, denoted as $B \coprod C | A$. This structure implies that knowing $A$ removes any association between $B$ and $C$ due to their common cause.
+    4. **Chain:** A causal chain exists where $C$ is affected by $B$, which in turn is affected by $A$. Variables $A$ and $C$ are conditionally independent given $B$, denoted as $A \coprod C | B$. This indicates that $B$ mediates the effect of $A$ on $C$, and knowing $B$ breaks the association between $A$ and $C$.
+    5. **Collider:** Variable $C$ is affected by both $A$ and $B$, which are independent. However, conditioning on $C$ induces an association between $A$ and $B$, denoted as $A \cancel\coprod B | C$. This structure is unique because it suggests that $A$ and $B$, while initially independent, become associated when we account for their common effect $C$.
+
+
+Once we understand the basic relationships between two variables, we can build upon these to create more complex relationships. These structures help us see how statistical independences and dependencies emerge from the data, allowing us to clarify the causal relationships we presume exist. Such clarity is crucial for ensuring that confounders are balanced across treatment groups, given all measured confounders, so that $Y(a) \coprod A | L$.
+
+
+
+{{< pagebreak >}}
+## The Four Rules of Confounding Control
+
+
+@tbl-terminologyconfounders describe the four elementary rules of confounding control:
+
+::: {#tbl-terminologyconfounders}
+```{=latex}
+\terminologyelconfounders
+```
+Four rules of confounding control
+:::
+
+
+1. **Condition on Common Cause or its Proxy**: this rule applies to settings in which the treatment ($A$) and the outcome ($Y$) share common causes. By conditioning on these common causes, we block the open backdoor paths that could introduce bias into our causal estimates. Controlling for these common causes (or their proxies) helps tp isolate the specific effect of $A$ on $Y$. (We do not draw a path from $ A \to Y$ because we do not assume this path.)
+
+2. **Do Not Condition on a Mediator**:  this rule applies to settings in which the variable $L$ is a mediator of $A \to Y$. Here, conditioning on a mediator will bias the total causal effect estimate. Later in the course, we will discuss the assumptions required for causal mediation.  For now, if we are interested in total effect estimates, we must not condition on a mediator.  Here we draw the path from $A \to Y$ to ensure that if such a path exists, it will not become biased from our conditioning strategy. 
+
+3. **Do Not Condition on a Collider**: this rule applies to settings in which we $L$ is a common effect of $A$ and $Y$. Conditioning on a collider may invoke a spurious association.  Last week we considered an example in which marriage caused wealth and happiness caused wealth. Conditioning on wealth in this setting will induce an association between happiness and marriage. Why?  If we know the outcome, wealth, then we know there are at least two ways of wealth.  Among those wealthy but low on happiness, we can predict that they are more likely to be married, for how else would they be wealthy? Similarly, among those who are wealthy and are not married, we can predict that they are happy, for how else would they be wealthy if not through marriage? These relationships are predictable entirely without a causal association between marriage and happiness!
+
+4. **Proxy Rule: Conditioning on a Descendent Is Akin to Conditioning on Its Parent**: this rule applies to settings in which we $L’$ is an effect from another variable $L$.  The graph considers when $L’$ is downstream of a collider.  For example, suppose we condition on home ownership, which is an effect of wealth. Such conditioning will open up a non-causal path without causation because home ownership is a proxy for wealth.  Consider, if someone owns a house but is not married, they are more likely to be happy, for how else could they accumulate the wealth required for home ownership?  Likewise, if someone is unhappy and owns a house, we can infer that they are more likely to be married because how else would they be wealthy? Conditioning on a proxy for a collider here is akin to conditioning on the collider itself.  
+
+However, we can also use the proxy rule to reduce bias. Return to the earlier example in which there is an unmeasured common cause of marriage and happiness, which we called "cultural upbringing"  Suppose we have not measured this variable but have measured proxies for this variable, such as country of birth, childhood religion, number of languages one speaks, and others.  By controlling for baseline values of these proxies, we can exert more control over unmeasured confounding. Even if bias is not eliminated, we should reduce bias wherever possible, which includes not introducing new biases, such as mediator bias, along the way.  Later in the course, we will teach you how to perform sensitivity analyses to verify the robustness of your results to unmeasured confounding.  Sensitivity analysis is critical because where the data are observational, we cannot entirely rule out unmeasured confounding. 
+{{< pagebreak >}}
+## The Five Elementary Structures of Causality
+
+::: {#tbl-dags}
+
+```{=latex}
+\terminologydirectedgraph
+```
+Elementary structures of causality
+:::
+
+
+{{< pagebreak >}}
+
+## Examples of common causal questions
+
+::: {#tbl-common-interests}
+
+```{=latex}
+\terminologycommoncausalinterests
+```
+Common causal questions
+:::
+
+{{< pagebreak >}}
+
+## Failure Modes for Confounding Control Related to Timing
+::: {#tbl-elementary-chronological-hyg}
+
+```{=latex}
+\terminologychronologicalhygeine
+
+```
+:::
+
+The structural features of **seven** confounding problems. We shall discuss examples of each, and how longitudinal data collection resolves each problem.  
+{{< pagebreak >}}
+
+## Collecting Time Series Data is Insufficient for Identification
+
+
+::: {#tbl-chronology-notenough}
+```{=latex}
+\terminologychronologicalhygeineNOTENOUGH
+```
+Common confounding scenarios in which chronology is not enough.
+:::
+
+{{< pagebreak >}}
+## Structures of Measurement Error Biases
+
+
+::: {#tbl-measurement-error}
+```{=latex}
+\terminologymeasurementerror
+```
+Measurement-error bias
+:::
+{{< pagebreak >}}
+
+
+## Structures of Selection-Restriction Biases from Attrition
+
+::: {#tbl-censoring-bias}
+```{=latex}
+\terminologycensoring
+```
+Censoring (attrition) bias
+:::
+{{< pagebreak >}}
+## Confounding in Randomised Controlled Experiments {#section-confounding-experiments}
+
+::: {#tbl-experiments}
+```{=latex}
+\terminologyelconfoundersexperiments
+```
+Common confounding scenarios in experiments
+:::
+
+{{< pagebreak >}}
+
+## Advice
+
+
+### How to Create Causal Diagrams to Address Causal Identification Problems {sec-how-to-create-causal-diagrams}
+
+
+The **identification problem** centres on whether we can derive the true causal effect of a treatment ($A$) on an outcome ($Y$) from observed data.  Addressing the identification problem has two core components:
+
+#### First, evaluate bias in the absence of a treatment effect
+
+Before attributing any statistical association to causality, we must eliminate non-causal sources of correlation. We do this by:
+
+* Identifying factors that influence both treatment ($A$) and outcome ($Y$).
+* Developing adjustment strategies to control for confounders.
+* Blocking backdoor paths that create indirect, non-causal links between $A$ and $Y$. By adjusting for confounders, we aim to achieve d-separation between $A$ and $Y$.
+
+#### Second, evaluate bias in the presence of a treatment effect
+
+After addressing potential confounders, we must ensure any remaining association between $A$ and $Y$ reflects a true causal relationship. We address **over-conditioning bias** by:
+
+* Avoiding mediator bias 
+* Avoiding collider bias
+* Verifying that any association between $A$ and $Y$ after in unbiased after all adjustments.
+
+Thus, causal inference demands a delicate balance: identify and control for confounders but avoid introducing new biases. Here is how investigators should construct their causal diagrams.
+
+#### Step 1. Clarify the research question evaluated by the diagram
+
+Before attempting to draw any causal diagram, state the problem your diagram addresses and the population to whom the problem applies.  Causal identification strategies may vary by question. For example, the confounding control strategy for evaluating the path $L\to Y$ will differ from that of assessing the path $A\to Y$.  For this reason, reporting coefficients other than the association between $A \to Y$ is typically ill-advised; see @westreich2013; @mcelreath2020; @bulbulia2023.
+
+#### Step 2. Include all common causes of the exposure and outcome
+
+Incorporate all common causes (confounders) of both the exposure and the outcome into your diagram. This includes both measured and unmeasured variables. Where possible, aggregate functionally similar common causes into a single variable notation (e.g., $L_0$ for demographic variables).
+
+
+#### Step 3. Include all ancestors of measured confounders linked with the treatment, the outcome, or both
+
+Include any ancestors (precursors) of measured confounders that are associated with either the treatment, the outcome, or both. This step is crucial for addressing hidden biases arising from unmeasured confounding. Simplify the diagram by grouping similar variables. 
+
+#### Step 4. Explicitly state assumptions about relative timing
+
+Explicitly annotate the temporal sequence of events using subscripts (e.g., $L_0$, $A_1$, $Y_2$). It is imperative that causal diagrams are acyclic.
+
+#### Step 5. Arrange temporal order of causality visually
+
+Arrange your diagram to reflect the temporal progression of causality, either left-to-right or top-to-bottom. This arrangement enhances the comprehensibility of causal relations and is vital for dissecting identification issues as discussed in [**Part 3**](#sec-part3), establishing temporal ordering is necessary for evaluating identification problems. 
+
+
+#### Step 6. Box variables are those variables that we adjust for to control confounding 
+
+Mark variables for adjustment (e.g., confounders) with boxes.
+
+#### Step 7. Represent paths structurally, not parametrically
+
+Focus on whether paths exist, not their functional form (linear, non-linear, etc.). Parametric descriptions are not relevant for bias evaluation in a causal diagram. (For an explanation of causal interaction and diagrams, see: @bulbulia2023.)
+
+#### Step 8. Minimise paths to those necessary for the identification problem
+
+Reduce clutter; only include paths critical for a specific question (e.g., backdoor paths, mediators).
+
+#### Step 9. Consider Potential Unmeasured Confounders
+
+Leverage domain expertise to clarify potential unmeasured confounders and represent them in your diagram. This proactive step aids in anticipating and addressing *all* possible sources of confounding bias.
+
+#### **Step 10. State Graphical Conventions**
+
+Establish and explain the graphical conventions used in your diagram (e.g., using red to highlight open backdoor paths). Consistency in symbol use enhances interpretability, while explicit descriptions improve accessibility and understanding.
+
+ Practical Guide For Constructing Causal Diagrams and Reporting Results When Causal Structure is Unclear {#section-part4}
+
+### Cross-sectional designs
+
+In environmental psychology, researchers often grapple with whether causal inferences can be drawn from cross-sectional data, especially when longitudinal data are unavailable. The challenge is common to cross-sectional designs.  However, it is important to appreciate that even longitudinal studies require careful assumption management. We next discuss how causal diagrams can guide inference in both data types, with examples relevant to environmental psychologists.
+
+#### 1. Graphically encode causal assumptions
+
+Causal inference turns on assumptions. Although cross-sectional analyses typically demand much stronger assumptions owing to the snapshot nature of data, these assumptions, when transparently articulated, do not permanently bar causal analysis. By stating different assumptions and modelling the data following these assumptions, we might find that certain causal conclusions are robust to these differences. Where the implications of different assumptions disagree, we can better determine the forms of data collection that would be required to settle such differences.  Below we consider an example where assumptions point to different conclusions, revealing the benefits of collecting time-series data to assess whether a variable is a confounder or a mediator. 
+
+
+#### 2. Time-invariant confounders
+
+In cross-sectional studies, some confounders are inherently stable over time, such as ethnicity, year and place of birth, and biological gender. For environmental psychologists examining the relationship between access to natural environments and psychological well-being, these stable confounders can be adjusted for without concern for introducing bias from mediators or colliders. For example, conditioning on one’s year of birth can help isolate recent urban development’s effect on mental health, independent of generational differences in attitudes toward green spaces.
+
+#### 3. Stable confounders
+
+While not immutable, other confounders are less likely to be influenced by the treatment. Variables such as sexual orientation, educational attainment, and often income level fall into this category. For instance, the effect of exposure to polluted environments on cognitive outcomes can be analysed by conditioning on education level, assuming that recent exposure to pollution is unlikely to change someone’s educational history retroactively.
+
+#### 4. Timing and reverse causation
+
+The sequence of treatment and outcome is crucial. Sometimes, the temporal order is clear, reducing concerns about reverse causation. Mortality is a definitive outcome where the timing issue is unambiguous. If researching the effects of air quality on mortality, the causal direction (poor air quality leading to higher mortality rates) is straightforward. However, consider the relationship between socio-economic status and health outcomes; the direction of causality is complex because socioeconomic factors can influence health (through access to resources), and poor health can affect socio-economic status (through reduced earning capacity).
+
+#### 5. Create causal diagrams
+
+Given the complexity of environmental influences on psychological outcomes, it’s prudent to construct multiple causal diagrams to cover various hypothetical scenarios. For example, when studying the effect of community green space on stress reduction, one diagram might assume the direct benefits of green space on stress. At the same time, another might include potential mediators like physical activity. By analysing and reporting findings based on multiple diagrams, researchers can examine the robustness of their conclusions across different theoretical frameworks and sets of assumptions.
+
+@tbl-cs describes ambiguous confounding control arising from cross-sectional data. Suppose again we are interested in the causal effect of access to greenspace, denoted by $A$ on "happiness," denoted by $Y$.   We are uncertain whether exercise, denoted by $L$, is a common cause of $A$ and $Y$ and thus a confounder or whether exercise is a mediator along the path from $A$ to $Y$. That is: (1) those who exercise might seek access to green space, and (2) exercise might increase happiness. Alternatively, the availability of green space might encourage physical activity, which could subsequently affect happiness. Causal diagrams can disentangle these relationships by explicitly representing potential paths, thereby guiding appropriate strategies for confounding control selection. We recommend using multiple causal diagrams to investigate the consequences of different plausible structural assumptions. 
+
+**Assumption 1: Exercise is a common cause of $A$ and $Y$**, this scenario is presented in @tbl-cs row 1. Here, our strategy for confounding control is to estimate the effect of $A$ on $Y$ conditioning on $L$. 
+
+**Assumption 2: Exercise is a mediator of $A$ and $Y$**, this scenario is presented in @tbl-cs row 2. Here, our strategy for confounding control is simply estimating the effect of $A$ on $Y$ without including $L$ (assuming there are no other common causes of the treatment and outcome). 
+
+::: {#tbl-cs}
+
+```{=latex}
+\examplecrosssection
+```
+This table is adapted from [@bulbulia2023]
+:::
+
+
+We can simulate data and run separate regressions to clarify how answers may differ, reflecting the different conditioning strategies embedded in the different assumptions. The following simulation generates data from a process in which exercise is a mediator (Scenario 2). (See Appendix C)
+
+
+
+```{r}
+#| label: simulation_cross_sectional-appendix
+#| tbl-cap: "Code for a simulation of a data generating process in which the effect of exercise (L) fully mediates the effect of greenspace (A) on happiness (Y)."
+#| out-width: 80%
+#| echo: false
+# load libraries
+library(gtsummary) # gtsummary: nice tables
+library(kableExtra) #  tables in latex/markdown
+library(clarify) # simulate ATE
+
+# simulation seed
+set.seed(123) #  reproducibility
+
+# define the parameters 
+n = 1000 # Number of observations
+p = 0.5  # Probability of A = 1 (access to greenspace)
+alpha = 0 # Intercept for L (exercise)
+beta = 2  # Effect of A on L 
+gamma = 1 # Intercept for Y 
+delta = 1.5 # Effect of L on Y
+sigma_L = 1 # Standard deviation of L
+sigma_Y = 1.5 # Standard deviation of Y
+
+# simulate the data: fully mediated effect 
+A = rbinom(n, 1, p) # binary exposure variable
+L = alpha + beta*A + rnorm(n, 0, sigma_L) # continuous mediator
+Y = gamma + delta*L + rnorm(n, 0, sigma_Y) # continuous outcome
+
+# make the data frame
+data = data.frame(A = A, L = L, Y = Y)
+
+# fit regression in which L is assumed to be a mediator
+fit_1 <- lm( Y ~ A + L, data = data)
+
+# fit regression in which L is assumed to be a mediator
+fit_2 <- lm( Y ~ A, data = data)
+
+# create gtsummary tables for each regression model
+table1 <- tbl_regression(fit_1)
+table2 <- tbl_regression(fit_2)
+
+# merge the tables for comparison
+table_comparison <- tbl_merge(
+  list(table1, table2),
+  tab_spanner = c("Model: Exercise assumed confounder", 
+                  "Model: Exercise assumed to be a mediator")
+)
+# make latex table
+markdown_table_0 <- as_kable_extra(table_comparison, 
+                                   format = "latex", 
+                                   booktabs = TRUE)
+# print                                   
+markdown_table_0
+```
+
+
+This table presents the conditional treatment effect estimates.  We present code for obtaining marginal treatment effects in [Appendix C](#appendix-c) 
+
+```{r}
+#| label: ate_simulation_cross_sectional
+#| fig-cap: ""
+#| out-width: 100%
+#| echo: false
+
+# use `clarify` package to obtain ATE
+library(clarify)
+# simulate fit 1 ATE
+set.seed(123)
+sim_coefs_fit_1 <- sim(fit_1)
+sim_coefs_fit_2 <- sim(fit_2)
+
+# marginal risk difference ATE, simulation-based: model 1 (L is a confounder)
+sim_est_fit_1 <-
+  sim_ame(
+    sim_coefs_fit_1,
+    var = "A",
+    subset = A == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+
+# marginal risk difference ATE, simulation-based: model 2 (L is a mediator)
+sim_est_fit_2 <-
+  sim_ame(
+    sim_coefs_fit_2,
+    var = "A",
+    subset = A == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# obtain summaries
+summary_sim_est_fit_1 <- summary(sim_est_fit_1, null = c(`RD` = 0))
+summary_sim_est_fit_2 <- summary(sim_est_fit_2, null = c(`RD` = 0))
+
+# get coefficients for reporting
+# ate for fit 1, with 95% CI
+ATE_fit_1 <- glue::glue(
+  "ATE =
+                        {round(summary_sim_est_fit_1[3, 1], 2)},
+                        CI = [{round(summary_sim_est_fit_1[3, 2], 2)},
+                        {round(summary_sim_est_fit_1[3, 3], 2)}]"
+)
+# ate for fit 2, with 95% CI
+ATE_fit_2 <-
+  glue::glue(
+    "ATE = {round(summary_sim_est_fit_2[3, 1], 2)},
+                        CI = [{round(summary_sim_est_fit_2[3, 2], 2)},
+                        {round(summary_sim_est_fit_2[3, 3], 2)}]"
+  )
+```
+
+
+
+On the assumptions outlined in @tbl-cs row 1, in which we *assert* that exercise is a confounder, the average treatment effect of access to green space on happiness is `r ATE_fit_2`.
+
+On the assumptions outlined in @tbl-cs row 2, in which we *assert* that exercise is a mediator, the average treatment effect of access to green space on happiness is `r ATE_fit_1`. 
+
+Note that although the mediator $L$ is "highly statistically significant", including it in the model is a mistake. We obtain a negative effect estimate for the causal effect of green space access on happiness.
+
+With only cross-sectional data, we must infer the results are inconclusive. Such understanding, although not the definitive answer we sought, is progress. The result tells us we should not be overly confident with our analysis (whatever p-values we recover!), and it clarifies that longitudinal data are needed. 
+
+These findings illustrate the role that assumptions about the relative timing of exercise as a confounder or as a mediator play. 
+
+### Recommendations for Conducting and Reporting Causal Analyses with Cross-Sectional Data
+
+When analysing and reporting analyses with cross-sectional data, researchers face the challenge of making causal inferences without the benefit of temporal information. 
+
+The following recommendations aim to guide researchers in navigating these challenges effectively:
+
+**Warning**: before proceeding with cross-sectional analysis, examine whether panel data are available. Longitudinal data can provide crucial temporal information that aids in establishing causality, offering a more robust framework for causal inference. If longitudinal data are unavailable, the recommendations above become even more critical for using cross-sectional data best.
+
+#### 1. **Draw multiple causal diagrams**
+
+Draw various causal diagrams to represent different theoretical assumptions about the relationships and timing of variables relevant to an identification problem. This approach comprehensively examines possible causal pathways, clarifying variables' roles as confounders, mediators, or colliders. For example, in studying the effect of urban green spaces on mental health, consider diagrams that account for both direct effects and pathways involving mediators like physical activity or social interaction.
+
+#### 2. **Perform and report analyses for each assumption**
+
+Conduct and transparently report separate analyses for each scenario your causal diagrams depict. This practice ensures that your study is theoretically grounded for each model. Presenting results from each analytical approach and the underlying assumptions and statistical methods promotes a balanced interpretation of findings. Although this practice may be unfamiliar to some editors and reviewers, it is crucial to address the inherent challenges of cross-sectional analysis by expanding the scope of investigation beyond a single hypothesis.
+
+#### 3. **Interpret findings with attention to ambiguities**
+
+Interpret results carefully, highlighting any ambiguities or inconsistencies across analyses. Discuss how varying assumptions about structural relationships and the timing of events can lead to divergent conclusions. For instance, exploring the theoretical and empirical implications of access to green spaces appears to positively affect mental health when considering exercise as a mediator but a negative effect when considered a confounder.
+
+#### 4. **Report divergent findings**
+
+Approach conclusions with caution, especially when findings suggest differing practical implications. Acknowledge the limitations of cross-sectional data in establishing causality and the potential for alternative explanations.
+
+#### 5. **Identify avenues for future research**
+
+Target future research that could clarify ambiguities. Consider the design of longitudinal studies or experiments capable of clarifying these ambiguities.
+
+#### 6. **Supplement observational data with simulated data** 
+
+Leverage data simulation to understand the complexities of causal inference. Simulating data based on various theoretical models allows researchers to examine the effect of different assumptions on their findings. This method tests analytical strategies under controlled conditions, assessing the robustness of conclusions against assumption violations or unobserved confounders.
+
+#### 7. **Conduct sensitivity analyses to assess robustness**
+
+implement sensitivity analyses to determine how dependent conclusions are on specific assumptions or parameters within your causal model. Use data simulation as a tool for these analyses, evaluating the sensitivity of results to various theoretical and methodological choices.
+
+
+Cross-sectional data are limiting; however, by appropriately bounding uncertainties in your causal inferences, you may use them to advance understanding. May your clarity and caution serve as an example for others.
+
+
+### Longitudinal Designs
+
+Causation occurs in time. Longitudinal designs offer a substantial advantage over cross-sectional designs for causal inference because sequential measurements allow us to capture causation and quantify its magnitude. We typically do not need to assert timing as in cross-sectional data settings. Because we know when variables have been measured, we can reduce ambiguity about the directionality of causal relationships. For instance, tracking changes in "happiness" following changes in access to green spaces over time can more definitively suggest causation than cross-sectional snapshots.
+
+
+Despite this advantage, longitudinal researchers still face assumptions regarding the absence of unmeasured confounders or the stability of measured confounders over time. These assumptions must be explicitly stated.  As with cross-sectional designs, wherever assumptions differ, researchers should draw different causal diagrams that reflect these assumptions and subsequently conduct and report separate analyses. 
+
+
+In this section, we simulate a dataset to demonstrate the benefits of incorporating both baseline exposure and baseline outcomes into analysing the effect of access to open green spaces on happiness. This approach allows us to control for initial levels of exposure and outcomes, offering a clearer understanding of the causal relationship. [Appendix D](#appendix-d-simulation-of-different-confounding-control-strategies) provides the code. [Appendix E](#appendix-e-non-parametric-estimation-of-average-treatment-effects-using-causal-forests) provides an example of a non-parametric estimator for the causal effect.  As mentioned before, by conditioning on baseline levels of access to green spaces and baseline mental health, researchers can more accurately estimate the *incident effect* of changes in green space access on changes in mental health. @tbl-lg offers an example of how we may use multiple causal diagrams to clarify the problem and our confounding control strategy. 
+
+
+::: {#tbl-lg}
+
+```{=latex}
+\examplelongitudinal
+```
+This table is adapted from [@bulbulia2023]
+:::
+
+
+Our analysis assessed the average treatment effect (ATE) of access to green spaces on happiness across three distinct models: uncontrolled, standard controlled, and interaction controlled. These models were constructed using a hypothetical cohort of 10,000 individuals, incorporating baseline exposure to green spaces ($A_0$), baseline happiness ($Y_0$), baseline confounders ($L_0$), and an unmeasured confounder ($U$). The detailed simulation process and model construction are given in [Appendix D](#appendix-simulate-longitudinal-ate).
+
+
+
+```{r}
+#| label: codelg
+#| echo: false
+#| eval: true
+# load libaries 
+library(kableExtra)
+if(!require(kableExtra)){install.packages("kableExtra")} # causal forest
+if(!require(gtsummary)){install.packages("gtsummary")} # causal forest
+if(!require(grf)){install.packages("grf")} # causal forest
+
+# r_texmf()eproducibility
+set.seed(123) 
+
+# set number of observations
+n <- 10000 
+
+# baseline covariates
+U <- rnorm(n) # Unmeasured confounder
+A_0 <- rbinom(n, 1, prob = plogis(U)) # Baseline exposure
+Y_0 <- rnorm(n, mean = U, sd = 1) # Baseline outcome
+L_0 <- rnorm(n, mean = U, sd = 1) # Baseline confounders
+
+# coefficients for treatment assignment
+beta_A0 = 0.25
+beta_Y0 = 0.3
+beta_L0 = 0.2
+beta_U = 0.1
+
+# simulate treatment assignment
+A_1 <- rbinom(n, 1, prob = plogis(-0.5 + 
+                                    beta_A0 * A_0 +
+                                    beta_Y0 * Y_0 + 
+                                    beta_L0 * L_0 + 
+                                    beta_U * U))
+
+# coefficients for continuous outcome
+delta_A1 = 0.3
+delta_Y0 = 0.9
+delta_A0 = 0.1
+delta_L0 = 0.3
+theta_A0Y0L0 = 0.5 # Interaction effect between A_1 and L_0
+delta_U = 0.05
+
+# simulate continuous outcome, including interaction
+Y_2 <- rnorm(n,
+             mean = 0 +
+               delta_A1 * A_1 + 
+               delta_Y0 * Y_0 + 
+               delta_A0 * A_0 + 
+               delta_L0 * L_0 + 
+               theta_A0Y0L0 * Y_0 * 
+               A_0 * L_0 + 
+               delta_U * U,
+             sd = .5)
+
+# assemble data frame
+data <- data.frame(Y_2, A_0, A_1, L_0, Y_0, U)
+
+# model: no control
+fit_no_control <- lm(Y_2 ~ A_1, data = data)
+
+# model: standard covariate control
+fit_standard <- lm(Y_2 ~ A_1 + L_0, data = data)
+
+# model: interaction
+fit_interaction  <- lm(Y_2 ~ A_1 + L_0 + A_0 + Y_0 + A_0:L_0:Y_0, data = data)
+
+# create gtsummary tables for each regression model
+tbl_fit_no_control<- tbl_regression(fit_no_control)  
+tbl_fit_standard <- tbl_regression(fit_standard)
+tbl_fit_interaction <- tbl_regression(fit_interaction)
+
+# get only the treatment variable
+tbl_list_modified <- lapply(list(
+  tbl_fit_no_control,
+  tbl_fit_standard,
+  tbl_fit_interaction),
+function(tbl) {
+  tbl %>%
+    modify_table_body(~ .x %>% dplyr::filter(variable == "A_1"))
+})
+
+# merge tables
+table_comparison <- tbl_merge(
+  tbls = tbl_list_modified,
+  tab_spanner = c(
+    "No Control",
+    "Standard",
+    "Interaction")
+) |>
+  modify_table_styling(
+    column = c(p.value_1, p.value_2, p.value_3),
+    hide = TRUE
+  )
+
+#create latex table for publication
+markdown_table <-
+  as_kable_extra(table_comparison, format = "latex", booktabs = TRUE) |>
+  kable_styling(latex_options = "scale_down")
+  
+# print it
+#markdown_table
+```
+```{r}
+#| label: ate-sim-long
+#| tbl-cap: "Code for calculating the average treatment effect."
+#| echo: false
+#| eval: true
+
+# use `clarify` package to obtain ATE
+if(!require(clarify)){install.packages("clarify")} # clarify package
+
+# simulate fit 1 ATE
+set.seed(123)
+sim_coefs_fit_no_control<- sim(fit_no_control)  
+sim_coefs_fit_std <- sim(fit_standard)
+sim_coefs_fit_int <- sim(fit_interaction)
+
+# marginal risk difference ATE, no controls
+sim_est_fit_no_control <-
+  sim_ame(
+    sim_coefs_fit_no_control,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# marginal risk difference ATE, simulation-based: model 1 (L is a confounder)
+sim_est_fit_std <-
+  sim_ame(
+    sim_coefs_fit_std,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# marginal risk difference ATE, simulation-based: model 2 (L is a mediator)
+sim_est_fit_int <-
+  sim_ame(
+    sim_coefs_fit_int,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# obtain summaries
+summary_sim_coefs_fit_no_control <-
+  summary(sim_est_fit_no_control, null = c(`RD` = 0))
+summary_sim_est_fit_std <-
+  summary(sim_est_fit_std, null = c(`RD` = 0))
+summary_sim_est_fit_int <-
+  summary(sim_est_fit_int, null = c(`RD` = 0))
+
+# get coefficients for reporting
+# ate for fit 1, with 95% CI
+ATE_fit_no_control  <- glue::glue(
+  "ATE = {round(summary_sim_coefs_fit_no_control[3, 1], 2)}, 
+  CI = [{round(summary_sim_coefs_fit_no_control[3, 2], 2)},
+  {round(summary_sim_coefs_fit_no_control[3, 3], 2)}]"
+)
+# ate for fit 2, with 95% CI
+ATE_fit_std <- glue::glue(
+  "ATE = {round(summary_sim_est_fit_std[3, 1], 2)}, 
+  CI = [{round(summary_sim_est_fit_std[3, 2], 2)},
+  {round(summary_sim_est_fit_std[3, 3], 2)}]"
+)
+# ate for fit 3, with 95% CI
+ATE_fit_int <-
+  glue::glue(
+    "ATE = {round(summary_sim_est_fit_int[3, 1], 2)},
+    CI = [{round(summary_sim_est_fit_int[3, 2], 2)},
+    {round(summary_sim_est_fit_int[3, 3], 2)}]"
+  )
+# coefs
+# ATE_fit_no_control
+# ATE_fit_std
+# ATE_fit_int
+```
+
+The ATE estimates from these models provide critical insights into the effects of green space exposure on individual happiness while accounting for various confounding factors. The model without control variables estimated `r ATE_fit_no_control`, significantly overestimating the treatment effect. Incorporating standard covariate control reduced this estimate to `r ATE_fit_std`, aligning more closely with the expected effect but still overestimating. Most notably, the model that included interactions among baseline exposure, outcome, and confounders yielded `r ATE_fit_int`, approximating the true effect of 0.3. This finding underscores the importance of including baseline values of the exposure and outcome wherever these data are available. 
+
+### Recommendations for Conducting and Reporting Causal Analyses with Longitudinal Data
+
+Longitudinal data offer strong advantages for causal inference by enabling researchers to establish the relative timing of confounders, treatments, and outcomes. The temporal sequence of events is crucial for establishing causality because causality occurs in time. The following recommendations aim to guide researchers in leveraging longitudinal data effectively to conduct and report causal analyses:
+
+#### 1. Draw multiple causal diagrams
+   - **Identification problem diagram**: begin by constructing a causal diagram that outlines your initial assumptions about the relationships among variables, identifying potential confounders and mediators. This diagram should illustrate the complexity of the identification problem.
+   - **Solution diagram**: next, create a separate causal diagram that proposes solutions to the identified problems. This may involve highlighting variables for conditioning to isolate the causal effect of interest or suggesting novel pathways for investigation. Having distinct diagrams for the problem and its proposed solutions clarifies your study's analytic strategy and theoretical underpinning.
+
+@tbl-lg provides an example of a table with multiple causal diagrams clarifying potential sources of confounding threats and reports strategies for addressing them. 
+
+#### 2. Attempt longitudinal designs with at least three waves of data
+
+Incorporating data from at least three intervals considerably enhances your ability to infer causal relationships. This approach allows for the examination of temporal precedence and lagged effects. For example, by adjusting for physical activity measured before the treatment, we can ensure that physical activity does not result from a new initiation to green spaces, which we establish by measuring green space access at baseline. Establishing chronological order in the temporal sequence of events allows us to avoid confounding problems 1-4 in @tbl-04. 
+
+#### 3. Calculate Average Treatment Effects for a clearly specified target population
+
+Estimating the average treatment effect (ATE) across the entire study population provides a comprehensive measure of the intervention's effects. This step is crucial for understanding the treatment's overall effect and generalising findings to broader populations.
+
+#### 4. Where causality is unclear, report results for multiple causal graphs
+
+Given that the true causal structure may be complex and partially unknown, analysing and reporting results under each plausible causal diagram is prudent. This practice acknowledges the uncertainty inherent in causal modelling and demonstrates the robustness of findings across different theoretical frameworks.
+
+#### 5. Conduct sensitivity analyses
+
+
+Sensitivity analyses are essential for assessing the robustness of your findings to various assumptions within the causal model. These analyses can include simulations, as illustrated in Appendices C and D, to examine bias arising of unmeasured confounding, model misspecification, and alternative causal pathways on the study conclusions. Sensitivity analyses help to identify the conditions under which the findings hold, enhancing the credibility of the causal inferences. (For more about addressing missing data, see: [@bulbulia2024PRACTICAL].) 
+
+#### 6. Address missing data at baseline and study attrition
+
+Longitudinal studies often need help with missing data and attrition, which can introduce bias and affect the validity of causal inferences. Implement and report strategies for handling missing data, such as multiple imputation or sensitivity analyses that assess the bias arising from missing responses at the study's conclusion. (For more about addressing missing data, see: [@bulbulia2024PRACTICAL]). 
+
+
+By following these recommendations, you will more effectively navigate the inherent limitations of observational longitudinal data, improving the quality of your causal inferences.
+
+
+
+## Summary
+
+Although powerful aides, causal directed acyclic graphs may encourage false confidence wherever causal questions are ill-defined, the structures of the world are uncertain, data-quality are poor, statistical estimators are inadequate, or statistical models are misspecified.
+
+### On the priority of assumptions. 
+
+You might wonder, "If not from the data, where do our assumptions about causality come from?" This question will come up repeatedly throughout the course. The short answer is that our assumptions are based on existing knowledge. This reliance on current knowledge might seem counterintuitive for buiding scientific knowledge-— shouldn't we use data to build knowledge, not the other way around? Yes, but it is not that straightforward. Data often hold the answers we're looking for but can be ambiguous. When the causal structure is unclear, it is important to sketch out different causal diagrams, explore their implications, and, if necessary, conduct separate analyses based on these diagrams.
+
+Otto Neurath, an Austrian philosopher and a member of the Vienna Circle, famously used the metaphor of a ship that must be rebuilt at sea to describe the process of scientific theory and knowledge development. 
+
+> Duhem has shown ... that every statement about any happening is saturated with hypotheses of all sorts and that these in the end are derived from our whole world-view. We are like sailors who on the open sea must reconstruct their ship but are never able to start afresh from the bottom. Where a beam is taken away a new one must at once be put there, and for this the rest of the ship is used as support. In this way, by using the old beams and driftwood, the ship can be shaped entirely anew, but only by gradual reconstruction. [@neurath1973, p.199]
+
+This quotation emphasises the iterative process that accumulates scientific knowledge;  new insights are cast from the foundation of existing knowledge. Causal diagrams are at home in Neurath's boat. The tradition of science that believes that knowledge develops from the results of statistical tests applied to data should be resisted. The data alone typically do not contain the answers we seek.
+
+
+
+{{< pagebreak >}}
+
+
+
+## Appendix A: Glossary
+
+
+::: {#tbl-experiments}
+```{=latex}
+\glossaryTerms
+```
+Common confounding scenarios in experiments
+:::
+
+
+## Appendix B: 
+
+## Single World Intervention Graphs 
+
+
+::: {#tbl-swig}
+```{=latex}
+\lmtptablethree
+```
+This table presents three Single World Intervention Graphs (SWIGs), one for each treatment condition we compare. Note that we obtain robust confounding control by including baseline measures for both the treatments and outcomes (refer to  @vanderweele2020, protocols described in @bulbulia2024PRACTICAL).We recommend using SWIGs because they are more precise and general than standard causal diagrams (refer to @richardson2013swigsprimer).
+:::
+
+
+
+
+## Appedix C:
+
+
+## Time-varying Confounding:  Causal Mediation
+
+::: {#tbl-mediation}
+```{=latex}
+\mediationfull
+```
+Anatomy of bias in mediation analysis: statistical SEM fails.
+:::
+
+{{< pagebreak >}}
+
+### Time-varying Confounding: Treatment Confounder Feedback
+
+::: {#fig-timevarying-amplification}
+```{=latex}
+\feedbackA
+```
+Treatment-confounder feedback: statistical SEM fails.
+:::
+
+{{< pagebreak >}}
+
+### Time-varying Confounding in the Absence of Treatment-confounder feedback 
+::: {#fig-timevarying-nofeedback}
+```{=latex}
+\feedbackB
+```
+Anatomy of bias in treatment-confounder feedback
+:::
+{{< pagebreak >}}
+
+
+
+
+<!-- **Internal Validity**: we say internal validity is compromised if the association between the treatment and outcome in a study does not consistently reflect causality in the sample population as defined at baseline. -->
+
+<!-- **External validity**: we say external validity is compromised if the association between the treatment and outcome in a study does not consistently reflect causality in the target population as defined at baseline -->
+
+
+<!-- The following failure modes threaten human science research: -->
+
+<!--   - **Failures to Ask a Question**:  -->
+<!--     - We have not stated the quantities we want to estimate. In causal inference, these are counter-factual quantities. -->
+<!--     - We have not stated the population for whom knowledge is meant to generalise -->
+
+<!--   - **Failures to Answer our Question**: -->
+<!--     **Failures of Internal Validity**: the associations we obtain from the application of models to data do not reflect causality. -->
+<!--           **Poor Estimators**:  -->
+<!--           **Poor Data** -->
+<!--           **Poor Models** -->
+
+<!--     **Failures of External Validity**: our findings do not generalise from the *sample population* to the *target population*.  We fail when our results do not generalise as we think. -->
+
+<!--   -  **Other Failures of Interpretation**: we made a paper airplane, and imagined we could fly it to the moon.  -->
+
