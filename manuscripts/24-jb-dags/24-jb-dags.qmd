@@ -1,7 +1,7 @@
 ---
-title: "Causal Directed Acyclic Graphs (DAGs): A Practical Guide"
+title: "Causal Directed Acyclic Graphs (DAGs) and Single World Intervention Graphs (SWIGs): A Practical Guide"
 abstract: |
-  Accurately quantifying a causal effect requires contrasting states of the world, some of which are counterfactual. Counterfactual data science relies on a framework of explicit assumptions and systematic, multi-step workflows. We start by stating the counterfactual contrasts of interest and the target population for whom inferences are meant to be valid. Causal directed acyclic graphs -- abbreviated to "DAGs" -- are tools within this multi-step workflow that help us understand whether the counterfactual contrasts we seek can be identified from data.  This guide offers practical advice for constructing causal directed acyclic graphs (DAGs) that are effective and safe. These causal graphs make clear causal inference’s mission-critical demand for obtaining accuracy in the relative timing of events of confounders, treatments, and outcomes. We close by reviewing Single World Interventions Graphs, which are more general than causal directed acyclic graphs, and are especially useful for assessing identification in dynamic longitudinal settings.  
+  Causal inference requires contrasting counterfactual states of the world under pre-specified interventions. Obtaining counterfactual contrasts from data, in turn, relies on a framework of explicit assumptions and careful, multi-step workflows. Causal diagrams are powerful tools for clarifying whether and how the counterfactual contrasts we seek may be identified from data. Here, I explain how to use two types of causal diagram (1) causal directed acyclic graphs (DAGs), which are user-friendly, and (2) single world intervention graphs (SWIGs), which are complete. I use these tools to clarify frequently misunderstood concepts of measurement error, interaction, mediation, longitudinal feedback, and confounding in experiments. Along the way, I offer practical tips and suggestions to avoid common pitfalls. 
    
    **KEYWORDS**: *Causal Inference*; *Culture*; *DAGs*;* *Evolution*; *Human Sciences*; *Longitudinal*; Single World Intervention Graphs, Single World Intervention Template, SWIGs; SWITs.
 author: 
@@ -92,7 +92,8 @@ library("tinytex")
 library("extrafont")
 library("tidyverse")
 library("kableExtra")
-
+#devtools::install_github("go-bayes/margot")
+library(margot)
 loadfonts(device = "all")
 ```
 
@@ -106,13 +107,22 @@ Human research begins with two questions:
 > 2. For which population does this knowledge generalise?  
 
 
-In most human sciences our questions are causal. What want to understand what would happen if we were to intervene on the variables of interest. However, many human scientists settle for "associations" and "predictions."  Causal directed acyclic graphs -- or causal graphs as we will also cal  them -- were developed to help investigators check whether their causal questions may be answered with data, and how. This is a challenging because to quantitatively address causal questions, we must contrast different ways the world might have been, using data we have accessed from the world as it is.
+In the human sciences, questions are typically causal. We want to understand what would happen if we were to intervene on the variables of interest. However, many human scientists report non-causal associations. Standard practice begins is to collect data, to apply regression models of varying complexity, and to report the coefficients of these models, describing these coefficients as "predictions." Even when models predict well it is typically unclear how to relate these coefficients relate to the scientific questions that animated our interests. The oracles are mysterious. The good news is that when assumptions are satisfied, the associations we obtain from data may indicate causality. For example, when interventions are controlled and randomised, often we can be be confident that association implies causation. However careful workflows are needed.
 
-After briefly reviewing the assumptions required for quantitative causal inference, and explaining where causal graphs fit into the workflow, we provide a users guide
+Within the careful workflows required for causal inference, causal diagrams -- or causal graphs -- help investigators to understand whether and how causal effects may be identified from data. We require assumptions because  This is a challenging because to quantitatively address causal questions we must contrast different ways the world might have been, using data we have obtain from the world as it is realised. The world as it has been realised only tells us part of any causal story.
 
-First, we consider **the five elementary graphical structures** employed in causal diagrams. We shall consider how all causal relationships can be examined using these five elementary structures. 
+After briefly reviewing the initial steps in a causal inference workflow that precede deploying causal diagrams, I introduce **causal directed acyclic graphs** -- or "DAGs." I explain **the five elementary graphical structures** from which all causal directed acyclic graphs may be derived. The primary purpose a causal directed acyclic graph encodes investigator assumptions about how variables other than a treatment variable, or sequence of treatment variables of interest may lead to non-causal associations with the outcome or outcomes of interest. Our primary focus here will be on the application of causal directed acyclic graphs to evaluating non-causal relations of confounding bias. However we will also consider applications of causal directed acyclic graphs to threats of measurement or information bias, and to threats of sample-restriction bias, which some investigators also call "selection" bias. 
 
-Second, we consider **the four elementary rules** that allow investigators to identify causal effects from the relations assumed in a causal diagram. At first, it might seem strange that relationships must be assumed when learning about relationships. However, understanding this requirement is essential for using causal diagrams responsibly. 
+Next, I explain how the application of **the four elementary rules** allows investigators to evaluate whether and how, conditional on the structural assumptions encoded in a causal diagram, investigators may identify causal effects from the relations they have assumed to hold in the world. I then proceed with a series of illustrations that demonstrate how applying the **the four elementary rules** to different combinations of **the five elementary structures** clarifies whether consistent estimates of magnitudes may be obtained from observational data focussing on: (1) the imperative for temporal order in data; (2) the insufficiency of temporal order for identification; (3) measurement-error biases (4) sample-restriction biases (5) confounding biases in experiments; (6) confounding and sample-restriction biases in time-fixed and time-varying sequential treatments. 
+
+Next, I introduce single world intervention graphs -- also known as SWIGs, which are useful for evaluating structural sources of bias when there are time-varying treatments. Another advantage of single world intervention graphs is that they are fully general. They allow investigators to encode assumptions about the conditional dependencies for the counterfactuals data from which their causal contrasts are derived. 
+
+At first, it might seem strange that relationships must be assumed when learning about relationships. However, understanding this requirement is essential for using causal diagrams responsibly
+
+I provide a glossary at the end of this article to help readers wade through  what has evolved into a terminological quagmires. However readers should keep in mind that the elementary concepts underpinning causal inference are not complex.  
+
+
+Unfortunately a proliferation of terminology has muddled what are essentially 
 
 Third, we apply the four elementary rules to problems, revealing that collecting or aligning our data with the presumed order of causality, in which causes precede effects, greatly reduces opportunities for confounding
 
@@ -126,9 +136,7 @@ Finally, we offer practical advice about how to construct causal directed acycli
 
 ## Preliminaries 
 
-Causal diagrams, also called causal graphs, Directed Acyclic Graphs, and Causal Directed Acyclic Graphs, are graphical tools whose **primary** purpose is to enable investigators to detect confounding biases.
-
-The concept of "confounding bias" helps to clarify what it is at stake when evaluating the *internal validity* of a study.  A
+Causal diagrams, also called causal graph are graphical tools whose primary purpose is to enable investigators to evaluate identifications assumptions. Here, we will mostly focus on threats to identification arising from confounding biases.
 
 
 **Confounding bias**: there is no confounding bias if:
@@ -138,9 +146,11 @@ The concept of "confounding bias" helps to clarify what it is at stake when eval
 Causal graphs allow us to say:  
   - if there is no open back-door path between the treatment and the path between the treatment and outcome is unblocked, there is no confounding bais.
 
+Before describing how causal diagrams work, we first define the meanings of their symbols. Note there is no single convention for creating causal graph, so it is important that we are clear when defining our meanings.
 
 
-Before describing how causal diagrams work, we first define the meanings of their symbols. Note there is no single convention for creating causal diagrams, so it is important that we are clear when defining our meanings.
+The concept of "confounding bias" helps to clarify what it is at stake when evaluating the *internal validity* of a study. 
+
 
 {{< pagebreak >}}
 ## Variable naming conventions
@@ -153,21 +163,21 @@ Variable naming conventions
 
 For us:
 
-#### $X$ denotes a random variable without reference to its role;
+**$X$ denotes a random variable without reference to its role**
 
-#### $A$ denotes the "treatment" or "exposure" variable. 
+**$A$ denotes the "treatment" or "exposure" variable.**
 
 This is the variable for which we seek to understand the effect of intervening on it. It is the "cause;" 
 
-#### $Y$ denotes the outcome or response of an intervention. 
+**$Y$ denotes the outcome or response of an intervention.**
 
 It is the "effect." Last week we considered whether marriage $A$ causes happiness $Y$.
 
-#### $Y(a)$ denotes the counterfactual or potential state of $Y$ in response to setting the level of the exposure to a specific level, $A=a$. 
+**$Y(a)$ denotes the counterfactual or potential state of $Y$ in response to setting the level of the exposure to a specific level, $A=a$.**
 
 As we will consider in the second half of the course, to consistently estimate causal effects we will need to evaluate counterfactual or potential states of the world.  Keeping to our example, we will need to do more than evaluate marriage and happiness in people over time. We will need to evaluate how happy the unmarried people would have been had they been married and how happy the married people would have been had they not been married. Of course, these events cannot be directly observed. Thus to address fundamental questions in psychology, we need to contrast counterfactual states of the world. This might seem like science fiction; however, we are already familiar with methods for obtaining such counterfactual contrasts -- namely, randomised controlled experiments! We will return to this concept later, but for now, it will be useful for you to understand the notation. 
 
-#### $L$ denotes a measured confounder or set of confounders 
+**$L$ denotes a measured confounder or set of confounders**
 
 - This set, if conditioned upon, closes an open back-door path between the treatment $A$ and the outcome $Y$.  
 
@@ -177,28 +187,29 @@ In this case, $L$ serves as a confounder because it influences both the treatmen
 
 To accurately estimate the causal effect of marriage on happiness, then, it is essential to control for $L$. With cross-sectional data, such control might be difficult. 
 
-#### $U$ denotes an unmeasured confounder 
+**$U$ denotes an unmeasured confounder**
 
 - that is a variable that may affect both the treatment and the outcome, but for which we have no direct measurement. Suppose cultural upbringing affects both whether someone gets married and whether they are happy.  
 
 If this variable is not measured, we cannot accurately estimate a causal effect of marriage on happiness.
 
-#### $M$ denotes a mediator or a variable along the path from exposure to outcome. 
+**$M$ denotes a mediator or a variable along the path from exposure to outcome.**
 
 For example, perhaps marriage causes wealth and wealth causes happiness. As we shall see, conditioning on "wealth" when estimating the effect of marriage on happiness will make it seem that marriage does not cause happiness when it does, *through* wealth.
 
-#### $\bar{X}$ denotes a sequence of variables, for example, a sequence of treatments.  
+**$\bar{X}$ denotes a sequence of variables, for example, a sequence of treatments.  
 
-Imagine we were interested in the causal effect of marriage and remarriage on well-being. In this case, there are two treatments $A_0$ and $A_1$ and four potential contrasts. For the scenario of marriage and remarriage affecting well-being, we denote the potential outcomes as $Y(a_0, a_1)$, where $a_0$ and $a_1$ represent the specific values taken by $A_0$ and $A_1$, respectively. Given two treatments, $A_0$ and $A_1$, four primary contrasts of interest correspond to the different combinations of these treatments. These contrasts allow us to compare the causal effects of being married versus not and remarried versus not on well-being. The potential outcomes under these conditions can be specified as follows:
+Imagine we were interested in the causal effect of marriage and remarriage on well-being. In this case, there are two treatments $A_0$ and $A_1$ and four potential contrasts. For the scenario of marriage and remarriage affecting well-being, we denote the potential outcomes as $Y(a_0, a_1)$, where $a_0$ and $a_1$ represent the specific values taken by $A_0$ and $A_1$, respectively. Given two treatments, $A_0$ and $A_1$, there are four primary contrasts of interest correspond to the different combinations of these treatments. These contrasts allow us to compare the causal effects of being married versus not and of being remarried versus not on well-being. The potential outcomes under these conditions can be specified as follows:
 
 1. $Y(0, 0)$: The potential outcome when there is no marriage.
 2. $Y(0, 1)$: The potential outcome when there is marriage. 
 2. $Y(1, 0)$: The potential outcome when there is divorce.
 4. $Y(1, 1)$: The potential outcome from marriage prevalence.
 
-Each of these outcomes allows for a specific contrast to be made, comparing the well-being under different scenarios of marriage and remarriage. Which do we want to contrast?  Note, the question about 'the causal effects of marriage on happiness' is ambiguous because we have not stated the causal contrast we are interested in. 
+Each of these outcomes allows for a specific contrast. Which do we want to contrast?  We can see the question about 'the causal effects of marriage on happiness' is ambiguous. We must stated the causal contrast we are interested in, given our substantive research interests. 
 
-$\mathcal{R}$ denotes a randomisation or a chance event.
+**$\mathcal{R}$ denotes a randomisation or a chance event.**
+
 
 ### Elements of our Causal Graphs 
 
@@ -232,7 +243,7 @@ For instance, when the timing between events is unclear, we denote an event that
 
 
 
-#### Arrows
+#### Terminology Arrows/ Directed Paths
 
 As indicated in @fig-general, black arrows denote causality, red arrows reveal an open backdoor path, dashed black arrows denote attenuation, and red dashed arrows denote bias in a true causal association between $A$ and $Y$. Finally, a blue arrow with a circle point denotes effect-measure modification, also known as "effect modification."  We might be interested in treatment effect heterogeneity without evaluating the causality in the sources of this heterogeneity.  For example, we cannot typically imagine any intervention in which people could be randomised into cultures.  However, we may be interested in whether the effects of an intervention that might be manipulable, such as marriage, differ by culture.  To clarify this interest, we require a non-causal arrow. 
 
@@ -319,43 +330,23 @@ Four rules of confounding control
 4. **Proxy Rule: Conditioning on a Descendent Is Akin to Conditioning on Its Parent**: this rule applies to settings in which we $L’$ is an effect from another variable $L$.  The graph considers when $L’$ is downstream of a collider.  For example, suppose we condition on home ownership, which is an effect of wealth. Such conditioning will open up a non-causal path without causation because home ownership is a proxy for wealth.  Consider, if someone owns a house but is not married, they are more likely to be happy, for how else could they accumulate the wealth required for home ownership?  Likewise, if someone is unhappy and owns a house, we can infer that they are more likely to be married because how else would they be wealthy? Conditioning on a proxy for a collider here is akin to conditioning on the collider itself.  
 
 However, we can also use the proxy rule to reduce bias. Return to the earlier example in which there is an unmeasured common cause of marriage and happiness, which we called "cultural upbringing"  Suppose we have not measured this variable but have measured proxies for this variable, such as country of birth, childhood religion, number of languages one speaks, and others.  By controlling for baseline values of these proxies, we can exert more control over unmeasured confounding. Even if bias is not eliminated, we should reduce bias wherever possible, which includes not introducing new biases, such as mediator bias, along the way.  Later in the course, we will teach you how to perform sensitivity analyses to verify the robustness of your results to unmeasured confounding.  Sensitivity analysis is critical because where the data are observational, we cannot entirely rule out unmeasured confounding. 
-{{< pagebreak >}}
-## The Five Elementary Structures of Causality
 
-::: {#tbl-dags}
-
-```{=latex}
-\terminologydirectedgraph
-```
-Elementary structures of causality
-:::
 
 
 {{< pagebreak >}}
 
-## Examples of common causal questions
 
-::: {#tbl-common-interests}
+## Direct Acyclic Graphs Reveal The Importance of Timing 
 
-```{=latex}
-\terminologycommoncausalinterests
-```
-Common causal questions
-:::
-
-{{< pagebreak >}}
-
-## Failure Modes for Confounding Control Related to Timing
 ::: {#tbl-elementary-chronological-hyg}
-
 ```{=latex}
 \terminologychronologicalhygeine
-
 ```
 :::
 
 The structural features of **seven** confounding problems. We shall discuss examples of each, and how longitudinal data collection resolves each problem.  
 {{< pagebreak >}}
+
 
 ## Collecting Time Series Data is Insufficient for Identification
 
@@ -388,6 +379,7 @@ Measurement-error bias
 ```
 Censoring (attrition) bias
 :::
+
 {{< pagebreak >}}
 ## Confounding in Randomised Controlled Experiments {#section-confounding-experiments}
 
@@ -399,6 +391,29 @@ Common confounding scenarios in experiments
 :::
 
 {{< pagebreak >}}
+
+## Single World Intervention Graphs
+::: {#tbl-experiments}
+```{=latex}
+\swigtable
+```
+Common confounding scenarios in experiments
+:::
+
+
+{{< pagebreak >}}
+## The Clarity of Single World Intervention Graph: Case Study
+
+::: {#tbl-experiments}
+```{=latex}
+\pearltable
+```
+Common confounding scenarios in experiments
+:::
+
+{{< pagebreak >}}
+
+
 
 ## Advice
 
@@ -945,27 +960,47 @@ This quotation emphasises the iterative process that accumulates scientific know
 ```{=latex}
 \glossaryTerms
 ```
-Common confounding scenarios in experiments
+Glossary
 :::
 
 
 ## Appendix B: 
 
-## Single World Intervention Graphs 
+## Examples of common causal questions
 
+::: {#tbl-common-interests}
 
-::: {#tbl-swig}
 ```{=latex}
-\lmtptablethree
+\terminologycommoncausalinterests
 ```
-This table presents three Single World Intervention Graphs (SWIGs), one for each treatment condition we compare. Note that we obtain robust confounding control by including baseline measures for both the treatments and outcomes (refer to  @vanderweele2020, protocols described in @bulbulia2024PRACTICAL).We recommend using SWIGs because they are more precise and general than standard causal diagrams (refer to @richardson2013swigsprimer).
+Common causal questions
 :::
 
 
 
+## Effect Modification 
 
+
+::: {#tbl-common-interests}
+
+```{=latex}
+\terminologyeffectmodification
+```
+representing effect modification
+:::
+
+
+
+::: {#tbl-common-interests}
+
+```{=latex}
+\terminologyeffectmodificationtypes
+```
+Common causal questions
+:::
+
+{{< pagebreak >}}
 ## Appedix C:
-
 
 ## Time-varying Confounding:  Causal Mediation
 
@@ -977,6 +1012,7 @@ Anatomy of bias in mediation analysis: statistical SEM fails.
 :::
 
 {{< pagebreak >}}
+## Appedix D
 
 ### Time-varying Confounding: Treatment Confounder Feedback
 
@@ -988,7 +1024,6 @@ Treatment-confounder feedback: statistical SEM fails.
 :::
 
 {{< pagebreak >}}
-
 ### Time-varying Confounding in the Absence of Treatment-confounder feedback 
 ::: {#fig-timevarying-nofeedback}
 ```{=latex}
