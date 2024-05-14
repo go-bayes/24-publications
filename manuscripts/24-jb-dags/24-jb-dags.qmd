@@ -9,7 +9,7 @@ author:
     affiliation: Victoria University of Wellington, New Zealand
     orcid: 0000-0002-5861-2056
     email: joseph.bulbulia@vuw.ac.nz
-    corresponding: yes
+    corresponding: no
 editor_options: 
   chunk_output_type: console
 format:
@@ -45,6 +45,7 @@ fontfamily: libertinus
 bibliography: /Users/joseph/GIT/templates/bib/references.bib
 csl: /Users/joseph/GIT/templates/csl/camb-a.csl
 ---
+
 
 ```{r}
 #| label: load-libraries
@@ -107,35 +108,270 @@ Human research begins with two questions:
 > 2. For which population does this knowledge generalise?  
 
 
-In the human sciences, questions are typically causal. We want to understand what would happen if we were to intervene on the variables of interest. However, many human scientists report non-causal associations. Standard practice begins is to collect data, to apply regression models of varying complexity, and to report the coefficients of these models, describing these coefficients as "predictions." Even when models predict well it is typically unclear how to relate these coefficients relate to the scientific questions that animated our interests. The oracles are mysterious. The good news is that when assumptions are satisfied, the associations we obtain from data may indicate causality. For example, when interventions are controlled and randomised, often we can be be confident that association implies causation. However careful workflows are needed.
+In the human sciences, questions are typically causal. We want to understand what would happen if we were to intervene on certain variables of interest. However, many human scientists are content to report non-causal associations. We collect data, apply regressions of varying complexity, and report coefficients. We speak of covariates as "predicting" outcomes. However, even when our models predict well it is typically unclear how to relate predictions the substanative scientific questions that animated our interests. We do not recognise that the oracles lack any coherent interpretation. 
 
-Within the careful workflows required for causal inference, causal diagrams -- or causal graphs -- help investigators to understand whether and how causal effects may be identified from data. We require assumptions because  This is a challenging because to quantitatively address causal questions we must contrast different ways the world might have been, using data we have obtain from the world as it is realised. The world as it has been realised only tells us part of any causal story.
+Association can, of course, imply causation -- as the experimental traditions teach us. We understand that when interventions are controlled and randomised, the coefficients we obtain from our statistical models permit causal interpretations. We understand that these causal inferences from experiments do not imply causality for everyone.  Experiments recover the averages effects for the treatments that we compare.
 
-After briefly reviewing the initial steps in a causal inference workflow that precede deploying causal diagrams, I introduce **causal directed acyclic graphs** -- or "DAGs." I explain **the five elementary graphical structures** from which all causal directed acyclic graphs may be derived. The primary purpose a causal directed acyclic graph encodes investigator assumptions about how variables other than a treatment variable, or sequence of treatment variables of interest may lead to non-causal associations with the outcome or outcomes of interest. Our primary focus here will be on the application of causal directed acyclic graphs to evaluating non-causal relations of confounding bias. However we will also consider applications of causal directed acyclic graphs to threats of measurement or information bias, and to threats of sample-restriction bias, which some investigators also call "selection" bias. 
+Despite our familiarity with experiments, many human scientists are do not understand how to emmulate radomisation and control with non-experimental data, or "real world" data.  Of course, many human scientists use the term "control" and practice strategies of adjustment -- some quite sophisticated as in the multi-level modelling and statistical structural equation traditions. Yet our practices are not systematic. We are unaware that what we take to be control imperiles any hope for consistently estimating causal effects. Although no discipline needs another "crisis" -- an overused term fit for tabloids -- across many human sciences, the state of causal inference isn't great. This applies to the experimental  sciences too, where poor experimental designs demote causality.  
 
-Next, I explain how the application of **the four elementary rules** allows investigators to evaluate whether and how, conditional on the structural assumptions encoded in a causal diagram, investigators may identify causal effects from the relations they have assumed to hold in the world. I then proceed with a series of illustrations that demonstrate how applying the **the four elementary rules** to different combinations of **the five elementary structures** clarifies whether consistent estimates of magnitudes may be obtained from observational data focussing on: (1) the imperative for temporal order in data; (2) the insufficiency of temporal order for identification; (3) measurement-error biases (4) sample-restriction biases (5) confounding biases in experiments; (6) confounding and sample-restriction biases in time-fixed and time-varying sequential treatments. 
+The last several decades have seen encouraging progress for causal inference in the health sciences, economics, and the computer sciences. This work demonstrates that obtaining causal inferences from data is not overwhelmingly challenging. However valid requires careful, systematic workflows. Within these workflow, causal diagrams -- or causal graphs -- are powerful tools for evaluating whether and how causal effects may be identified from data. My purpose here is to explain where these tool fit within the workflows of causal inference, and to illustrate what I take to be several immediately useful applications.  I focus on causal directed acyclic graphs -- also known as DAGs -- because they are relatively easy to use, and for most use cases, optimally clear. Causal directed acylic graphs are also easy to abuse. I will explain common pitfalls, and how to avoid them. 
 
-Next, I introduce single world intervention graphs -- also known as SWIGs, which are useful for evaluating structural sources of bias when there are time-varying treatments. Another advantage of single world intervention graphs is that they are fully general. They allow investigators to encode assumptions about the conditional dependencies for the counterfactuals data from which their causal contrasts are derived. 
+In part 1 we review the conceptual foundations of causal inference. The basis of all causal inference in counterfactual contrasts. There are different approaches to reasoning about counterfactual contrasts, however such differences are largely philosophical, not practical.  Causal directed acyclic graphs emerged in the 1990s through the work of Judea Pearl who grounded them in what hell calls non-parametric structural equation models with non-independent errors. The overview I offer here develops from the Neyman-Rubin potential outcomes framework of causal inference as it has been extended for longitudional data by the epidemiologist James Robins. This will make the exposition clearer of causal diagrams clearer. It will also make he exposition of the non-parametric structural equation models, which I provide in Appendix A, clearer. Clarity is important because to deploy causal diagrams responsibly requires undertanding their function as part of a larger workflow to obtain counterfactual contrasts, which we must state at outset. This statement amounts to defining our question and the population for whom it applies. 
 
-At first, it might seem strange that relationships must be assumed when learning about relationships. However, understanding this requirement is essential for using causal diagrams responsibly
+In part 2, we review the five elementary graphical structures capable of encoding all causal relations. These five elementary structures form the building blocks of all causal directed acyclic graphs. 
 
-I provide a glossary at the end of this article to help readers wade through  what has evolved into a terminological quagmires. However readers should keep in mind that the elementary concepts underpinning causal inference are not complex.  
+in part 3, we examine the five elementary rules that clarify whether and how investigators may identify causal effects from data. There are only five rules you need to remember. 
 
+In part 4, we put causal directed acyclic graphs to action, showing how seven commonplace identification problems may be solved by repeated measures data collection. Timing is everything, nearly.
 
-Unfortunately a proliferation of terminology has muddled what are essentially 
+In part 5, we use causal diagram to show the limitations of longitudinal data for identifying causal effects. Causal directed acyclic graphs tampen enthusiasm for time-series data. Unfortunately timing isn't enough.
 
-Third, we apply the four elementary rules to problems, revealing that collecting or aligning our data with the presumed order of causality, in which causes precede effects, greatly reduces opportunities for confounding
+In part 6, we consider how causal diagrams clarify the properties of time-varying confounding.  Readers who make it this far will understand why both the multi-level modelling tradition and the statistical structural equation modelling traditions routinely fail to identify causal effects. 
 
-Fourth, we use to explain failure modes for caual inference, even when temporal order in one's data is assured.
-
-Fifth, we use causal diagrams to clarify confounding in randomised experiments 
-
-
-Finally, we offer practical advice about how to construct causal directed acyclic graphs, and suggest best practices
+In part 7, I offers practical suggestions for created causal directed acyclic graphs and reporting them in scientific research.  As will become evident, causal directed acyclic graphs report investigator assumptions about the causal -- or equivalently "structural" -- relationships that govern nature.  These relations are not, and typically cannot, be derived from the data alone. Causal graphs must therefore be developed with scientific specialists. However, scientific specialists may disagree. Were there is ambiguity or debate, investigators should report mutiple causal diagrams and conducted distinct analyses.  I explain how to do this, and walk through the steps. 
 
 
-## Preliminaries 
+## Part 1: Causal Inference as Counterfactual Data Science.
 
+
+The first step in answering a causal question is to ask it [@hernán2016]. Causal diagrams come later, when we consider which forms of data might enable us to address our pre-specified causal questions.
+
+#### 1.1.1 The fundamental problem of causal inference
+
+To ask a causal question, we must consider the concept of causality itself. Consider an intervention, $A$, and its effect, $Y$. We say that $A$ causes $Y$ if altering $A$ would lead to
+a change in $Y$ [@hume1902; @lewis1973]. If altering $A$ would not change $Y$, we say that $A$ has no causal effect on $Y$.
+
+In causal inference, we aim to quantitatively contrast the potential outcomes of $Y$ in response to different levels of a well-defined intervention. Commonly, we refer to such interventions as 'exposures' or 'treatments;' we refer to the possible effects of interventions as 'potential outcomes.'
+
+Consider a binary treatment variable $A \in \{0,1\}$. For each unit $i$ in the set $\{1, 2, \ldots, n\}$, when $A_i$ is set to 0, the potential outcome under this condition is denoted, $Y_i(0)$. Conversely, when $A_i$ is set to 1, the potential outcome is denoted, $Y_i(1)$. We refer to the terms $Y_i(1)$ and $Y_i(0)$ as 'potential outcomes' because until realised, the effects of interventions describe counterfactual states.
+
+Suppose that each unit $i$ receives either $A_i = 1$ or $A_i = 0$. The corresponding outcomes are realised as $Y_i|A_i = 1$ or $Y_i|A_i = 0$. For now, let us assume that each realised outcome under that intervention is equivalent to one of the potential outcomes required for a quantitative causal contrast, such that $[(Y_i(a)|A_i = a)] = (Y_i|A_i = a)$. Thus when $A_i = 1$,  $Y_i(1)|A_i = 1$ is observed. However, when $A_i = 1$, it follows that $Y_i(0)|A_i = 1$ is not observed:
+
+$$
+Y_i|A_i = 1 \implies Y_i(0)|A_i = 1~ \text{is counterfactual}
+$$
+
+Conversely, if $A_i = 0$, we may assume the potential outcome $Y_i(0)|A_i = 0$) is observed as $Y_i|A_i = 0$. However, the potential outcome $Y_i(1)|A_i = 0$ is never realised and so not observed:
+
+$$
+Y_i|A_i = 0 \implies Y_i(1)|A_i = 0~ \text{is counterfactual}
+$$
+
+We define $\tau_i$ as the individual causal effect for unit $i$ and express the individual causal effect:
+
+$$
+\tau_i = Y_i(1) - Y_i(0)
+$$
+
+Notice that each unit can only be exposed to only one level of the exposure $A_i = a$ at a time. This implies that $\tau_i$, is not merely unobserved but inherently *unobservable*.
+
+<!-- Although we cannot observe potential outcomes that do not occur, it is tempting to ask questions about them, 'What if Isaac Newton had not witnessed the falling apple?’ What if Leonardo da Vinci had never pursued art?' or 'What if Archduke Ferdinand had not been assassinated?' There are abundant examples from literature. Robert Frost contemplates, 'Two roads diverged in a yellow wood, and sorry I could not travel both, and be one traveller, long I stood...' (see: Robert Frost, 'The Road Not Taken':
+https://www.poetryfoundation.org/poems/44272/the-road-not-taken). We have counterfactual questions for our personal experiences: 'What if I had had not interviewed for that job?' 'What if I had stayed in that relationship?' We may speculate, with reasons, but we cannot directly observe the potential outcomes we would need to verify our speculations. The physics of middle-sized dry goods prevents the joint realisation of the facts required for quantitative comparisons.  -->
+
+That individual causal effects cannot be identified from observations is known as '*the fundamental problem of causal inference*' [@rubin1976; @holland1986].
+
+
+#### 1.1.2 Causal effects from randomised experiments
+
+Although it is not typically feasible to compute individual causal effects. under certain assumptions, it may be possible to estimate *average* treatment effects -- also called 'marginal effects.'  We define an average treatment effect ($ATE$) as the difference between the expected or average outcomes under treatment and contrast conditions for a pre-specified population, typically the population from which an observed sample is drawn.
+
+Consider a binary treatment, $A$ \in \{0,1\}$:
+
+$$
+\text{Average Treatment Effect}  = \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)].
+$$
+
+This is our prespecified estimand for our target population. A challenge remains for computing these treatment-group averages, given that individual causal effects are unobservable. We can frame the problem framed by referring to the *full data* required to compute this estimand — that is in terms of the complete counterfactual dataset where the missing potential outcomes, inherent in observational data, were somehow available.  The text highlighted in red denotes inherently missing responses over the joint distribution of the full counterfactual dataset (also stated by underbraces). We find that for each treatment condition, half the observations over the joint distribution of the counterfactual data are inherently unobserved.
+
+$$
+\text{Average Treatment Effect} = \left(\underbrace{\underbrace{\mathbb{E}[Y(1)|A = 1]}_{\text{observed for } A = 1} + \underbrace{\textcolor{red}{\mathbb{E}[Y(1)|A = 0]}}_{\textcolor{red}{\text{unobserved for } A = 0}}}_{\text{effect among treated}}\right) - \left(\underbrace{\underbrace{\mathbb{E}[Y(0)|A = 0]}_{\text{observed for } A = 0} + \underbrace{\textcolor{red}{\mathbb{E}[Y(0)|A = 1]}}_{\textcolor{red}{\text{unobserved for } A = 1}}}_{\text{effect among untreated}}\right).
+$$
+
+
+Randomisation allows investigators to recover the treatment group averages even though treatment groups contain inherently missing observations. We do not require the joint distribution over the full-data (i.e. the counterfactual data) to obtain average treatment groups. This is because when investigators randomise units into treatment conditions, there is full adherence, and the sample is sufficiently large to rule out chance differences in the composition of the treatment groups to be compared, the distributions of confounders that could explain differences in the potential outcomes will be balanced across the conditions. Randomisation under such conditions rules out explanations for difference in treatment group average except the treatment. Put differently randomisation implies:
+
+$$
+\widehat{\mathbb{E}}[Y(0) | A = 1] = \widehat{\mathbb{E}}[Y(0) | A = 0]
+$$
+
+and
+
+$$
+\widehat{\mathbb{E}}[Y(1) | A = 1] = \widehat{\mathbb{E}}[Y(1) | A = 0]
+$$
+
+We assume, (by causal consistency, see: $\S 1.2.1$):
+
+$$\widehat{\mathbb{E}}[Y(1) | A = 1] = \widehat{\mathbb{E}}[Y| A = 1]$$
+
+and
+
+$$\widehat{\mathbb{E}}[Y(0) | A = 0] = {\mathbb{E}}[Y| A = 0]$$
+
+It follows that the average treatment effect of the randomised experiment can be computed:
+
+$$
+\text{The Average Treatment Effect} = {\mathbb{E}}[Y | A = 1] - \widehat{\mathbb{E}}[Y | A = 0].
+$$
+
+There are four critical aspects for how ideally randomised experiments enable the estimation of average treatment effects worth highlighting.
+
+First, the investigators must specify a population for whom they seek to
+generalise their results. We refer to this population as the *target population*. If the study population differs from the target population in the distribution of covariates that interact with the treatment, the investigators will have no guarantees their results will generalise (for discussions of sample/target population mismatch refer to: @imai2008misunderstandings; @westreich2019target; @westreich2017; @pearl2022; @bareinboim2013general; @stuart2018generalizability;
+@webster2021directed.)
+
+Second, because the units in the study sample at randomisation may differ may differ from the units in the study after randomisation, investigators must be careful to avoid biases that arise from sample/population mismatch over time.  If there is sample attrition or non-response, the treatment effect investigators obtain for the sample may differ from the treatment effect in the target population.  
+
+Third, a randomised experiment recovers the causal effect of random treatment assignment, not of the treatment itself, which may differ if some participants do not adhere to their treatment (even if they remain in the study). The effect randomised assignment is called the *intent-to-treat effect*. The effect of perfect adherence is called the *per protocol effect* [@hernan2017per; @lash2020]. To obtain the per protocol effect for randomised experiments requires the application of methods for causal inference in observational settings.
+
+Fourth, I have presented the average treatment effect on the difference scale, that is, as a difference in average potential outcomes for the target population under two distinct levels of treatment. However, depending on the scientific question at hand, investigators may wish to estimate causal effects on the risk-ratio scale, the rate-ratio scale the hazard-ratio scale, or another scale. Where there are interactions such that treatment effects vary across different strata of the population, an estimate of the causal effect on the risk difference
+scale will differ in at least one stratum to be compared from the estimate on the risk ratio scale [@greenland2003quantifying]. The sensitivity of treatment effects in the presence of interactions to the scale of contrast underscores the importance of pre-specifying a scale for the causal contrast investigators hope to obtain.
+
+Fifth, investigators may uninentionally spoil randomisation by adjusting for indicators that might be affected by the treatment, outcome, or both, by excluding participants using attention checks, by collecting covariate data that might be affected by the experimental conditions, by failing to account for non-response and loss-to-follow up, and by committing any number of other self-inflicted injuries. Unfortunately, such practices are widespread [@montgomery2018]. Notably causal graphical methods are useful for describing causal identification in experiments (refer to @hernan2017per), a topic we consider elsewhere [@cite..]
+
+<!-- Fifth, in observational studies, investigators might wish to describe
+the target population of interest as a restriction of the study sample
+population. For example, investigators might wish to estimate the
+average treatment effect only in the population that received the
+treatment. This treatment effect is sometimes called the average treatment effect in the treated ($ATT$), and may be expressed:
+
+$$\text{Average Treatment Effect in the Treated} = \mathbb{E}[Y(1) - Y(0) | A = 1]$$
+
+Consider that if investigators are interested in the average treatment
+effect in the treated, counterfactual comparisons are deliberately *restricted* to the sample population that was treated. That is, the investigators will seek to obtain the average of the missing counterfactual outcomes for *the treated population were they not treated*, without necessarily obtaining the counterfactual outcomes for the untreated population were they treated. This difference in focus may imply different assumptions and analytic workflows. **Appendix 1** describes an example for which the assumptions required to estimate the average treatment effect may be preferred. In what follows, we will use the term $ATE$ as a placeholder to mean the average treatment effect, or equivalently the 'marginal effect', for a target population on a pre-specified scale of causal contrast.
+
+Setting aside the important detail that the 'average treatment effect' requires considerable care in its specification, it is worth pausing to marvel at how an ideally conducted randomised controlled experiment provides a means for identifying inherently unobservable counterfactuals. It does so by using a Sherlock-Holmes-method of inference by elimination of confounders, which randomisation balances across treatments. -->
+<!-- 
+ When experimenters observe a difference in average treatment effects, and all else goes right, they may infer that the distribution of potential outcomes differs by treatment because randomisation exhausts every other explanation except that of the treatment. They are entitled to this inference because randomisation balances the distribution of potential confounders across the treatment groups to be compared. -->
+
+<!-- Outside of randomised experiments, however, we lack guarantees of balance in the confounders. For this reason, investigators should prefer developing sound randomised experiments for
+addressing every causal question that experiments can address.
+Unfortunately, randomised experiments cannot address many scientifically
+important questions. This bitter constraint is familiar to evolutionary
+human scientists. We typically confront 'What if?' questions that are
+rooted in the unidirectional nature of human history. -->
+
+Setting these considerations aside, understanding how randomisation obtains the missing counterfactual outcomes that we require to consistently estimate average treatment effects clarifies the tasks of causal inference in non-experimental settings [@hernán2008a; @hernán2006; @hernán2022]. 
+
+<!-- We next examine these identification assumptions in greater detail because using causal diagrams without understanding these assumptions is unsafe. -->
+
+### 1.2 Fundamental Identification Assumptions
+
+There are three fundamental identification assumptions that must be satisfied to consistently estimate causal effects with data. These assumptions are typically satisfied in randomised controlled trials/experiments but not in real-world studies in which randomised treatment assignment is absent.
+
+#### 1.2.1 Assumption 1: Causal Consistency
+
+We satisfy the causal consistency assumption when, for each unit $i$ in the set $\{1, 2, \ldots, n\}$, the observed outcome corresponds to one
+of the specific counterfactual outcomes to be compared such that:
+
+$$
+Y_i^{observed}|A_i = 
+\begin{cases} 
+Y_i(a^*) & \text{if } A_i = a^* \\
+Y_i(a) & \text{if } A_i = a
+\end{cases}
+$$
+
+The causal consistency assumption implies that the observed outcome at a specific exposure level equates to the counterfactual outcome for that individual at the observed exposure level. Although it seems straightforward to equate an individual's observed outcome with their counterfactual outcome, treatment conditions vary, and treatment heterogeneity poses considerable challenges for satisfying this assumption. See: **Appendix A**
+
+
+
+#### 1.2.2 Assumption 2: Positivity
+
+We satisfy the positivity assumption if there is a non-zero probability
+of receiving each treatment level for every combination of covariates
+that occurs in the population. Where $A$ is the exposure and $L$ is a
+vector of covariates, we say positivity is achieved if:
+
+$$
+0 < Pr(A = a | L = l) < 1, \quad \text{for all } a, l \text{ with } Pr(L = l) > 0
+$$
+
+There are two types of positivity violation:
+
+1.  **Random non-positivity** occurs when an exposure is theoretically
+    possible, but specific exposure levels are not represented in the
+    data. Notably, random non-positivity is the only identifiability
+    assumption verifiable with data.
+
+2.  **Deterministic non-positivity** occurs when the exposure is
+    implausible by nature. For instance, a hysterectomy in biological
+    males would appear biologically implausible.
+
+Satisfying the positivity assumption can present considerable data
+challenges [@westreich2010]. Suppose we had access to extensive panel
+data that has tracked 20,000 individuals randomly sampled from the
+target population over three years. Suppose further that we wanted to
+estimate a one-year causal effect of weekly religious service attendance
+on charitable donations. We control for baseline attendance to recover
+an incident exposure effect estimate (see: $\S 2.3$ and **Appendix 2**).
+Assume that the natural transition rate from no religious service
+attendance to weekly service attendance is low, say one in a thousand
+annually. In that case, the effective sample for the treatment condition
+dwindles to 20. This example clarifies the problem. For rare exposures,
+the data required for valid causal contrasts may be sparse, even in
+large datasets. Where the positivity assumption is violated, causal
+diagrams will be of limited utility because observations in the data do
+not support valid causal inferences. (**Appendix 1** develops a worked
+example that illustrates the difficulty of satisfying this assumption in
+a setting of a cultural evolutionary question.)
+
+
+#### 1.2.3 Assumption 3: Conditional Exchangeability (no unmeasured confounding)
+
+We satisfy the conditional exchangeability assumption if the treatment
+groups are conditionally balanced in the variables that could affect the
+potential outcomes. In experimental designs, random assignment
+facilitates satisfaction of the conditional exchangeability assumption.
+In observational studies more effort is required. We must control for
+any covariate that could account for observed correlations between $A$
+and $Y$ in the absence of a causal effect of $A$ on $Y$.
+
+Let $\coprod$ again denote independence. Let $L$ denote the set of
+covariates necessary to ensure this conditional independence. We satisfy
+conditional exchangeability when:
+
+$$
+Y(a) \coprod A | L \quad \text{or equivalently} \quad A \coprod Y(a) | L
+$$
+
+Assuming conditional exchangeability is satisfied and the other
+assumptions required for consistent causal inference also hold, we may
+compute the average treatment effect (ATE) on the difference scale:
+
+$$
+ATE = \mathbb{E}[Y(1) | L] - \mathbb{E}[Y(0) | L]
+$$
+
+
+Note that in randomised controlled experiments, exchangeability is unconditional. Although adjustment by interacting the treatment with pre-treatment variables may improve efficiency and diminish threats to randomisation from chance inbalances in measured covariates, it is a confusion to think of such adjustment as "control." 
+
+In the disciplines of cultural evolution, where experimental control is impractical and we are left with "real-world" data, obtaining consistent causal inferences hinge on the plausibility of satisfying this 'no unmeasured confounding' assumption (see: **Appendix A**). In **Appendix B** I describe assumptions and wordlfows that occur downstream of these three fundamental assumptions of causal inference. 
+
+However these assumptions occur down stream from the primary functions of causal directed acyclic graphs, which we now ready to state: 
+
+The primary function of a causal directed acyclic graph is to identify sources of bias that may lead to an association between an exposure and outcome in the absence of causation.  That is, causal directed acycic graphs visually encode features of a causal order necessary to evaluate the assumptions of conditional exchangeability -- also called 'no-unmeasured confounding', 'ignorability', and -- in the idiom of causal graphical models -- 'd-separation'.  Although directed acyclic graphs can also be useful for addressing broader threats and opportunities for causal inferences such as sample restriction, transportability, and measurement error bias, they are designed to evaluate the assumptions of conditional exchangeability, or equivalently of non-unmeasured confounding, ignorability, or of d-separation between the treatments and outcomes. 
+
+Perhaps the most frequent error in the deployment of causal graphical models is using them to encode assumptions about the causal order pertaining to a study.  However, their function is merely to evaluate those features of the causal order relevant to evaluating whether balance in the variables that might affect both the treatment and the outcome can be ensured from measured covariates. 
+
+<!-- Finally, it is important to underscore that without randomisation,
+we cannot fully ensure the no-unmeasured confounding assumption that
+enables us to recover the missing counterfactuals we require to
+consistently estimate causal effects from data [@stuart2015;
+@greifer2023]. Because we must nearly always assume unmeasured confounding, the workflows of causal data science must ultimately rely on sensitivity analyses to clarify how much unmeasured confounding would be required to compromise a study's findings [@vanderweele2019]. -->
+
+
+
+### Summary of Part 1
+
+Causal data science is not ordinary data science. In causal data science, the initial step involves formulating a precise causal question
+that clearly identifies the exposure, outcome, and population of interest. 
+We must then satisfy the three fundamental assumptions required for causal inference, which are implicit in the ideal of a randomised experiment: causal consistency: ensuring outcomes at a specific exposure level align with their counterfactual counterparts; positivity: the existence of a
+non-zero probability for each exposure level across all covariate; conditional exchangeability: the absence of unmeasured confounding, or equivalently the 'ignorability' of treatment assignment, conditional on measured confounders. 
+
+
+<!-- ## Preliminaries  -->
+<!-- 
 Causal diagrams, also called causal graph are graphical tools whose primary purpose is to enable investigators to evaluate identifications assumptions. Here, we will mostly focus on threats to identification arising from confounding biases.
 
 
@@ -149,55 +385,96 @@ Causal graphs allow us to say:
 Before describing how causal diagrams work, we first define the meanings of their symbols. Note there is no single convention for creating causal graph, so it is important that we are clear when defining our meanings.
 
 
-The concept of "confounding bias" helps to clarify what it is at stake when evaluating the *internal validity* of a study. 
-
+The concept of "confounding bias" helps to clarify what it is at stake when evaluating the *internal validity* of a study.  -->
 
 {{< pagebreak >}}
+
+
+
+## Part 2 Causal Directed Acyclic Graphs
+We begin by describing the meaning of our symbols.
+
 ## Variable naming conventions
 ::: {#tbl-terminology}
 ```{=latex}
-\terminologylocalconventions
+\terminologylocalconventionssimple
 ```
 Variable naming conventions
 :::
 
 For us:
 
-**$X$ denotes a random variable without reference to its role**
+#### $X$ 
 
-**$A$ denotes the "treatment" or "exposure" variable.**
+Denotes a random variable without reference to its role
 
-This is the variable for which we seek to understand the effect of intervening on it. It is the "cause;" 
+#### $A$ 
 
-**$Y$ denotes the outcome or response of an intervention.**
+Denotes the "treatment" or "exposure" - a random variable.
 
-It is the "effect." Last week we considered whether marriage $A$ causes happiness $Y$.
+This is the variable for which we seek to understand the effect of intervening on it. It is the "cause." 
 
-**$Y(a)$ denotes the counterfactual or potential state of $Y$ in response to setting the level of the exposure to a specific level, $A=a$.**
+#### $A=a$ 
 
-As we will consider in the second half of the course, to consistently estimate causal effects we will need to evaluate counterfactual or potential states of the world.  Keeping to our example, we will need to do more than evaluate marriage and happiness in people over time. We will need to evaluate how happy the unmarried people would have been had they been married and how happy the married people would have been had they not been married. Of course, these events cannot be directly observed. Thus to address fundamental questions in psychology, we need to contrast counterfactual states of the world. This might seem like science fiction; however, we are already familiar with methods for obtaining such counterfactual contrasts -- namely, randomised controlled experiments! We will return to this concept later, but for now, it will be useful for you to understand the notation. 
+Denotes a fixed "treatment" or "exposure"
 
-**$L$ denotes a measured confounder or set of confounders**
+Random variable $A$ is set to level $A=a$.
 
-- This set, if conditioned upon, closes an open back-door path between the treatment $A$ and the outcome $Y$.  
+#### $Y$ 
 
+Denotes the outcome or response of an intervention.
+
+It is the "effect."
+
+#### $Y(a)$ 
+
+Denotes the counterfactual or potential state of $Y$ in response to setting the level of the exposure to a specific level, $A=a$**
+
+The outcome $Y$ as it would be observed when, perhaps contrary to fact, treatment $A$ is set to level $A=a$
+
+There are different conventions for expressing a potential or counterfactual outcome, such as $Y^a$, $Y_a$. 
+
+#### $L$ 
+
+Denotes a measured confounder or set of confounders.
+
+This set, if conditioned upon, insures that any differences between the potential outcomes under different levels of the treatment are the result of the treatment, and the not the result of a common cause of the treatement and the outcome.  Mathematically we write this independence: 
+
+$Y(a)\coprod A \mid L$
+<!-- 
 Consider a scenario where happiness at time 0, $L$,  affects both the probability of getting married at time 1, $A$,  and one's happiness at time 2, $Y$. 
 
 In this case, $L$ serves as a confounder because it influences both the treatment (marriage at time 1) and the outcome (happiness at time 2), potentially opening a back-door path that confounds the estimated effect of marriage on happiness.
 
-To accurately estimate the causal effect of marriage on happiness, then, it is essential to control for $L$. With cross-sectional data, such control might be difficult. 
+To accurately estimate the causal effect of marriage on happiness, then, it is essential to control for $L$. With cross-sectional data, such control might be difficult.  -->
 
-**$U$ denotes an unmeasured confounder**
+#### $U$ 
 
-- that is a variable that may affect both the treatment and the outcome, but for which we have no direct measurement. Suppose cultural upbringing affects both whether someone gets married and whether they are happy.  
+Denotes an unmeasured confounder, or confounders.
 
-If this variable is not measured, we cannot accurately estimate a causal effect of marriage on happiness.
+$U$ is variable or set of variables that may affect both the treatment and the outcome, that, even after conditioning on measured covariates, leads to association in the absence of causality: 
 
-**$M$ denotes a mediator or a variable along the path from exposure to outcome.**
+$Y(a) \cancel\coprod A \mid L \quad \text{[because of unmeasured } U]$
 
-For example, perhaps marriage causes wealth and wealth causes happiness. As we shall see, conditioning on "wealth" when estimating the effect of marriage on happiness will make it seem that marriage does not cause happiness when it does, *through* wealth.
+<!-- 
+Suppose cultural upbringing affects both whether someone gets married and whether they are happy.  
 
-**$\bar{X}$ denotes a sequence of variables, for example, a sequence of treatments.  
+If this variable is not measured, we cannot accurately estimate a causal effect of marriage on happiness. -->
+
+#### $Z$ 
+
+Denotes a modifier of the treatment effect
+
+$Z$ that alters the magnitude or direction of the effect of a treatment $A$ on an outcome $Y$.
+
+#### $M$ 
+
+Denotes a mediator, a variable that transmits the effect of an exposure (or treatment) $A$ on an outcome $Y$.
+
+#### $\bar{X}$ 
+
+
+Denotes a sequence of variables, for example, a sequence of treatments. Example: 
 
 Imagine we were interested in the causal effect of marriage and remarriage on well-being. In this case, there are two treatments $A_0$ and $A_1$ and four potential contrasts. For the scenario of marriage and remarriage affecting well-being, we denote the potential outcomes as $Y(a_0, a_1)$, where $a_0$ and $a_1$ represent the specific values taken by $A_0$ and $A_1$, respectively. Given two treatments, $A_0$ and $A_1$, there are four primary contrasts of interest correspond to the different combinations of these treatments. These contrasts allow us to compare the causal effects of being married versus not and of being remarried versus not on well-being. The potential outcomes under these conditions can be specified as follows:
 
@@ -206,81 +483,159 @@ Imagine we were interested in the causal effect of marriage and remarriage on we
 2. $Y(1, 0)$: The potential outcome when there is divorce.
 4. $Y(1, 1)$: The potential outcome from marriage prevalence.
 
-Each of these outcomes allows for a specific contrast. Which do we want to contrast?  We can see the question about 'the causal effects of marriage on happiness' is ambiguous. We must stated the causal contrast we are interested in, given our substantive research interests. 
+Each of these outcomes allows for a specific contrast. Which do we want to contrast?  We can see the question about 'the causal effects of marriage on happiness' is ambiguous. We must stated the causal contrast we are interested in, given our substantive research interests.  This statment requires a sequences of exposures to be contrasted.
 
-**$\mathcal{R}$ denotes a randomisation or a chance event.**
+#### $\mathcal{R}$ 
+
+Denotes a randomisation or a chance event.
+
+As when treatment assignment is random.
+
+#### $\mathcal{G}$ 
+
+Denotes a graph, here, a causal directed acyclic graph.
 
 
-### Elements of our Causal Graphs 
+### Terminology for Directed Acyclic Graphs in this Study
 
-The conventions that describe components of our causal graphs are given in @fig-general.
-
+The conventions we use to describe components of our causal graphs are given in @tbl-general. 
 
 ::: {#tbl-general}
 ```{=latex}
-\terminologygeneral
+\terminologygeneraldags
 ```
 Nodes, Edges, Conditioning Conventions. 
 :::
 
 
-#### Time indexing
+#### Node:
 
+A node represents characteristics or features of units within a population on a causal diagram, termed a "variable." In causal graphs, we draw nodes with respect to the *target population*, which is the population for whom investigators seek causal inferences.
 
-In our causal diagrams, we will implement two conventions to accurately depict the temporal order of events.
+#### Edge without an Arrow:
 
-First, the layout of a causal diagram will be structured from left to right to reflect the sequence of causality as it unfolds in reality. This orientation is crucial because causal diagrams must inherently be acyclic and because causality itself is inherently temporal. 
+An edge without an arrow indicates a path of association, without implying causality.
 
-Second, we will enhance the representation of the event sequence within our diagrams by systematically indexing our nodes according to the relative timing of events. If an event represented by $X_0$ precedes another event represented by $X_1$, the indexing will indicate this chronological order.
+#### Arrow:
 
+An edge with an arrow represents a causal relationship from the node at the base of the arrow to the node at the tip of the arrow. For instance, in the absence of causation, we denote it as $A -- Y$, not $A \rightarrow Y$. We typically refrain from drawing an arrow from treatment to outcome in a causal directed acyclic graph (DAG) to avoid asserting a causal path from $A$ to $Y$. The main function of a causal DAG is to clarify causal identification.
 
+Note that we should only draw a causal DAG for the sample population if it corresponds to the target population, as supported by Suzuki et al. (2020). As these causal paths are asserted, constructing causal diagrams requires expert judgement—bearing in mind that "with great power comes great responsibility."
 
-#### Representing uncertainty in timing explicitly
+#### Red Arrow:
 
-In settings in which the sequence of events is ambiguous or cannot be definitively known, particularly in the context of cross-sectional data where all measurements are taken at a single point in time, we adopt a specific convention to express causality under uncertainty: $X_{\phi t}$. This notation allows us to propose a temporal order without clear, time-specific measurements, acknowledging our speculation.
+We denote a potential non-causal association between the treatment and outcome by colouring this arrow red. When applying d-separation rules to assess identification, we will disregard these arrows if confounding arises because the treatment and the outcome share a common cause, as in $\mathcal{G}$ where the confounding path runs from $A_1 -- L_0 -- Y_2$. The use of colour in arrows is specific to this review to highlight biases. Investigators may adopt other conventions, but the chosen convention should be clearly defined.
 
-For instance, when the timing between events is unclear, we denote an event that is presumed to occur first as $X_{\phi 0}$ and a subsequent event as $X_{\phi 1}$, indicating a tentative ordering where $X_{\phi 0}$ is thought to precede $X_{\phi 1}$. However, it is essential to underscore that this notation signals our uncertainty regarding the actual timing of events; our measurements do not give us the confidence to assert this sequence definitively.
+#### Dashed Arrow:
 
+A dashed arrow denotes a true association between the treatment and outcome that becomes partially obscured when conditioning on a mediator. This specific convention, adopted here, highlights the causal direct effect, assuming its existence.
 
+#### Dashed Red Arrow:
 
-#### Terminology Arrows/ Directed Paths
+A dashed red arrow represents over-conditioning bias from conditioning on a mediator.
 
-As indicated in @fig-general, black arrows denote causality, red arrows reveal an open backdoor path, dashed black arrows denote attenuation, and red dashed arrows denote bias in a true causal association between $A$ and $Y$. Finally, a blue arrow with a circle point denotes effect-measure modification, also known as "effect modification."  We might be interested in treatment effect heterogeneity without evaluating the causality in the sources of this heterogeneity.  For example, we cannot typically imagine any intervention in which people could be randomised into cultures.  However, we may be interested in whether the effects of an intervention that might be manipulable, such as marriage, differ by culture.  To clarify this interest, we require a non-causal arrow. 
+#### Open Blue Arrow:
 
-$\mathcal{R}\to A$ denotes a random treatment assignment. 
+We use an open blue arrow to indicate effect modification, which occurs when the levels of the effect of treatment vary within levels of a covariate. We do not assess the causal effect of the effect-modifier on the outcome, recognising that it may be incoherent to consider intervening on the effect-modifier.
 
+#### Boxed Variable:
 
-#### Boxes
+Enclosing a variable in a box denotes a decision to control for, condition on, or adjust for that variable. This convention is widely used in causal data science.
 
-We use a black box to denote conditioning that reduces confounding or that is inert. 
+#### Red-Boxed Variable:
 
+Colouring the box red when conditioning on a variable highlights the source of confounding bias.
 
-We use a red box to describe settings in which conditioning on a variable introduces confounding bias. 
+#### Dashed Circle:
 
+A dashed circle explicitly denotes that no adjustment is made for a variable.
 
-Occasionally we will use a dashed circle do denote a latent variable, that is, a variable that is either not measured or not conditioned upon. 
+#### $\mathcal{R} \rightarrow A$:
 
+This denotes randomisation into the treatment condition.
 
-#### Terminology for Conditional Independence
+#### Time Indexing:
 
-The bottom panel of @fig-general shows some mathematical notation. Do not be alarmed, we are safe! Part 1 of the course will not require more complicated math than this notation. And we shall see that the notation is a compact way to describe intuitions that can be expressed less compactly in words:
+Causal arrows inherently define timing, and as causal DAGs are acyclic—no variable can cause its parent—these graphs are sequentially ordered. We employ three conventions to depict temporal order:
+1. The layout of a causal diagram is structured from left to right to reflect the assumed sequence of causality as it unfolds.
+2. We systematically index our nodes to enhance the representation of event sequences within our diagrams, indicating chronological order.
+3. Where causality is uncertain or unknown, we use the notation $X_{\phi t}$ to propose a temporal order without precise, time-specific measurements.
 
-- **Statistical Independence ($\coprod$):** in the context of causal inference, statistical independence between the treatment and potential outcomes, denoted as $A \coprod Y(a)$, means the treatment assignment is independent of the potential outcomes. This assumption is critical for estimating causal effects without bias.
+Typically, the timing of unmeasured confounders is not known; hence, we place them to the left of the treatments and outcomes they are assumed to affect.
 
-- **Statistical Dependence ($\cancel\coprod$):** conversely, $\cancel\coprod$ denotes statistical dependence, indicating that the distribution of one variable is influenced by the other. For example, $A \cancel\coprod Y(a)$ implies that the treatment assignment is related to the potential outcomes, potentially introducing bias into causal estimates.
+### Terminology for Conditional Independence
 
-- **Conditioning ($|$):** conditioning, denoted by the vertical line $|$, allows for specifying contexts or conditions under which independence or dependence holds.
+To be effective, a directed causal acyclic graph must connect with reality. The fundamental premise of directed causal acyclic graphs is that they facilitate the factorisation of conditional probabilities over joint distributions of observable data. The bottom panel of @tbl-general illustrates some mathematical notations we use to describe these dependencies.
 
-    - **Conditional Independence ($A \coprod Y(a)|L$):** This means that once we account for a set of variables $L$, the treatment and potential outcomes are independent. This condition is often the basis for strategies aiming to control for confounding.
+#### Independence ($\coprod$):
 
-    - **Conditional Dependence ($A \cancel\coprod Y(a)|L$):** States that potential outcomes and treatments are not independent after conditioning on $L$, indicating a need for careful consideration in the analysis to avoid biased causal inferences.
+We denote independence using the symbol $\coprod$, where $A \coprod Y(a)$, signifies that the treatment assignment does not depend on the potential outcomes. This assumption is crucial for estimating causal effects without bias.
+
+It is essential to note that the *potential outcomes* or equivalentlly *counterfactual outcomes** must be independent of the treatments. Although a treatment may influence the observed outcomes, ensuring the potential outcomes' independence from treatment is critical for unbiased causal analysis.
+
+#### Dependence ($\cancel\coprod$):
+
+Conversely, $\cancel\coprod$ signifies dependence such that the distribution of one variable are related to the distributions of other. For instance, $A \cancel\coprod Y(a)$ suggests that the treatment assignment is related to the potential outcomes, which could introduce bias into causal estimates.
+
+#### Conditioning ($|$):
+
+The vertical line $|$ represents conditional dependence:
+
+- **Conditional Independence ($A \coprod Y(a) | L$):** Indicates that once we account for a set of variables $L$, the treatment and potential outcomes are independent.
+- **Conditional Dependence ($A \cancel\coprod Y(a) | L$):** Indicates that the potential outcomes and treatments are not independent after conditioning on $L$, necessitating careful analysis to avoid biased causal inferences.
 
 
 
 ## The Five Elementary Structures of Causality
 
+In causal inference, we often start with the premise that observed associations in data arise from underlying causal mechanisms rather than by chance. Identification denotes the process of defining the real-world structures that might lead to biases in the observed associations between treatments and outcomes, absent any true causal effect of the treatment. To appreciate how causal directed acyclic graphs facilitate such identification we introduce the following concepts.
 
-Judea Pearl proved that all elementary structures of causality can be represented graphically [@pearl2009a].  @fig-directedgraph presents this five elementary structures. 
+#### Markov Factorisation
+
+**Markov Factorisation** enables the decomposition of the joint probability distribution of all variables in a causal DAG into a product of simpler conditional distributions. Specifically, for variables $X_1, X_2, \dots, X_n$ in a causal DAG, the joint distribution is expressed as:
+
+$$
+P(X_1, X_2, \dots, X_n) = \prod_{i=1}^{n} P(X_i | \text{Parents}(X_i))
+$$
+
+This factorisation simplifies the calculation of the joint distributions encoded in the causal graph by reducing the complex interdependencies to simpler, conditional ones based on the graph's structure [@lauritzen1990; @pearl1988; @pearl2009a].
+
+#### Causal Markov Assumption
+
+Building on Markov Factorisation, the **Causal Markov Assumption** states that conditioning on a variable's direct antecedents (its parents) renders it independent of all other variables excluding its descendants. This assumption implies that understanding a variable's causes is sufficient to elucidate its effects within a causal system:
+
+$$
+\text{If } X_i \text{ is conditioned on its Parents}(X_i), \text{ then } X_i \coprod \text{ all NonDescendants in the DAG}
+$$
+
+#### Local Markov Property 
+
+The **Local Markov Property** is a specific application of the Causal Markov Assumption, emphasising that a variable is conditionally independent of its non-descendants, given its parents:
+
+$$
+X_i \coprod \text{NonDescendants}(X_i) \mid \text{Parents}(X_i)
+$$
+
+This property is critical for effectively representing and simplifying the relationships and dependencies among variables through the causal DAG’s structure, highlighting the utility of causal directed acyclic graphs in capturing the entire dependency structure within their framework[@pearl2009a].
+
+#### Compatibility Assumption
+
+The **compatibility assumption** ensures that the joint distribution of variables adheres to the conditional independencies implied by the causal graph. This assumption posits that the probabilistic model must align with the graph's structural assumptions. Demonstrating compatibility directly from data can be challenging, as it involves confirming that all conditional independencies, as stipulated by the causal directed acyclic graph, are present in the data. Therefore, we generally assume compatibility rather than empirically proving it.
+
+#### Faithfulness 
+
+**Faithfulness** is a principle that complements the Causal Markov Assumption in the context of causal diagrams. A causal diagram is considered faithful to a given set of data if all the conditional independencies present in the data are accurately depicted in the graph. Conversely, the graph is faithful if every dependency implied by the graph's structure can be observed in the data [@hernan2024]. This concept ensures that the graphical representation of relationships between variables aligns with the empirical evidence [@pearl1995].
+
+The distinction between **weak faithfulness** and **strong faithfulness** addresses the nature of observed independencies:
+
+- **Weak Faithfulness** allows for the possibility that some observed independencies might occur by coincidence, such as through a cancellation of effects among multiple causal paths.
+- **Strong Faithfulness**, on the other hand, assumes that all observed statistical relationships reflect the underlying causal structure directly, with no independencies arising purely by chance. This stronger assumption is often more pragmatic in real-world applications of causal inference, where the complexities of data can obscure underlying causal relationships.
+
+Note that the faithfulness assumption, whether weak or strong, is not directly testable from observed data; it is fundamentally a theoretical assumption about the relationship between the observed data and the underlying causal structure. These assumptions are essential for effectively utilizing causal diagrams to inform robust causal inferences, highlighting the intricate balance between theoretical models and empirical observations in advancing our understanding of causal mechanisms [@pearl2009a].
+
+
+
+##### Five Elementary Structures of Causality Encoded In Causal Directed Acyclic Graphs
 
 
 ::: {#tbl-fiveelementary}
@@ -291,16 +646,18 @@ Judea Pearl proved that all elementary structures of causality can be represente
 Elementary structures of causality
 :::
 
-The structures are as follows: 
+@tbl-fiveelementary presents the five elementary structures of causality as represented in causal directed acyclic graphs:
 
-- **Two Variables:**
-    1. **Causality Absent:** There is no causal effect between variables $A$ and $B$. They do not influence each other, denoted as $A \coprod B$, indicating they are statistically independent.
-    2. **Causality:** Variable $A$ causally affects variable $B$. This relationship suggests an association between them, denoted as $A \cancel\coprod B$, indicating they are statistically dependent.
+#### Causal Relations With Two Variables
+  
+  1. **Causality Absent:** There is no causal effect between variables $A$ and $B$. They do not influence each other, denoted as $A \coprod B$, indicating they are statistically independent.
+  2. **Causality:** Variable $A$ causally affects variable $B$. This relationship suggests an association between them, denoted as $A \cancel\coprod B$, indicating they are statistically dependent.
 
-- **Three Variables:**
-    3. **Fork:** Variable $A$ causally affects both $B$ and $C$. Variables $B$ and $C$ are conditionally independent given $A$, denoted as $B \coprod C | A$. This structure implies that knowing $A$ removes any association between $B$ and $C$ due to their common cause.
-    4. **Chain:** A causal chain exists where $C$ is affected by $B$, which in turn is affected by $A$. Variables $A$ and $C$ are conditionally independent given $B$, denoted as $A \coprod C | B$. This indicates that $B$ mediates the effect of $A$ on $C$, and knowing $B$ breaks the association between $A$ and $C$.
-    5. **Collider:** Variable $C$ is affected by both $A$ and $B$, which are independent. However, conditioning on $C$ induces an association between $A$ and $B$, denoted as $A \cancel\coprod B | C$. This structure is unique because it suggests that $A$ and $B$, while initially independent, become associated when we account for their common effect $C$.
+#### Causal Relations with Three Variables
+
+  3. **Fork Relation:** Variable $A$ causally affects both $B$ and $C$. Variables $B$ and $C$ are conditionally independent given $A$, denoted as $B \coprod C | A$. This structure implies that knowing $A$ removes any association between $B$ and $C$ due to their common cause.
+  4. **Chain Relation:** A causal chain exists where $C$ is affected by $B$, which in turn is affected by $A$. Variables $A$ and $C$ are conditionally independent given $B$, denoted as $A \coprod C | B$. This indicates that $B$ mediates the effect of $A$ on $C$, and knowing $B$ breaks the association between $A$ and $C$.
+  5. **Collider Relation:** Variable $C$ is affected by both $A$ and $B$, which are independent. However, conditioning on $C$ induces an association between $A$ and $B$, denoted as $A \cancel\coprod B | C$. This structure is unique because it suggests that $A$ and $B$, while initially independent, become associated when we account for their common effect $C$.
 
 
 Once we understand the basic relationships between two variables, we can build upon these to create more complex relationships. These structures help us see how statistical independences and dependencies emerge from the data, allowing us to clarify the causal relationships we presume exist. Such clarity is crucial for ensuring that confounders are balanced across treatment groups, given all measured confounders, so that $Y(a) \coprod A | L$.
@@ -308,7 +665,7 @@ Once we understand the basic relationships between two variables, we can build u
 
 
 {{< pagebreak >}}
-## The Four Rules of Confounding Control
+## The Five Fundamental Rules of Confounding Control
 
 
 @tbl-terminologyconfounders describe the four elementary rules of confounding control:
@@ -317,17 +674,19 @@ Once we understand the basic relationships between two variables, we can build u
 ```{=latex}
 \terminologyelconfounders
 ```
-Four rules of confounding control
+Five rules of confounding control
 :::
 
 
-1. **Condition on Common Cause or its Proxy**: this rule applies to settings in which the treatment ($A$) and the outcome ($Y$) share common causes. By conditioning on these common causes, we block the open backdoor paths that could introduce bias into our causal estimates. Controlling for these common causes (or their proxies) helps tp isolate the specific effect of $A$ on $Y$. (We do not draw a path from $ A \to Y$ because we do not assume this path.)
+1. **Ensure Treatments Precedes Outcomes**: this rule is a logical consequence of our assumption that causality follows the arrow of time. However, the assumption that treatments precede outcomes may be easily violated where investigators cannot ensure the relative timing of events from there data. Note that past outcomes may affect future treatments.  Indeed an effective strategy for confounding control is to condition on past outcomes  as well as past outcomes. For example, if we wish to identify the cuasal effect of $A_1$ on $Y_2$, where repeated-measures time series data are available, we might adopt conditioning such that $\boxed{A_{-1}} \to \boxed{Y_0} \to A_1 ~~ Y_2$ Note that here the relations of variables are arranged sequentially without cycles.  Note further that to estimate a causal effect of $Y$ on $A$ we would focus on: $\boxed{Y_{-1}} \to \boxed{A_0} \to Y_1 ~~ A_2$, where here, departing from convention, $Y$ denotes the treatment and $A$ denotes the outcome.
 
-2. **Do Not Condition on a Mediator**:  this rule applies to settings in which the variable $L$ is a mediator of $A \to Y$. Here, conditioning on a mediator will bias the total causal effect estimate. Later in the course, we will discuss the assumptions required for causal mediation.  For now, if we are interested in total effect estimates, we must not condition on a mediator.  Here we draw the path from $A \to Y$ to ensure that if such a path exists, it will not become biased from our conditioning strategy. 
+2. **Condition on Common Cause or its Proxy**: this rule applies to settings in which the treatment ($A$) and the outcome ($Y$) share common causes. By conditioning on these common causes, we block the open backdoor paths that could introduce bias into our causal estimates. Controlling for these common causes (or their proxies) helps tp isolate the specific effect of $A$ on $Y$. (We do not draw a path from $ A \to Y$ because we do not assume this path.)
 
-3. **Do Not Condition on a Collider**: this rule applies to settings in which we $L$ is a common effect of $A$ and $Y$. Conditioning on a collider may invoke a spurious association.  Last week we considered an example in which marriage caused wealth and happiness caused wealth. Conditioning on wealth in this setting will induce an association between happiness and marriage. Why?  If we know the outcome, wealth, then we know there are at least two ways of wealth.  Among those wealthy but low on happiness, we can predict that they are more likely to be married, for how else would they be wealthy? Similarly, among those who are wealthy and are not married, we can predict that they are happy, for how else would they be wealthy if not through marriage? These relationships are predictable entirely without a causal association between marriage and happiness!
+3. **Do Not Condition on a Mediator**:  this rule applies to settings in which the variable $L$ is a mediator of $A \to Y$. Here, conditioning on a mediator will bias the total causal effect estimate. Later in the course, we will discuss the assumptions required for causal mediation.  For now, if we are interested in total effect estimates, we must not condition on a mediator.  Here we draw the path from $A \to Y$ to ensure that if such a path exists, it will not become biased from our conditioning strategy. 
 
-4. **Proxy Rule: Conditioning on a Descendent Is Akin to Conditioning on Its Parent**: this rule applies to settings in which we $L’$ is an effect from another variable $L$.  The graph considers when $L’$ is downstream of a collider.  For example, suppose we condition on home ownership, which is an effect of wealth. Such conditioning will open up a non-causal path without causation because home ownership is a proxy for wealth.  Consider, if someone owns a house but is not married, they are more likely to be happy, for how else could they accumulate the wealth required for home ownership?  Likewise, if someone is unhappy and owns a house, we can infer that they are more likely to be married because how else would they be wealthy? Conditioning on a proxy for a collider here is akin to conditioning on the collider itself.  
+4. **Do Not Condition on a Collider**: this rule applies to settings in which we $L$ is a common effect of $A$ and $Y$. Conditioning on a collider may invoke a spurious association.  Last week we considered an example in which marriage caused wealth and happiness caused wealth. Conditioning on wealth in this setting will induce an association between happiness and marriage. Why?  If we know the outcome, wealth, then we know there are at least two ways of wealth.  Among those wealthy but low on happiness, we can predict that they are more likely to be married, for how else would they be wealthy? Similarly, among those who are wealthy and are not married, we can predict that they are happy, for how else would they be wealthy if not through marriage? These relationships are predictable entirely without a causal association between marriage and happiness!
+
+5. **Proxy Rule: Conditioning on a Descendent Is Akin to Conditioning on Its Parent**: this rule applies to settings in which we $L’$ is an effect from another variable $L$.  The graph considers when $L’$ is downstream of a collider.  For example, suppose we condition on home ownership, which is an effect of wealth. Such conditioning will open up a non-causal path without causation because home ownership is a proxy for wealth.  Consider, if someone owns a house but is not married, they are more likely to be happy, for how else could they accumulate the wealth required for home ownership?  Likewise, if someone is unhappy and owns a house, we can infer that they are more likely to be married because how else would they be wealthy? Conditioning on a proxy for a collider here is akin to conditioning on the collider itself.  
 
 However, we can also use the proxy rule to reduce bias. Return to the earlier example in which there is an unmeasured common cause of marriage and happiness, which we called "cultural upbringing"  Suppose we have not measured this variable but have measured proxies for this variable, such as country of birth, childhood religion, number of languages one speaks, and others.  By controlling for baseline values of these proxies, we can exert more control over unmeasured confounding. Even if bias is not eliminated, we should reduce bias wherever possible, which includes not introducing new biases, such as mediator bias, along the way.  Later in the course, we will teach you how to perform sensitivity analyses to verify the robustness of your results to unmeasured confounding.  Sensitivity analysis is critical because where the data are observational, we cannot entirely rule out unmeasured confounding. 
 
