@@ -188,7 +188,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdftitle={Causal Directed Acyclic Graphs (DAGs) and Single World Intervention Graphs (SWIGs): A Practical Guide},
+  pdftitle={Causal Directed Acyclic Graphs (DAGs): A Practical Guide},
   pdfauthor={Joseph A. Bulbulia},
   colorlinks=true,
   linkcolor={blue},
@@ -197,8 +197,7 @@
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
 
-\title{Causal Directed Acyclic Graphs (DAGs) and Single World
-Intervention Graphs (SWIGs): A Practical Guide}
+\title{Causal Directed Acyclic Graphs (DAGs): A Practical Guide}
 
 \usepackage{academicons}
 \usepackage{xcolor}
@@ -211,7 +210,7 @@ Intervention Graphs (SWIGs): A Practical Guide}
       
 
 
-\date{2024-05-14}
+\date{2024-05-15}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -220,25 +219,20 @@ under pre-specified interventions. Obtaining counterfactual contrasts
 from data, in turn, relies on a framework of explicit assumptions and
 careful, multi-step workflows. Causal diagrams are powerful tools for
 clarifying whether and how the counterfactual contrasts we seek may be
-identified from data. Here, I explain how to use two types of causal
-diagram (1) causal directed acyclic graphs (DAGs), which are
-user-friendly, and (2) single world intervention graphs (SWIGs), which
-are complete. I use these tools to clarify frequently misunderstood
-concepts of measurement error, interaction, mediation, longitudinal
-feedback, and confounding in experiments. Along the way, I offer
-practical tips and suggestions to avoid common pitfalls.
+identified from data. Here, I explain how to use causal directed acyclic
+graphs (causal DAGs) to clarify whether and how causal effects may be
+identified from observational data. Along the way, I offer practical
+tips for reporting and suggestions for avoiding common pitfalls.
 
 \textbf{KEYWORDS}: \emph{Causal Inference}; \emph{Culture};
 \emph{DAGs};* \emph{Evolution}; \emph{Human Sciences};
-\emph{Longitudinal}; Single World Intervention Graphs, Single World
-Intervention Template, SWIGs; SWITs.
+\emph{Longitudinal}.
 \end{abstract}
 
 \subsection{Introduction}\label{introduction}
 
-Human research begins with two questions:
+Human research begins with two fundamental questions:
 
-\begin{quote}
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
@@ -247,112 +241,106 @@ Human research begins with two questions:
 \item
   For which population does this knowledge generalise?
 \end{enumerate}
-\end{quote}
 
-In the human sciences, questions are typically causal. We want to
-understand what would happen if we were to intervene on certain
-variables of interest. However, many human scientists are content to
-report non-causal associations. We collect data, apply regressions of
-varying complexity, and report coefficients. We speak of covariates as
-``predicting'' outcomes. However, even when our models predict well it
-is typically unclear how to relate predictions the substanative
-scientific questions that animated our interests. We do not recognise
-that the oracles lack any coherent interpretation.
+In the human sciences, our questions are typically causal. We aim to
+understand the effects of interventions on certain variables. However,
+many researchers report non-causal associations, collecting data,
+applying complex regressions, and reporting coefficients. We often speak
+of covariates as ``predicting'' outcomes. Yet, even when our models
+predict well, it remains unclear how these predictions relate to the
+scientific questions that sparked our interest. We fail to recognise
+that these ``oracles'' lack coherent interpretation.
 
-Association can, of course, imply causation -- as the experimental
-traditions teach us. We understand that when interventions are
-controlled and randomised, the coefficients we obtain from our
-statistical models permit causal interpretations. We understand that
-these causal inferences from experiments do not imply causality for
-everyone. Experiments recover the averages effects for the treatments
-that we compare.
+Some say that association cannot imply causation. However, our
+experimental traditions reveal that when interventions are controlled
+and randomised, the coefficients we recover from statistical models can
+permit causal interpretations.
 
-Despite our familiarity with experiments, many human scientists are do
-not understand how to emmulate radomisation and control with
-non-experimental data, or ``real world'' data. Of course, many human
-scientists use the term ``control'' and practice strategies of
-adjustment -- some quite sophisticated as in the multi-level modelling
-and statistical structural equation traditions. Yet our practices are
-not systematic. We are unaware that what we take to be control imperiles
-any hope for consistently estimating causal effects. Although no
-discipline needs another ``crisis'' -- an overused term fit for tabloids
--- across many human sciences, the state of causal inference isn't
-great. This applies to the experimental sciences too, where poor
-experimental designs demote causality.
+Despite familiarity with experiments, many researchers struggle to
+emulate randomisation and control with non-experimental or
+``real-world'' data. Though many use terms like ``control'' and employ
+sophisticated adjustment strategies---such as multilevel modelling and
+structural equation models---these practices are not systematic. We
+often overlook that what we take as control can undermine our ability to
+consistently estimate causal effects. Although the term ``crisis'' is
+overused, the state of causal inference across many human sciences,
+including experimental sciences, has much headroom for improvement.
+Moreover, poor experimental designs unintentially weaken causal claims;
+causal inferences in experiments is also deserving of greater attention.
+Fortuantely, recent decades have seen progress in the the health
+sciences, economics, and computer science have markedly improved our
+ability to obtain causal inferences in scientific research. This work
+demonstrates that obtaining causal inferences from data is feasible but
+requires careful, systematic workflows.
 
-The last several decades have seen encouraging progress for causal
-inference in the health sciences, economics, and the computer sciences.
-This work demonstrates that obtaining causal inferences from data is not
-overwhelmingly challenging. However valid requires careful, systematic
-workflows. Within these workflow, causal diagrams -- or causal graphs --
-are powerful tools for evaluating whether and how causal effects may be
-identified from data. My purpose here is to explain where these tool fit
-within the workflows of causal inference, and to illustrate what I take
-to be several immediately useful applications. I focus on causal
-directed acyclic graphs -- also known as DAGs -- because they are
-relatively easy to use, and for most use cases, optimally clear. Causal
-directed acylic graphs are also easy to abuse. I will explain common
-pitfalls, and how to avoid them.
+Within the workflows of causal inference, causal diagrams---or causal
+graphs---are powerful tools for evaluating whether and how causal
+effects can be identified from data. My purpose here is to explain where
+these tools fit within causal inference workflows and to illustrate
+their practical applications. I focus on causal directed acyclic graphs
+(causal DAGs) because they are relatively easy to use and optimally
+clear for most applications. However, causal directed acyclic graphs can
+also be misused. I will also explain common pitfalls and how to avoid
+them.
 
-In part 1 we review the conceptual foundations of causal inference. The
-basis of all causal inference in counterfactual contrasts. There are
-different approaches to reasoning about counterfactual contrasts,
-however such differences are largely philosophical, not practical.
-Causal directed acyclic graphs emerged in the 1990s through the work of
-Judea Pearl who grounded them in what hell calls non-parametric
-structural equation models with non-independent errors. The overview I
-offer here develops from the Neyman-Rubin potential outcomes framework
-of causal inference as it has been extended for longitudional data by
-the epidemiologist James Robins. This will make the exposition clearer
-of causal diagrams clearer. It will also make he exposition of the
-non-parametric structural equation models, which I provide in Appendix
-A, clearer. Clarity is important because to deploy causal diagrams
-responsibly requires undertanding their function as part of a larger
-workflow to obtain counterfactual contrasts, which we must state at
-outset. This statement amounts to defining our question and the
-population for whom it applies.
+In Part 1, we review the conceptual foundations of causal inference. The
+basis of all causal inference lies in counterfactual contrasts. Although
+there are different philosophical approaches to counterfactual
+reasoning, they are largely similar in practice. The overview here
+builds on the Neyman-Rubin potential outcomes framework, extended for
+longitudinal data by epidemiologist James Robins. Although this is not
+the framework within which causal directed acyclic graphs were
+developed, the potential outcomes framework is easier to interpret. (I
+discuss Pearl's non-parametric structural equation approach in Appendix
+E).
 
-In part 2, we review the five elementary graphical structures capable of
-encoding all causal relations. These five elementary structures form the
-building blocks of all causal directed acyclic graphs.
+In Part 2, we describe how causal directed acyclic graphs help identify
+causal effects. We outline five elementary graphical structures that
+encode all causal relations, forming the building blocks of all causal
+directed acyclic graphs. We then examine five rules that clarify whether
+and how investigators can identify causal effects from data.
 
-in part 3, we examine the five elementary rules that clarify whether and
-how investigators may identify causal effects from data. There are only
-five rules you need to remember.
+In Part 3, we apply causal directed acyclic graphs to practical
+problems, showing how repeated measures data collection can solve seven
+common identification issues. Timing is critical, but not sufficient
+alone. We also use causal diagrams to highlight the limitations of
+repeated-measures data collection for identifying causal effects,
+tempering enthusiasm for easy solutions. Indeed we will review how many
+statistical structural equation models and sophisticated multi-level
+models are not well-calibrated for identifying causal effects.
 
-In part 4, we put causal directed acyclic graphs to action, showing how
-seven commonplace identification problems may be solved by repeated
-measures data collection. Timing is everything, nearly.
+In Part 4, I offer practical suggestions for creating and reporting
+causal directed acyclic graphs in scientific research. These graphs
+represent investigator assumptions about causal (or structural)
+relationships in nature. These relationships cannot typically be derived
+from data alone and must be developed with scientific specialists. Where
+ambiguity or debate exists, investigators should report multiple causal
+diagrams and conduct distinct analyses. I explain how to do this and
+walk through the steps.
 
-In part 5, we use causal diagram to show the limitations of longitudinal
-data for identifying causal effects. Causal directed acyclic graphs
-tampen enthusiasm for time-series data. Unfortunately timing isn't
-enough.
-
-In part 6, we consider how causal diagrams clarify the properties of
-time-varying confounding. Readers who make it this far will understand
-why both the multi-level modelling tradition and the statistical
-structural equation modelling traditions routinely fail to identify
-causal effects.
-
-In part 7, I offers practical suggestions for created causal directed
-acyclic graphs and reporting them in scientific research. As will become
-evident, causal directed acyclic graphs report investigator assumptions
-about the causal -- or equivalently ``structural'' -- relationships that
-govern nature. These relations are not, and typically cannot, be derived
-from the data alone. Causal graphs must therefore be developed with
-scientific specialists. However, scientific specialists may disagree.
-Were there is ambiguity or debate, investigators should report mutiple
-causal diagrams and conducted distinct analyses. I explain how to do
-this, and walk through the steps.
+By understanding and applying causal directed acyclic graphs,
+researchers can more effectively identify and communicate causal
+relationships, in the service of the causal questions that animate our
+scientific interets.
 
 \subsection{Part 1: Causal Inference as Counterfactual Data
 Science.}\label{part-1-causal-inference-as-counterfactual-data-science.}
 
 The first step in answering a causal question is to ask it
-(\citeproc{ref-hernuxe1n2016}{Hernán \emph{et al.} 2016}). Causal
-diagrams come later, when we consider which forms of data might enable
-us to address our pre-specified causal questions.
+(\citeproc{ref-hernuxe1n2016}{Hernán \emph{et al.} 2016}).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  What do causal quantity to I want to consistently estimate?
+\item
+  For which population does this knowledge generalise?
+\end{enumerate}
+
+Causal diagrams come after we have stated a causal question and the
+population of interest, the `target population'. We begin by considering
+what is required to state these questions precisely.
 
 \paragraph{1.1.1 The fundamental problem of causal
 inference}\label{the-fundamental-problem-of-causal-inference}
@@ -720,9 +708,10 @@ assignment, conditional on measured confounders.
 \subsection{Part 2 Causal Directed Acyclic
 Graphs}\label{part-2-causal-directed-acyclic-graphs}
 
-We begin by describing the meaning of our symbols.
+We introduce causal directed acyclic graphs by describing the meaning of
+our symbols.
 
-\subsection{Variable naming
+\subsubsection{2.1 Variable naming
 conventions}\label{variable-naming-conventions}
 
 \begin{table}
@@ -736,8 +725,6 @@ conventions}\label{variable-naming-conventions}
 }
 
 \end{table}%
-
-For us:
 
 \paragraph{\texorpdfstring{\(X\)}{X}}\label{x}
 
@@ -852,8 +839,11 @@ As when treatment assignment is random.
 
 Denotes a graph, here, a causal directed acyclic graph.
 
-\subsubsection{Terminology for Directed Acyclic Graphs in this
-Study}\label{terminology-for-directed-acyclic-graphs-in-this-study}
+Note that investigators use a variety of different symbols. As long as
+meanings are clear, the symbols we use are arbitrary.
+
+\subsubsection{2.2 Conventions for Causal Directed Acyclic
+Graphs}\label{conventions-for-causal-directed-acyclic-graphs}
 
 The conventions we use to describe components of our causal graphs are
 given in Table~\ref{tbl-general}.
@@ -882,7 +872,7 @@ population for whom investigators seek causal inferences.
 An edge without an arrow indicates a path of association, without
 implying causality.
 
-\paragraph{Arrow:}\label{arrow}
+\paragraph{Arrow}\label{arrow}
 
 An edge with an arrow represents a causal relationship from the node at
 the base of the arrow to the node at the tip of the arrow. For instance,
@@ -898,16 +888,16 @@ al.~(2020). As these causal paths are asserted, constructing causal
 diagrams requires expert judgement---bearing in mind that ``with great
 power comes great responsibility.''
 
-\paragraph{Red Arrow:}\label{red-arrow}
+\paragraph{Red Arrow}\label{red-arrow}
 
 We denote a potential non-causal association between the treatment and
 outcome by colouring this arrow red. When applying d-separation rules to
 assess identification, we will disregard these arrows if confounding
 arises because the treatment and the outcome share a common cause, as in
 \(\mathcal{G}\) where the confounding path runs from
-\(A_1 -- L_0 -- Y_2\). The use of colour in arrows is specific to this
-review to highlight biases. Investigators may adopt other conventions,
-but the chosen convention should be clearly defined.
+\(A_1 \association L_0 \association Y_2\). The use of colour in arrows
+is specific to this review to highlight biases. Investigators may adopt
+other conventions, but the chosen convention should be clearly defined.
 
 \paragraph{Dashed Arrow:}\label{dashed-arrow}
 
@@ -916,12 +906,12 @@ outcome that becomes partially obscured when conditioning on a mediator.
 This specific convention, adopted here, highlights the causal direct
 effect, assuming its existence.
 
-\paragraph{Dashed Red Arrow:}\label{dashed-red-arrow}
+\paragraph{Dashed Red Arrow}\label{dashed-red-arrow}
 
 A dashed red arrow represents over-conditioning bias from conditioning
 on a mediator.
 
-\paragraph{Open Blue Arrow:}\label{open-blue-arrow}
+\paragraph{Open Blue Arrow}\label{open-blue-arrow}
 
 We use an open blue arrow to indicate effect modification, which occurs
 when the levels of the effect of treatment vary within levels of a
@@ -929,18 +919,18 @@ covariate. We do not assess the causal effect of the effect-modifier on
 the outcome, recognising that it may be incoherent to consider
 intervening on the effect-modifier.
 
-\paragraph{Boxed Variable:}\label{boxed-variable}
+\paragraph{Boxed Variable}\label{boxed-variable}
 
 Enclosing a variable in a box denotes a decision to control for,
 condition on, or adjust for that variable. This convention is widely
 used in causal data science.
 
-\paragraph{Red-Boxed Variable:}\label{red-boxed-variable}
+\paragraph{Red-Boxed Variable}\label{red-boxed-variable}
 
 Colouring the box red when conditioning on a variable highlights the
 source of confounding bias.
 
-\paragraph{Dashed Circle:}\label{dashed-circle}
+\paragraph{Dashed Circle}\label{dashed-circle}
 
 A dashed circle explicitly denotes that no adjustment is made for a
 variable.
@@ -949,154 +939,220 @@ variable.
 
 This denotes randomisation into the treatment condition.
 
-\paragraph{Time Indexing:}\label{time-indexing}
+\paragraph{Sequential Order}\label{sequential-order}
 
-Causal arrows inherently define timing, and as causal DAGs are
-acyclic---no variable can cause its parent---these graphs are
-sequentially ordered. We employ three conventions to depict temporal
-order: 1. The layout of a causal diagram is structured from left to
-right to reflect the assumed sequence of causality as it unfolds. 2. We
-systematically index our nodes to enhance the representation of event
-sequences within our diagrams, indicating chronological order. 3. Where
-causality is uncertain or unknown, we use the notation \(X_{\phi t}\) to
-propose a temporal order without precise, time-specific measurements.
+Causal directed acyclic graphs are -- as the name implies -- acyclic. No
+descendent node can cause an ancestor node. Directed edges or arrows
+define ancestral relations. Hence causal diagrams are, by default,
+sequentially ordered.
 
-Typically, the timing of unmeasured confounders is not known; hence, we
-place them to the left of the treatments and outcomes they are assumed
-to affect.
+Nevertheless, to make our causal graphs more readible we adopt the
+followign conventions:
 
-\subsubsection{Terminology for Conditional
-Independence}\label{terminology-for-conditional-independence}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The layout of a causal diagram is structured from left to right to
+  reflect the assumed sequence of causality as it unfolds.
+\item
+  We often index our nodes using \(X_t\) to indicate their relative
+  timing and chronological order, where \(t\) represents the time point
+  or sequence in the timeline of events.
+\item
+  Where temporal order is uncertain or unknown, we use the notation
+  \(X_{\phi t}\) to propose a temporal order that is uncertain.
+\end{enumerate}
 
-To be effective, a directed causal acyclic graph must connect with
-reality. The fundamental premise of directed causal acyclic graphs is
-that they facilitate the factorisation of conditional probabilities over
-joint distributions of observable data. The bottom panel of
-Table~\ref{tbl-general} illustrates some mathematical notations we use
-to describe these dependencies.
+Typically, the timing of unmeasured confounders is not known, except
+that they occur before the treatments of interest; hence, we place
+confounders to the left of the treatments and outcomes they are assumed
+to affect, but without any time indexing.
+
+Again, both spatial and temporal organisation in a causal directed
+acyclic graph are optional. Temporal order is implied the relationship
+of nodes and edges. However, explicitly representing order in the layout
+of one's causal graph often makes it easier to evaluate, and the
+convention representing uncertainty is useful, particularly when the
+data do not ensure the relative timing of the occurance of the variable
+in a causal graph.
+
+\subsubsection{2.3 Terminology for Statistical and Causal
+Independence}\label{terminology-for-statistical-and-causal-independence}
+
+The bottom panel of Table~\ref{tbl-general} illustrates the mathematical
+notationa we use to describe statistical and causal dependencies in the
+distributions of variables within a population.
 
 \paragraph{\texorpdfstring{Independence
-(\(\coprod\)):}{Independence (\textbackslash coprod):}}\label{independence-coprod}
+\(\coprod\)}{Independence \textbackslash coprod}}\label{independence-coprod}
 
-We denote independence using the symbol \(\coprod\), where
-\(A \coprod Y(a)\), signifies that the treatment assignment does not
-depend on the potential outcomes. This assumption is crucial for
-estimating causal effects without bias.
+We denote independence using the symbol \(\coprod\). For example,
+\(A \coprod Y(a)\) signifies that the treatment assignment \(A\) is
+independent of the potential outcomes \(Y(a)\).
 
-It is essential to note that the \emph{potential outcomes} or
-equivalentlly *counterfactual outcomes** must be independent of the
-treatments. Although a treatment may influence the observed outcomes,
-ensuring the potential outcomes' independence from treatment is critical
-for unbiased causal analysis.
+Note that it is the distributions of \textbf{counterfactual outcomes}
+that must be independent of the treatments. The distributions of
+observed outcomes will depend on treatments wherever the treatments are
+causally efficacious.
 
 \paragraph{\texorpdfstring{Dependence
-(\(\cancel\coprod\)):}{Dependence (\textbackslash cancel\textbackslash coprod):}}\label{dependence-cancelcoprod}
+\(\cancel{\coprod}\)}{Dependence \textbackslash cancel\{\textbackslash coprod\}}}\label{dependence-cancelcoprod}
 
-Conversely, \(\cancel\coprod\) signifies dependence such that the
-distribution of one variable are related to the distributions of other.
-For instance, \(A \cancel\coprod Y(a)\) suggests that the treatment
-assignment is related to the potential outcomes, which could introduce
-bias into causal estimates.
+We denote dependence using the symbol \(\cancel{\coprod}\). For
+instance, \(A \cancel{\coprod} Y(a)\) suggests that the treatment
+assignment \(A\) is related to the potential outcomes \(Y(a)\), which
+could introduce bias into causal estimates.
 
 \paragraph{\texorpdfstring{Conditioning
-(\(|\)):}{Conditioning (\textbar):}}\label{conditioning}
+\(|\)}{Conditioning \textbar{}}}\label{conditioning}
 
-The vertical line \(|\) represents conditional dependence:
+The vertical line \(|\) represents conditioning on a variable. We can
+express both conditional independence and conditional dependence:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Conditional Independence (\(A \coprod Y(a) | L\)):} Indicates
-  that once we account for a set of variables \(L\), the treatment and
-  potential outcomes are independent.
+  \textbf{Conditional Independence (\(A \coprod Y(a) \mid L\)):}
+  indicates that once we account for a set of variables \(L\), the
+  treatment \(A\) and the potential outcomes \(Y(a)\) are independent.
 \item
-  \textbf{Conditional Dependence (\(A \cancel\coprod Y(a) | L\)):}
-  Indicates that the potential outcomes and treatments are not
-  independent after conditioning on \(L\), necessitating careful
-  analysis to avoid biased causal inferences.
+  \textbf{Conditional Dependence (\(A \cancel{\coprod} Y(a) \mid L\)):}
+  indicates that the treatment \(A\) and the potential outcomes \(Y(a)\)
+  are not independent after conditioning on \(L\), or perhaps because we
+  have conditioned on \(L\).
 \end{itemize}
 
-\subsection{The Five Elementary Structures of
-Causality}\label{the-five-elementary-structures-of-causality}
+\subsubsection{2.4 How Causal Directed Acyclic Graphs Relate
+Observations to
+Counterfactuals}\label{how-causal-directed-acyclic-graphs-relate-observations-to-counterfactuals}
 
-In causal inference, we often start with the premise that observed
-associations in data arise from underlying causal mechanisms rather than
-by chance. Identification denotes the process of defining the real-world
-structures that might lead to biases in the observed associations
-between treatments and outcomes, absent any true causal effect of the
-treatment. To appreciate how causal directed acyclic graphs facilitate
-such identification we introduce the following concepts.
+\paragraph{Ancestral Relations in Directed Acyclic
+Graphs}\label{ancestral-relations-in-directed-acyclic-graphs}
 
-\paragraph{Markov Factorisation}\label{markov-factorisation}
+We define the relation of ``parent'' and ``child'' on a directed acyclic
+graph as follows:
 
-\textbf{Markov Factorisation} enables the decomposition of the joint
-probability distribution of all variables in a causal DAG into a product
-of simpler conditional distributions. Specifically, for variables
-\(X_1, X_2, \dots, X_n\) in a causal DAG, the joint distribution is
-expressed as:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Node \(A\) is a \textbf{parent} of node \(B\) if there is a directed
+  edge from \(A\) to \(B\), denoted \(A \rightarrow B\).
+\item
+  Node \(B\) is a \textbf{child} of node \(A\) if there is a directed
+  edge from \(A\) to \(B\), denoted \(A \rightarrow B\).
+\end{enumerate}
+
+It follows that a parent and child are \textbf{adjacent nodes} connected
+by a directed edge.
+
+We denote the set of all parents of a node \(B\) as \(\text{Pa}(B)\).
+
+In a directed acyclic graph, the directed edge \(A \rightarrow B\)
+indicates a statistical dependency where \(A\) may provide information
+about \(B\). In a causal directed acyclic graph, the directed edge
+\(A \rightarrow B\) is interpreted as a causal relationship such that
+\(A\) is a direct cause of \(B\).
+
+We further define the relations of \textbf{ancestor} and
+\textbf{descendant} on a directed acyclic graph as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Node \(A\) is an \textbf{ancestor} of node \(C\) if there exists a
+  directed path from \(A\) to \(C\). Formally, \(A\) is an ancestor of
+  \(C\) if there exists a sequence of adjacent nodes
+  \((A, B_1, B_2, \ldots, B_k, C)\) such that
+  \(A \rightarrow B_1 \rightarrow B_2 \rightarrow \cdots \rightarrow B_k \rightarrow C\).
+\item
+  Node \(C\) is a \textbf{descendant} of node \(A\) if there exists a
+  directed path from \(A\) to \(C\). Formally, \(C\) is a descendant of
+  \(A\) if there exists a sequence of adjacent nodes
+  \((A, B_1, B_2, \ldots, B_k, C)\) such that
+  \(A \rightarrow B_1 \rightarrow B_2 \rightarrow \cdots \rightarrow B_k \rightarrow C\).
+\end{enumerate}
+
+It follows that a node can have multiple ancestors and descendants.
+
+\paragraph{Bayesian Network Factorisation and The Local Markov
+Assumption}\label{bayesian-network-factorisation-and-the-local-markov-assumption}
+
+Pearl (\citeproc{ref-pearl2009a}{2009}) p 52 asks us to imagine the
+following. Suppose we have a distribution P defined on n discrete
+variables, \(X_1, X_2,  \dots, X_n\). By the chain rule, the joint
+distribution for variables \(X_1, X_2, \dots, X_n\) on graph can be
+decomposed into the product of \(n\) conditional distributions such
+that:
 
 \[
-P(X_1, X_2, \dots, X_n) = \prod_{i=1}^{n} P(X_i | \text{Parents}(X_i))
+P(x_1, \dots, x_n) = \prod_{j=1}^n P(x_j \mid x_1, \dots, x_{j-1})
+\]
+
+This factorisation of a graph is called Bayesian Network Factorisation.
+We translate nodes and edges on a graph into a set of conditional
+independences that a graph implies over the distributions represented in
+the notes on a graph.
+
+According to \textbf{the local Markov assumption,} given its parents in
+a directed acyclic graph, a node is said to be independent of all its
+non-descendants:
+
+\[
+P(x_j \mid x_1, \dots, x_{j-1}) = P(x_j \mid \text{pa}_j)
 \]
 
 This factorisation simplifies the calculation of the joint distributions
-encoded in the causal graph by reducing the complex interdependencies to
-simpler, conditional ones based on the graph's structure
+encoded in the directed acyclic graph (causal or non-causal) by reducing
+complex factorisations of the conditional distributions in \(P\) to
+simpler conditional distributions in the set \(\text{PA}_j\),
+represented in the structural elements of a directed acyclic graph
 (\citeproc{ref-lauritzen1990}{Lauritzen \emph{et al.} 1990};
-\citeproc{ref-pearl1988}{Pearl 1988}, \citeproc{ref-pearl2009a}{2009}).
+\citeproc{ref-pearl1988}{Pearl 1988}, \citeproc{ref-pearl1995}{1995},
+\citeproc{ref-pearl2009a}{2009}).
 
-\paragraph{Causal Markov Assumption}\label{causal-markov-assumption}
+\paragraph{Minimality Assumption}\label{minimality-assumption}
 
-Building on Markov Factorisation, the \textbf{Causal Markov Assumption}
-states that conditioning on a variable's direct antecedents (its
-parents) renders it independent of all other variables excluding its
-descendants. This assumption implies that understanding a variable's
-causes is sufficient to elucidate its effects within a causal system:
+The Minimality assumption combines (a) the local Markov assumption with
+(b) the assumption that adjacent nodes on the graph are dependent. This
+is needed for causal directed acyclic graphs because the local Markov
+assumption permits that adjacent nodes may be independent
+(\citeproc{ref-neal2020introduction}{Neal 2020}).
 
-\[
-\text{If } X_i \text{ is conditioned on its Parents}(X_i), \text{ then } X_i \coprod \text{ all NonDescendants in the DAG}
-\]
+\paragraph{Causal Edges Assumption}\label{causal-edges-assumption}
 
-\paragraph{Local Markov Property}\label{local-markov-property}
-
-The \textbf{Local Markov Property} is a specific application of the
-Causal Markov Assumption, emphasising that a variable is conditionally
-independent of its non-descendants, given its parents:
-
-\[
-X_i \coprod \text{NonDescendants}(X_i) \mid \text{Parents}(X_i)
-\]
-
-This property is critical for effectively representing and simplifying
-the relationships and dependencies among variables through the causal
-DAG's structure, highlighting the utility of causal directed acyclic
-graphs in capturing the entire dependency structure within their
-framework(\citeproc{ref-pearl2009a}{Pearl 2009}).
+The causal edges assumption states that every parent is a direct cause
+of its children. Given minimalism, the causal edges assumption allows us
+to read causal dependence in directed acyclic graphs. In Pearl's
+formalism, we use non-parametric structural equations to evaluate causal
+assumptions using statistical distributions (refer to Appendix E; Neal
+(\citeproc{ref-neal2020introduction}{2020})).
 
 \paragraph{Compatibility Assumption}\label{compatibility-assumption}
 
 The \textbf{compatibility assumption} ensures that the joint
-distribution of variables adheres to the conditional independencies
-implied by the causal graph. This assumption posits that the
-probabilistic model must align with the graph's structural assumptions.
-Demonstrating compatibility directly from data can be challenging, as it
-involves confirming that all conditional independencies, as stipulated
-by the causal directed acyclic graph, are present in the data.
-Therefore, we generally assume compatibility rather than empirically
-proving it.
+distribution of variables aligns with the conditional independencies
+implied by the causal graph. This assumption requires that the
+probabilistic model conforms to the graph's structural assumptions.
+Demonstrating compatibility directly from data is challenging, as it
+involves verifying that all conditional independencies specified by the
+causal directed acyclic graph (DAG) are present in the data. Therefore,
+we typically assume compatibility rather than empirically proving it
+(\citeproc{ref-pearl2009a}{Pearl 2009}).
 
 \paragraph{Faithfulness}\label{faithfulness}
 
-\textbf{Faithfulness} is a principle that complements the Causal Markov
-Assumption in the context of causal diagrams. A causal diagram is
+\textbf{Faithfulness} complements the local Markov assumption and
+Bayesian Network factorisation in causal diagrams. A causal diagram is
 considered faithful to a given set of data if all the conditional
 independencies present in the data are accurately depicted in the graph.
 Conversely, the graph is faithful if every dependency implied by the
 graph's structure can be observed in the data
 (\citeproc{ref-hernan2024}{\textbf{hernan2024?}}). This concept ensures
 that the graphical representation of relationships between variables
-aligns with the empirical evidence (\citeproc{ref-pearl1995}{Pearl
-1995}).
+aligns with empirical evidence (\citeproc{ref-pearl2009a}{Pearl 2009}).
 
 The distinction between \textbf{weak faithfulness} and \textbf{strong
 faithfulness} addresses the nature of observed independencies:
@@ -1104,11 +1160,11 @@ faithfulness} addresses the nature of observed independencies:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Weak Faithfulness} allows for the possibility that some
+  \textbf{Weak faithfulness} allows for the possibility that some
   observed independencies might occur by coincidence, such as through a
   cancellation of effects among multiple causal paths.
 \item
-  \textbf{Strong Faithfulness}, on the other hand, assumes that all
+  \textbf{Strong faithfulness}, on the other hand, assumes that all
   observed statistical relationships reflect the underlying causal
   structure directly, with no independencies arising purely by chance.
   This stronger assumption is often more pragmatic in real-world
@@ -1116,22 +1172,184 @@ faithfulness} addresses the nature of observed independencies:
   obscure underlying causal relationships.
 \end{itemize}
 
-Note that the faithfulness assumption, whether weak or strong, is not
-directly testable from observed data; it is fundamentally a theoretical
+The faithfulness assumption, whether weak or strong, is not directly
+testable from observed data. It is fundamentally a theoretical
 assumption about the relationship between the observed data and the
-underlying causal structure. These assumptions are essential for
-effectively utilizing causal diagrams to inform robust causal
-inferences, highlighting the intricate balance between theoretical
-models and empirical observations in advancing our understanding of
-causal mechanisms (\citeproc{ref-pearl2009a}{Pearl 2009}).
+underlying causal structure (\citeproc{ref-pearl2009a}{Pearl 2009}).
 
-\subparagraph{Five Elementary Structures of Causality Encoded In Causal
-Directed Acyclic
-Graphs}\label{five-elementary-structures-of-causality-encoded-in-causal-directed-acyclic-graphs}
+\subsubsection{2.5 The d-Separation
+Criterion}\label{the-d-separation-criterion}
+
+\textbf{d-Separation}: In a causal diagram, a path is `blocked' or
+`d-separated' if a node along it interrupts causation. Two variables are
+d-separated if all paths connecting them are blocked, making them
+conditionally independent. Conversely, unblocked paths result in
+`d-connected' variables, implying potential dependence
+(\citeproc{ref-pearl1995}{Pearl 1995}, \citeproc{ref-pearl2009a}{2009}).
+(Note that ``d'' stands for ``directed''.)
+
+The rules of d-separation are as follows:
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\item
+  \textbf{Fork rule} (\(A \leftarrow \boxed{B} \rightarrow C\)): \(A\)
+  and \(C\) are independent when conditioning on \(B\)
+  (\(A \coprod C \mid B\)) (\citeproc{ref-pearl1995}{Pearl 1995}).
+\item
+  \textbf{Chain rule} (\(A \rightarrowNEW \boxed{B} \rightarrowNEW C\)):
+  Conditioning on \(B\)blocks the path between \(A\)and \(C\)
+  (\(A \coprod C \mid B\)) (\citeproc{ref-pearl1995}{Pearl 1995}).
+\item
+  \textbf{Collider rule}
+  (\(A \rightarrowred \boxed{B} \leftarrowred C\)): \(A\) and \(C\) are
+  independent until conditioning on \(B\), which introduces dependence
+  (\(A \cancel{\coprod} C \mid B\)) (\citeproc{ref-pearl1995}{Pearl
+  1995}).
+\end{enumerate}
+
+According to these rules:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  An open path (no variables conditioned on) is blocked only if two
+  arrows point to the same node: \(A \rightarrowred B \leftarrowred C\).
+  The node of common effect is called a \emph{collider}.
+\item
+  Conditioning on a collider does not block a path, such that
+  \(A \rightarrowred \boxed{B} \leftarrowred C\)may suggest an
+  association of \(A\) with \(C\) in the absence of causation.
+\item
+  Conditioning on a descendant of a collider does not block a path, such
+  that if \(L \rightarrowred \boxed{B'}\), then
+  \(A \rightarrowred \boxed{B'} \leftarrowred C\) is open.
+\item
+  If a path does not contain a collider, any variable conditioned along
+  the path is blocked, such that
+  \(A \rightarrowdotted \boxed{B} \rightarrowdotted C\)blocks the path
+  from \(A \rightarrowdotted C\)(\citeproc{ref-hernan2023}{Hernan and
+  Robins 2023 p. 78}).
+\end{enumerate}
+
+\paragraph{The Backdoor Path
+Criterion}\label{the-backdoor-path-criterion}
+
+To obtain an unbiased estimate for the causal effect of \(A\)on \(C\),
+we need to block all backdoor paths. We do this by conditioning on a set
+of covariates \(B\)that is sufficient to close all backdoor paths
+linking \(A\)and \(C\). A path is effectively blocked by \(B\)if it
+includes at least one non-collider that is a member of \(B\), or if it
+does not contain any collider or descendants of a collider.
+
+Pearl defines this criterion more generally as follows: a set of
+variables \(Z\) satisfies the backdoor criterion relative to variables
+\(X_i\)and \(X_j\) in a causal directed acyclic graph \(\mathcal{G}\)
+if:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  No node in \(Z\) is a descendant of \(X_i\); and
+\item
+  \(Z\) blocks every path between \(X_i\)and \(X_j\)that contains an
+  arrow into \(X_i\).
+\end{enumerate}
+
+Similarly, if \(X\)and \(Y\) are two disjoint subsets of nodes in
+\(\mathcal{G}\), then \(Z\) satisfies the backdoor criterion relative to
+\((X, Y)\) if it satisfies the criterion relative to any pair
+\((X_i, X_j)\) such that \(X_i \in X\) and \(X_j \in Y\). The name
+``backdoor'' refers to condition (2), which requires that only paths
+with arrows pointing at \(X_i\) be blocked; these paths can be viewed as
+entering \(X_i\) through the back door.
+
+The backdoor criterion uses the rules of d-separation to identify and
+block all paths in a causal diagram that could introduce bias between a
+treatment (or exposure), \(A\), and an outcome, \(C\), in the absence of
+causation (\citeproc{ref-pearl2009a}{Pearl 2009}).
+
+\paragraph{Frontdoor Path Criterion}\label{frontdoor-path-criterion}
+
+To obtain an unbiased estimate for the causal effect of \(A\) on \(C\)
+using the frontdoor criterion, we need to identify a set of variables
+\(M\) that mediates the effect of \(A\) on \(C\).
+
+Pearl defines the frontdoor criterion more generally as follows: a set
+of variables \(B\) satisfies the frontdoor criterion relative to
+variables \(A\) and \(C\) in a causal directed acyclic graph
+\(\mathcal{G}\) if:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \(B\) is affected by \(A\).
+\item
+  \(B\) affects \(C\).
+\item
+  There are no backdoor paths from \(A\) to \(B\).
+\item
+  All backdoor paths from \(B\) to \(C\) are blocked by conditioning on
+  \(A\).
+\end{enumerate}
+
+In other words, \(B\) must be an intermediate variable that captures the
+entire causal effect of \(A\) on \(C\), with no confounding paths
+remaining between \(A\) and \(B\), and any confounding between \(B\) and
+\(C\) must be blocked by \(A\).
+
+The frontdoor criterion is less widely used compared to the backdoor
+criterion because it requires the identification of an appropriate
+mediator that fully captures the causal effect
+(\citeproc{ref-pearl2009a}{Pearl 2009}). Here, we state the frontdoor
+path criterion for completeness.
+
+\subsubsection{2.6 Comment on Pearl's Do-Calculus versus the Potential
+Outcomes
+Framework}\label{comment-on-pearls-do-calculus-versus-the-potential-outcomes-framework}
+
+Here, we have developed counterfactual contrasts using the potential
+outcomes framework, Pearl develops counterfactual contrasts using
+operations on structural functionals, referred to as ``do-calculus''
+(Appendix E.) In practice, whether one uses the do-calculus (and the
+non-parametric structural equation models it relies on) or the potential
+outcomes framework to interpret causal inferences is typically
+irrelevant to identification results. However, there are theoretically
+interesting debates about edge cases.
+
+In some cases, Pearl's non-parametric structural equation models permit
+the identification of contrasts that cannot be falsified under any
+experiment (\citeproc{ref-richardson2013}{Richardson and Robins 2013a}).
+Because advocates of non-parametric structual equation models treats
+causality as primitive, they are less concerned with the requirement for
+falsification Dı́az \emph{et al.} (\citeproc{ref-Diaz2023}{2023}). On the
+other hand, some advocates of the potential outcomes framework require
+falsifiability Shpitser and Tchetgen
+(\citeproc{ref-shpitser2016causal}{2016}). Conversely, there are edge
+cases where the potential outcomes framework achieves identification
+while the do-calculus does not (\citeproc{ref-richardson2013}{Richardson
+and Robins 2013a}).
+
+I have presented the potential outcomes framework because it is easier
+to interpret. Moreover, one does not need to be a verificationist to
+adopt it. For most practical purposes, the two frameworks are equivalent
+in terms of their utility for causal inference. Furthermore, readers
+should be aware that there are causal diagrams called ``Single World
+Intervention Graphs'' which enable investigators to represent
+conditional independences of potential outcomes on graphs
+(\citeproc{ref-richardson2013swigsprimer}{Richardson and Robins 2013b}),
+which can be useful.
+
+\#\#\# 2.7 The Five Elementary Structures of Causality Encoded In Causal
+Directed Acyclic Graphs
 
 \begin{table}
 
-\caption{\label{tbl-fiveelementary}Elementary structures of causality}
+\caption{\label{tbl-fiveelementary}Five elementary structures of
+causality used in causal directed acyclic graphs.}
 
 \centering{
 
@@ -1143,6 +1361,9 @@ Graphs}\label{five-elementary-structures-of-causality-encoded-in-causal-directed
 
 Table~\ref{tbl-fiveelementary} presents the five elementary structures
 of causality as represented in causal directed acyclic graphs:
+
+Next consider that there are are five elemental structures from which
+all causal directed acyclic graphs may be composed.
 
 \paragraph{Causal Relations With Two
 Variables}\label{causal-relations-with-two-variables}
@@ -1157,7 +1378,7 @@ Variables}\label{causal-relations-with-two-variables}
 \item
   \textbf{Causality:} Variable \(A\) causally affects variable \(B\).
   This relationship suggests an association between them, denoted as
-  \(A \cancel\coprod B\), indicating they are statistically dependent.
+  \(A \cancel{\coprod} B\), indicating they are statistically dependent.
 \end{enumerate}
 
 \paragraph{Causal Relations with Three
@@ -1170,45 +1391,45 @@ Variables}\label{causal-relations-with-three-variables}
 \item
   \textbf{Fork Relation:} Variable \(A\) causally affects both \(B\) and
   \(C\). Variables \(B\) and \(C\) are conditionally independent given
-  \(A\), denoted as \(B \coprod C | A\). This structure implies that
+  \(A\), denoted as \(B \coprod C \mid A\). This structure implies that
   knowing \(A\) removes any association between \(B\) and \(C\) due to
   their common cause.
 \item
   \textbf{Chain Relation:} A causal chain exists where \(C\) is affected
   by \(B\), which in turn is affected by \(A\). Variables \(A\) and
   \(C\) are conditionally independent given \(B\), denoted as
-  \(A \coprod C | B\). This indicates that \(B\) mediates the effect of
-  \(A\) on \(C\), and knowing \(B\) breaks the association between \(A\)
-  and \(C\).
+  \(A \coprod C \mid B\). This indicates that \(B\) mediates the effect
+  of \(A\) on \(C\), and knowing \(B\) breaks the association between
+  \(A\) and \(C\).
 \item
   \textbf{Collider Relation:} Variable \(C\) is affected by both \(A\)
   and \(B\), which are independent. However, conditioning on \(C\)
   induces an association between \(A\) and \(B\), denoted as
-  \(A \cancel\coprod B | C\). This structure is unique because it
-  suggests that \(A\) and \(B\), while initially independent, become
+  \(A \cancel{\coprod} B \mid C\). This structure is important because
+  it suggests that \(A\) and \(B\), while initially independent, become
   associated when we account for their common effect \(C\).
 \end{enumerate}
 
-Once we understand the basic relationships between two variables, we can
-build upon these to create more complex relationships. These structures
-help us see how statistical independences and dependencies emerge from
-the data, allowing us to clarify the causal relationships we presume
-exist. Such clarity is crucial for ensuring that confounders are
-balanced across treatment groups, given all measured confounders, so
-that \(Y(a) \coprod A | L\).
+Understanding the basic relationships between two variables allows us to
+build upon these to create more complex relationships. These
+elementalary structures can be assembled in different combinations to
+clarify the causal relationships that are are presented in a causal
+directed acyclic graph. Such clarity is crucial for ensuring whether
+confounders may be balanced across treatment groups to be compared,
+conditional on measured co-variates, so that \(Y(a) \coprod A \mid L\).
 
 \newpage{}
 
-\subsection{The Five Fundamental Rules of Confounding
+\subsubsection{2.8 The Five Fundamental Rules of Confounding
 Control}\label{the-five-fundamental-rules-of-confounding-control}
 
-Table~\ref{tbl-terminologyconfounders} describe the four elementary
-rules of confounding control:
+Table~\ref{tbl-terminologyconfounders} describe five elementary rules of
+confounding control:
 
 \begin{table}
 
-\caption{\label{tbl-terminologyconfounders}Five rules of confounding
-control}
+\caption{\label{tbl-terminologyconfounders}Five elementary rules for
+confounding control.}
 
 \centering{
 
@@ -1218,90 +1439,100 @@ control}
 
 \end{table}%
 
+There are no shortcuts to reasoning about causality. Each causal
+question must be asked in the context of a specific scientific question,
+and each causal graph must be build under the best lights of domain
+expertise. However, the following five elementary rules for confounding
+control are implied by the theorems that underpin casuald directed
+acyclic graphs. They may useful start for evaluating the prospects for
+causal identification across a broad range of settings.
+
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
+\tightlist
 \item
-  \textbf{Ensure Treatments Precedes Outcomes}: this rule is a logical
-  consequence of our assumption that causality follows the arrow of
-  time. However, the assumption that treatments precede outcomes may be
-  easily violated where investigators cannot ensure the relative timing
-  of events from there data. Note that past outcomes may affect future
-  treatments. Indeed an effective strategy for confounding control is to
-  condition on past outcomes as well as past outcomes. For example, if
-  we wish to identify the cuasal effect of \(A_1\) on \(Y_2\), where
-  repeated-measures time series data are available, we might adopt
-  conditioning such that
-  \(\boxed{A_{-1}} \to \boxed{Y_0} \to A_1 ~~ Y_2\) Note that here the
-  relations of variables are arranged sequentially without cycles. Note
-  further that to estimate a causal effect of \(Y\) on \(A\) we would
-  focus on: \(\boxed{Y_{-1}} \to \boxed{A_0} \to Y_1 ~~ A_2\), where
-  here, departing from convention, \(Y\) denotes the treatment and \(A\)
-  denotes the outcome.
+  \textbf{Ensure That Treatments Precedes Outcomes}: this rule is a
+  logical consequence of our assumption that causality follows the arrow
+  of time, and that a causal directed acyclic graph is faithful to this
+  ordering. However, the assumption that treatments precede outcomes may
+  be easily violated where investigators cannot ensure the relative
+  timing of events from there data.
+\end{enumerate}
+
+Note that this assumption does raise concerns in settings where past
+outcomes may not affect future treatments. Indeed, often an effective
+strategy for confounding control in such settings is to condition on
+past outcomes, and where relevant, one past treatments as well. For
+example, if we wish to identify the cuasal effect of \(A_1\) on \(Y_2\),
+if repeated-measures time series data are available, it may be useful to
+condition such that \(\boxed{A_{-1}} \to \boxed{Y_0} \to A_1 ~~ Y_2\).
+Critically, the relations of variables must be arranged sequentially
+without cycles.
+
+Note further that to estimate a causal effect of \(Y\) on \(A\) we would
+focus on: \(\boxed{Y_{-1}} \to \boxed{A_0} \to Y_1 ~~ A_2\). Departing
+from convention, here \(Y\) denotes the treatment and \(A\) denotes the
+outcome. Graphs must be acyclic. Most processes in nature include
+feedback loops. There is no contradition as long as we represent these
+loops as sequential events.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
 \item
-  \textbf{Condition on Common Cause or its Proxy}: this rule applies to
-  settings in which the treatment (\(A\)) and the outcome (\(Y\)) share
-  common causes. By conditioning on these common causes, we block the
-  open backdoor paths that could introduce bias into our causal
+  \textbf{Condition on Common Causes or Their Proxies}: This rule
+  applies to settings in which the treatment \(A\) and the outcome \(Y\)
+  share common causes. By conditioning on these common causes, we block
+  the open backdoor paths that could introduce bias into our causal
   estimates. Controlling for these common causes (or their proxies)
-  helps tp isolate the specific effect of \(A\) on \(Y\). (We do not
-  draw a path from \$ A \to Y\$ because we do not assume this path.)
+  helps to isolate the specific effect of \(A\) on \(Y\). Note that we
+  do not draw a path from \(A \to Y\) in this context because it
+  represents an interventional distribution. In a causal directed
+  acyclic graph, conditioning does not occur on interventional
+  distributions. We do not box \(A\) and \(Y\).
 \item
   \textbf{Do Not Condition on a Mediator}: this rule applies to settings
-  in which the variable \(L\) is a mediator of \(A \to Y\). Here,
-  conditioning on a mediator will bias the total causal effect estimate.
-  Later in the course, we will discuss the assumptions required for
-  causal mediation. For now, if we are interested in total effect
-  estimates, we must not condition on a mediator. Here we draw the path
-  from \(A \to Y\) to ensure that if such a path exists, it will not
-  become biased from our conditioning strategy.
+  in which the variable \(L\) is a mediator of \(A \to Y\). Recall
+  Pearl's backdoor path criterion require that we do not condition on a
+  decendant of the treatment. Here, conditioning on a \(L\)\$ violates
+  the backdoor path criterion, risking bias for a total causal effect
+  estimate. If we are interested in total effect estimates, we must not
+  condition on a mediator. Note we draw the path from \(A \to Y\) to
+  underscore that this specific overconditioning threat occurs in in the
+  presence of a true treatment effect. As we consider below,
+  over-conditioning bias can operate in the absence of a true-treatment
+  effect. This is important because condiitoning on a mediator might
+  create associations in the absence of causation. In many settings,
+  ensuring accuracy in the relative timing of events in our data will
+  prevent the self-inflicted injury of conditioning on a common effect
+  of the treatment.
 \item
   \textbf{Do Not Condition on a Collider}: this rule applies to settings
   in which we \(L\) is a common effect of \(A\) and \(Y\). Conditioning
-  on a collider may invoke a spurious association. Last week we
-  considered an example in which marriage caused wealth and happiness
-  caused wealth. Conditioning on wealth in this setting will induce an
-  association between happiness and marriage. Why? If we know the
-  outcome, wealth, then we know there are at least two ways of wealth.
-  Among those wealthy but low on happiness, we can predict that they are
-  more likely to be married, for how else would they be wealthy?
-  Similarly, among those who are wealthy and are not married, we can
-  predict that they are happy, for how else would they be wealthy if not
-  through marriage? These relationships are predictable entirely without
-  a causal association between marriage and happiness!
+  on a collider may invoke a spurious association. Again the backdoor
+  path criterion require that we do not condition on a decendant of the
+  treatment. We will not be tempted to condition on \(L\) if we knew
+  that it was an effect of \(A\). In many settings, ensuring accuracy in
+  the relative timing of events in our data will prevent the
+  self-inflicted injury of conditioning on a common effect of the
+  treatment and outcome.
 \item
   \textbf{Proxy Rule: Conditioning on a Descendent Is Akin to
   Conditioning on Its Parent}: this rule applies to settings in which we
   \(L’\) is an effect from another variable \(L\). The graph considers
-  when \(L’\) is downstream of a collider. For example, suppose we
-  condition on home ownership, which is an effect of wealth. Such
-  conditioning will open up a non-causal path without causation because
-  home ownership is a proxy for wealth. Consider, if someone owns a
-  house but is not married, they are more likely to be happy, for how
-  else could they accumulate the wealth required for home ownership?
-  Likewise, if someone is unhappy and owns a house, we can infer that
-  they are more likely to be married because how else would they be
-  wealthy? Conditioning on a proxy for a collider here is akin to
-  conditioning on the collider itself.
+  when \(L’\) is downstream of a collider. Here again, in many settings,
+  ensuring accuracy in the relative timing of events in our data will
+  prevent the self-inflicted injury of conditioning on a common effect
+  of the treatment and outcome.
 \end{enumerate}
-
-However, we can also use the proxy rule to reduce bias. Return to the
-earlier example in which there is an unmeasured common cause of marriage
-and happiness, which we called ``cultural upbringing'' Suppose we have
-not measured this variable but have measured proxies for this variable,
-such as country of birth, childhood religion, number of languages one
-speaks, and others. By controlling for baseline values of these proxies,
-we can exert more control over unmeasured confounding. Even if bias is
-not eliminated, we should reduce bias wherever possible, which includes
-not introducing new biases, such as mediator bias, along the way. Later
-in the course, we will teach you how to perform sensitivity analyses to
-verify the robustness of your results to unmeasured confounding.
-Sensitivity analysis is critical because where the data are
-observational, we cannot entirely rule out unmeasured confounding.
 
 \newpage{}
 
-\subsection{Direct Acyclic Graphs Reveal The Importance of
-Timing}\label{direct-acyclic-graphs-reveal-the-importance-of-timing}
+\subsection{Part 3. Use Cases}\label{part-3.-use-cases}
+
+\subsubsection{3.1 Direct Acyclic Graphs Reveal The Importance of Timing
+for
+Identification}\label{direct-acyclic-graphs-reveal-the-importance-of-timing-for-identification}
 
 \begin{table}
 
@@ -1317,13 +1548,13 @@ Timing}\label{direct-acyclic-graphs-reveal-the-importance-of-timing}
 
 \end{table}%
 
-The structural features of \textbf{seven} confounding problems. We shall
-discuss examples of each, and how longitudinal data collection resolves
-each problem.
+As hinted at in the previous section, the five elementary rules of
+confounding control reveal the importance of ensuring accurate timing in
+the occurance of the variables whose structural features a causal
+directed acyclic graph encodes. We begin by consider seven examples of
+confounding problems resolved when such accuracy is ensured.
 
-\newpage{}
-
-\subsection{Collecting Time Series Data is Insufficient for
+\subsection{3.2 Collecting Time Series Data is Insufficient for
 Identification}\label{collecting-time-series-data-is-insufficient-for-identification}
 
 \begin{table}
@@ -1339,99 +1570,9 @@ which chronology is not enough.}
 
 \end{table}%
 
-\newpage{}
+\subsection{Part 4. Practical Advice}\label{part-4.-practical-advice}
 
-\subsection{Structures of Measurement Error
-Biases}\label{structures-of-measurement-error-biases}
-
-\begin{table}
-
-\caption{\label{tbl-measurement-error}Measurement-error bias}
-
-\centering{
-
-\terminologymeasurementerror
-
-}
-
-\end{table}%
-
-\newpage{}
-
-\subsection{Structures of Selection-Restriction Biases from
-Attrition}\label{structures-of-selection-restriction-biases-from-attrition}
-
-\begin{table}
-
-\caption{\label{tbl-censoring-bias}Censoring (attrition) bias}
-
-\centering{
-
-\terminologycensoring
-
-}
-
-\end{table}%
-
-\newpage{}
-
-\subsection{Confounding in Randomised Controlled
-Experiments}\label{section-confounding-experiments}
-
-\begin{table}
-
-\caption{\label{tbl-experiments}Common confounding scenarios in
-experiments}
-
-\centering{
-
-\terminologyelconfoundersexperiments
-
-}
-
-\end{table}%
-
-\newpage{}
-
-\subsection{Single World Intervention
-Graphs}\label{single-world-intervention-graphs}
-
-\begin{table}
-
-\caption{\label{tbl-experiments}Common confounding scenarios in
-experiments}
-
-\centering{
-
-\swigtable
-
-}
-
-\end{table}%
-
-\newpage{}
-
-\subsection{The Clarity of Single World Intervention Graph: Case
-Study}\label{the-clarity-of-single-world-intervention-graph-case-study}
-
-\begin{table}
-
-\caption{\label{tbl-experiments}Common confounding scenarios in
-experiments}
-
-\centering{
-
-\pearltable
-
-}
-
-\end{table}%
-
-\newpage{}
-
-\subsection{Advice}\label{advice}
-
-\subsubsection{How to Create Causal Diagrams to Address Causal
+\subsubsection{4.1 How to Create Causal Diagrams to Address Causal
 Identification Problems
 \{sec-how-to-create-causal-diagrams\}}\label{how-to-create-causal-diagrams-to-address-causal-identification-problems-sec-how-to-create-causal-diagrams}
 
@@ -1571,7 +1712,9 @@ improve accessibility and understanding.
 Practical Guide For Constructing Causal Diagrams and Reporting Results
 When Causal Structure is Unclear \{\#section-part4\}
 
-\subsubsection{Cross-sectional designs}\label{cross-sectional-designs}
+\subsubsection{2.2. Reporting Causal Directed Acyclic Graphs in
+Cross-sectional
+designs}\label{reporting-causal-directed-acyclic-graphs-in-cross-sectional-designs}
 
 In environmental psychology, researchers often grapple with whether
 causal inferences can be drawn from cross-sectional data, especially
@@ -1673,8 +1816,8 @@ of the treatment and outcome).
 
 \begin{table}
 
-\caption{\label{tbl-cs}This table is adapted from
-(\citeproc{ref-bulbulia2023}{Bulbulia 2023})}
+\caption{\label{tbl-cs}Example of reporting multiple causal graphs in a
+cross-sectional design}
 
 \centering{
 
@@ -1736,7 +1879,7 @@ clarifies that longitudinal data are needed.
 These findings illustrate the role that assumptions about the relative
 timing of exercise as a confounder or as a mediator play.
 
-\subsubsection{Recommendations for Conducting and Reporting Causal
+\subsubsection{4.1 Recommendations for Conducting and Reporting Causal
 Analyses with Cross-Sectional
 Data}\label{recommendations-for-conducting-and-reporting-causal-analyses-with-cross-sectional-data}
 
@@ -1831,7 +1974,9 @@ uncertainties in your causal inferences, you may use them to advance
 understanding. May your clarity and caution serve as an example for
 others.
 
-\subsubsection{Longitudinal Designs}\label{longitudinal-designs}
+\subsubsection{4.2 Recommendations for Reporting Causal Directed Acyclic
+Graphs in Longitudinal
+Designs}\label{recommendations-for-reporting-causal-directed-acyclic-graphs-in-longitudinal-designs}
 
 Causation occurs in time. Longitudinal designs offer a substantial
 advantage over cross-sectional designs for causal inference because
@@ -1902,7 +2047,7 @@ exposure, outcome, and confounders yielded ATE = 0.29, CI = {[}0.27,
 the importance of including baseline values of the exposure and outcome
 wherever these data are available.
 
-\subsubsection{Recommendations for Conducting and Reporting Causal
+\subsubsection{4.3 Recommendations for Conducting and Reporting Causal
 Analyses with Longitudinal
 Data}\label{recommendations-for-conducting-and-reporting-causal-analyses-with-longitudinal-data}
 
@@ -1996,7 +2141,7 @@ By following these recommendations, you will more effectively navigate
 the inherent limitations of observational longitudinal data, improving
 the quality of your causal inferences.
 
-\subsection{Summary}\label{summary}
+\subsection{4 Summary}\label{summary}
 
 Although powerful aides, causal directed acyclic graphs may encourage
 false confidence wherever causal questions are ill-defined, the
@@ -2161,6 +2306,12 @@ treatment-confounder feedback}
 
 \newpage{}
 
+\subsection{Appendix E}\label{appendix-e}
+
+Pearl's Do-Calculus and Structural Equation Models
+
+\newpage{}
+
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
 \bibitem[\citeproctext]{ref-bareinboim2013general}
@@ -2177,10 +2328,25 @@ doi:\href{https://doi.org/10.31234/osf.io/uyg3d}{10.31234/osf.io/uyg3d}.
 Bulbulia, JA (2023) Causal diagrams (directed acyclic graphs): A
 practical guide.
 
+\bibitem[\citeproctext]{ref-diaz2021nonparametric}
+Dı́az, I, Hejazi, NS, Rudolph, KE, and Der Laan, MJ van (2021)
+Nonparametric efficient causal mediation with intermediate confounders.
+\emph{Biometrika}, \textbf{108}(3), 627--641.
+
+\bibitem[\citeproctext]{ref-Diaz2023}
+Dı́az, I, Williams, N, and Rudolph, KE (2023) \emph{Journal of Causal
+Inference}, \textbf{11}(1), 20220077.
+doi:\href{https://doi.org/doi:10.1515/jci-2022-0077}{doi:10.1515/jci-2022-0077}.
+
 \bibitem[\citeproctext]{ref-greenland2003quantifying}
 Greenland, S (2003) Quantifying biases in causal models: Classical
 confounding vs collider-stratification bias. \emph{Epidemiology},
 300--306.
+
+\bibitem[\citeproctext]{ref-hernan2023}
+Hernan, MA, and Robins, JM (2023) \emph{Causal inference}, Taylor \&
+Francis. Retrieved from
+\url{https://books.google.co.nz/books?id=/_KnHIAAACAAJ}
 
 \bibitem[\citeproctext]{ref-hernuxe1n2008a}
 Hernán, MA, Alonso, A, Logan, R, \ldots{} Robins, JM (2008)
@@ -2251,6 +2417,11 @@ It. \emph{American Journal of Political Science}, \textbf{62}(3),
 760--775.
 doi:\href{https://doi.org/10.1111/ajps.12357}{10.1111/ajps.12357}.
 
+\bibitem[\citeproctext]{ref-neal2020introduction}
+Neal, B (2020) Introduction to causal inference from a machine learning
+perspective. \emph{Course Lecture Notes (Draft)}. Retrieved from
+\url{https://www.bradyneal.com/Introduction_to_Causal_Inference-Dec17_2020-Neal.pdf}
+
 \bibitem[\citeproctext]{ref-neurath1973}
 Neurath, O (1973) Anti-spengler. In M. Neurath and R. S. Cohen, eds.,
 \emph{Empiricism and sociology}, Dordrecht: Springer Netherlands,
@@ -2274,10 +2445,43 @@ to transportability across populations. In, 1st edn, Vol. 36, New York,
 NY, USA: Association for Computing Machinery, 451--482. Retrieved from
 \url{https://doi.org/10.1145/3501714.3501741}
 
+\bibitem[\citeproctext]{ref-richardson2013}
+Richardson, TS, and Robins, JM (2013a) Single world intervention graphs:
+A primer. In, Citeseer.
+
+\bibitem[\citeproctext]{ref-richardson2013swigsprimer}
+Richardson, TS, and Robins, JM (2013b) Single world intervention graphs:
+A primer. In \emph{Second UAI workshop on causal structure learning,
+{B}ellevue, {W}ashington}, Citeseer. Retrieved from
+\url{https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=07bbcb458109d2663acc0d098e8913892389a2a7}
+
+\bibitem[\citeproctext]{ref-richardson2023potential}
+Richardson, TS, and Robins, JM (2023) Potential outcome and decision
+theoretic foundations for statistical causality. \emph{Journal of Causal
+Inference}, \textbf{11}(1), 20220012.
+
+\bibitem[\citeproctext]{ref-robins2010alternative}
+Robins, JM, and Richardson, TS (2010) Alternative graphical causal
+models and the identification of direct effects. \emph{Causality and
+Psychopathology: Finding the Determinants of Disorders and Their Cures},
+\textbf{84}, 103--158.
+
 \bibitem[\citeproctext]{ref-rubin1976}
 Rubin, DB (1976) Inference and missing data. \emph{Biometrika},
 \textbf{63}(3), 581--592.
 doi:\href{https://doi.org/10.1093/biomet/63.3.581}{10.1093/biomet/63.3.581}.
+
+\bibitem[\citeproctext]{ref-rudolph2024mediation}
+Rudolph, KE, Williams, NT, and Diaz, I (2024) {Practical causal
+mediation analysis: extending nonparametric estimators to accommodate
+multiple mediators and multiple intermediate confounders}.
+\emph{Biostatistics}, kxae012.
+doi:\href{https://doi.org/10.1093/biostatistics/kxae012}{10.1093/biostatistics/kxae012}.
+
+\bibitem[\citeproctext]{ref-shpitser2016causal}
+Shpitser, I, and Tchetgen, ET (2016) Causal inference with a graphical
+hierarchy of interventions. \emph{Annals of Statistics}, \textbf{44}(6),
+2433.
 
 \bibitem[\citeproctext]{ref-stuart2018generalizability}
 Stuart, EA, Ackerman, B, and Westreich, D (2018) Generalizability of
