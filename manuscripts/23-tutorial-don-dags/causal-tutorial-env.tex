@@ -42,14 +42,28 @@
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 % Make \paragraph and \subparagraph free-standing
+\makeatletter
 \ifx\paragraph\undefined\else
   \let\oldparagraph\paragraph
-  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
 \fi
 \ifx\subparagraph\undefined\else
   \let\oldsubparagraph\subparagraph
-  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
+\makeatother
 
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -224,7 +238,7 @@ Inference, Confounding, Environmental, Psychology, Panel},
 
 \title{Causal Inference in Environmental Psychology}
 \author{Joseph A Bulbulia \and Donald W Hine}
-\date{2024-03-18}
+\date{2024-05-16}
 
 \begin{document}
 \maketitle
@@ -302,12 +316,12 @@ Causal Inference}\label{section-part1}
 
 The potential outcomes framework for causal inference originated in the
 work of Jerzy Neyman to evaluate the effectiveness of agricultural
-experiments (\citeproc{ref-neyman1923}{Neyman 1923}). It was later
-extended by Harvard statistician Donald Rubin, who demonstrated the
-framework may also facilitate causal inferences in non-experimental
-settings (\citeproc{ref-rubin1976}{Rubin 1976}). Jamie Robins further
-generalised this framework to assess confounding in complex scenarios
-involving multiple and time-varying treatments
+experiments (\citeproc{ref-neyman1923}{Splawa-Neyman \emph{et al.}
+1990}). It was later extended by Harvard statistician Donald Rubin, who
+demonstrated the framework may also facilitate causal inferences in
+non-experimental settings (\citeproc{ref-rubin1976}{Rubin 1976}). Jamie
+Robins further generalised this framework to assess confounding in
+complex scenarios involving multiple and time-varying treatments
 (\citeproc{ref-robins1986}{Robins 1986}).
 
 A fundamental principle in the potential outcomes framework is the
@@ -2049,8 +2063,7 @@ Long-term causal effects of far-right terrorism in {N}ew {Z}ealand.
 
 \bibitem[\citeproctext]{ref-cinelli2022}
 Cinelli, C, Forney, A, and Pearl, J (2022) A Crash Course in Good and
-Bad Controls. \emph{Sociological Methods \& Research},
-00491241221099552.
+Bad Controls. \emph{Sociological Methods \&Research}, 00491241221099552.
 doi:\href{https://doi.org/10.1177/00491241221099552}{10.1177/00491241221099552}.
 
 \bibitem[\citeproctext]{ref-cole2010}
@@ -2070,7 +2083,7 @@ doi:\href{https://doi.org/10.1093/aje/kwr301}{10.1093/aje/kwr301}.
 Edwards, JK, Cole, SR, and Westreich, D (2015) All your data are always
 missing: Incorporating bias due to measurement error into the potential
 outcomes framework. \emph{International Journal of Epidemiology},
-\textbf{44}(4), 14521459.
+\textbf{44}(4), 1452--1459.
 
 \bibitem[\citeproctext]{ref-greenland1999}
 Greenland, S, Pearl, J, and Robins, JM (1999) Causal diagrams for
@@ -2100,7 +2113,7 @@ trials. \emph{N Engl J Med}, \textbf{377}(14), 1391--1398.
 Hernán, MA, Sauer, BC, Hernández-Díaz, S, Platt, R, and Shrier, I (2016)
 Specifying a target trial prevents immortal time bias and other
 self-inflicted injuries in observational analyses. \emph{Journal of
-Clinical Epidemiology}, \textbf{79}, 7075.
+Clinical Epidemiology}, \textbf{79}, 70--75.
 
 \bibitem[\citeproctext]{ref-hester2022GLUE}
 Hester, J, and Bryan, J (2022) \emph{Glue: Interpreted string literals}.
@@ -2108,7 +2121,7 @@ Retrieved from \url{https://CRAN.R-project.org/package=glue}
 
 \bibitem[\citeproctext]{ref-holland1986}
 Holland, PW (1986) Statistics and causal inference. \emph{Journal of the
-American Statistical Association}, \textbf{81}(396), 945960.
+American Statistical Association}, \textbf{81}(396), 945--960.
 
 \bibitem[\citeproctext]{ref-hume1902}
 Hume, D (1902) \emph{Enquiries Concerning the Human Understanding: And
@@ -2133,12 +2146,6 @@ posttreatment variables can ruin your experiment and what to do about
 It. \emph{American Journal of Political Science}, \textbf{62}(3),
 760--775.
 doi:\href{https://doi.org/10.1111/ajps.12357}{10.1111/ajps.12357}.
-
-\bibitem[\citeproctext]{ref-neyman1923}
-Neyman, JS (1923) On the application of probability theory to
-agricultural experiments. Essay on principles. Section 9.(tlanslated and
-edited by dm dabrowska and tp speed, statistical science (1990), 5,
-465-480). \emph{Annals of Agricultural Sciences}, \textbf{10}, 151.
 
 \bibitem[\citeproctext]{ref-pearl1995}
 Pearl, J (1995) Causal diagrams for empirical research.
@@ -2183,6 +2190,11 @@ Reproducible summary tables with the gtsummary package. \emph{{The R
 Journal}}, \textbf{13}, 570--580.
 doi:\href{https://doi.org/10.32614/RJ-2021-053}{10.32614/RJ-2021-053}.
 
+\bibitem[\citeproctext]{ref-neyman1923}
+Splawa-Neyman, J, Dabrowska, DM, and Speed, TP (1990) On the application
+of probability theory to agricultural experiments. Essay on principles.
+Section 9. \emph{Statistical Science}, 465--472.
+
 \bibitem[\citeproctext]{ref-grf2024}
 Tibshirani, J, Athey, S, Sverdrup, E, and Wager, S (2024) \emph{Grf:
 Generalized random forests}. Retrieved from
@@ -2204,23 +2216,23 @@ doi:\href{https://doi.org/10.1097/EDE.0000000000000823}{10.1097/EDE.000000000000
 
 \bibitem[\citeproctext]{ref-vanderweele2019}
 VanderWeele, TJ (2019) Principles of confounder selection.
-\emph{European Journal of Epidemiology}, \textbf{34}(3), 211219.
+\emph{European Journal of Epidemiology}, \textbf{34}(3), 211--219.
 
 \bibitem[\citeproctext]{ref-vanderweele2013}
 VanderWeele, TJ, and Hernan, MA (2013) Causal inference under multiple
 versions of treatment. \emph{Journal of Causal Inference},
-\textbf{1}(1), 120.
+\textbf{1}(1), 1--20.
 
 \bibitem[\citeproctext]{ref-vanderweele2020}
 VanderWeele, TJ, Mathur, MB, and Chen, Y (2020) Outcome-wide
 longitudinal designs for causal inference: A new template for empirical
-studies. \emph{Statistical Science}, \textbf{35}(3), 437466.
+studies. \emph{Statistical Science}, \textbf{35}(3), 437--466.
 
 \bibitem[\citeproctext]{ref-vanderweele2022b}
 VanderWeele, TJ, and Vansteelandt, S (2022) A statistical test to reject
 the structural interpretation of a latent factor model. \emph{Journal of
 the Royal Statistical Society Series B: Statistical Methodology},
-\textbf{84}(5), 20322054.
+\textbf{84}(5), 2032--2054.
 
 \bibitem[\citeproctext]{ref-westreich2012berkson}
 Westreich, D (2012) Berkson's bias, selection bias, and missing data.
@@ -2235,12 +2247,12 @@ doi:\href{https://doi.org/10.1093/aje/kwp436}{10.1093/aje/kwp436}.
 Westreich, D, Edwards, JK, Cole, SR, Platt, RW, Mumford, SL, and
 Schisterman, EF (2015) Imputation approaches for potential outcomes in
 causal inference. \emph{International Journal of Epidemiology},
-\textbf{44}(5), 17311737.
+\textbf{44}(5), 1731--1737.
 
 \bibitem[\citeproctext]{ref-westreich2013}
 Westreich, D, and Greenland, S (2013) The table 2 fallacy: Presenting
 and interpreting confounder and modifier coefficients. \emph{American
-Journal of Epidemiology}, \textbf{177}(4), 292298.
+Journal of Epidemiology}, \textbf{177}(4), 292--298.
 
 \bibitem[\citeproctext]{ref-zhu2021KableExtra}
 Zhu, H (2021) \emph{kableExtra: Construct complex table with 'kable' and
