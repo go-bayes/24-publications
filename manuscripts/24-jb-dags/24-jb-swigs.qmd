@@ -1,0 +1,345 @@
+---
+title: "Causal Interaction, Causal Mediation, and Sustained Treatment Strategies Clarified Through Single World Intervention Graphs"
+abstract: |
+  Despite several decades of progress in the causal data sciences, concepts such as interaction, mediation, and longitudinal modelling remain poorly understood. Here we use causal diagrams to clarify these fundamental concepts.  
+
+   **KEYWORDS**: *Causal Inference*; *SWIGs*; *DAGs*;* *Evolution*; *Mediation*; *Longitudinal Growth*; *Time-varying Treatments*; 
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: no
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+# pull_path <-
+#   fs::path_expand(
+#     #"/Users/joseph/v-project\ Dropbox/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs_refactor/nzavs_data_23"
+#     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
+#   )
+# 
+
+
+push_mods <-  fs::path_expand(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/nzvs_mods/24/church-prosocial-v7"
+)
+
+
+#tinytext::tlmgr_update()
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+#source("/Users/joseph/GIT/templates/functions/libs2.R")
+# # WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+# source("/Users/joseph/GIT/templates/functions/funs.R")
+
+#ALERT: UNCOMMENT THIS AND DOWNLOAD THE FUNCTIONS FROM JB's GITHUB
+
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+# )
+# 
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/funs.R"
+# )
+
+# check path:is this correct?  check so you know you are not overwriting other directors
+#push_mods
+
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+library("tidyverse")
+library("kableExtra")
+#devtools::install_github("go-bayes/margot")
+library(margot)
+loadfonts(device = "all")
+```
+
+
+
+## Introduction
+
+Human scientists apply statistical models to data and report 'interaction', 'moderation', 'mediation' using both cross-sectional and time-series data. What do these concepts mean? It is generally unclear. The confidence with which investigators deploy methods and report their findings does not make these concepts any clearer. 
+
+Here we describe when and how these concepts may be used for causal inferences. 
+
+
+We begin by clarifing basic concepts and graphical conventions.
+
+
+### Terminology
+
+**Causality**: A cause, $A$, is said to effect an outcome $Y$, if in setting the cause to one level, $A_i = a^*$, as opposed to another level $A_i = a$ the outcome would be different, which we write: $Y_i(a^*) -  Y_i(a) \neq 0$. This quantity denotes the contrast for individual $i$, measured on the difference scale, between measurable outcomes under two states of the world, one in which $A = a^*$ the other when $A=a$.  We call variable of interest, the cause -- $A$ --  a 'treatment' or an 'exposure'; we call the outcome under treatment -- $Y(A = a)$ -- the potential or counterfactual outcome. We use the terms "potential outcome" and "counterfactual outcome" interchangeably. The observed outcome is given $Y|A=a$. At the individual level, we may generally only observe at most $Y_i|A_i =a$ or $Y_i|A_i =a^*$ but not both. 
+
+
+**Causal Inference** Although physics prevents us from observing individual causal effects, we may compute average treatment effects by aggregating over individual observations by treatment conditions. For a binary treamtment we write as the difference in mean outcomes by treatment condition: $E[Y(1)] - E[Y(0)]$ or equivalently as the mean difference in outcomes by treatment condition $E[Y(1) - Y(0)]$. Notably, this countefactual contrast is precisely the quantity (on the difference scale) that we obtain for a sample population from an ideally conducted randomised controlled trials -- an 'experiment.' Implied by the ideal experiment are the following assumptions: 
+
+(1) causal consistency: that treatment levels are consistent within the treatment arms to be compared (implied by "control"); 
+(2) exchangeablity: that there is balance across all arms in the co-variates that might affect outcomes under treatment (implied by 'randomisation'); 
+(3) for each co-variate that might affect treatment in the target population, there is a non-zero probability this co-variate will be observed within each treatment condition to be compared (implied by the combination of randomisation and a clearly defined target population.) 
+
+Of course, the experiments investigators conduct are often not ideal, any combination of these assumptions may fail. In observational or "real-world" settings, none of these assumptions are guaranteed. Worse, only positivity may be evaluated from the data. If ou interested is in using real-world data to understand the causal effects of interventions we must 
+
+Step 1. State a well-defined intervention.
+
+Step 2. State a well-defined outcome.
+
+Step 3. Clarify the target population.
+
+Step 4. Evaluate whether the treatments to be compared satisfy causal consistency.
+
+Step 5. Evaluate whether, conditional on measured covariates, the treatment groups to be compared are exchangeable, or equivalently that any differences are ignorable, or equivalently, that there confounding covariates across treatment levels are balanced, or equivalently, all backdoor paths between treatments and outcomes have been closed, or equivalently, treatment(s) and outcome(s) are d-separated, or equivalently there is no unmeasured confounding. Although terminology varies, the target remains the same, to ensure non-random "real-world" data may be modelled to emulate a randomised controlled experiment. 
+
+Step 6. Evaluate whether the positivity assumption is satisfied.  
+
+Step 7. Transparently communicate investigator reasoning and decisions for steps 1-6. 
+
+
+**Confounding**: treatment and outcome are associated independently of causality.
+
+
+
+### Meaning of Symbols
+
+To clarify the concepts of interaction, moderation, and mediation, we will use causal graphical methods. For a review of causal directed acyclic graphs @pearl; @mcelreath2020; @neal2020introduction; @hernan2024WHATIF. For a review of single world intervention graphs see @richardson2013swigsprimer. I will assume some familarity with causal DAGs when introducing single world interventiong graphs. 
+
+**$A$**: Denotes the "treatment" or "exposure" - a random variable. This is the variable for which we seek to understand the effect of intervening on it. It is the "cause."
+
+**$\bar{A}$**: Denotes a sequence of treatments.
+
+**$Y$**: Denotes the outcome or response, measured at the end of study -- the "effect."
+
+**$L$**: Denotes a measured confounder or set of confounders -- variables required for conditional exchangeability.
+
+**$U$**: Denotes an unmeasured confounder or confounders.
+
+**$\mathcal{R}$**: Denotes chance assignment to treatment condition, as when treatment assignment is randomised.
+
+**$\mathcal{G}$**: Denotes a graph, here, a causal directed acyclic graph.
+
+@tbl-terminologylocalconventions reports our graphical conventions.
+
+{{< pagebreak >}}
+::: {#tbl-terminologylocalconventions}
+```{=latex}
+\terminologylocalconventions
+```
+Terminology
+:::
+
+
+### Elements of causal graphs
+**Node**: a node or vertex represents characteristics or features of units within a population on a causal diagram -- that is a "variable." In causal directed acyclic graphs, we draw nodes with respect to the *target population*, which is the population for whom investigators seek causal inferences [@suzuki2020]. Time-indexed node:  $X_t$ denotes relative chronology
+
+**Edge without an Arrow** ($\association$): path of association, we do not assert causality.
+
+**Arrow** ($\rightarrowNEW$): denotes causal relationship from the node at the base of the arrow (a 'parent') to the node at the tip of the arrow (a 'child'). In causal DAGS it is conventional to refrain from drawing an arrow from treatment to outcome to avoid asserting a causal path from $A$ to $Y$ because iyr purpose is to ascertain whether causality can be identified for this path. All other nodes and paths -- including the absence of nodes and paths -- is typically assumed.
+
+**Red Arrow** ($\rightarrowred$): path of non-causal association between the treatment and outcome. Despite the arrows, this path is associational and may flow against time.
+
+**Dashed Arrow** ($\rightarrowdotted$): denotes a true association between the treatment and outcome that becomes partially obscured when conditioning on a mediator, assuming $A$ causes $Y$.
+
+**Dashed Red Arrow** ($\rightarrowdottedred$): highlights over-conditioning bias from conditioning on a mediator.
+
+**Open Blue Arrow** ($\rightarrowblue$): highlights effect modification, which occurs when the levels of the effect of treatment vary within levels of a covariate. We do not assess the causal effect of the effect-modifier on the outcome, recognising that it may be incoherent to consider intervening on the effect-modifier.
+
+**Boxed Variable** $\boxed{X}$: conditioning or adjustment for $X$. 
+
+**Red-Boxed Variable** $\boxedred{X}$: highlights the source of confounding bias from adjustment.
+
+**Dashed Circle** $\circledotted{X}$: no adjustment is made for a variable (implied for unmeasured confounders.)
+
+**$\big(\mathcal{R} \rightarrow A\big)$**: randomisation into the treatment condition.
+
+**Node Splitting**  $\switbasic$ used in Single World Intervention Graphs to denote counterfactual histories that arise following interventions. Node-splitting allows investigators to separately evaluate identification for each counterfactual to be contrasted. All causal DAGs can be restated using Single World Intervention Graphs. However, each Single World Intervention Graph may encode at most one level of treatment or one sequence of treatments. To avoid proliferating graphs, we may use a Single World Intervention Template to denote the graph-valued function from which multiple Single World Intervention Graphs may be generated. 
+
+**Green dashed arrow**: $\rightarrowdottedgreen$: Indicates dependency in dynamic sequentiental treatment strategies where the 'natural value' a treatment value under a specific treatment regime depends on the values obtained from the counterfactual histories that precede the node in Single World Intervention Graph. Dynamic Strategies enable flexible, realistic causal inferences, however, they also impose stronger identification assumtions. For example, arrows to the "natural value" of the treatment may compromise sequential exchangeabilty, threatening identification (refer to @richardson2013).  
+
+
+@tbl-terminologylocalconventions reports our graphical conventions.
+
+
+
+{{< pagebreak >}}
+::: {#tbl-terminologygeneral}
+```{=latex}
+\terminologygeneral
+```
+Elements of Causal Graphs 
+:::
+
+
+
+{{< pagebreak >}}
+
+## Part 1 Interaction
+
+In causal data science, we may think of interaction or moderation in one
+of two ways, either as 
+
+(1) Interaction as effect-modification of a single intervention. We might be interested in heterogeneity in the magnitude of a single intervention with a stratum or strata of the population.  For example, we might ask, does the effect of religious service attendance affect charitable giving among differently among people who were born in Australia differently from its effects on people who were born in Egypt? 
+
+Here, we do not imagine any intervention on birthplace. 
+
+
+(2) Interaction as the combined effect of a double intervention. We might ask of whether administering two treatments would affect people differently than each taken individually. For exampel, we might ask wehther the combined effect of religious service and wealth affect charitable giving differently from the independent effect of either religious service or of wealth taken alone. 
+
+Whether considering interaction as effect modification or as a double intervention, we must state a scale at which we indent to measure our contrasts. This is because evidence of effect-modification or interaction that is present at one scale may not be present at another. Here, we will restrict our examples to causal contrasts on the additive scale.  
+
+The key point here is that before writing applying statistical models to data, we 
+
+
+
+@tbl-terminologyeffectmodification reviews our graphical conventions for describing effect modification.
+
+::: {#tbl-terminologyeffectmodification}
+```{=latex}
+\terminologyeffectmodification
+```
+:::
+
+
+
+
+
+@tbl-terminologyeffectmodificationtypes illustrates the dependency of effect modification on other variables included in a model
+
+::: {#tbl-terminologyeffectmodificationtypes}
+```{=latex}
+\terminologyeffectmodificationtypes
+```
+Effect Modification
+:::
+
+
+
+
+
+
+
+
+{{< pagebreak >}}
+::: {#tbl-swigtable}
+```{=latex}
+\swigtable
+```
+Assumptions of Causal Mediation 
+:::
+
+
+{{< pagebreak >}}
+::: {#tbl-interactionpuzzle}
+```{=latex}
+\interactionpuzzle
+```
+Causal Interaction 
+:::
+
+{{< pagebreak >}}
+
+::: {#tbl-medationpuzzle}
+```{=latex}
+\mediationpuzzle
+```
+Causal Mediation 
+:::
+
+
+{{< pagebreak >}}
+::: {#tbl-medationassumptions}
+```{=latex}
+\mediationassumptionsswig
+```
+Assumptions of Causal Mediation 
+:::
+
+
+
+
+{{< pagebreak >}}
+::: {#tbl-pearltable}
+```{=latex}
+
+\pearltable
+```
+Assumptions of Causal Mediation 
+:::
+
+
+{{< pagebreak >}}
+::: {#tbl-swigtabledeveloped}
+```{=latex}
+\swigtabledeveloped
+```
+Assumptions of Causal Mediation 
+:::
+
+
+## Conclusions
+
+
+
+
+## Funding
+
+This work is supported by a grant from the Templeton Religion Trust (TRT0418) and RSNZ Marsden 3721245, 20-UOA-123; RSNZ 19-UOO-090. I also received support from the Max Planck Institute for the Science of Human History. The Funders had no role in preparing the manuscript or the decision to publish it.
+
+## Acknowledgements
+
+Errors are my own.
+
+
+
+## Appendix A: Glossary
+
+
+::: {#tbl-gloassary}
+```{=latex}
+\glossaryTerms
+```
+Glossary
+:::
+
