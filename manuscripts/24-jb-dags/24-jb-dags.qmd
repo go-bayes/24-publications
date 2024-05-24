@@ -1052,28 +1052,80 @@ Common causal questions
 :::
 
 
+## Appendix C: Causal Inference in History: The Difficulty In Satisfying the Three Fundamental Assumptions
 
-## Effect Modification 
+Consider the Protestant Reformation of the 16$^{th}$ century, which initiated religious change throughout much of Europe. Historians have
+argued that Protestantism caused social, cultural, and economic changes in those societies where it took hold; see: @weber1905; @weber1993;
+@swanson1967; @swanson1971; @basten2013, and for an overview see: @becker2016.
+
+Suppose we were interested in estimating the 'Average Treatment Effect' of the Protestant Reformation. Let $A = a^*$ denote the adoption of Protestantism. We compare this effect with that of remaining Catholic, represented as $A = a$. We assume that both the concepts of 'adopting Protestantism' and of 'economic development' are well-defined (e.g. GDP +1 century after a country has a Protestant majority contrasted with remaining Catholic). The causal effect for any individual country is $Y_i(a^*) - Y_i(a)$. Although we cannot identify this effect, if the basic assumptions of causal inference are met, we can estimate the average or marginal effect conditioning the confounding effects of $L$ gives us,
+
+$$ATE_{\textnormal{economic~development}} = \mathbb{E}[Y(\textnormal{Became~Protestant}|L) - Y(\textnormal{Remained~Catholic}|L)]$$
+
+When asking causal questions about the economic effect of adopting Protestantism versus remaining Catholic, there are several challenges that arise in relation to the three fundamental assumptions required for causal inference.
+
+**Causal Consistency**: requires the outcome under each level of exposure is well-defined. In this context, defining what 'adopting Protestantism' and 'remaining Catholic' mean may present challenges. The practices and beliefs associated with each religion might vary significantly across countries and time periods, and it may be difficult to create a consistent, well-defined exposure. Furthermore, the outcome - economic development - may also be challenging to measure consistently across different countries and time periods.
+
+There is undoubtedly considerable heterogeneity in the 'Protestant exposure.' In England, Protestantism was closely tied to the monarchy [@collinson2003]. In Germany, Martin Luther's teachings emphasised individual faith in scripture, which, it has been claimed, supported economic development by promoting literacy [@gawthrop1984]. In England, King Henry VIII abolished Catholicism [@collinson2003]. The Reformation, then, occurred differently in different places. The exposure needs to be better-defined.
+
+There is also ample scope for interference: 16th century societies were interconnected through trade, diplomacy, and warfare. Thus, the religious decisions of one society were unlikely to have been independent from those of other societies.
+
+**Exchangeability**: requires that given the confounders, the potential outcomes are independent of the treatment assignment. It might be difficult to account for all possible confounders in this context. For example, historical, political, social, and geographical factors could influence both a country's religious affiliations and its economic development.
+
+**Positivity**: requires that there is a non-zero probability of every level of exposure for every strata of confounders. If we consider various confounding factors such as geographical location, historical events, or political circumstances, some countries might only ever have the possibility of either remaining Catholic or becoming Protestant, but not both. For example, it is unclear under which conditions 16th century Spain could have been randomly assigned to Protestantism [@nalle1987].
+
+Perhaps a more credible measure of effect in the region of our interests is the Average Treatment Effect in the Treated (ATT) expressed:
+
+$$ATT_{\textnormal{economic~development}} = \mathbb{E}[(Y(a*)- Y(a)|A = a*,L]$$
+
+Where $Y(a*)$ represents the potential outcome if treated. $Y(a)$ represents the potential outcome if not treated. The expectation is taken over the distribution of the treated units (i.e., those for whom $A = a*$). $L$ is a set of covariates on which we condition to ensure that the potential outcomes $Y(a*)$ and $Y(a)$ are independent of the treatment assignment $A$, given $L$. This accounts for any confounding factors that might bias the estimate of the treatment effect.
+
+Here, the ATT defines the expected difference in economic success for cultures that became Protestant compared with the expected economic
+success if those cultures had not become Protestant, conditional on measured confounders $L$, among the exposed ($A = a^*$). To estimate
+this contrast, our models would need to match Protestant cultures with comparable Catholic cultures effectively. By estimating the ATT, we
+would avoid the assumption of non-deterministic positivity for the untreated. However, whether matching is conceptually plausible remains
+debatable. Ostensibly, it would seem that assigning a religion to a culture is not as easy as administering a pill [@watts2018].
+
+{{< pagebreak >}}
 
 
-::: {#tbl-common-interests}
-
-```{=latex}
-\terminologyeffectmodification
-```
-representing effect modification
-:::
+## Apendix C: 
 
 
+### Appendix A: Causal Consistency Under Multiple Versions of Treatment
 
-::: {#tbl-common-interests}
+To better understand how the causal consistency assumption might fail, consider a question that has been discussed in the evolutionary human science literature about whether a society's beliefs in big Gods affects its development of social complexity [@whitehouse2023; @slingerland2020coding; @beheim2021; @watts2015; @sheehan2022; @johnson2015; @norenzayan2016]. Historians and anthropologists report that such beliefs vary over time and across cultures in intensity, interpretations, institutional management, and rituals [@decoulanges1903; @wheatley1971; @bulbuliaj.2013; @geertz2013]. Knowing nothing else, we might expect that variation in content and settings could influence social complexity. Moreover, the treatments realised in one society might affect the treatments realised in other societies, that is, there might be *spill-over* effects in the exposures ('treatments') to be compared [@murray2021a; @shiba2023uncovering].
 
-```{=latex}
-\terminologyeffectmodificationtypes
-```
-Common causal questions
-:::
+The theory of causal inference under multiple versions of treatment, developed by VanderWeele and Hernán, formally addresses this challenge of treatment-effect heterogeneity [@vanderweele2009; @vanderweele2013; @vanderweele2018]. The authors proved that if the treatment variations, $K$, are conditionally independent of the potential outcomes, $Y(k)$, given covariates $L$, then conditioning on $L$ allows us to consistently estimate causal effects over the heterogeneous treatments [@vanderweele2009].
 
+Where $\coprod$ denotes independence, we may assume causal consistency where the interventions to be compared are independent of their potential outcomes, conditional on covariates, $L$:
+
+$$
+K \coprod Y(k) | L
+$$
+
+That is, according to the theory of causal inference under multiple versions of treatment, we may think of $K$ as a 'coarsened indicator' for $A$.
+
+Notice that the theory allows us to clarify what we require to estimate causal effects in the presence of interference or 'spill-over', which we may consider to be a special case of treatment-effect heterogeneity. To handle interference, we say the potential outcome of each unit $i \neq j$ must be independent of its own treatment received as well as of the treatment that all other units received on $j \neq i$, conditional on measured covariates $L$:
+
+$$
+Y_i(k) \coprod K_i, K_j | L, \quad \forall i, \forall j \neq i
+$$
+
+Although the theory of causal inference under multiple versions of treatment provides a formal solution to the problem of treatment-effect
+heterogeneity, computing and interpreting causal effect estimates under this theory can be challenging.
+
+Consider the question of whether a reduction in Body Mass Index (BMI) affects health [@hernán2008]. Weight loss can occur through various methods, each with different health implications. Specific methods, such as regular exercise or a calorie-reduced diet, benefit health. However, weight loss might result from adverse conditions such as infectious diseases, cancers, depression, famine, or accidental amputations, which we may suppose are generally not beneficial to health, at least not in the same way as, say, reducing weight by increasing physical activity. Hence, even if causal effects of 'weight loss' could be consistently estimated when adjusting for covariates $L$ in these settings, we might be uncertain about how to interpret the effect we are consistently estimating. This uncertainty highlights the need for precise and well-defined causal questions. For example, rather than stating the intervention vaguely as 'weight loss', we could state the intervention clearly and specifically, say, 'weight loss achieved through aerobic exercise over at least five years, compared with no weight loss.' This specificity in the definition of the exposure, along with comparable specificity in the statement of the outcomes helps to ensure that the causal estimates we obtain are not merely unbiased but also interpretable; for discussion see: @hernán2022; @murray2021a; @hernán2008.
+
+Beyond uncertainties for the interpretation of heterogeneous treatment effect estimates, there is, as just mentioned, the additional consideration that we cannot fully verify from data whether the measured covariates $L$ suffice to render the multiple versions of treatment independent of the counterfactual outcomes. This problem is acute when there is *interference*, which occurs when treatment effects are relative to the density and distribution of treatment effects in a population. Scope for interference will often make it difficult to warrant the assumption that the potential outcomes are independent of the many versions of treatment that have been realised, dependently, on the administration of previous versions of treatments across the population [@bulbulia2023a; @ogburn2022; @vanderweele2013].
+
+In short, although the theory of causal inference under multiple versions of treatment provides a formal solution for consistent causal effect estimation in observational settings, *treatment heterogeneity* remains a practical threat. Generally, we should assume that causal consistency is unrealistic unless proven innocent.
+
+For now, we note that the causal consistency assumption provides a theoretical starting point for recovering the missing counterfactuals required for computing causal contrasts. It identifies half of these missing counterfactuals directly from observed data. The concept of conditional exchangeability, which we explore next, offers a means for recovering the remaining half.
+
+{{< pagebreak >}}
+
+<!-- 
 {{< pagebreak >}}
 ## Appedix C:
 
@@ -1084,9 +1136,8 @@ Common causal questions
 \mediationfull
 ```
 Anatomy of bias in mediation analysis: statistical SEM fails.
-:::
-
-{{< pagebreak >}}
+::: -->
+<!-- 
 ## Appedix D
 
 ### Time-varying Confounding: Treatment Confounder Feedback
@@ -1107,7 +1158,7 @@ Treatment-confounder feedback: statistical SEM fails.
 Anatomy of bias in treatment-confounder feedback
 :::
 {{< pagebreak >}}
-
+ -->
 
 
 ## Appendix E {.appendixE}
@@ -1189,12 +1240,6 @@ Pearl's Do-Calculus and Structural Equation Models
    Y(\bar{A}^\mathbf{d}) = f_Y(A^\mathbf{d}_\tau, H_\tau(\bar{A}^\mathbf{d}_{\tau-1}), U_{Y})
    $$
 
-
-10. **Probability Density Function**:
-   Denote the probability density function of $A_t$ conditional on the history $H_t = h_t$ as:
-   $$
-   \text{g}(a_t|h_t)
-   $$
 
 
 {{< pagebreak >}}

@@ -1,0 +1,599 @@
+---
+title: "The Weirdest Causal Inferences in the World"
+abstract: |
+  Human scientists ask and answer questions about humans. Many of these questions are causal. This study clarifies two failure modes in causal inference. (1) Measurement error bias occurs when there is a discrepancy between a variable's true value and its observed value. (2) Sample-restriction bias arises when the association between cause and effect in a study population does not reflect the causal association in the target population. We use causal directed acyclic graphs (causal DAGs) to show how these threats to valid inference relate to each other. Our discussion addresses concerns that psycho-social datasets often draw entirely from 'Western, Educated, Industrialized, Rich, and Democratic (WEIRD)' populations. We provide simple graphical tools to help investigators evaluate when sample restriction is a feature and when it is a bug.
+
+   **KEYWORDS**: *Causal Inference*; *Comparative*; *Cross-Cultural*;  *DAGs*;* *Evolution*,  *Experiments*; *Measurement Error**; *Selection Bias*; 
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: no
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+# pull_path <-
+#   fs::path_expand(
+#     #"/Users/joseph/v-project\ Dropbox/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs_refactor/nzavs_data_23"
+#     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
+#   )
+# 
+
+
+push_mods <-  fs::path_expand(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/nzvs_mods/24/church-prosocial-v7"
+)
+
+
+#tinytext::tlmgr_update()
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+#source("/Users/joseph/GIT/templates/functions/libs2.R")
+# # WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+# source("/Users/joseph/GIT/templates/functions/funs.R")
+
+#ALERT: UNCOMMENT THIS AND DOWNLOAD THE FUNCTIONS FROM JB's GITHUB
+
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+# )
+# 
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/funs.R"
+# )
+
+# check path:is this correct?  check so you know you are not overwriting other directors
+#push_mods
+
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+library("tidyverse")
+library("kableExtra")
+#devtools::install_github("go-bayes/margot")
+library(margot)
+loadfonts(device = "all")
+```
+
+
+## Introduction
+
+Human scientists ask and answer questions. To anchor answers in facts, we collect data.
+
+Most human scientists work in what Joseph Henrich, Steven Heine, and Ara Norenzayan have termed 'WEIRD' societies: 'Western, Educated, Industrialized, Rich, and Democratic Societies' [@henrich2010weirdest]. Unsurprisingly, WEIRD samples are over-represented in human science datasets [@sears1986college; @arnett2008neglected]. @henrich2010weirdest illustrate how WEIRD samples differ from non-WEIRD samples in areas such as spatial cognition and perceptions of fairness, while showing continuities in basic emotions recognition, positive self-views, and motivation to punish anti-social behaviour. Because science seeks generalisation wherever it can, @henrich2010weirdest urge that sampling from non-WEIRD populations is desirable.
+
+For certain questions, however, investigators might want to restrict sampling further. For example, suppose investigators are interested in the psychological effects of vasectomy on optimism. An efficient design will restrict eligibility to those who have not already had vasectomy. There might be other eligibility conditions. It might be desirable to extend findings to the global eligible population. However, findings sampling from the global population now need not extend to the ancestral past. Where relevant scientific knowledge permits, it may be credible to generalise with sample weights. Experimental designs may impose nested or sequential restrictions, benefiting efficiency or ethics.
+
+Sometimes, howeever, investigators need to restrict samples. For instance, studying the psychological effects of vasectomy on optimism would efficiently restrict eligibility to those who have not had a vasectomy. Other eligibility conditions might apply. Extending findings to the global eligible population can be desirable, but such findings might not extend to the ancestral past. Where relevant scientific knowledge allows, generalisation with sample weights may be credible. Experimental designs may impose nested or sequential restrictions for efficiency or ethics.
+
+When is restriction desirable and when not? It depends on the question.  Here we assume the questions are causal. 
+
+
+**Part 1** uses causal diagrams to clarify five structural features of measurement-error bias. Understanding measurement error bias is essential in all research. In comparative research, we must distinguish threats arising from measurement error bias, sample restriction independently of measurement error bias, and threats combining both biases.
+
+**Part 2** introduces the concept of 'target validity', focusing on threats arising from censoring bias. Unlike measurement error bias, which threatens validity irrespective of sampling restriction bias, sample restriction bias is relative to a target population. We focus on **censoring bias**, a form of sample restriction occurring within a study.
+
+**Part 3** considers target validity when there is a mismatch between the sample population at baseline and the target population. This threat to target validity is often termed 'external validity'. In comparative research, we assume populations are drawn from a larger superpopulation. We evaluate the following threats to valid inference, imagining a comparison between "WEIRD" and "NOT-WEIRD" groups:
+
+- Mismatch between sample populations and the target stratum population.
+- Measurement error: If measurements work differently within strata of the superpopulation, comparative results will be invalid. Understanding measurement error bias clarifies the first failure mode: findings do not generalise because they are invalid for the comparative superpopulation.
+- Variation in effect modifiers between the sample populations to be compared.
+
+We begin with a brief overview of causal inference and causal diagrams. 
+
+
+
+### Background: what is causality
+
+To quantify a causal effect we must contrast the world as it has been realised -- which is, in principle, observable -- with the world as it might have been otherwise -- which is, in principle, not observable.
+
+Consider a binary treatment variable $A \in \{0,1\}$ representing the randomised administration of a vaccine for individuals $i$ in the set $\{1, 2, \ldots, n\}$. $A_i = 1$ denotes administration in the vaccine condition and $A_i = 0$ denotes administration in the control condition. The potential outcomes for each individual are denoted as $Y_i(0)$ and $Y_i(1)$. These are the outcomes that are yet to be realised before administration. For this reason they are called 'potential' or 'counterfactual' outcomes. For an individual $i$ we can define a causal effect as a contrast between the outcome as it would have been observed in response to one level of an intervention and the outcome as it would have been observed in response to another level of the intervention. Such a contrast for the $i^{th}$ individual can be expressed on the difference scale as:
+
+$$
+\delta_i = Y_i(1) - Y_i(0)
+$$
+
+where $\delta_i$ defines the difference in respect of some predefined measure $Y$ in a scenario in which the treatment is received compared with a scenario in which the treatment is not received, and $\delta_i \neq 0$ denotes a causal effect of $A$ on $Y$ for unit $i$. Similarly $\delta_i = \frac{Y_i(1)}{Y(0)}\neq 1$ denotes a causal effect of treatment $A$ for unit $i$ on the risk-ratio scale. For any unit $i$ these quantities cannot be computed from observational data.
+
+Suppose Alice is given vaccine: $A_{\text{Alice}} = 1$. If we assume the realised outcome $Y_{Alice}| A = 1$ is equal to the counterfactual outcome $Y_{Alice}(1)$ then for Alice $Y_{Alice}(1)$ is observed but $Y_{Alice}(0)$ remains counterfactual, and missing. Similarly, if Bob is not given vaccine, for Bob $Y_{Bob}(0)$ is observed but $Y_{Bob}(1)$ is not. That we cannot observe individual level causal effects is called the *Fundamental Problem of Causal Inference* [@rubin1976; @holland1986]. This problem has long puzzled philosophers[@hume1902; @lewis1973], However, although individual causal effects are generally unobservable, we may sometimes recover average causal effects by treatment group. 
+
+### How we obtain average causal effect estimates from ideally conducted randomised experiments
+
+The Average Treatment Effect (ATE), $\Delta_{ATE}$, measures the difference in outcomes between treated and control groups such that,
+
+$$
+\Delta_{ATE} = \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)]
+$$
+
+where $\mathbb{E}[Y(1)]$ and $\mathbb{E}[Y(0)]$ are the average outcomes in the treatment and control groups, respectively.
+
+In a randomised experiment, we estimate $\Delta_{ATE}$ by considering both observed and unobserved outcomes:
+
+$$
+\text{ATE} = \left(\mathbb{E}[Y(1)|A = 1] + \mathbb{E}[Y(1)|A = 0]\right) - \left(\mathbb{E}[Y(0)|A = 0] + \mathbb{E}[Y(0)|A = 1]\right)
+$$
+
+Effective randomisation ensures that potential outcomes are similarly distributed across both groups. Therefore, the average outcomes can be expected to be equal across different treatment conditions:
+
+$$
+\widehat{\mathbb{E}}[Y(0) | A = 1] = \widehat{\mathbb{E}}[Y(0) | A = 0], \quad \widehat{\mathbb{E}}[Y(1) | A = 1] = \widehat{\mathbb{E}}[Y(1) | A = 0]
+$$
+
+This provides an unbiased estimate of the Average Treatment Effect $\widehat{\text{ATE}}$,
+
+$$
+\widehat{\text{ATE}} = \widehat{\mathbb{E}}[Y | A = 1] - \widehat{\mathbb{E}}[Y | A = 0]
+$$
+
+Randomised controlled experiments are powerful because they evenly distribute potential explanatory factors across treatment groups. We cannot observe Alice or Bob's individual causal effects. However, for the groups to which they have been randomised, we recover average causal effects by a Sherlock-Holmes process of inference by elimination. In an ideally conducted randomised experiment, randomisation rules out every explanation for treatment group differences except the treatment.
+
+Note that in the context of our imagined experiment $\widehat{\text{ATE}}$ applies to the population from which the experimental participants were drawn as calculated on the difference scale. An more explict notation would define this effect estimate by referencing it's scale and population: $\widehat{\text{ATE}}^{a'-a}_{\text{S}}$, where $a'-a$ denotes the difference scale, and $S$ denotes source population. We will return to this point in Part 2, but it is important to build intuition early that in causal inference we must specifying a scale of contrast and population for whom a causal effect estimate.
+
+### To obtain average causal effect estimates from observational studies requires three fundamental assumptions
+
+An observational study aims to estimate the average treatment effects in a setting where researchers do not control treatments or randomise the treatment assignments. We may only consistently obtain and estimate the counterfactual contrasts under strict assumptions. There are three fundamental assumptions for obtaining from observational data the counterfactual quantities required to compute causal contrasts.
+
+#### Assumption 1. Causal Consistency
+
+Causal consistency states that the observed outcome for each individual under the treatment they actually received is equal to their potential outcome under that treatment. This means if an individual $i$ received treatment $A_i = 1$, then their observed outcome $Y_i$ is the same as their potential outcome under treatment, denoted as $Y_i(1)$. Similarly, if they did not receive the treatment ($A_i = 0$), their observed outcome is the same as their potential outcome without treatment, denoted as $Y_i(0)$, such that:
+
+$$
+Y_i = A_i \cdot Y_i(1) + (1 - A_i) \cdot Y_i(0)
+$$
+
+where: 
+
+- $Y_i$ is the observed outcome for individual $i$; 
+- $A_i$ is the treatment status for individual $i$, with $A_i = 1$; indicating treatment received and $A_i = 0$ indicating no treatment; 
+- $Y_i(1)$ and $Y_i(0)$ are the potential outcomes for individual $i$ under treatment and no treatment, respectively.
+
+The causal consistency assumption necessary to linking the theoretical concept of potential outcomes -- the target quantities of interest -- with observable data (see @bulbulia2023a).
+
+#### Assumption 2. Conditional exchangeability (or ignorability):
+
+Conditional exchangeability states that given a set of measured covariates $L$, the potential outcomes are independent of the treatment assignment. That is, once we control for $L$, the treatment assignment $A$ is as good as random with respect to the potential outcomes:
+
+$$
+Y(a) \coprod A | L
+$$
+
+where:
+
+-   $Y(a)$ represents the potential outcomes for a particular treatment level $a$.
+-   $\coprod$ denotes conditional independence.
+-   $A$ represents the treatment levels to be contrasted.
+-   $L$ represents the measured covariates.
+
+Under the conditional exchangeability assumption, any differences in outcomes between treatment groups can be attributed to the treatment. Note that the conditional exchangeability assumption requires that all confounding variables that affect both the treatment assignment $A$ and the potential outcomes $Y(a)$ are measured and included in $L$ (For further clarification, see Appendix A).
+
+#### Assumption 3. Positivity
+
+The positivity assumption requires that every individual in the population has a non-zero probability of receiving each treatment level, given their covariates. More formally,
+
+$$
+0 < Pr(A = a | L = l) < 1, \quad \forall a \in A, \, \forall l \in L \, \text{ such that } \, Pr(L = l) > 0
+$$
+
+where: 
+- $A$ is the treatment or exposure variable. 
+- $L$ is a vector of covariates. 
+- $a$ and $l$ represent specific values of treatment and covariates, respectively.
+
+The positivity assumption in causal inference, essential for ensuring valid estimates of treatment effects, requires that every individual has a non-zero chance of receiving each treatment across all covariate patterns $L$.[^positivity]
+
+[^positivity]:In practice, verifying this assumption faces two main challenges:
+a.  **Data sparsity**: certain covariate combinations are rare or unobserved in the data, making it difficult to empirically confirm positivity for these groups.
+b.  **Model dependence**: as a result of data sparsity researchers rely on statistical models to estimate treatment probabilities for all covariate patterns, but these assessments are only as reliable as the models used, which may be subject to misspecification or inaccuracies.
+
+#### Additional assumptions
+
+There are additional practical and data assumptions for valid causal inference (see @bulbulia2023a). It is important to note that these assumptions are theoretical and often challenging to verify in practice. For example, the assumption of no unmeasured confounders (implicit in conditional exchangeability) is particularly challenging because it involves variables that are not observed. Note that even in ideally conducted randomised experiments, the fundamental assumptions of causal inference must be satisfied (see  @imai2008misunderstandings).
+
+### Fundamental Assumptions for Causal Inference
+
+We cannot generally observe individual causal effects, but we can compute average treatment effects by aggregating individual observations by treatment conditions. For a binary treatment, we express this as the difference in mean outcomes by treatment condition: $E[Y(1)] - E[Y(0)]$ or the mean difference in outcomes by treatment condition $E[Y(1) - Y(0)]$. This counterfactual contrast represents the quantity obtained for a sample population from an ideally conducted randomised controlled trial — an 'experiment'. There are three fundamental assumptions for computing average treatment effects:
+
+1. **Causal Consistency**: Treatment levels remain consistent within the treatment arms to be compared (implied by 'control'). There must be at least two arms.
+2. **(Conditional) Exchangeability**: Covariates that might affect outcomes under treatment are balanced across all arms (implied by 'randomisation').
+3. **Positivity**: Each covariate that might affect treatment in the target population has a non-zero probability of being observed within each treatment condition to be compared (implied by randomisation and a clearly defined target population).
+
+Although experiments often deviate from the ideal, potentially failing these assumptions, in the ideal experiment, these assumptions are satisfied. In observational or 'real-world' settings, none of these assumptions are guaranteed. Moreover, only the positivity assumption can be verified by data.
+
+<!-- ### Workflow for Inferring Causal Effects from Real-World Data
+
+1. **State a well-defined intervention.**
+2. **State a well-defined outcome.**
+3. **Clarify the target population.**
+4. **Ensure treatments to be compared satisfy causal consistency.**
+5. **Evaluate whether treatment groups, conditional on measured covariates, are exchangeable.** Differences must be ignorable, confounding covariates across treatment levels must be balanced, all backdoor paths between treatments and outcomes must be closed, treatments and outcomes must be d-separated, and there must be no unmeasured confounding. The goal is to ensure non-random 'real-world' data can emulate a randomised controlled experiment.
+6. **Check if the positivity assumption is satisfied.**
+7. **Clearly communicate the reasoning, evidence, and decision-making that inform steps 1-6.** -->
+
+### Graphical Conventions
+
+**$A$**: Denotes the "treatment" or "exposure" - a random variable.
+
+This is the variable for which we seek to understand the effect of intervening on it. It is the "cause."
+
+**$Y$**: Denotes the outcome or response, measured at the end of study.
+
+It is the "effect."
+
+**$L$**: Denotes a measured confounder or set of confounders.
+
+**$U$**: Denotes an unmeasured confounder or confounders.
+
+<!-- **$\mathcal{R}$**: Denotes a randomisation to treatment condition. -->
+
+
+**Node**: a node or vertex represents characteristics or features of units within a population on a causal diagram -- that is a "variable." In causal directed acyclic graphs, we draw nodes with respect to the *target population*, which is the population for whom investigators seek causal inferences [@suzuki2020]. Time-indexed node:  $X_t$ denotes relative chronology
+
+**Arrow** ($\rightarrowNEW$): denotes causal relationship from the node at the base of the arrow (a 'parent') to the node at the tip of the arrow (a 'child'). In causal DAGS it is conventional to refrain from drawing an arrow from treatment to outcome to avoid asserting a causal path from $A$ to $Y$ because iyr purpose is to ascertain whether causality can be identified for this path. All other nodes and paths -- including the absence of nodes and paths -- is typically assumed.
+
+**Red Arrow** ($\rightarrowred$): path of non-causal association between the treatment and outcome. Despite the arrows, this path is associational and may flow against time.
+
+**Dashed Arrow** ($\rightarrowdotted$): denotes a true association between the treatment and outcome that becomes partially obscured when conditioning on a mediator, assuming $A$ causes $Y$.
+
+**Dashed Red Arrow** ($\rightarrowdottedred$): highlights over-conditioning bias from conditioning on a mediator.
+
+**Open Blue Arrow** ($\rightarrowblue$): highlights effect modification, which occurs when the levels of the effect of treatment vary within levels of a covariate. We do not assess the causal effect of the effect-modifier on the outcome, recognising that it may be incoherent to consider intervening on the effect-modifier.
+
+**Boxed Variable** $\big(\boxed{X}\big)$: conditioning or adjustment for $X$. 
+
+**Red-Boxed Variable** $\big(\boxedred{X}\big)$: highlights the source of confounding bias from adjustment.
+
+**Dashed Circle** $\big( \circledotted{X}\big)$: no adjustment is made for a variable (implied for unmeasured confounders.)
+
+<!-- **$\mathbf{\mathcal{R}}$**  $\big(\mathcal{R} \rightarrow A\big)$ randomisation into the treatment condition. -->
+
+### Causal Directed Acyclic Graphs (causal DAGs)
+
+In the 1990s, Judea Pearl showed that we can evaluate causal dependencies using observable probability distributions [@pearl1995; @pearl2009a]. He also demonstrated that causal directed acyclic graphs (causal DAGs) clarify the conditional dependencies among variables [@pearl1995]. Based on assumptions about causal structure, researchers can identify causal effects from joint distributions of observed data.
+
+Pearl developed graphical rules known as d-separation [@pearl1995]:
+
+- **Fork rule** ($B \leftarrowNEW \boxed{A} \rightarrowNEW C$): $B$ and $C$ are independent when conditioned on $A$ ($B \coprod C \mid A$).
+- **Chain rule** ($A \rightarrowNEW \boxed{B} \rightarrowNEW C$): Conditioning on $B$ blocks the path between $A$ and $C$ ($A \coprod C \mid B$).
+- **Collider rule** ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioned on $C$, which introduces dependence ($A \cancel{\coprod} B \mid C$).
+
+These rules lead to the backdoor criterion and 'backdoor adjustment' theorem, which provide algorithms for identifying causal effects based on the structural assumptions encoded in a causal DAG [@pearl1995]. We use the symbol $\mathcal{G}$ to name a graph.
+
+Consider the following graphs from @tbl-terminologygeneral:
+
+- **$\mathcal{G}_1$**: If $A$ and $B$ are not causally related and share no common causes, $A$ and $B$ will not be statistically related.
+- **$\mathcal{G}_2$**: If $A$ causes $B$, and they share no common causes or their common causes are accounted for, $A$ and $B$ will be statistically related.
+- **$\mathcal{G}_3$**: If $A$ causes $B$ and $A$ causes $C$, then conditioning on $A$ allows us to estimate the effect of $B$ on $C$.
+- **$\mathcal{G}_4$**: If $A$ causes $B$ and $B$ causes $C$, conditioning on $B$ obscures the true causal effect of $A$ on $C$, making $A$ independent of $C$.
+- **$\mathcal{G}_5$**: If $A$ causes $C$ and $B$ causes $C$, conditioning on $C$ associates $A$ and $B$, despite no direct causal effect.
+
+If we assume that the variables in the graph correspond to Structural Causal Models, all causal relationships can be defined by the elementary structures presented above.
+
+### Review of d-separation for Causal Identification on a Graph
+
+::: {#tbl-terminologygeneral}
+```{=latex}
+\terminologydirectedgraph
+```
+Elements of Causal Graphs 
+:::
+
+
+
+::: {#tbl-terminologygeneral}
+```{=latex}
+\terminologyeffectmodification
+```
+Elements of Causal Graphs 
+:::
+
+@tbl-terminologygeneral clarifies how to ask a causal question of effect modification. We assume no confounding of the treatment on the outcome and that $A$ has been randomised ($\mathcal{R} \rightarrowNEW A$). We assume $\mathcal{R}  A \rightarrowNEW Y$.
+
+To focus on effect modification, we do not draw a causal arrow from the direct effect modifier $F$ to the outcome $Y$. This convention is specific to this article (refer to @hernan2024WHATIF, pp. 126-127, for a discussion of 'noncausal' arrows).
+
+
+## Part 1 Measurement Error Bias
+
+
+::: {#tbl-terminologymeasurementerror}
+```{=latex}
+\terminologymeasurementerror
+```
+Six Structural Sources of Measurement Error Bias
+:::
+
+### Example 1: Uncorrelated errors under sharp null: no treatment effect
+
+@tbl-terminologymeasurementerror $\mathcal{G}_1$ illustrates uncorrelated non-differential measurement error under the 'sharp-null,'' which arises when the error terms in the exposure and outcome are independent. In this setting the structure of measurement error is not expected to produce bias. 
+
+
+For example, consider a study investigating a causal effect of beliefs in big Gods on social complexity in ancient societies. Imagine that societies either randomly omitted or inaccurately recorded details about their beliefs in big Gods and their social complexities. This might happen from the varying preservation of records across cultures, unrelated to the actual beliefs or social complexities. In this scenario, the errors in historical record for beliefs in big Gods and for social complexity would be independent. Such errors may generally not introduce bias when there is no true effect.
+
+
+### Example 2: Uncorrelated errors under treatment effect biases true effects toward the null.
+
+@tbl-terminologymeasurementerror $\mathcal{G}_2$ illustrates uncorrelated non-differential measurement error, that is bias that arises when the error terms in the exposure and outcome are independent (information bias). In this setting, bias will typically attenuate a true treatment effect. 
+
+Consider again the example of a study investigating a causal effect of beliefs in big Gods on social complexity in ancient societies, were there are uncorrelated errors in the treatment and outcome. In this case, measurement error will make it seem that the true causal effects of beliefs in big Gods is smaller that it is, or perhaps even that such an effect is absent. 
+
+
+
+### Example 3: Correlated errors Non-Differential (Undirected) Measurement Errors
+
+@tbl-terminologymeasurementerror $\mathcal{G}_3$ illustrates the structure of correlated non-differential (un-directed) measurement error bias, which arises when the error terms of the treatment and outcome share a common cause.  
+
+Consider an example: imagine that societies with more sophisticated record-keeping systems tend to offer more precise and comprehensive records both of beliefs in big Gods and of social complexity. In this setting, it is the record-keeping systems that give an illusion of a relationship between big Gods and social complexity. This might occur without any effect of big-God beliefs on the measurement of social complexity or vice versa. Nevertheless, the correlated sources of error for both the exposure and outcome may suggest causation in its absence. 
+
+
+
+### Example 4: Uncorrelated Directed Measurement Error: Exposure affects error of outcome
+
+
+@tbl-terminologymeasurementerror $\mathcal{G}_4$  illustrates the structure of uncorrelated differential (or directed) measurement error, in the when a non-causal path is opened linking  the treatment, the outcome, or a common cause of the treatment an outcome. 
+
+Keeping with our previous example, imagine that beliefs in big Gods lead to inflated records of social complexity in a culture's record keeping. This might happen because the record keepers in societies that believe in big Gods prefer societies to reflect the grandeur of their big Gods. Suppose further that cultures lacking beliefs in big Gods prefer Bacchanalian-style feasting to record keeping. In this scenario, societies with record keepers who believe in big Gods would appear to have more social complexity than equally complex societies without such record keepers 
+
+
+
+### Example 5: Uncorrelated Directed error: Outcome affects error of exposure
+
+
+@tbl-terminologymeasurementerror $\mathcal{G}_5$ illustrates the structure of uncorrelated differential (or directed) measurement error, this time when the outcome affects the recording ot the treatment that preceeded the outcome. 
+
+Consider if 'history is written by the victors' how might this affect measurement error bias?  Suppose that social complexity causes beliefs in big Gods. Perhaps kings make big Gods after the image of kings. If the kings prefer a history in which big Gods were historically present, this might bias the historical record, opening a path of association that reverses the order of causation. 
+
+ 
+### Example 6: Directed error: outcome affects error of exposure
+
+
+@tbl-terminologymeasurementerror $\mathcal{G}_6$ illustrates the structure of correlated differential (directed) measurement error, which occurs when the exposure affects levels of already correlated error terms.
+
+Suppose social complexity produces a flattering class of religious elites who tend to produce vainglorious depictions of kings and their dominions, and also of the extend and scope of their societies beliefs in big Gods. For example, such elites might tend to downplay widespread cultural practices of worshiping lesser gods, inflate population estimates, and overstate their the range of their economies. In this scenario the errors of the exposure and of the outcome are both correlated and differential.
+
+
+We limit the biases of measurement error by reducing error in our measures.  Often, specialist knowledge can guide the expected direction of measurement error associations, positive or negative (see: @suzuki2020, @vanderweele2010, and @vanderweele2007a). In some situations, researchers might use causal diagrams with signed paths to refine causal inferences, as suggested by @vanderweele2012. These techniques extend beyond the scope of this study. The point of these examples is to demonstrate how causal diagrams can clarify sources of confounding from measurement bias.
+
+
+## Part 2: Selection-Restriction Bias From Right-Censoring (Attrition)
+
+There is much confusion about the topic of 'selection bias', however, there need not be.  Some of this confusion is terminological. So we being by avoiding the term 'selection bias', and clarify our meanings.
+
+**Unit/individual**: an entity, such as an object, person, or culture. We will use the term 'individual' in place of the more general term 'unit'. Think, 'row' in one's dataset. 
+
+- **Variable**: a feature of an individual, transient or permenant. 'John was sleepy but is no longer.''Alice was born in December.'
+
+- **Treatment**: an event that might change a variable. 'John was sleepy, we intervened with coffee, he's wide awake.' 'Alice was born in December; there's nothing to change that.' 
+
+- **Measurement**: a recorded trace of a variable, such as a column in one's dataset.
+
+- **Measurement error**: a misalignment between the true state of a variable and its recorded state. 'Alice was born 30/Nov, her mother, preoccupied, lost track of time.'  In Part 2, we considered a typology for structural sources of measurement.
+
+**Population**: abstraction from statistics, denotes the set of all indivuals defined by certain features. John belongs to the set of all individuals who ignore instructions. 
+
+- **Super-population**: abstraction, the population of all possible individuals of a given kind, another abstract but useful concept. John and Alice belong to a super-population of hominins.
+
+- **Restricted population**: we say population $p$ is restricted relative to another population $P$, if the individuals $\in p$ share some but not all features of $P$. 'The living' are a restriction of hominins.
+
+- **Target population**: a restriction of the super-population whose features interests investigators. An investigator who defines their interests is a member of the population of 'good investators.'
+
+- **Source population**: the population from which the study's sample is drawn. Investigators wanted to recruit from a general population but recruited from the pool of first-year university psychology students conscripts. 
+
+- **Baseline sample population**: the abstract set of individuals from which the units in one's study at treatment assigned belong, e.g. 'the set of all first-year university psychology students conscript might end up in this study'. To simplify we will think of the baseline population as the *source population.*
+
+- **Selection into the sample**: the process by which individuals are included in a population or sample. Selection occurs, and is under investigator control, when a target population is defined from a super-population, or when investigators apply eligibility criteria for inclusion in the analytic sample. Selection into the sample is often out of investigator control. Investigators might aspire to answering questions about all of humanity but find themselves limited to undergraduate samples. Investigators might sample from a source population, but recover an analytic sample that differs from it in ways they cannot measure, such as mistrust of scientists. There is typically attrition of an analytic sample over time, and this is not typically fully within investigator control. 
+
+- **Censored sample population**: the population from which the censored units are drawn. Censoring is uninformative if, for everyone in the baseline population, there is no effect of treatment (the sharp causal null hypothesis). Censoring is informative if there is an effect of the treatment, and this effect varies in at least one stratum of the baseline population. Note that uninformative censoring does not ensure valid inference for the target population even when valid inference is ensured for the baseline population. If the baseline population differs in the distribution of those features that modify the effect of the treatment, and no correction is applied, unbiased effect estimates for the baseline population will nevertheless be biased for the target population in at least one measure of effect [@greenland2009commentary; @lash2020]. This is why it is important for investigators to state a causal effect of interest with respect to *the full data* that includes the counterfactual quantities for the treatments to be compared in a clearly defined target population and with a specific causal contrast [@westreich2017].
+
+
+Please note that terminology slighly varies for these concepts (see: @dahabreh2021study; @imai2008misunderstandings; @cole2010generalizing; @westreich2017transportability). A clear decomposition of key concepts need to assess generalisability is given in @imai2008misunderstandings. For a less technical, pragmatically useful discussion see:  @stuart2018generalizability.
+
+
+**In Part 2 we will assume that the baseline sample population is the target population, and focus on biases arising from the (right)-censoring of the sample population.
+
+
+
+::: {#tbl-terminologycensoring}
+```{=latex}
+\terminologycensoring
+```
+Five Structural Sources of Right-Censoring Bias
+:::
+
+
+### Example 1:  Confounding by common cause of treatment and attrition
+
+@tbl-terminologycensoring $\mathcal{G}_1$ illustrates confounding by common cause of treatment and outcome in the censored such that the potential outcomes of the population at baseline $Y(a)$ may differ from those of the censored population at the end of study $Y'(a)$ such that $Y'(a) \neq Y(a)$. 
+
+
+Suppose investigators are interested in whether religious service attendance affects volunteering. Suppose that an unmeasured variable, loyality, affects religious service attendance, attrition, and volunteering.  The structure of this bias reveals an open backdoor path from from the treatment to the outcome. 
+
+Recall our measurement error causal diagrams. The structure we observe here is one of correlated measurement errors (@tbl-terminologymeasurementerror $\mathcal{G}_3$)
+
+
+
+### Example 2: Treatment affects censoring
+
+@tbl-terminologycensoring $\mathcal{G}_2$ illustrates confounding bias in which the treatment affects the censoring process. 
+
+Suppose that investigators are interested in estimating the per protocol effect -- the effect of the treatment, not the effect of randomisation.  
+
+Randomisation ensures no backdoor paths.  However, if randomisation affects attrition, then observed outcomes, the potential outcomes of the population at baseline $Y(a)$ may from those of the censored population at the end of study $Y'(a)$ such that $Y'(a) \neq Y(a)$.  For example imagine the treatment buddhist medation and the outcome is well-being.  If the well-being of meditation fostered buddha-like detachement, then observed outcomes at the end of study might under-rate the effectiveness of meditation in fostering well-being. 
+
+Recall again our measurement error causal diagrams. The structure we observe here is one of directed uncorrelated measurement error (@tbl-terminologymeasurementerror $\mathcal{G}_4$)
+
+
+### Example 3: No treatment effect when outcome causing censoring 
+
+@tbl-terminologycensoring $\mathcal{G}_3$ illustrates the structure of bias when there is no treatment effect yet the outcome affects censoring. 
+
+
+
+Recall again our measurement error causal diagrams. The structure we observe here is one of undirected uncorrelated measurement error (@tbl-terminologymeasurementerror $\mathcal{G}_1$)
+
+
+### Example 4: Treatment effect when outcome causes censoring and there is a true treatment effect
+
+
+Again consider a study investigating the effects of mediation on well-being. Suppose there is no treatment effect but that buddha-like detachment increases attrition. If $\mathcal{G}_4$ faithfully represents reality, there will be no bias in the treatment effect estimate. That is, there will be no risk that attrition will induce the appearance of a causa effect in its absence. 
+
+
+@tbl-terminologycensoring $\mathcal{G}_3$ illustrates the structure of bias when the outcome affects censoring in the presence of a treatment effect. In contrast to the previous example, here there is scope for confounding bias. 
+
+ 
+### Example 5: Treatment effect and effect-modifiers differ in censored (restriction bias without confounding)
+
+
+@tbl-terminologycensoring $\mathcal{G}_6$ 
+
+<!-- {{< pagebreak >}} -->
+
+
+## Part 3: Selection-Restriction Bias at Baseline (Left-Censoring)
+
+
+
+###  Sample-Restriction Bias Considered as Collider Stratification Bias
+
+::: {#tbl-terminologyselectionrestrictionclassic}
+```{=latex}
+\terminologyselectionrestrictionclassic
+```
+Collider-Stratification bias at start of study ('M-bias')
+:::
+
+
+@tbl-terminologycensoring $\mathcal{G}_6$ 
+
+
+
+::: {#tbl-terminologyselectionrestrictionbaseline
+}
+```{=latex}
+\terminologyselectionrestrictionbaseline
+```
+Collider-Stratification bias at start of study ('M-bias')
+:::
+
+
+
+
+### Problem 1:   Target population is not WEIRD; sample population is WEIRD
+
+@tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_{1.1}$
+
+@tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_{1.2}$
+
+
+### Example 2:  Target population is WEIRD; sample population is not WEIRD
+
+@tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_{2.1}$
+
+@tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_{2.2}$
+
+
+
+### Example 3: Correlated measurement error of effect-modifiers for an overly ambitious target population
+
+@tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_{3.1}$ 
+
+@tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_{3.2}$ 
+
+
+
+### Example 4: Correlated measurement error of effect-modifiers for an overly ambitious target population
+
+@tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_{4.1}$ 
+
+@tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_{4.2}$ 
+
+
+## Conclusions
+
+- Measurement first 
+
+
+### Building intuition for why definitions are insufficient for understanding selection and source biases
+
+When considering how source/target population mismatch imperiles science, it is tempting to seek general definitions, typologies, and identification criteria by which to spot the snakes.
+
+Recently, a host of institutional diversity and inclusion initiatives have been developed that commend researchers to obtain data from global samples. In my view, the motivation for these mission statements is ethically laudable. The injunction for a broader science of humanity also accords with institutional missions. For example, the scientific mission of the American Psychological Association (APA) is 'to promote the advancement, communication, and application of psychological science and knowledge to benefit society and improve lives.' The APA does not state that it wants to understand and benefit only North Atlantic Societies.[^1]. It is therefore tempting to use such a mission statement as an ideal by which to evaluate the samples used in human scientific research.
+
+[^1]: https://www.apa.org/pubs/authors/equity-diversity-inclusion
+
+Suppose we agree that promoting a globally diverse science makes ethical sense. Does the sampling of globally diverse populations always advance this ideal? It is easy find examples in which restricting our source population makes better scientific sense. Suppose we are interested in the psychological effects of restorative justice among victims of violent crime. Here, it would make little scientific sense to sample from a population that has not experienced violent crime. Nor would it make ethical sense. The scientific question, which my have important ethical importance, is not served by casting a wider net. Suppose our the interest were to investigate the health effects of calorie restriction. It might be unethical to include children or the elderly. It make little sense to investigate the psychological impact of vasectomy in biological female or historectomy in biological males
+
+In the cases we just considered, the scientific questions pertained to a sub-sample of the human population and so could be sensibly restricted. However even for questions that relate to all of humanity, sampling from all of humanity might be undesirable. For example, if we were interested in the effects of a vaccine on disease, sampling from one population might be as good as sampling from all. Sampling from one population might spare time and expense, which come with opportunity costs. We might conclude that sampling universally, where unnecessary, is wasteful and unethical.
+
+We might agree with our mission statements in judging that ethical aspirations must guide research at every phase. Yet, mistaking our aspirations for sampling directives would result in wasteful science. If such waste is avoidable, then the result is unethical science.
+
+I present this examples to remind ourselves of the importance of addressing questions of sampling in relation to its context.
+
+During the past twenty years, the causal data sciences, also known as causal inference, have enabled tremendous clarity for questions of research design and analysis. The following hopes to clarify that it is only within these workflows that we are able to understand the threats to causal inferences from selection and source bias, and strategies for addressing them.
+
+{{< pagebreak >}}
+
+## Funding
+
+This work is supported by a grant from the Templeton Religion Trust (TRT0418) and RSNZ Marsden 3721245, 20-UOA-123; RSNZ 19-UOO-090. I also received support from the Max Planck Institute for the Science of Human History. The Funders had no role in preparing the manuscript or the decision to publish it.
+
+## Acknowledgements
+
+Errors are my own.
+
+
+{{< pagebreak >}}
+
+
+
+## Appendix A: Glossary
+
+
+::: {#tbl-experiments}
+```{=latex}
+\glossaryTerms
+```
+Glossary
+:::
+

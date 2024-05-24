@@ -1,7 +1,7 @@
 ---
-title: 'The Transformation of The Obvious: Moderation, Interaction, Mediation, and Time-Varying Treatments'
+title: 'The Transformation of The Obvious: Causal Inference for Interaction, Mediation, and Time-Varying Treatments'
 abstract: |
-  The analysis of 'moderation', 'interaction', 'mediation', and 'longitudinal growth' is widespread in the human sciences, yet confusion persists. We leverage decades of advancements in causal inference to explain why the quantities derived from statistical models are often ambiguous, despite model sophistication. We emphasise the necessity of (1) clearly stating a causal question and (2) assessing the identifiability of the question with available data before statistical analysis. Without these steps, confusion is inevitable. Properly framing and addressing causal questions, especially in settings with heterogeneous and multiple treatments, reveals the limitations of popular methods and guides researchers towards more effective approaches.
+  The analysis of 'moderation', 'interaction', 'mediation', and 'longitudinal growth' is widespread in the human sciences, yet confusion persists. We leverage decades of advancements in causal inference to explain why the quantities derived from statistical models are often ambiguous, despite model sophistication. We emphasise the necessity of (1) clearly stating a causal question and (2) assessing the identifiability of the question with available data before statistical analysis. Without these steps, confusion is inevitable. Properly framing and addressing causal question of interaction, mediation, and time-varying treatments reveals the limitations of popular methods and guides researchers towards more effective approaches.
   
   **KEYWORDS**: *Causal Inference*; *SWIGs*; *DAGs*; *Evolution*; *Mediation*; *Longitudinal Growth*; *Time-varying Treatments*
 author: 
@@ -104,15 +104,17 @@ loadfonts(device = 'all')
 
 The young Charles Darwin was a keen fossil hunter and amateur geologist. In August 1831, he accompanied the geologist Adam Sedgwick to the Glyderau mountain range in northern Wales.
 
-> We spent many hours in Cwm Idwal, examining all the rocks with extreme care, as Sedgwick was anxious to find fossils in them; but neither of us saw a trace of the wonderful glacial phenomena all around us; we did not notice the plainly scored rocks, the perched boulders, the lateral and terminal moraines. Yet these phenomena are so conspicuous that, ... a house burnt down by fire did not tell its story more plainly than did this valley. If it had still been filled by a glacier, the phenomena would have been less distinct than they now are. [@darwin1887life: p.25]
+<!-- > We spent many hours in Cwm Idwal, examining all the rocks with extreme care, as Sedgwick was anxious to find fossils in them; but  -->
 
-This 'striking instance of how easy it is to overlook phenomena, however conspicuous' [@darwin1887life: p.25] is cited in cultural evolution to emphasise the importance of theory for organising observations [@wilson2008evolution]. However, the importance of theory to scientific discovery carries even broader relevance and applies to the statistical methods scientists routinely apply to the data they collect. Without a clear framework that relates statistical models to observations, the understanding we seek remains elusive.
+> [N]either of us saw a trace of the wonderful glacial phenomena all around us; we did not notice the plainly scored rocks, the perched boulders, the lateral and terminal moraines. Yet these phenomena are so conspicuous that ... a house burnt down by fire did not tell its story more plainly than did this valley. If it had still been filled by a glacier, the phenomena would have been less distinct than they now are. [@darwin1887life: p.25]
 
-Across many human sciences, we apply statistical models to data and report 'moderation', 'interaction', 'mediation', and 'longitudinal growth'. How are we to interpret the results of these models? It is often unclear. The confidence with which investigators report findings does not make interpretation any clearer. The problem is that investigators are typically interested in causal questions. However, if the conditional associations that our models produce suggest causality, this is accidental. Indeed, the conditional associations that such models produce do not provide evidence for *associations*. That is, the signs of the coefficients in our statistical models and the patterns of association captured in data may be spurious and inverted [@westreich2013]. Association is not evidence for association, much less causation.
+This 'striking instance of how easy it is to overlook phenomena, however conspicuous' [@darwin1887life: p.25] is cited in cultural evolution to emphasise the importance of theory for organising observations [@wilson2008evolution]. However, the importance of theory to scientific discovery carries even broader relevance: it applies to the statistical methods scientists routinely apply to the data they collect. Without a clear framework that relates statistical models to observations, the understanding we seek from our data remains elusive.
+
+Across many human sciences, we apply statistical models to data and report 'moderation', 'interaction', 'mediation', and 'longitudinal growth'. How are we to interpret the results of these models? It is often unclear. The confidence with which investigators report findings does not make interpretation any clearer. The problem is that investigators are typically interested in causal questions. However, if the conditional associations that our models produce suggest causality, this is accidental. Indeed, the conditional associations such models produce hallucinate correlations and their signs [@westreich2013]. It is often unclear whether association is evidence for association.
 
 There is good news. Progress in the health sciences, computer science, and economics has led to a common vocabulary with robust workflows that allow investigators to formulate causal questions that may be addressed with data, to evaluate the assumptions under which consistent estimates may be obtained, to construct valid statistical estimators of these quantities, and then -- at the end of the workflow -- to apply statistical models. This conceptual framework is anchored in a foundation of mathematical proofs that enable investigators to clarify, communicate, and evaluate their differences. The consensus that has emerged during the past several decades is as wide-ranging in its implications for causal inference as the theory of glaciation was to geology, or as Darwin's theory of evolution was to biology.
 
-There are several excellent resources available that clarify workflows for causal inference, from stating causal questions through to communicating results [@hernan2024WHATIF; @vanderweele2015; @tlverse_handbook; @grf2024; @montgomery2018; @neal2020introduction; @pearl2009a].
+There are several excellent resources available that clarify workflows for causal inference, from stating causal questions through to communicating results [@hernan2024WHATIF; @vanderweele2015; @tlverse_handbook; @grf2024; @morgan2014; @montgomery2018; @neal2020introduction; @pearl2009a].
 
 Here, our ambition is modest.
 
@@ -128,26 +130,30 @@ We begin with a brief introduction to terminology.
 
 ### Basic concepts
 
-**Causality**: suppose we that we have measured states of the world with the indicators $A$ and $Y$.  For unit $i$, we say that $A_i$ causes $Y_i$ if a change in $A_i$ from one level, say $A_i = a^*$, to another level, say $A_i = a$ *would* results in a different outcome measured on this unit $Y_i$. We assume an ordering in time such that $A_i$ occurs before $Y_i$.  To compute a contrast between these two outcomes on the difference scale, we use the notation $Y_i(\tilde{a})$ which means the outcome for unit $i$ under the treatment level $A_i  = \tilde{a}$. In other words, 'individual $i$ gets treatment $A_i$ = $\tilde{a}$'. To quantitatively assess whether $Y_i$ *would* differ under the two treatments levels we wish to compare we must evaluate there is a difference in each of the possible outcomes on some scale of comparison. Say we are interested in the difference scale.  We compute the difference for individual $i$ as $Y_i(a^*) - Y_i(a)$. We say there is a causal effect when for this individual if $Y_i(a^*) - Y_i(a) \neq 0$.  Stating this quantity allows us to clarify what we are interested in learning when we ask whether $A_i$ causally affects $Y_i$. We need something more than indicators of $A$ and $Y$ measured on $i$ on an ordered timeline.  We must state a level of contrast for $A$, and a scale of contrast for at least two distinct outcomes two which we 'treat' or 'expose' individual $i$.  Following convention, we call $A$ the 'treatment' or equivalently the 'exposure'. We call $Y$ the outcome.  Note that once we clearly state our causal question it becomes clear that, at most, only one level of treatment may be observed for unit $i$ for any given application of $A$ on an absolute timeline.  At the individual level, we can observe at most $Y_i|A_i =a$ or $Y_i|A_i =a^*$, but not both.  For this reason we refer to $$Y_i(\tilde{a})$ as a 'potential' or 'counterfactual' outcome. 
+# Causality
 
-**Fundamental Assumptions for Causal Inference**: we cannot generally observe individual causal effects, however, we can compute average treatment effects by aggregating individual observations by treatment conditions. For a binary treatment, we express this as the difference in mean outcomes by treatment condition: $E[Y(1)] - E[Y(0)]$ or equivalently as the mean difference in outcomes by treatment condition $E[Y(1) - Y(0)]$. This counterfactual contrast represents the quantity (on the difference scale) that we obtain for a sample population from an ideally conducted randomised controlled trial — an 'experiment'. There are three fundamental assumptions required for computing average treament effects:
+Consider indicators $A$ and $Y$ measuring states of the world. For unit $i$, we say that $A_i$ causes $Y_i$ if changing $A_i$ from one level, say $A_i = a^*$, to another level, $A_i = a$, leads to a different outcome for $Y_i$. We assume $A_i$ occurs before $Y_i$. To compare these outcomes, we use the notation $Y_i(\tilde{a})$, which represents the outcome for unit $i$ under the treatment level $A_i = \tilde{a}$. To determine if $Y_i$ differs under two treatment levels, we compute the difference $Y_i(a^*) - Y_i(a)$. A causal effect exists for this individual if $Y_i(a^*) - Y_i(a) \neq 0$. We must specify a level of contrast for $A$ and a scale of contrast for the distinct outcomes for individual $i$. Following convention, we call $A$ the 'treatment' or 'exposure' and $Y$ the 'outcome'. Note that, for any given application of $A$, we can only observe one level of treatment for unit $i$. Therefore, we refer to $Y_i(\tilde{a})$ as a 'potential' or 'counterfactual' outcome.
 
-1. **Causal Consistency**: treatment levels remain consistent within the treatment arms to be compared (implied by 'control'). Note there must be at least two arms. 
-2. **(Conditional) Exchangeability**:  covariates that might affect outcomes under treatment are balanced across all arms (implied by 'randomisation').
-3. **Positivity**: each covariate that might affect treatment in the target population has a non-zero probability of being observed within each treatment condition to be compared (implied by the combination of randomisation and a clearly defined target population).
+## Fundamental Assumptions for Causal Inference
 
+Individual causal effects cannot generally be observed, but we can compute average treatment effects by aggregating individual observations by treatment conditions. For a binary treatment, this is expressed as the difference in mean outcomes: $E[Y(1)] - E[Y(0)]$ or the mean difference in outcomes by treatment condition $E[Y(1) - Y(0)]$. This counterfactual contrast represents the quantity obtained from an ideally conducted randomised controlled trial. There are three fundamental assumptions for computing average treatment effects:
 
-Although experiments as realised often deviate from the ideal, leading to potential failure of these assumptions, in the ideal experiment, these assumptions are satisfied.  However, in observational or 'real-world' settings, none of these assumptions are guaranteed. Moreover, only the positivity assumption can be verified by data. 
+1. **Causal Consistency**: Treatment levels remain consistent within the treatment arms to be compared. There must be at least two arms.
+2. **(Conditional) Exchangeability**: Covariates that might affect outcomes under treatment are balanced across all arms (implied by randomisation).
+3. **Positivity**: Each covariate that might affect treatment in the target population has a non-zero probability of being observed within each treatment condition.
 
-To infer causal effects from real-world data requires a careful workflow.
+While experiments often deviate from the ideal, potentially failing these assumptions, the ideal experiment satisfies them. In observational or 'real-world' settings, none of these assumptions are guaranteed. Only the positivity assumption can be verified by data.
+
+## Workflow for Inferring Causal Effects from Real-World Data
 
 1. **State a well-defined intervention.**
 2. **State a well-defined outcome.**
 3. **Clarify the target population.**
 4. **Ensure treatments to be compared satisfy causal consistency.**
-5. **Evaluate whether treatment groups, conditional on measured covariates, are exchangeable.** This means differences must be ignorable, confounding covariates across treatment levels must be balanced, all backdoor paths between treatments and outcomes must be closed, treatments and outcomes must be d-separated, and there must be no unmeasured confounding. Although terminology varies, the goal remains the same: ensuring non-random 'real-world' data can be modelled to emulate a randomised controlled experiment.
+5. **Evaluate whether treatment groups, conditional on measured covariates, are exchangeable.** This means differences must be ignorable, confounding covariates across treatment levels must be balanced, all backdoor paths between treatments and outcomes must be closed, treatments and outcomes must be d-separated, and there must be no unmeasured confounding. The goal is to ensure non-random 'real-world' data can emulate a randomised controlled experiment.
 6. **Check if the positivity assumption is satisfied.**
-7. **Clearly communicate the reasoning, evidence, and decision-makeing that inform steps 1-6.**
+7. **Clearly communicate the reasoning, evidence, and decision-making that inform steps 1-6.**
+
 
 
 
@@ -324,7 +330,7 @@ $$
 
 We say there is effect modification on the difference scale if:
 $$
-\text{ATE}_{Z = 1} \neq \text{ATE}_{Z = 0} \implies \mu_{11} - \mu_{01} neq \mu_{10} - \mu_{00}
+\text{ATE}_{Z = 1} \neq \text{ATE}_{Z = 0} \implies \mu_{11} - \mu_{01} \neq \mu_{10} - \mu_{00}
 $$
 
 We say there is effect modification on the ratio scale if:
@@ -383,45 +389,13 @@ SWIGs employ Pearl's rules of d-separation but offer additional benefits by grap
 Single World Intervention Graphs encapsulate causal directed acyclic graphs (DAGs). Although the choice of method for clarifying causal questions is ultimately a matter of preference, we will use Single World Intervention Graphs for the remainder of this article.
 
 
-
 ::: {#tbl-swigtable}
 ```{=latex}
 \swigtable
 ```
+
 Single World Interventions Graphs $\mathcal{G}_{3-4}$ present separate causal diagrams for each treatment to be contrasted. A Single World Intervention Template $\mathcal{G}_{2}$ is a 'graph value function' that produces the individual counterfactual graphs [@richardson2013]. By contrast causal directed acyclic graphs such as $\mathcal{G}_1$ require positing interventional distributions. The formalism that underpins these intervential distributions is mathmatically equivalent to that of the potential outcomes framework -- if we assume that the errors the underlying structural causal models that define the nodes on which interventions occur are independent [@richardson2013].  Not only do SWIGs allow us to evaluate identification when errors are not independent, more basically the allow project distinct interventions to be compared onto our causal diagramme. This is helpful when more than one point intervention is considered.
 :::
-
-<!-- @tbl-swigtable $\mathcal{G}$ 1 is a causal directed acyclic graph, where the associated factorisation of the joint distribution is given:
-
-$$
-P(y, a, l) = P(l) P(a | l) P(y | a, l)
-$$ -->
-
-<!-- 
-
-- $P(l)$: the marginal probability of the covariate $L$.
-- $P(a | l)$: the conditional probability of the treatment $A$ given the covariate $L$.
-- $P(y | a, l)$: the conditional probability of the outcome $Y$ given both the treatment $A$ and the covariate $L$. -->
-
-<!-- 
-Notice that the counterfactual outcomes to be contrasted do not appear directly on the causal directed acyclic graph. However, the corresponding counterfactual outcomes are given by Pearl's do-calculus @pearl2009a, such tha the average treatment effect for $A$ on $Y$ is identified by conditioning on $L$:
-
-$$
-P(Y(a)|A,L) = P(Y = y|do(A =a), L=l) = P(Y=y|A=a L=l)
-$$
- -->
-<!-- 
-In Single World Intervention Graphs we obtain counterfactual factoriations directly from the graph. 
-
-@tbl-swigtable $\mathcal{G}$ 2 is a Single World Intervention Template, a graph valued function, that allows us to generate separate causal diagrams for each intervention. $A = \Tilde{a}$ can take any value $A \in \mathcal{A}$, where  $\mathcal{A}$ is the set of all possible inteventions for $A$. 
-
-The function takes inputs: 
-
-$$
-P(A = \Tilde{a}, Y(A = \Tilde{a}, L))  = P(A = \Tilde{a})P(Y = \Tilde{y}|A = \Tilde{A}, L)
-$$ -->
-
-<!-- @tbl-swigtable $\mathcal{G}$ 3 is the graph value or Single World Intevention Graph for the Single World Intervention Template $\mathcal{G} 2$ when is set to $A =0$.  This gives us the factorisation:  -->
 
 
 #### Single World Intervention Graphs Work by Node-Splitting
@@ -440,34 +414,6 @@ Consider a template graph @tbl-swigtable $\mathcal{G}$. Applying node-splitting 
 
 In these graphs, the node corresponding to the outcome $A$ is split, relabled with the random and fixed component, and then each node that follows is labelled with the fixed component until the next intervention. Here, $Y$ is the only variable to follow $A$ and it is relabled either $Y(0)$ or $Y(1)$ corresponding to whether $A=1$ or $A=0$; hence $Y$ is relabelled as either $Y(0)$ or $Y(1)$.  Note that we do not place both $Y(0)$ and $Y(1)$ on the same Single World Intervention Graph because the variables are not jointly observed.  Hence, we evaluate $Y(0)\coprod A = 0| L$ and $Y(1)\coprod A = 1 | L$ separately, and never $[Y(0) Y(1)] \coprod A | L$
 
-<!-- 
-### Factorisation and Modularity
-
-The rules of d-separation in the SWIGs allow us to read independence relationships under each intervention to be compared. For example:
-
-- In $\mathcal{G}(A=0)$, $A$ is set to 0, and $L$ is the only edge into $A$ and $Y$. Thus, conditioning on $L$ leads to $A \coprod Y(0)$.
-- Similarly, in $\mathcal{G}(A=1)$, $A$ is set to 1, and $L$ is the only edge into $A$ and $Y$. Thus, conditioning on $L$ leads to $A \coprod Y(1)$.
-
-
-The factorisation of the joint distribution associated with these graphs follows from the structure of the SWIGs. For the original DAG, the joint distribution $P(A, Y, L)$ can be factorised as $P(L)P(A|L)P(Y|A,L)$.
-
-For each Single World Intervention Graph, these factorisations are:
-
-$$
-P(A = \tilde{a}, Y(\tilde{a}=0) = y, L = l) = P(A = \tilde{a}|L = l)P(Y(\tilde{a}=0) = y|A = \tilde{a}, L = l)P(L = l)
-$$
-$$
-P(A = \tilde{a}, Y(\tilde{a}=1) = y, L = l) = P(A = \tilde{a}|L = l)P(Y(\tilde{a}=1) = y|A = \tilde{a}, L = l)P(L = l)
-$$
-
-These factorisations align with the standard causal directed acyclic graph factorisations, where $L$ is the only parent of $A$, $Y(\tilde{a}=0)$, and $Y(\tilde{a}=1)$ in their respective Single World Intervention Graphs.
-
-Identification holds if:
-
-$$
-P(Y(\tilde{a}) = y) = \sum_l P(Y = y|L = l, A = \tilde{a}) P(L = l)
-$$ -->
-
 
 ### Interaction as a Joint Intervention
 
@@ -483,7 +429,6 @@ First, we obtain the expected outcomes when the entire target population is trea
 - **@tbl-interactionpuzzle $\mathcal{G}_4$**: Treatment $A$ is not given, and treatment $B$ is given.
 
 By comparing these expected outcomes, we can determine the presence and nature of causal interaction between treatments $A$ and $B$ with respect to the outcome $Y$.
-
 
 ::: {#tbl-interactionpuzzle}
 ```{=latex}
@@ -558,6 +503,7 @@ This quantity denotes the effect of exposure $A = 0$ and the mediator at its nat
 Next, we clarify our estimand by decomposing the Total Effect (TE) into the Natural Direct Effect (NDE) and the Natural Indirect Effect (NIE).
 
 **Natural Direct Effect (NDE)** is the effect of the treatment on the outcome while maintaining the mediator at the level it would have been if the treatment had not been applied:
+
 
 $$
 \text{Natural Direct Effect} = \textcolor{blue}{\mathbb{E}[Y(1, M(0))]} - \mathbb{E}[Y(0, M(0))]
@@ -658,12 +604,6 @@ Our discussion of causal mediation analysis focused on how effects from two sequ
 This concept can be expanded to investigate the causal effects of multiple sequential exposures, referred to as 'treatment regimes', 'treatment strategies', or 'modified treatment policies'. In many human sciences, where longitudinal data are collected, researchers often use longitudinal growth models and multi-level models. How shall we interpret the coefficients of these models? 
 
 As before, to answer a causal question, we must first clearly state it. This involves specifying the counterfactual contrast of interest, including the treatments to be compared, the scale on which the contrast will be computed, and the population for whom inferences are valid. Without this clarity, our statistical models lack clear meaning. 
-<!-- 
-This remains true even if there is no unmeasured confounding. -->
-
-<!-- From causal mediation analysis, we learned that even if investigators randomise the treatment, they typically do not randomise the mediator. Even if a sequential trial randomises the mediator, there would be no trial arm yielding the cross-world quantity needed to decompose the total effect into the natural indirect and direct effects. The quantity $\mathbb{E}[Y(1, M(0))]$ is not observed on any individual. 
-
-Causal mediation analysis is a special case of causal inference under sequential treatments. We next clarify how investigators can avoid widespread confusions in longitudinal data analysis by clearly stating their causal questions and evaluating identification before applying any statistical model. -->
 
 ### Worked Example: Does Marriage Affect Happiness?
 
@@ -713,7 +653,6 @@ Assumptions of Causal Mediation
 :::
 
 #### Treatment-confounder feedback
-
 
 
 @tbl-swigtabledeveloped $\mathcal{G}_1$ and @tbl-swigtabledeveloped $\mathcal{G}_2$ represent two subsets of possible confounding structures for a treatment regime conducted over two intervals. Covariates in $L_t$ denote measured confounders, and $U$ denotes unmeasured confounders. $A_t$ denotes the treatment, 'Marriage Status,' at time $t$. $Y$ denotes 'Happiness' measured at the end of the study. We assume that conditioning on $L_t$ is sufficient to block all backdoor paths for $A_{t+1}$. We include indicators of 'Happiness' in $L_t$, thus controlling for happiness as a common cause of marriage at time $t+1$ and happiness at the end of the study, $\tau = \bar{A}_{\tau -1}$.
@@ -797,7 +736,7 @@ Template @tbl-swigtabledeveloped $\mathcal{G}_5$ presents the confounding struct
 
 1. Identify all the variables that influence the outcome $Y(\mathbf{g})$, excluding those that are current or past treatment variables or covariates.
 
-2. For each treatment at time $t$, check if the treatment is independent of the variables identified in step 1, after accounting for past covariates and treatments, in the each Single World Intervention Graph where the treatment values are fixed. Thus amounts to removing the dotted green arrows from the dynamic Single World Intervention Graph in @tbl-swigtabledeveloped $\mathcal{G}_5$, and doing so gives us  @tbl-swigtabledeveloped $\mathcal{G}_4$. For each timepoint we recover a set of future counterfactual variables that includes the outcome under the treat regime under consideration,  $Y(\mathbold{\tilde{g}})$ but which also includes other variables that the treatment might affect, including future treatments. All backdoor paths must be closed to each member of this set of counterfactual variables. 
+2. For each treatment at time $t$, check if the treatment is independent of the variables identified in step 1, after accounting for past covariates and treatments, in the each Single World Intervention Graph where the treatment values are fixed. Thus amounts to removing the dotted green arrows from the dynamic Single World Intervention Graph in @tbl-swigtabledeveloped $\mathcal{G}_5$, and doing so gives us  @tbl-swigtabledeveloped $\mathcal{G}_4$. For each timepoint we recover a set of future counterfactual variables that includes the outcome under the treat regime under consideration,  $Y(\mathbf{\tilde{g}})$ but which also includes other variables that the treatment might affect, including future treatments. All backdoor paths must be closed to each member of this set of counterfactual variables. 
 
 
 Where:
@@ -827,29 +766,31 @@ We might consider setting our sights lower and estimating a fixed treatment stra
 
 
 $$
-\mathbf{g}^\lambda (A_i) = \begin{cases}  \mu_A & \text{if } A_i < \mu_A \\ 
+\mathbf{g}^\phi (A_i) = \begin{cases}  \mu_A & \text{if } A_i < \mu_A \\ 
 A_i & \text{otherwise} \end{cases}
 $$
 
 
-Which is a weaker interention than:
-
+Which is a weaker intervention than, for example than:
 
 $$
-\mathbf{g}^\phi (A_i) = \begin{cases}  \mu_A_i 
+\mathbf{g}^\lambda (A_i) = \begin{cases}   \mu_A  & \text{if } A_i \neq \mu_A   \\ 
+A_i & \text{otherwise} \end{cases}
 $$
 
+Wherease $\mathbf{g}^\lambda$ sets everyone in the population to the same treatment level, $\mathbf{g}^\phi$  sets only those below a certain threshold of a fixed level but does not estimate treatment effects for those above [@hoffman2023]. It is also possible to write stochastic treatment functions [@diaz2012population; @vanderweele2014a; @young2014identification; @diaz2021nonparametric]. 
 
-Of course the details of every problem should be developed in relation to a scientific context, and whatever practical questions relate to gaps in present science. However, causal inference teaches us anything is that the questions we ask -- answer to ill-posed questions that appear at first blush nearly trivial -- such as whether marriage makes people happy, require considerable attention to make precise. When such questions are made precise, causal inference reveals that the answers might elude us, no matter the quality and abudance of our data, and furthermore, than no experiment could be realised that could conceivably address our questions. 
-
+Of course the details of every problem should be developed in relation to a scientific context, and whatever practical questions relate to gaps in present science. However, causal inference teaches us anything is that the questions we ask -- seemingly coherent and tractable questions such as whether marriage makes people happy -- require considerable attention to make interpretable. When such questions are made interpretable, causal inference reveals that answers might elude us, no matter the quality and abudance of our data, or whether we randomise interventions. For many scientific and practical questions modest treatment functions might may be more credible and helpful.
 
 ## Conclusions
 
-The interest in causality is ancient. Democritus wrote, '(I would) rather discover one cause than gain the kingdom of Persia' [@freeman1948ancilla]. Hume gave a general account of causality by referencing counterfacutuals. 'We may define a cause to be an object followed by another, and where all the objects, similar to the first, are followed by objects similar to the second... Or, in other words, where, if the first object had not been, the second never would have existed' [@hume1902]. However, it was not until Jerzy Nehyman's master's thesis that causality a quantitative analysis of causality was formalised [@neyman1923].  Neyman's work went largely unnoticed remarably even by Neyman, until the 1970s when the Harvard Statistician Donald Rubin formalised what became known as 'the Rubin Causal Model' (also the Rubin-Neyman Causal Model) [@holland1986; @rubin1976]. In 1986 the Harvard statistician James Robins extended the potential outcomes framework to time-varying treatments [@robins1986]. This work formed the basis a powerful new longitudinal data science. Judea Pearl introduced directed causal acyclic graphs (causal DAGs) @pearl1995, which made addressing identification problems transparent and accessible to non-specialists. Robins and Richardson extended Pearl's graphical models (building on Robin's earlier graphical models and conceptual framework his @robins1986) to enable evaluating counterfactual causal contrasts on graphs. During this time, the beginings of the causal causal revolution in economics were being laid, one of the most fertile frontiers in the causal data sciences. By the early 2000s, the targeted learning frameworks were being developed
+The interest in causality is ancient. Democritus wrote, 'I would rather discover one cause than gain the kingdom of Persia' [@freeman1948ancilla]. Hume provided a general account of causality by referencing counterfactuals: '... where, if the first object had not been, the second never would have existed' [@hume1902]. However, it was not until Jerzy Neyman's master's thesis that a quantitative analysis of causality was formalised [@neyman1923]. Remarkably, Neyman's work went largely unnoticed until the 1970s when Harvard statistician Donald Rubin formalised what became known as the 'Rubin Causal Model' (also the Rubin-Neyman Causal Model) [@holland1986; @rubin1976].
 
+In 1986, Harvard statistician James Robins extended the potential outcomes framework to time-varying treatments, laying the foundation for powerful new longitudinal data science methods [@robins1986]. Judea Pearl introduced directed acyclic graphs (causal DAGs), which made addressing identification problems transparent and accessible to non-specialists [@pearl1995]. Robins and Richardson extended Pearl's graphical models, building on Robins' earlier work, to evaluate counterfactual causal contrasts on graphs. Concurrently, the foundations of the causal revolution in economics were being established, creating a fertile frontier in causal data sciences. By the early 2000s, targeted learning frameworks were being developed [@vanderlaan2011], along with causal mediation analysis methods [@robins1992; @pearl2009a; @vanderweele2015; @vanderweele2014a; @diaz2023; @rudolph2024mediation; @vansteelandt2012], and techniques for analysing time-varying treatments [@robins1986; @robins1999; @young2014identification; @richardson2013; @diaz2012population; @robins2008estimation; @shpitser2022multivariate; @richardson2023potential].
 
-Readers should be aware that within the causal inference literature, there are debates about identification under time-varying treatments (refer to @richardson2023potential; @richardson2013; @Diaz2023; @rudolph2024mediation; @shpitser2022multivariate). However, all agree that it is sufficient for identification to condition on covariate histories at intervention, ensuring all treatments—whether fixed or modified—are conditionally independent of future counterfactual outcomes.   
+Readers should be aware that within the causal inference literature, there are vigorous debates. However, there is a shared consensus about its foundations, and a common conceptual and mathematical vocabulary within which to express disagreements and accumulate progress—a hallmark of a productive science.
 
+Although the causal revolution is progressing and gaining momentum, many areas of human science have yet to participate and benefit. The necessity for researchers to acquire new skills, coupled with the intensive requirement for data collection, has significant implications for research design, funding, and the accepted pace of scientific publishing. To foster essential changes in causal inference education and practice, the human sciences need to shift from a predominantly output-focused, correlation-reporting culture to a slow, careful, creative culture that promotes retraining and funds time-series data collection. Such investments are worthwhile. Much as Darwin's theory transformed the biological sciences from speculative taxonomy, causal inference will transform the human sciences from butterfly collections of correlations to causal inferential sciences capable of addressing the causal questions that animate our curiosities.
 
 ## Funding
 
@@ -858,10 +799,6 @@ This work is supported by a grant from the Templeton Religion Trust (TRT0418) an
 ## Acknowledgements
 
 Errors are my own.
-
-
-
-## Appendix B: On the Relevance of Effect Modification for External (Target) Validity.
 
 
 ## Appendix A: Glossary
@@ -873,6 +810,204 @@ Errors are my own.
 ```
 Glossary
 :::
+
+
+## Appendix B: R Simulation to Clarify Why The Distribution of Effect Modifiers Matter For Estimating Treatment Effects For A Target Population
+
+First, we load the `stdReg` library, which obtains marginal effect estimates by simulating counterfactuals under different levels of treatment [@sjölander2016]. If a treatment is continuous, the levels can be specified. 
+
+We also load the `parameters` library, which creates nice tables [@parameters2020].
+
+
+```{r}
+# to obtain marginal effects
+if (!requireNamespace("stdReg", quietly = TRUE)) install.packages("stdReg")
+library(stdReg)
+
+# to create nice tables
+if (!requireNamespace("parameters", quietly = TRUE)) install.packages("parameters")
+library(parameters)
+```
+
+Next, we write a function to simulate data for the sample and and target populations. 
+
+We assume the treatment effect is the same in the sample and target population. We will assume that the coefficient for the effect-modifier and the coefficient for interaction are the same.  We assume no unmeasured confounding throughout the study.  We assume only selective attrition of one effect modifier such that the baseline population differs from the sample population at the end of the study.   
+
+That is: **the distribution of effect modifiers is the only respect in which the sample will differ from the target population.**
+
+This function will generate data under a range of scenarios.[^margot]
+
+[^margot]: See documentation in the `margot` package: @margot2024
+
+
+
+```{r}
+# function to generate data for the sample and population, 
+# along with precise sample weights for the population, there are differences 
+# in the distribution of the true effect modifier but no differences in the treatment effect 
+# or the effect modification.all that differs between the sample and the population is 
+# the distribution of effect-modifiers.
+
+
+# reproducability
+set.seed(123)
+
+# simulate the data -- you can use different parameters
+data <- margot::simulate_ate_data_with_weights(
+  n_sample = 10000,
+  n_population = 100000,
+  p_z_sample = 0.1,
+  p_z_population = 0.5,
+  beta_a = 1,
+  beta_z = 2.5,
+  noise_sd = 0.5
+)
+
+skimr::skim(data)
+```
+
+We have generated both sample and population data. 
+
+Next, we verify that the distributions of effect modifiers differ in the sample and in the target population:
+
+```{r}
+# obtain the generated data
+sample_data <- data$sample_data
+population_data <- data$population_data
+
+
+# check imbalance
+table(sample_data$z_sample) # type 1 is rare
+table(population_data$z_population) # type 1 is common
+```
+
+
+
+The sample and population distributions differ. 
+
+Next, consider the question: "What are the differences in the coefficients that we obtain from the study population at the end of study, as compared with the those we would obtain for target population?"  
+
+First, we obtain the regression coefficients for the sample. They are as follows:
+
+
+```{r}
+# model coefficients sample
+model_sample  <-
+  glm(y_sample ~ a_sample * z_sample, data = sample_data)
+
+# summary
+parameters::model_parameters(model_sample, ci_method = "wald")
+```
+
+We next obtain the regression coefficients for the weighted regression of the sample.   Notice that the coefficients are virtually the same:
+
+```{r}
+# model the sample weighted to the population, again note that these coefficients are similar 
+model_weighted_sample <-
+  glm(y_sample ~  a_sample  * z_sample,
+      data = sample_data,
+      weights = weights)
+
+# summary
+summary(parameters::model_parameters(model_weighted_sample, ci_method =
+                                       "wald"))
+```
+
+
+We might be tempted to infer that weighting wasn't relevant to the analysis. However, we'll see that such an interpretation would be a mistake.
+
+
+Next, we obtain model coefficients for the population. Note again there is no difference -- only narrower errors owing to the large sample size. 
+
+
+```{r}
+# model coefficients population -- note that these coefficients are very similar. 
+model_population <-
+  glm(y_population ~ a_population * z_population, data = population_data)
+
+parameters::model_parameters(model_population, ci_method = "wald")
+```
+
+
+Again, there is no difference. That is, we find that all model coefficients are practically equivalent. The different distribution of effect modifiers does not result in different coefficient values for the treatment effect, the effect-modifier "effect," or the interaction of effect modifier and treatment. 
+
+Consider why this is the case: in a large sample where the causal effects are invariant -- as we have simulated them to be -- we will have good replication in the effect modifiers within the sample, so our statistical model can recover the *coefficients* for the population without challenge. 
+
+However, *in causal inference, we are interested in the marginal effect of the treatment. That is, we seek an estimate for the counterfactual *contrast* in which everyone in a pre-specified population was subject to one level of treatment compared with a counterfactual condition in which everyone in a population was subject to another level of the same treatment. 
+
+**When the sample population differs in the distribution of effect modifiers from the target population effect, the marginal effect estimates will typically differ.**
+
+To see this, we use the `stdReg` package to recover marginal effect estimates, comparing (1) the sample ATE, (2) the true oracle ATE for the population, and (3) the weighted sample ATE.  We will use the outputs of the same models above. The only difference is that we will calculate marginal effects from these outputs. We will contrast a difference from an intervention in which everyone receives treatment = 0 with one in which everyone receives treatment = 1, however, this choice is arbitrary, and the general lessons apply irrespective of the estimand.
+
+First, consider this Average Treatment Effect for the sample population. 
+
+```{r}
+# What inference do we draw?  We cannot say the models are unbiased for the marginal effect estimates. 
+# regression standardisation 
+library(stdReg) # to obtain marginal effects 
+
+
+# obtain sample ate
+fit_std_sample <-
+  stdReg::stdGlm(model_sample, data = sample_data, X = "a_sample")
+
+# summary
+summary(fit_std_sample,
+        contrast = "difference",
+        reference = 0)
+```
+
+The treatment effect is given as a 1.06 unit change in the outcome across the sample population, with a confidence interval from 1.04 to 1.08. 
+
+
+Next, we obtain the true (oracle) treatment effect for the population under the same intervention.
+
+```{r}
+## note the population effect is different
+
+#obtain true ate
+fit_std_population <-
+  stdReg::stdGlm(model_population, data = population_data, X = "a_population")
+
+# summary
+summary(fit_std_population,
+        contrast = "difference",
+        reference = 0)
+```
+
+
+Note, the true treatment effect is a 1.25 unit change in the population, with a confidence bound between 1.24 and 1.26. This is well outside the ATE that we obtain from the sample population!
+
+
+
+Next, consider the ATE in the weighted regression, where the sample was weighted to the target population's true distribution of effect modifiers. 
+
+```{r}
+## next try weights adjusted ate where we correctly assign population weights to the sample
+fit_std_weighted_sample_weights <- stdReg::stdGlm( model_weighted_sample, 
+    data = sample_data, 
+    X = "a_sample")
+
+# this gives us the right answer
+summary(fit_std_weighted_sample_weights, 
+    contrast = "difference", 
+    reference = 0)
+
+
+# Moral of the story. When we marginalise over the entire sample we need to weight estimates to the target population. 
+```
+
+
+We find that we obtain the population-level causal effect estimate with accurate coverage by weighting the sample to the target population. So with appropriate weights, our results generalise from the sample to the target population.
+
+
+## Lessons 
+
+- Regression coefficients do not clarify the problem of sample/target population mismatch -- or selection bias as discussed in this manuscript.
+- The correct advice to investigators is that they should not rely on regression coefficients when evaluating the biases that arise from sample attrition. This advice applies to both methods that the authors use to investigate threats of bias. That is, to implement this advice, the authors must first take it.
+- Generally, observed data are insufficient for assessing threats. Observed data do not clarify structural sources of bias, nor do they clarify effect-modification in the full counterfactual data condition in which all receive the treatment and all do not receive the treatment (at the same level).
+- To properly assess bias, one would need access to the counterfactual outcome—what would have happened to the missing participants had they not been lost to follow-up or had they responded. Again, the join distributions over "full data" are inherently unobservable [@vanderlaan2011]. 
+- In simple settings like the one we just simulated, we may address the gap between the sample and target population using methods such as modelling the censoring (e.g., censoring weighting). However, we never know what setting we are in or whether it is simple—such modelling must be handled with care. There is a large and growing epidemiology literature on this topic (see, for example, @li2023non).
 
 
 ## Appendix C On the Clarity of Single World Intervention Graphs
@@ -978,3 +1113,63 @@ $\rightarrowred$ & \textbf{Red arrow:} Path through which bias flows.
 **Green Dashed Arrow** $\rightarrowdottedgreen$: This indicates dependency in dynamic sequential treatment strategies where the 'natural value' of a treatment value under a specific treatment regime depends on the values obtained from the counterfactual histories that precede the node in a SWIG. Dynamic strategies enable flexible, realistic causal inferences but impose stronger identification assumptions. For example, arrows to the 'natural value' of the treatment may compromise sequential exchangeability, threatening identification (refer to @richardson2013).
 
  -->
+
+
+<!-- @tbl-swigtable $\mathcal{G}$ 1 is a causal directed acyclic graph, where the associated factorisation of the joint distribution is given:
+
+$$
+P(y, a, l) = P(l) P(a | l) P(y | a, l)
+$$ -->
+
+<!-- 
+
+- $P(l)$: the marginal probability of the covariate $L$.
+- $P(a | l)$: the conditional probability of the treatment $A$ given the covariate $L$.
+- $P(y | a, l)$: the conditional probability of the outcome $Y$ given both the treatment $A$ and the covariate $L$. -->
+
+<!-- 
+Notice that the counterfactual outcomes to be contrasted do not appear directly on the causal directed acyclic graph. However, the corresponding counterfactual outcomes are given by Pearl's do-calculus @pearl2009a, such tha the average treatment effect for $A$ on $Y$ is identified by conditioning on $L$:
+
+$$
+P(Y(a)|A,L) = P(Y = y|do(A =a), L=l) = P(Y=y|A=a L=l)
+$$
+ -->
+<!-- 
+In Single World Intervention Graphs we obtain counterfactual factoriations directly from the graph. 
+
+@tbl-swigtable $\mathcal{G}$ 2 is a Single World Intervention Template, a graph valued function, that allows us to generate separate causal diagrams for each intervention. $A = \Tilde{a}$ can take any value $A \in \mathcal{A}$, where  $\mathcal{A}$ is the set of all possible inteventions for $A$. 
+
+The function takes inputs: 
+
+$$
+P(A = \Tilde{a}, Y(A = \Tilde{a}, L))  = P(A = \Tilde{a})P(Y = \Tilde{y}|A = \Tilde{A}, L)
+$$ -->
+
+<!-- @tbl-swigtable $\mathcal{G}$ 3 is the graph value or Single World Intevention Graph for the Single World Intervention Template $\mathcal{G} 2$ when is set to $A =0$.  This gives us the factorisation:  -->
+<!-- 
+### Factorisation and Modularity
+
+The rules of d-separation in the SWIGs allow us to read independence relationships under each intervention to be compared. For example:
+
+- In $\mathcal{G}(A=0)$, $A$ is set to 0, and $L$ is the only edge into $A$ and $Y$. Thus, conditioning on $L$ leads to $A \coprod Y(0)$.
+- Similarly, in $\mathcal{G}(A=1)$, $A$ is set to 1, and $L$ is the only edge into $A$ and $Y$. Thus, conditioning on $L$ leads to $A \coprod Y(1)$.
+
+
+The factorisation of the joint distribution associated with these graphs follows from the structure of the SWIGs. For the original DAG, the joint distribution $P(A, Y, L)$ can be factorised as $P(L)P(A|L)P(Y|A,L)$.
+
+For each Single World Intervention Graph, these factorisations are:
+
+$$
+P(A = \tilde{a}, Y(\tilde{a}=0) = y, L = l) = P(A = \tilde{a}|L = l)P(Y(\tilde{a}=0) = y|A = \tilde{a}, L = l)P(L = l)
+$$
+$$
+P(A = \tilde{a}, Y(\tilde{a}=1) = y, L = l) = P(A = \tilde{a}|L = l)P(Y(\tilde{a}=1) = y|A = \tilde{a}, L = l)P(L = l)
+$$
+
+These factorisations align with the standard causal directed acyclic graph factorisations, where $L$ is the only parent of $A$, $Y(\tilde{a}=0)$, and $Y(\tilde{a}=1)$ in their respective Single World Intervention Graphs.
+
+Identification holds if:
+
+$$
+P(Y(\tilde{a}) = y) = \sum_l P(Y = y|L = l, A = \tilde{a}) P(L = l)
+$$ -->
