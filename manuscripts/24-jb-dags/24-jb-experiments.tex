@@ -215,140 +215,139 @@
 \maketitle
 \begin{abstract}
 Confounding bias arises when a treatment and outcome share a common
-cause. In randomised controlled trials (Experiments) treatment
+cause. In randomised controlled trials (experiments), treatment
 assignment is random. It would appear there can be no confounding bias
-in experiments. Here we use causal directed acyclic graphs to clarify
-seven structural sources of bias in randomised controlled trials.
+in experiments. Here, we use causal directed acyclic graphs to clarify
+seven structural sources of bias in randomised controlled trials and
+demonstrate the interest of causal inference methods for the design and
+analysis of experiments.
 
-\textbf{KEYWORDS}: \emph{Causal Inference}; \emph{Experiments};
-\emph{DAGs};* \emph{Evolution}; \emph{Per Protocol Effect};
-\emph{Intention to Treat Effect}.
+\textbf{Keywords:} \emph{Causal Inference}; \emph{Experiments};
+\emph{DAGs}; \emph{Evolution}; \emph{Per Protocol Effect};
+\emph{Intention to Treat Effect}
 \end{abstract}
 
 \subsection{Introduction}\label{introduction}
 
 Here, we consider seven structural sources of bias in randomised
-controlled trials, henceforth ``experiments.'' The examples are not
-exhaustive. We do not consider biases from selection into study, which
-may threaten generalisation. Nor do we consider censoring biases from
-study attrition, in which population characteristics of the restricted
-sample at the end-of-study differ from those of the sample at baseline
-in respect of treatment effects. Both types of sample/target population
-can invalidate experimental results. However such biases present as
-failure modes in external validity. Our focus here will be on threats to
-internal valid from confounding that relate the treatment to the outcome
-in the absence of confouding. We will assume large samples such that
-random differences in the distribution of variables that may affect
+controlled trials, henceforth `experiments.' The examples are not
+exhaustive. We do not consider biases from selection into the study,
+which may threaten generalisation, nor do we consider censoring biases
+from study attrition, where population characteristics of the restricted
+sample at the end of the study differ from those at baseline concerning
+treatment effects. Both types of sample/target population issues can
+invalidate experimental results. However, such biases present as
+failures in external validity. Our focus here will be on threats to
+internal validity from confounding that relate the treatment to the
+outcome in the absence of confounding. We will assume large samples such
+that random differences in the distribution of variables that may affect
 treatment do not come into play. We will also assume that the
 experimental designs are double-blind, that treatment conditions are the
 same across all arms, and that the investigators are careful and
-scupulous. No chance event, other than randomisation, is left to chance.
+scrupulous. No chance event, other than randomisation, is left to
+chance.
 
-``Doesn't randomisation, by its very nature, eliminate all systematic
-causes of treatment assignment and so of treatment assigment and
-outcome?''
+`Doesn't randomisation, by its very nature, eliminate all systematic
+causes of treatment assignment and so of treatment assignment and
+outcome?'
 
 We assume the answer is yes.
 
-``Doesn't this mean that confounding is ruled out?''
+`Doesn't this mean that confounding is ruled out?'
 
 The answer is no. Eight examples illustrate why. Understanding how
 confounding arises in experiments is important for experimental design,
-data-analysis, and inference. However, the examples clarify problems of
+data analysis, and inference. However, the examples clarify problems of
 general interest about how causality operates over time, confounding
 where the treatment affects attrition, non-compliance, and non-response,
-and differences between the effects of randomisation (intention to treat
+and differences between the effects of randomisation (intention-to-treat
 effects) and the causal effects of treatments themselves (per-protocol
 effects).
 
-We begin by definining our terms.
+We begin by defining our terms (\hyperref[id-app-a]{Appendix A} provides
+a glossary of terms in causal inference.)
 
 \subsubsection{Terminology}\label{terminology}
 
-\textbf{Confounding}: treatment and outcome are associated independently
-of causality or are disassociated in the presence of causality relative
-to causal question at hand.
+\begin{itemize}
+\item
+  \textbf{Confounding}: Treatment and outcome are associated
+  independently of causality or are disassociated in the presence of
+  causality relative to the causal question at hand.
+\item
+  \textbf{Intention-to-Treat Effect (equivalent to `intent-to-treat
+  effect')}: The effect of treatment assignment, analysed based on
+  initial treatment assignment, reflecting real-world effectiveness but
+  possibly obscuring mechanisms.
+\item
+  \textbf{Per-protocol effect}: The effect of adherence to a randomly
+  assigned treatment if adherence were perfect
+  (\citeproc{ref-hernan2017per}{Hernán \emph{et al.} 2017}). We have no
+  guarantee that the intention-to-treat effect will be the same as the
+  per-protocol effect. A safe assumption is that:
+\end{itemize}
 
-\textbf{Intention-to-Treat Effect}: The effect of treatment assignment,
-analysed based on initial treatment assignment, reflecting real-world
-effectiveness but possibly obscuring mechanisms.
+\[
+\widehat{ATE}_{\text{target}}^{\text{Per-Protocol}} \ne \widehat{ATE}_{\text{target}}^{\text{Intention-to-Treat}}
+\]
 
-\textbf{Per-Protocol Effect}: The causal effect of treatment under full
-treatment adherence.
+When evaluating evidence for causality, in addition to specifying their
+causal contrast, effect measure, and target population, investigators
+should specify whether they are estimating an intention-to-treat or
+per-protocol effect (\citeproc{ref-hernuxe1n2004}{Hernán 2004};
+\citeproc{ref-tripepi2007}{Tripepi \emph{et al.} 2007}).
 
 \subsubsection{Meaning of Symbols}\label{meaning-of-symbols}
 
 We use the following conventions in our directed acyclic graphs:
 
-\textbf{\(A\)}: Denotes the ``treatment'' or ``exposure'' - a random
-variable.
-
-This is the variable for which we seek to understand the effect of
-intervening on it. It is the ``cause.''
-
-\textbf{\(\bar{A}\)}: Denotes a sequence of treatments.
-
-\textbf{\(Y\)}: Denotes the outcome or response, measured at the end of
-study.
-
-It is the ``effect.''
-
-\textbf{\(L\)}: Denotes a measured confounder or set of confounders.
-
-\textbf{\(U\)}: Denotes an unmeasured confounder or confounders.
-
-\textbf{\(\mathcal{R}\)}: Denotes a randomisation to treatment
-condition.
-
-\textbf{\(\mathcal{G}\)}: Denotes a causal graph, here, either a causal
-DAG, Single World Intervention Graph. We will also use this symbol to
-denote a Single World Intervention Template, which is a function for
-generating Single World Intevention Graphs. This jargon will become
-clear when the graphical tools are explained. \#\#\# Elements of causal
-graphs
-
-\textbf{Node}: a node or vertex represents characteristics or features
-of units within a population on a causal diagram -- that is a
-``variable.'' In causal directed acyclic graphs, we draw nodes with
-respect to the \emph{target population}, which is the population for
-whom investigators seek causal inferences
-(\citeproc{ref-suzuki2020}{Suzuki \emph{et al.} 2020}). Time-indexed
-node: \(X_t\) denotes relative chronology
-
-\textbf{Edge without an Arrow} (\(\association\)): path of association,
-we do not assert causality.
-
-\textbf{Arrow} (\(\rightarrowNEW\)): denotes causal relationship from
-the node at the base of the arrow (a `parent') to the node at the tip of
-the arrow (a `child'). In causal DAGS it is conventional to refrain from
-drawing an arrow from treatment to outcome to avoid asserting a causal
-path from \(A\) to \(Y\) because iyr purpose is to ascertain whether
-causality can be identified for this path. All other nodes and paths --
-including the absence of nodes and paths -- is typically assumed.
-
-\textbf{Red Arrow} (\(\rightarrowred\)): path of non-causal association
-between the treatment and outcome. Despite the arrows, this path is
-associational and may flow against time.
-
-\textbf{Dashed Arrow} (\(\rightarrowdotted\)): denotes a true
-association between the treatment and outcome that becomes partially
-obscured when conditioning on a mediator, assuming \(A\) causes \(Y\).
-
-\textbf{Dashed Red Arrow} (\(\rightarrowdottedred\)): highlights
-over-conditioning bias from conditioning on a mediator.
-
-\textbf{Boxed Variable} \(\big(\boxed{X}\big)\): conditioning or
-adjustment for \(X\).
-
-\textbf{Red-Boxed Variable} \(\big(\boxedred{X}\big)\): highlights the
-source of confounding bias from adjustment.
-
-\textbf{Dashed Circle} \(\big( \circledotted{X}\big)\): no adjustment is
-made for a variable (implied for unmeasured confounders.)
-
-\textbf{\(\mathbf{\mathcal{R}}\)}
-\(\big(\mathcal{R} \rightarrow A\big)\) randomisation into the treatment
-condition.
+\begin{itemize}
+\item
+  \textbf{Node}: A node or vertex represents characteristics or features
+  of units within a population on a causal diagram -- that is, a
+  `variable.' In causal directed acyclic graphs, we draw nodes with
+  respect to the \emph{target population}, which is the population for
+  whom investigators seek causal inferences
+  (\citeproc{ref-suzuki2020}{Suzuki \emph{et al.} 2020}). A time-indexed
+  node \(X_t\) denotes relative chronology; \(X_{\phi t}\) indicates
+  assumed timing, possibly erroneous.
+\item
+  \textbf{Edge without an Arrow} (\(\association\)): Path of
+  association, causality not asserted.
+\item
+  \textbf{Red Edge without an Arrow} (\(\associationred\)): Confounding
+  path: ignores arrows to clarify statistical dependencies.
+\item
+  \textbf{Arrow} (\(\rightarrowNEW\)): Denotes a causal relationship
+  from the node at the base of the arrow (a parent) to the node at the
+  tip of the arrow (a child). We typically refrain from drawing an arrow
+  from treatment to outcome to avoid asserting a causal path from \(A\)
+  to \(Y\) because the function of a causal directed acyclic graph is to
+  evaluate whether causality can be identified for this path.
+\item
+  \textbf{Red Arrow} (\(\rightarrowred\)): Path of non-causal
+  association between the treatment and outcome. The path is
+  associational and may run against arrows.
+\item
+  \textbf{Dashed Arrow} (\(\rightarrowdotted\)): Denotes a true
+  association between the treatment and outcome that becomes partially
+  obscured when conditioning on a mediator, assuming \(A\) causes \(Y\).
+\item
+  \textbf{Dashed Red Arrow} (\(\rightarrowdottedred\)): Highlights
+  over-conditioning bias from conditioning on a mediator.
+\item
+  \textbf{Boxed Variable} \(\boxed{X}\): Conditioning or adjustment for
+  \(X\).
+\item
+  \textbf{Red-Boxed Variable} \(\boxedred{X}\): Highlights the source of
+  confounding bias from adjustment.
+\item
+  \textbf{Dashed Circle} \(\circledotted{X}\): Indicates no adjustment
+  is made for a variable (implied for unmeasured confounders).
+\item
+  \textbf{\(\mathcal{R} \rightarrow A\)}: Randomisation into the
+  treatment condition.
+\end{itemize}
 
 \subsubsection{Review of d-separation for Causal Identification on a
 Graph}\label{review-of-d-separation-for-causal-identification-on-a-graph}
@@ -366,8 +365,82 @@ causality from which all causal directed acyclic graphs can be built.}
 
 \end{table}%
 
-\subsection{Eight Example of Confounding Bias in
-Experiments}\label{eight-example-of-confounding-bias-in-experiments}
+In the 1990s, Judea Pearl demonstrated that causal dependencies could be
+evaluated using observable probability distributions
+(\citeproc{ref-pearl1995}{Pearl 1995}, \citeproc{ref-pearl2009a}{2009}).
+He also showed that causal directed acyclic graphs (causal DAGs) could
+be employed to clarify the conditional dependencies among variables
+(\citeproc{ref-pearl1995}{Pearl 1995}). This means that, based on
+assumptions about causal structure, investigators could investigate
+strategies for identifying causal effects from the joint distributions
+of observed data.
+
+The graphical rules that Pearl developed and proved are known as the
+rules of d-separation (\citeproc{ref-pearl1995}{Pearl 1995}).
+
+\begin{enumerate}[a)]
+     \item  {\bf Fork rule} ($B \leftarrowNEW \boxed{A} \rightarrowNEW C$): $B$ and $C$ are independent when conditioning on $A$: ($B \coprod C \mid A$).
+     \item  {\bf Chain rule} ($A \rightarrowNEW \boxed{B} \rightarrowNEW C$): Conditioning on $B$ blocks the path between $A$ and $C$: ($A \coprod C \mid B$).
+     \item  {\bf Collider rule} ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioning on $C$, which introduces dependence: ($A \cancel{\coprod} B \mid C$). 
+ \end{enumerate}
+
+The rules of d-separation give rise to the backdoor criterion and
+`backdoor adjustment' theorem, which provide identification algorithms
+conditional on the structural assumptions encoded in a causal directed
+acyclic graph (\citeproc{ref-pearl1995}{Pearl 1995}). Here, we use the
+symbol \(\mathcal{G}\) to name a graph, which we will identify by
+referring to a row in a table.
+
+\begin{table}
+
+\caption{\label{tbl-terminologygeneral}Elements of Causal Graphs}
+
+\centering{
+
+\terminologydirectedgraph
+
+}
+
+\end{table}%
+
+Consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_1\): If we
+assume that \(A\) and \(B\) are not causally related, and further that
+they do not share common causes, then \(A\) and \(B\) will not be
+statistically related.
+
+Consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_2\): If we
+assume that \(A\) and \(B\) are causally related, that they do not share
+common causes or that their common causes have been accounted for, then
+\(A\) and \(B\) will be statistically related.
+
+Consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_3\): If we
+assume that \(A\) causes \(B\) and that \(A\) causes \(C\), then the
+rules of d-separation imply that we may condition on or `control for'
+\(A\) to consistently estimate the effect of \(B\) on \(C\).
+
+Consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_4\): If we
+assume that \(A\) causes \(B\) and that \(B\) causes \(C\), then the
+rules of d-separation imply that if we condition on \(B\), the true
+causal effect of \(A\) on \(C\) will be obscured such that \(A\) will be
+independent of \(C\) despite being causally associated with \(C\).
+
+Finally, consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_5\):
+If we assume that \(A\) causes \(C\) and that \(B\) causes \(C\), then
+the rules of d-separation imply that if we condition on \(C\), the
+variables \(A\) and \(B\) will be associated, despite having no causal
+effect on each other.
+
+If we assume that the variables encoded in the graph correspond to
+`Structural Causal Models' then all causal relationships can be defined
+by the elementary structures presented in
+Table~\ref{tbl-terminologygeneral}.
+
+Now that we have clarified how causal directed graphs work, we may use
+them to clarify the first concept we consider confounding bias in
+randomised experiments.
+
+\subsection{Eight Examples of Confounding Bias in
+Experiments}\label{eight-examples-of-confounding-bias-in-experiments}
 
 \begin{table}
 
@@ -382,130 +455,132 @@ confounding biases in Randomised Controlled Trials.}
 
 \end{table}%
 
-\subsubsection{Example 1: Post-treatment adjustment blocks treatment
-effect}\label{example-1-post-treatment-adjustment-blocks-treatment-effect}
-
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 1.1\)
-illustrates the threat of confounding bias by conditioning on a
-post-treatment mediator. Imagine investigators are interested in whether
-the framing of an authority as religious or secular -- ``source
-framing'' -- affects affects subjective ratings of confidence in the
-authority -- ``source credibility.'' There are two conditions. A claim
-is presented from an authority. The content of the claim does not vary
-by condition. Participants are asked to rate the claim on a credibility
-scale. Next, imagine that the investigators decide they should control
-for religiosity. Furthermore imagine there is a true effect of
-source-framing. Finally, assume that the source framing not only affects
-source credibility but also affects relgiosity. Perhaps viewing a
-religious authority makes religious people more religious. In this
-scenario, measuring religiosity following the exeperimental invertion
-will partially block the effect of the treatment on the outcome. It
-might make it appear that the treatment does not work for religious
-people, when in reality it works because it amplifies religiosity. (Note
-that in this graph we assume that \(L_1\) occurs before \(Y_2\), however
-investigators may have measured \(L_1\) after \(Y_2\). Our time-index
-pertains to the occurance of the event, not of its measurement. This
-statement applies to all examples that follow.)
+\subsubsection{Example 1: Post-treatment Adjustment Blocks Treatment
+Effect}\label{example-1-post-treatment-adjustment-blocks-treatment-effect}
 
 Table~\ref{tbl-terminologyelconfoundersexperiments}
-\(\mathcal{G} 1.2\)clarifies a response: do not control post-treatment
-variables, here the intermediary effects of ``religiosity''. If
-effect-modification by religiosity is scientifically interesting,
-measure religiosity before randomisation. Randomisation did not prevent
-confounding.
+\(\mathcal{G}_{1.1}\) illustrates the threat of confounding bias by
+conditioning on a post-treatment mediator. Imagine investigators are
+interested in whether the framing of an authority as religious or
+secular -- `source framing' -- affects subjective ratings of confidence
+in the authority -- `source credibility.' There are two conditions. A
+claim is presented from an authority. The content of the claim does not
+vary by condition. Participants are asked to rate the claim on a
+credibility scale. Next, imagine that the investigators decide they
+should control for religiosity. Furthermore, imagine there is a true
+effect of source framing. Finally, assume that the source framing not
+only affects source credibility but also affects religiosity. Perhaps
+viewing a religious authority makes religious people more religious. In
+this scenario, measuring religiosity following the experimental
+intervention will partially block the effect of the treatment on the
+outcome. It might make it appear that the treatment does not work for
+religious people, when in reality it works because it amplifies
+religiosity. (Note that in this graph we assume that \(L_1\) occurs
+before \(Y_2\), however investigators may have measured \(L_1\) after
+\(Y_2\). Our time index pertains to the occurrence of the event, not of
+its measurement. This statement applies to all examples that follow.)
 
-\subsubsection{Example 2: Post-treatment adjustment induces collider
-stratification
-bias}\label{example-2-post-treatment-adjustment-induces-collider-stratification-bias}
+Table~\ref{tbl-terminologyelconfoundersexperiments}
+\(\mathcal{G}_{1.2}\) clarifies a response: do not control
+post-treatment variables, here the intermediary effects of
+`religiosity'. If effect-modification by religiosity is scientifically
+interesting, measure religiosity before randomisation. Randomisation did
+not prevent confounding.
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 2.1\)
-illustrates the threat of confounding bias by conditioning on a
-post-treatment collider. Imagine the same experiment as in Example 1 and
-the same conditioning strategy in which religiosity is measured
-following the treatment. We imagine the treatment affects religiosity.
-However, in this example, imagine that religiosity has no causal effect
-on the outcome, source credibility. Finally, imagine that an unmeasured
+\subsubsection{Example 2: Post-treatment Adjustment Induces Collider
+Stratification
+Bias}\label{example-2-post-treatment-adjustment-induces-collider-stratification-bias}
+
+Table~\ref{tbl-terminologyelconfoundersexperiments}
+\(\mathcal{G}_{2.1}\) illustrates the threat of confounding bias by
+conditioning on a post-treatment collider. Imagine the same experiment
+as in Example 1 and the same conditioning strategy, where religiosity is
+measured following the treatment. We assume the treatment affects
+religiosity. However, in this example, religiosity has no causal effect
+on the outcome, source credibility. Finally, imagine an unmeasured
 variable affects both the mediator, religiosity (\(L_1\)), and the
-outcome, source-credibility (\(Y_2\)). This unmeasured confounder might
+outcome, source credibility (\(Y_2\)). This unmeasured confounder might
 be religious education in childhood. In this scenario, conditioning on
 the post-treatment variable religiosity will open a backdoor path
-between the treatment and outcome, leading to association in the absence
-of causation. Randomisation did not prevent confounding.
+between the treatment and outcome, leading to an association in the
+absence of causation. Randomisation did not prevent confounding.
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 2.2\)
-clarifies a response: do not control post-treatment variables.
+Table~\ref{tbl-terminologyelconfoundersexperiments}
+\(\mathcal{G}_{2.2}\) clarifies a response: do not control
+post-treatment variables.
 
 The point that investigators should not condition on post-treatment
 variables is worth developing using a common flaw in experimental
-designs: exclusion from `attention checks.'\,' Consider that if an
-experimental condition affects attention and an unmesaured variable is a
+designs: exclusion from `attention checks.' Consider that if an
+experimental condition affects attention and an unmeasured variable is a
 common cause of attention and the outcome, then selection on attention
 will induce confounding bias in a randomised experiment. For example,
 imagine that people are more attentive in the scientific authority
-design, because science is interesting -- whether or not one is
+design because science is interesting -- whether or not one is
 religious, yet religion is not interesting whether or not one is
-religious. Suppose further that an unmeasured ``altruistic disposition''
+religious. Suppose further that an unmeasured `altruistic disposition'
 affects both attention and ratings of source credibility. By selecting
 on attention, investigators may unwittingly destroy randomisation. If
-attention is a scientifically interesting effect-modifier it should be
+attention is a scientifically interesting effect modifier, it should be
 measured before random assignment to treatment.
 
-\subsubsection{Example 3: Demographic measures at end of study induce
-collider stratification
-bias}\label{example-3-demographic-measures-at-end-of-study-induce-collider-stratification-bias}
+\subsubsection{Example 3: Demographic Measures at End of Study Induce
+Collider Stratification
+Bias}\label{example-3-demographic-measures-at-end-of-study-induce-collider-stratification-bias}
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 3.1\)
-illustrates the threat of confounding bias from adjusting for
-post-treatment variables, here, one affected by the treatment and
-outcome absent any unmeasured confounder. In our example, imagine both
-the treatment, source framing, and the outcome, source credibility,
-affect religiosity measured at the end of study. Investigators measure
-religiosity at the end of study and include this measure as a covariate.
-However, doing so induces collider bias such that if both the treatment
-and outcome are positively associated with religiosity, the collider,
-they will be negatively associated with each other. Conditioning on the
-collider risks the illusion of a negative experimental effect in the
-absence of casuality.
+Table~\ref{tbl-terminologyelconfoundersexperiments}
+\(\mathcal{G}_{3.1}\) illustrates the threat of confounding bias from
+adjusting for post-treatment variables, here, one affected by the
+treatment and outcome absent any unmeasured confounder. In our example,
+imagine both the treatment, source framing, and the outcome, source
+credibility, affect religiosity measured at the end of the study.
+Investigators measure religiosity at the end of the study and include
+this measure as a covariate. However, doing so induces collider bias
+such that if both the treatment and outcome are positively associated
+with religiosity, the collider, they will be negatively associated with
+each other. Conditioning on the collider risks the illusion of a
+negative experimental effect in the absence of causality.
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 3.2\)
-clarifies a response: again, do not control post-treatment variables! --
-here ``religiosity'' measured after the end of study. If the scientific
-interest is in effect-modification or in obtaining statistical
-precision, measure covariates before randomisation.
-
-\subsubsection{Example 4: Demographic measures at end of study condition
-on a collider that opens a back-door
-path.}\label{example-4-demographic-measures-at-end-of-study-condition-on-a-collider-that-opens-a-back-door-path.}
-
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 4.1\)
-illustrates the threat of illustrates the threat of confounding bias by
-adjusting for post-treatment variables, here that is affect only by the
-treatment and an unmeasured cause of the outcome. Suppose source
-crediblity affects religiosity (religious people are reminded of thier
-faith), but there is no experimental affect of framing on credibility.
-Imagine further that an unmeasured common cause of the covariate
-religiosity and the outcome source credibility. Again, this unmeasured
-confounder might be religious education in childhood. In this scenario,
-conditioning on the post-treatment variable religiosity will open a
-backdoor path between the treatment and outcome, leading to association
-in the absence of causation. Again we find that that andomisation did
-not prevent confounding.
-
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 4.2\)
-clarifies a response. Again, unless investigators are able to rule out
-an effect of treatment, they should not condition on a post-treatment
-covarite. The covariates of interest should be measured before
+Table~\ref{tbl-terminologyelconfoundersexperiments}
+\(\mathcal{G}_{3.2}\) clarifies a response: again, do not control
+post-treatment variables! Here, `religiosity' measured after the end of
+the study. If the scientific interest is in effect modification or
+obtaining statistical precision, measure covariates before
 randomisation.
 
-\subsubsection{Example 5: Treatment affects attrition biasing measure of
-outcome}\label{example-5-treatment-affects-attrition-biasing-measure-of-outcome}
+\subsubsection{Example 4: Demographic Measures at End of Study Condition
+on a Collider That Opens a Backdoor
+Path}\label{example-4-demographic-measures-at-end-of-study-condition-on-a-collider-that-opens-a-backdoor-path}
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 5\)
-Suppose that the experimentally condition affects measurement error in
+Table~\ref{tbl-terminologyelconfoundersexperiments}
+\(\mathcal{G}_{4.1}\) illustrates the threat of confounding bias by
+adjusting for post-treatment variables, here affected only by the
+treatment and an unmeasured cause of the outcome. Suppose source
+credibility affects religiosity (religious people are reminded of their
+faith), but there is no experimental effect of framing on credibility.
+Imagine further that there is an unmeasured common cause of the
+covariate religiosity and the outcome source credibility. This
+unmeasured confounder might be religious education in childhood. In this
+scenario, conditioning on the post-treatment variable religiosity will
+open a backdoor path between the treatment and outcome, leading to an
+association in the absence of causation. Again, we find that
+randomisation did not prevent confounding.
+
+Table~\ref{tbl-terminologyelconfoundersexperiments}
+\(\mathcal{G}_{4.2}\) clarifies a response. Again, unless investigators
+can rule out an effect of treatment, they should not condition on a
+post-treatment covariate. The covariates of interest should be measured
+before randomisation.
+
+\subsubsection{Example 5: Treatment Affects Attrition Biasing Measure of
+Outcome}\label{example-5-treatment-affects-attrition-biasing-measure-of-outcome}
+
+Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{5}\)
+Suppose that the experimental condition affects measurement error in
 self-reported source credibility \(U_{\Delta Y}\). For example, suppose
 that source framing has no effect on credibility. However, those in the
-scientific authority condition are more likely to express credibilty for
-science from self-presentation bias. Likewise, perceiving the
+scientific authority condition are more likely to express credibility
+for science due to self-presentation bias. Likewise, perceiving the
 investigators to be irreligious, participants in the religious source
 framing condition might report less credibility for religious
 authorities than they secretly harbour. Directed measurement error from
@@ -514,21 +589,21 @@ association in the absence of true causality, which we denote by
 removing any arrow between the treatment \(A\) and the true outcome
 \(Y\).
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 5\)
+Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{5}\)
 reveals there is no easy solution to directed measurement error bias. If
 the magnitude of bias were known, investigators could apply adjustments.
 Additional experiments might be devised that are insensitive to directed
-measurement error bias. Investigators might compute sensitivity analysis
-to example how much measurement error bias would be required to explain
-away a results (refer to Linden \emph{et al.}
+measurement error bias. Investigators might compute sensitivity analyses
+to examine how much measurement error bias would be required to explain
+away a result (refer to Linden \emph{et al.}
 (\citeproc{ref-linden2020EVALUE}{2020}) for relatively easy-to-implement
-sensitivity analysis.) The point we make here is that randomisation does
+sensitivity analysis). The point we make here is that randomisation does
 not prevent confounding by directed measurement error bias.
-Investigators must be vigilent.
+Investigators must be vigilant.
 
-\subsubsection{Example 6: Per protocol effect lost in sustained
-treatments where treatment adherence is affected by a measured
-confounder}\label{example-6-per-protocol-effect-lost-in-sustained-treatments-where-treatment-adherence-is-affected-by-a-measured-confounder}
+\subsubsection{Example 6: Per Protocol Effect Lost in Sustained
+Treatments Where Treatment Adherence Is Affected by a Measured
+Confounder}\label{example-6-per-protocol-effect-lost-in-sustained-treatments-where-treatment-adherence-is-affected-by-a-measured-confounder}
 
 Setting aside self-inflicted injuries of post-treatment conditioning and
 directed measurement error, randomisation recovers unbiased causal
@@ -537,24 +612,24 @@ adherence, these effect estimates correspond to the causal effects of
 the treatments themselves. However, adherence is seldom perfect. The
 following examples reveal challenges for recovering per-protocol effects
 in settings where there is imperfect adherence.
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 6-8\)
-are adapted from Hernán \emph{et al.}
+Table~\ref{tbl-terminologyelconfoundersexperiments}
+\(\mathcal{G}_{6-8}\) are adapted from Hernán \emph{et al.}
 (\citeproc{ref-hernan2017per}{2017}).
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 6\)
+Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{6}\)
 illustrates the threat for identifying the per-protocol effect in
 sustained treatments where treatment adherence is affected by a measured
 confounder. Consider a sequential experiment that investigates the
 effects of sustained adherence to yoga on psychological distress,
-measured at the end of study. Suppose that inflexible people are less
-likely to adhere the protocols set out in the experiment, and so do not.
-Suppose that flexibility is measured by indicator \(L\). If we do not
-codition on \(L\) there is an open path from
-\(A_1 \association L_0 \association U \association Y_2\). Although
-investigators may recover the effect of randomisation into treatment,
-the per-protocol effect is confounded.
+measured at the end of the study. Suppose that inflexible people are
+less likely to adhere to the protocols set out in the experiment and
+therefore do not. Suppose that flexibility is measured by indicator
+\(L\). If we do not condition on \(L\), there is an open path from
+\(A_1 \associationred L_0 \associationred U \associationred Y_2\).
+Although investigators may recover the effect of randomisation into
+treatment, the per-protocol effect is confounded.
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 6\)
+Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{6}\)
 also clarifies a response. Conditioning on \(L_0\) and \(L_1\) will
 block the backdoor path, leading to an unbiased per-protocol effect
 estimate.
@@ -564,7 +639,7 @@ treatments where past treatments affect measured confounder of future
 treatment
 adherence}\label{example-7-per-protocol-effect-lost-in-sustained-treatments-where-past-treatments-affect-measured-confounder-of-future-treatment-adherence}
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 7\)
+Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{7}\)
 illustrates the threat for identifying the per-protocol effect in
 sustained treatments where past treatments affect measured confounder of
 future treatment adherence. Suppose that yoga affects flexibility. We
@@ -572,12 +647,12 @@ should condition on pre-treatment measures of flexibility to identify
 the per-protocal effect. However, conditioning on the post-treatment
 measure of flexibilty, \(\boxed{L_1}\) induces collider stratification
 bias. This path runs from
-\(A_1 \association \L_1 \association U \association Y_3\). However, if
-we do not condition on \(L_1\) there is an open backdoor path from
-\(A_1 \association U \association Y_3\). We cannot estimate a
-per-protocal effect by conditioning strategies.
+\(A_1 \associationred L_1 \associationred U \associationred Y_3\).
+However, if we do not condition on \(L_1\) there is an open backdoor
+path from \(A_1 \associationred U \associationred Y_3\). We cannot
+estimate a per-protocal effect by conditioning strategies.
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 7\)
+Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{7}\)
 does not clarify the response. However, in a sequential treatment with
 fixed strategies, in which there is sequential exchangeability -- or no
 unmeasured confounding at each time point -- valid estimators for the
@@ -590,44 +665,44 @@ effect of doing yoga on well-being -- the per-protocal effect, requires
 special methods. These methods are not routinely used in the human
 sciences.
 
-\subsubsection{Example 8: Per protocol effect lost in sustained
-treatments because both measured and unmeasured confounders affect
-treatment
-adherence}\label{example-8-per-protocol-effect-lost-in-sustained-treatments-because-both-measured-and-unmeasured-confounders-affect-treatment-adherence}
+\subsubsection{Example 8: Per Protocol Effect Lost in Sustained
+Treatments Because Both Measured and Unmeasured Confounders Affect
+Treatment
+Adherence}\label{example-8-per-protocol-effect-lost-in-sustained-treatments-because-both-measured-and-unmeasured-confounders-affect-treatment-adherence}
 
-Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G} 8\)
-llustrates the threat for identifying the per-protocol effect in
-sustained treatments where there is both measured and unmeasured
-confounders. Suppose flexibility affects adherence, that yoga affects
-flexibilty, and that an unmeasured variable, say prejudice toward
-eastern spiritual practices affects adherence. We have no measures for
+Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{8}\)
+illustrates the threat for identifying the per-protocol effect in
+sustained treatments where there are both measured and unmeasured
+confounders. Suppose flexibility affects adherence, yoga affects
+flexibility, and an unmeasured variable, such as prejudice toward
+eastern spiritual practices, affects adherence. We have no measures for
 this variable. There is unmeasured confounding.
 
 If there were no effect of yoga on well-being except through
 flexibility, and if flexibility were not affected by the unmeasured
-antipathy toward eastern spiritual practices, and further if the effect
-of flexibilty on yoga at each time point were condititionally
-independent of all future counterfactual data, both for the treatments
-and the outcomes, then it might be possibile to construct special
-estimators that identify the per-protocol effect of yoga on well-being
-in the presence of unmeasured confounding that affects adherence (refer
-to Hernán \emph{et al.} (\citeproc{ref-hernan2017per}{2017})). Clearly
-we have come a long way from the ANOVAs routinely deployed in
-experimental studies. However, if we seek to understand the effect of
-yoga on well-being and not the effect of random-assignment to yoga on
+antipathy toward eastern spiritual practices, and further, if the effect
+of flexibility on yoga at each time point were conditionally independent
+of all future counterfactual data, both for the treatments and the
+outcomes, then it might be possible to construct special estimators that
+identify the per-protocol effect of yoga on well-being in the presence
+of unmeasured confounding that affects adherence (refer to Hernán
+\emph{et al.} (\citeproc{ref-hernan2017per}{2017})). Clearly, we have
+come a long way from the ANOVAs routinely deployed in experimental
+studies. However, if we seek to understand the effect of yoga on
+well-being and not the effect of random assignment to yoga on
 well-being, we require special estimators.
 
 \subsection{Conclusions}\label{conclusions}
 
 The examples we have considered here hardly exhaust threats to causal
-inference in experiments. Wherever the sample at the end of study
-differs in the distribution effect modifiers from the sample population
-at the start of study, results will not generalise as we hope. Such bias
-goes by different names, such as selection-bias or selection-restriction
-bias or sample restriction bias. We have not considered these threats.
-It does not take much imagination to imagine threats to valid inference
-beyond those considered here. However, I hope the eight examples
-considered here persuade investigators of the following:
+inference in experiments. Whenever the sample at the end of a study
+differs in the distribution of effect modifiers from the sample
+population at the start, results will not generalise as we hope. Such
+bias goes by different names, such as selection bias or
+target-restriction bias (refer to
+(\citeproc{ref-yola}{\textbf{yola?}})). We have not considered these
+threats here. However, I hope the eight examples presented persuade
+investigators of the following:
 
 First, confounding biases are possible in randomised experiments even
 when randomisation succeeds.
@@ -635,39 +710,49 @@ when randomisation succeeds.
 Second, causal directed acyclic graphs are useful for clarifying these
 biases.
 
-Third, many such biases are self-inflicted. These self-inflicted biases
-arise from conditioning on variables that may be affected by treatment
-assignment. If an experiment consists of a single treatment, unless
-investigators are certain that treatments to do not affect covariates,
-covariate data should be collected before randomisation.
+Third, many such biases are self-inflicted, in the sense that it is easy
+to destroy the benefits of randomisation through poor research designs.
+These self-inflicted biases arise from conditioning on variables that
+may be affected by treatment assignment. By the same token, the remedy
+to self-inflicted injury is easily applied. Do not injury yourself. If
+an experiment consists of a single treatment, unless you are certain
+that treatments do not affect covariates, covariate data should be
+collected before randomisation.
 
-Fourth, ``attention checks'' should not be used to select participants
+Fourth, `attention checks' should not be used to select participants
 after treatments have been randomised. If attention is a relevant
 covariate, measures should be taken before randomisation.
 
-Fifth, investigators should not adopt naive practices of infering
-per-protocal effects from the portion of the sample that has followed
+Fifth, investigators should not adopt naive practices of inferring
+per-protocol effects from the portion of the sample that has followed
 experimental protocols. Not only is such selection nearly guaranteed to
-results in differences between the study population at the start and end
-of study, compromising external validity, we have considered that both
-measured and unmeasured confounders may invalidate per-protocol results
-for the retained sample.
+result in differences between the study population at the start and end
+of the study, compromising external validity
+(\citeproc{ref-yola}{\textbf{yola?}}), but we have also considered that
+both measured and unmeasured confounders may invalidate per-protocol
+results for the retained sample.
 
 Sixth, methods for identifying causal effects in observational settings
-may be useful for the identification of causal effects in randomised
-experiments because after randomisation, every experiment becomes and
-observational study.
+may be useful for identifying causal effects in randomised experiments
+because, after randomisation, every experiment becomes an observational
+study.
 
 Seventh, the points that we consider here for experiments apply to
-observational studies that have obtain psuedorandomisation through
-baseline adjustments. Standardly employed methods in the observational
-science such as structural equation models or multi-level models will
-encounter the same problems that arise in experimental steetings with
-sustained treatment strategies. In an aphorism, every observational
-study becomes an observational study. That is, sustained treatment
-strategies require sequential randomisation. Satisfying the assumptions
-for valid causal inferences is typically much more challenging than many
-investigators presently understand.
+observational studies that have obtained pseudorandomisation through
+baseline adjustments. Standardly employed methods in observational
+science, such as structural equation models or multi-level models, will
+encounter the same problems that arise in experimental settings with
+sustained treatment strategies. Sustained treatment strategies require
+sequential randomisation (refer to Richardson and Robins
+(\citeproc{ref-richardson2013}{2013}); Young \emph{et al.}
+(\citeproc{ref-young2014identification}{2014});
+(\citeproc{ref-yola}{\textbf{yola?}})).
+
+Here, we have demonstrated that satisfying the assumptions for valid
+causal inferences is typically much more challenging than many
+experimental human scientists presently understand. Methods for causal
+inference have wide scope for improving the design, analysis, and
+interpretation of experimental research.
 
 \newpage{}
 
@@ -679,25 +764,9 @@ received support from the Max Planck Institute for the Science of Human
 History. The Funders had no role in preparing the manuscript or the
 decision to publish it.
 
-\subsection{Acknowledgements}\label{acknowledgements}
-
-Errors are my own.
-
 \newpage{}
 
-\subsection{Appendix A: Glossary}\label{appendix-a-glossary}
-
-\begin{table}
-
-\caption{\label{tbl-experiments}Glossary}
-
-\centering{
-
-\glossaryTerms
-
-}
-
-\end{table}%
+\subsection{References}\label{references}
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
@@ -710,6 +779,12 @@ Nonparametric efficient causal mediation with intermediate confounders.
 Hernan, MA, and Robins, JM (2024) \emph{Causal inference: What if?},
 Taylor \& Francis. Retrieved from
 \url{https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/}
+
+\bibitem[\citeproctext]{ref-hernuxe1n2004}
+Hernán, MA (2004) A definition of causal effect for epidemiological
+research. \emph{Journal of Epidemiology \& Community Health},
+\textbf{58}(4), 265--271.
+doi:\href{https://doi.org/10.1136/jech.2002.006361}{10.1136/jech.2002.006361}.
 
 \bibitem[\citeproctext]{ref-hernan2017per}
 Hernán, MA, Robins, JM, et al. (2017) Per-protocol analyses of pragmatic
@@ -727,13 +802,54 @@ analysis for unmeasured confounding in observational studies using
 e-values: The evalue package. \emph{The Stata Journal}, \textbf{20}(1),
 162--175.
 
+\bibitem[\citeproctext]{ref-pearl1995}
+Pearl, J (1995) Causal diagrams for empirical research.
+\emph{Biometrika}, \textbf{82}(4), 669--688.
+
+\bibitem[\citeproctext]{ref-pearl2009a}
+Pearl, J (2009) \emph{Causality}, Cambridge University Press.
+
+\bibitem[\citeproctext]{ref-richardson2013}
+Richardson, TS, and Robins, JM (2013) Single world intervention graphs:
+A primer. In, Citeseer. Retrieved from
+\url{https://core.ac.uk/display/102673558}
+
 \bibitem[\citeproctext]{ref-suzuki2020}
 Suzuki, E, Shinozaki, T, and Yamamoto, E (2020) Causal Diagrams:
 Pitfalls and Tips. \emph{Journal of Epidemiology}, \textbf{30}(4),
 153--162.
 doi:\href{https://doi.org/10.2188/jea.JE20190192}{10.2188/jea.JE20190192}.
 
+\bibitem[\citeproctext]{ref-tripepi2007}
+Tripepi, G, Jager, KJ, Dekker, FW, Wanner, C, and Zoccali, C (2007)
+Measures of effect: Relative risks, odds ratios, risk difference, and
+{`}number needed to treat{'}. \emph{Kidney International},
+\textbf{72}(7), 789--791.
+doi:\href{https://doi.org/10.1038/sj.ki.5002432}{10.1038/sj.ki.5002432}.
+
+\bibitem[\citeproctext]{ref-young2014identification}
+Young, JG, Hernán, MA, and Robins, JM (2014) Identification, estimation
+and approximation of risk under interventions that depend on the natural
+value of treatment using observational data. \emph{Epidemiologic
+Methods}, \textbf{3}(1), 1--19.
+
 \end{CSLReferences}
+
+\newpage{}
+
+\subsection{Appendix A: Glossary}\label{id-app-a}
+
+\begin{table}
+
+\caption{\label{tbl-experiments}Glossary}
+
+\centering{
+
+\glossaryTerms
+
+}
+
+\end{table}%
 
 
 
