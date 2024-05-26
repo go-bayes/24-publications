@@ -1,8 +1,8 @@
 ---
 title: 'Causal Inference for Interaction, Mediation, and Time-Varying Treatments'
 abstract: |
-  The analysis of 'moderation', 'interaction', 'mediation', and 'longitudinal growth' is widespread in the human sciences, yet subject to confusion. We use advances in causal inference to explain why the quantities derived from statistical models routinely employed in the human sciences are often ambiguous. We emphasise the necessity of (1) clearly stating a causal question and (2) assessing the identifiability of the question with available data before statistical analysis. Without these steps, confusion is inevitable. Properly framing and addressing causal questions of interaction, mediation, and time-varying treatments reveals the limitations of popular methods and guides researchers to a clearer understanding of the phenomena that animate our interests.
-  
+  The analysis of 'moderation', 'interaction', 'mediation', and 'longitudinal growth' is widespread in the human sciences, yet subject to confusion. To clarify these concepts, it is essential to state causal estimands, which requires specifying counterfactual contrasts for a target population on an appropriate scale. Once causal estimands are defined, we must consider their identification. I employ both causal acyclic diagrams and single world intervention graphs to elucidate the identification process. This approach reveals that common methods, including sophisticated techniques in multi-level regression and statistical structural equation modelling, cannot recover the quantities of interest when there are multiple treatments. By framing and addressing causal questions of interaction, mediation, and time-varying treatments properly, we can expose the limitations of popular methods and guide researchers to a clearer understanding of the phenomena that animate our interests.
+
   **KEYWORDS**: *Causal Inference*; *DAGs*; *Evolution*; *Mediation*; *Longitudinal Growth*; Single World Intervention Graphs, *SWIGs*; *Time-varying Treatments*
 
 author: 
@@ -107,7 +107,7 @@ The young Charles Darwin was a keen fossil hunter and amateur geologist. In Augu
 
 > We spent many hours in Cwm Idwal, ... but neither of us saw a trace of the wonderful glacial phenomena all around us; we did not notice the plainly scored rocks, the perched boulders, the lateral and terminal moraines. Yet these phenomena are so conspicuous that ... a house burnt down by fire did not tell its story more plainly than did this valley. If it had still been filled by a glacier, the phenomena would have been less distinct than they now are. [@darwin1887life: p.25]
 
-This 'striking instance of how easy it is to overlook phenomena, however conspicuous' [@darwin1887life: p.25] is cited in cultural evolution to emphasise the importance of theory for organising observations [@wilson2008evolution]. However, the importance of theory to scientific discovery carries even broader relevance: it applies to the statistical methods scientists routinely apply to the data they collect. Without a clear framework that relates statistical models to observations, the understanding we seek from our data remains elusive.
+This 'striking instance of how easy it is to overlook phenomena, however conspicuous' [@darwin1887life: p.25] is cited in cultural evolution to emphasise the importance of theory for organising observations [@wilson2008evolution]. However, the importance of theory to scientific discovery carries broader relevance: it applies to the statistical methods scientists routinely apply to the data they collect. Without a clear framework that relates statistical models to observations, the understanding we seek from our data remains elusive.
 
 Across many human sciences, we apply statistical models to data and report 'moderation', 'interaction', 'mediation', and 'longitudinal growth'. How are we to interpret the results of these models? It is often unclear. The confidence with which investigators report findings does not make interpretation any clearer. The problem is that investigators are typically interested in causal questions. However, if the conditional associations that our models produce suggest causality, this is accidental. Indeed, the conditional associations in such models hallucinate true association and their signs [@westreich2013]. It is often unclear whether association is evidence for association.
 
@@ -140,34 +140,36 @@ Individual causal effects cannot generally be observed, but we can compute avera
 
 While experiments often deviate from the ideal, potentially failing these assumptions, the ideal experiment satisfies them. None of these assumptions are guaranteed in observational or 'real-world' settings. Only the positivity assumption can be verified by data.
 
-### Schematic Workflow for Inferring Causal Effects from Real-World Data
+### Schematic Workflow for Inferring Causal Effects from Real-World Data 
 
 1. **State a well-defined intervention.**
-   Clearly define the treatment or exposure to ensure precise implementation and interpretation. This clarity helps in standardizing the analysis of interventions across different settings and times.
+   Clearly define the treatment or exposure to ensure precise implementation and interpretation. This clarity helps standardise the analysis of interventions across different settings and times.
 
 2. **State a well-defined outcome.**
    Specify the outcome measure so that a causal contrast is interpretable. 
 
 3. **Clarify the target population.**
-   Define the population to whom the results will generalise to ensure the relevance and applicability of the findings. 
+   Define the population to whom the results will generalise. 
 
 4. **Ensure treatments to be compared satisfy causal consistency.**
-   Verify that the treatments correspond to interpretable intervention (refer to @bulbulia2023)
+   Verify that the treatments correspond to interpretable interventions (refer to @bulbulia2023).
 
 5. **Evaluate whether treatment groups, conditional on measured covariates, are exchangeable.**
-   By balancing confounding covariates across treatment levels, ensure that group differences are 'ignorable'. This step is critical for internal validity.
+   Balancing confounding covariates across treatment levels ensures that differences between groups are 'ignorable'.
 
 6. **Check if the positivity assumption is satisfied.**
    Confirm that all individuals have a non-zero probability of receiving each treatment level, given their covariates. 
 
 7. **Ensure that the measures relate to the scientific questions at hand.**
-   Ensure that the data collected and the measures used are directly relevant to the research question. As part of this, evaluate the structural features of measurement error bias. 
+   Ensure that the data collected and the measures used directly relate to the research question. As part of this, evaluate structural features of measurement error bias.
 
 8. **Consider strategies to ensure the study group measured at the end of the study represents the target population.**
-  If the study population both at the beginning and end of treatment differs in the distribution of variables that modify the effect of a treatment on the outcome the study will be biased 'off-the-null' [@hernan2017SELECTIONWITHOUTCOLLIDER]
+   If the study population both at the beginning and end of treatment differs in the distribution of variables that modify the effect of a treatment on the outcome, the study will be biased when there is a treatment effect (see below).
 
 9. **Clearly communicate the reasoning, evidence, and decision-making that inform steps 1-8.**
    Provide transparent and thorough documentation of the causal inference process. This includes detailing the assumptions, methods, and decisions made throughout the study to support the validity of causal inference for the study population and the reliability of generalisations to the target population.
+
+(This workflow is repoduced from @bulbulia2023 and @bulbulia2024wierd, where it is explained in more detail. See also @ogburn2021.)
 
 ### Conventions Used in This Article
 
@@ -247,7 +249,7 @@ In this section, we consider effect modification.
 
 ### Effect-Modification
 
-First, we define the 'sharp-null hypothesis' as the supposition that there is no effect of the exposure on the outcome for any unit in the target population. Unless the sharp-null hypothesis is false, there may be effect-modification. The variability of individual units cannot be directly evaluated: recall each unit may receive only one treatment. However, the variability within groups of units may be quantified and compared. For any study worth conducting, we cannot evaluate whether the sharp-null hypothesis is false (otherwise, why conduct the study?). Therefore, we must assume that treatment effects may be heterogeneous. We might seek to qualitatively evaluate such heterogeneity (refer to @grf2024; @vansteelandt2022a). Alternatively, we might seek to compare the effects of interventions between groups.
+First, we define the 'sharp-null hypothesis' as the supposition that there is no effect of the exposure on the outcome for any unit in the target population. Unless the sharp-null hypothesis is false, there may be effect-modification (@bulbulia2024wierd). The variability of individual units cannot be directly evaluated: recall each unit may receive only one treatment. However, the variability within groups of units may be quantified and compared. For any study worth conducting, we cannot evaluate whether the sharp-null hypothesis is false (otherwise, why conduct the study?). Therefore, we must assume that treatment effects may be heterogeneous. We might seek to qualitatively evaluate such heterogeneity (refer to @grf2024; @vansteelandt2022a). Alternatively, we might seek to compare the effects of interventions between groups.
 
 ::: {#tbl-terminologyeffectmodification}
 ```{=latex}
@@ -270,7 +272,7 @@ Effect Modification
 
 In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_1$, we represent that $F$ is a direct effect modifier for the effect of $A$ on $Y$. The open arrow indicates that we are not attributing causality to $F$. Because our estimand does not involve intervening on $Z$, there is no need to close its backdoor paths. Note that if $F$ were to affect $A$, we could still estimate the effect-modification of $A$ on $Y$ because $F$ has no causal interpretation. However, if $A$ were to cause $F$, and $F$ were to cause $Y$, then by the chain rule (recall @tbl-terminologygeneral $\mathcal{G}_4$), conditioning on $F$ would bias the effect estimate of $A$ on $Y$.
 
-In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_2$, we represent that $F$ is an unobserved direct effect modifier of $A$ to $Y$. When the distribution of direct effect modifiers $F$ differs between two populations and effect modification is non-linear, marginal treatment effects between populations will generally differ and will not easily transport from one population to another. The concept of an average treatment effect has no meaning without a population over which the effect marginalises. This point, although obvious, has profound implications when investigators seek to assess whether their research generalises. See (@hernan2024WHATIF).
+In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_2$, we represent that $F$ is an unobserved direct effect modifier of $A$ to $Y$. When the distribution of direct effect modifiers $F$ differs between two populations and effect modification is non-linear, marginal treatment effects between populations will generally differ and will not easily transport from one population to another. The concept of an average treatment effect has no meaning without a population over which the effect marginalises. This point, although obvious, has profound implications when investigators seek to assess whether their research generalises; refer to @hernan2024WHATIF, @bulbulia2024wierd. For example, if the study population differs in the distribution of features that modify a treatment effect, and no correction is applied,  effect estimates will be biased for the target population in at least one measure of effect [@greenland2009commentary; @lash2020; @bulbulia2024wierd]
 
 We present two candidate effect modifiers in @tbl-terminologyeffectmodificationtypes $\mathcal{G}_3$. Notice that whether a variable is an effect modifier also depends on which other variables are included in the model. Here, $F$ is a direct effect modifier and $G$, a descendant of $F$, is an indirect effect modifier. Suppose we were interested in whether treatment effects vary (on the difference scale) within levels of $F$. For example, imagine $F$ is childhood deprivation, $G$ is educational achievement, $A$ is a government educational initiative, and $Y$ is recycling. If we were to condition on $F$, we would not observe effect modification by education $G$ for the effect of the government initiative $A$ on recycling behaviour $Y$: $\boxed{F}$ blocks the path $G \association \boxed{F} \association Y$.
 
@@ -331,10 +333,12 @@ We have stated each causal question in relation to well-defined causal contrast 
 Imagine we obtain the following estimates from our study:
 
 Outcomes under A = 0:
+
 - $\mu_{00} = 5$
 - $\mu_{01} = 15$
 
 Outcomes under A = 1:
+
 - $\mu_{10} = 10$
 - $\mu_{11} = 20$
 
@@ -378,7 +382,7 @@ SWIGs employ Pearl's rules of d-separation but offer additional benefits by grap
 ```{=latex}
 \swigtable
 ```
-Single World Interventions Graphs $\mathcal{G}_{3-4}$ present separate causal diagrams for each treatment to be contrasted. A Single World Intervention Template $\mathcal{G}_{2}$ is a 'graph value function' that produces the individual counterfactual graphs [@richardson2013]. Contrastingly, causal directed acyclic graphs such as $\mathcal{G}_1$ require positing interventional distributions. The formalism that underpins these interventional distributions is mathematically equivalent to that of the potential outcomes framework -- if we assume that the errors of the underlying structural causal models that define the nodes on which interventions occur are independent [@richardson2013]. Not only do SWIGs allow us to evaluate identification when errors are not independent, but they also allow the projection of distinct interventions to be compared to our causal diagram. This is helpful when more than one point intervention is considered.
+Single World Interventions Graphs ($\mathcal{G}_{3-4}$) present separate causal diagrams for each treatment to be contrasted. A Single World Intervention Template ($\mathcal{G}_{2}$) is a 'graph value function' that produces the individual counterfactual graphs [@richardson2013]. Contrastingly, causal directed acyclic graphs, such as $\mathcal{G}_1$, require positing interventional distributions. The formalism that underpins these interventional distributions is mathematically equivalent to that of the potential outcomes framework, assuming the errors of the underlying structural causal models that define the nodes on which interventions occur are independent [@richardson2013]. SWIGs not only allow us to evaluate identification when errors are not independent, but they also permit the comparison of distinct interventions to our causal diagram. This is particularly useful when considering more than one point intervention. An example of an error Pearl made, which is clearly avoidable using Single World Intervention Graphs, is provided in [Appendix B](#id-app-b).
 :::
 
 #### Single World Intervention Graphs Work by Node-Splitting
@@ -387,8 +391,8 @@ We create a Single World Intervention Graph by 'node-splitting' at each interven
 
 Consider a template graph @tbl-swigtable $\mathcal{G}$. Applying node-splitting to $A$ involves creating separate graphs for each value of $A$ to be contrasted.
 
-1. **SWIG for $A = 0**: Denoted as $\mathcal{G}(A=0)$, this graph shows the hypothetical scenario where $A$ is set to 0.
-2. **SWIG for $A = 1**: Denoted as $\mathcal{G}(A=1)$, this graph shows the hypothetical scenario where $A$ is set to 1.
+1. **SWIG for $A$ = 0**: Denoted as $\mathcal{G}_{A=0}$, this graph shows the hypothetical scenario where $A$ is set to 0.
+2. **SWIG for $A$ = 1**: Denoted as $\mathcal{G}_{A=1}$, this graph shows the hypothetical scenario where $A$ is set to 1.
 
 In these graphs, the node corresponding to the outcome $A$ is split, relabelled with the random and fixed component, and then each node that follows is labelled with the fixed component until the next intervention. Here, $Y$ is the only variable to follow $A$ and it is relabelled either $Y(0)$ or $Y(1)$ corresponding to whether $A=1$ or $A=0$; hence $Y$ is relabelled as either $Y(0)$ or $Y(1)$. Note that we do not place both $Y(0)$ and $Y(1)$ on the same Single World Intervention Graph because the variables are not jointly observed. Hence, we evaluate $Y(0)\coprod A = 0| L$ and $Y(1)\coprod A = 1 | L$ separately, and never $[Y(0) Y(1)] \coprod A | L$.
 
@@ -448,7 +452,7 @@ Note that if $A$ and $B$ were to affect each other, we would need to collect tim
 
 ## Part 3: Causal Mediation Analysis {#id-sec-3}
 
-In 1992, Robins and Greenland demonstrated that decomposing the total effect into natural direct and indirect effects clarifies the objectives of causal mediation analysis [@robins1992]. This landmark paper has been to mediation analysis what "On the Origin of Species" has been to evolutionary biology. However, the practice of mediation analysis in human sciences is pervaded with confusion. The primary source of this confusion is the application of statistical models to data without first defining the causal quantities of interest. Associations derived from mediation analysis do not necessarily imply causation—indeed, they are typically uninterpretable. This section outlines how to formulate causal questions in mediation analysis.
+In 1992, Robins and Greenland demonstrated that decomposing the total effect into natural direct and indirect effects clarifies the objectives of causal mediation analysis [@robins1992]. This landmark paper has been to mediation analysis what "On the Origin of Species" has been to evolutionary biology. However, mediation analysis in the human sciences is rife with confusion. The primary source of this confusion is applying statistical models to data without first defining the causal quantities of interest. Associations derived from mediation analysis do not necessarily imply causation and are typically uninterpretable. This section outlines how to formulate causal questions in mediation analysis.
 
 ### Defining a Mediation Estimand
 
@@ -759,11 +763,11 @@ Of course, the details of every problem should be developed in relation to a sci
 
 ## Conclusions {#id-sec-5}
 
-The interest in causality is ancient. Democritus wrote, 'I would rather discover one cause than gain the kingdom of Persia' [@freeman1948ancilla]. Hume provided a general account of causality by referencing counterfactuals: '... where, if the first object had not been, the second never would have existed' [@hume1902]. However, it was not until Jerzy Neyman's master's thesis that a quantitative analysis of causality was formalised [@neyman1923]. Remarkably, Neyman's work went largely unnoticed until the 1970s when Harvard statistician Donald Rubin formalised what became known as the 'Rubin Causal Model' (also the Rubin-Neyman Causal Model) [@holland1986; @rubin1976].
+The interest in causality is ancient. Democritus wrote, 'I would rather discover one cause than gain the kingdom of Persia' [@freeman1948ancilla]. Hume provided a general account of causality by referencing counterfactuals: '... where, if the first object had not been, the second never would have existed' [@hume1902]. However, it was not until Jerzy Neyman's master's thesis that a quantitative analysis of causality was formalised [@neyman1923]. Remarkably, Neyman's work went largely unnoticed until the 1970s, when Harvard statistician Donald Rubin formalised what became known as the 'Rubin Causal Model' (also the Rubin-Neyman Causal Model) [@holland1986; @rubin1976].
 
-In 1986, Harvard statistician James Robins extended the potential outcomes framework to time-varying treatments, laying the foundation for powerful new longitudinal data science methods [@robins1986]. Judea Pearl introduced directed acyclic graphs (causal DAGs), which made addressing identification problems transparent and accessible to non-specialists [@pearl1995]. Robins and Richardson extended Pearl's graphical models, building on Robins' earlier work, to evaluate counterfactual causal contrasts on graphs. Concurrently, the foundations of the causal revolution in economics were being established, creating a fertile frontier in causal data sciences. By the early 2000s, targeted learning frameworks were being developed [@vanderlaan2011], along with causal mediation analysis methods [@robins1992; @pearl2009a; @vanderweele2015; @vanderweele2014a; @Diaz2023; @rudolph2024mediation; @vansteelandt2012], and techniques for analysing time-varying treatments [@robins1986; @robins1999; @young2014identification; @richardson2013; @diaz2012population; @robins2008estimation; @shpitser2022multivariate; @richardson2023potential].
+In 1986, Harvard statistician James Robins extended the potential outcomes framework to time-varying treatments, laying the foundation for powerful new longitudinal data science methods [@robins1986]. Judea Pearl introduced directed acyclic graphs (causal DAGs), making identification problems transparent and accessible to non-specialists [@pearl1995]. Robins and Richardson extended Pearl's graphical models to evaluate counterfactual causal contrasts on graphs, building on Robins' earlier work. Concurrently, the causal revolution in economics was establishing a fertile frontier in causal data sciences. By the early 2000s, targeted learning frameworks were being developed [@vanderlaan2011], along with causal mediation analysis methods [@robins1992; @pearl2009a; @vanderweele2015; @vanderweele2014a; @Diaz2023; @rudolph2024mediation; @vansteelandt2012], and techniques for analysing time-varying treatments [@robins1986; @robins1999; @young2014identification; @richardson2013; @diaz2012population; @robins2008estimation; @shpitser2022multivariate; @richardson2023potential].
 
-Readers should be aware that the causal inference literature contains vigorous debates at the horizons of discovery. However, there is a shared consensus about the foundations of causal inference and a common conceptual and mathematical vocabulary within which to express disagreements and accumulate progress—a hallmark of a productive science.
+Readers should note that the causal inference literature contains vigorous debates at the horizons of discovery. However, there is a shared consensus about the foundations of causal inference and a common conceptual and mathematical vocabulary within which to express disagreements and accumulate progress—a hallmark of a productive science.
 
 Although the causal revolution is progressing and gaining momentum, many areas of human science have yet to participate and benefit. The necessity for researchers to acquire new skills, coupled with the intensive requirement for data collection, has significant implications for research design, funding, and the accepted pace of scientific publishing. To foster essential changes in causal inference education and practice, the human sciences need to shift from a predominantly output-focused, correlation-reporting culture to a slow, careful, creative culture that promotes retraining and funds time-series data collection. Such investments are worthwhile. Much as Darwin's theory transformed the biological sciences from speculative taxonomy, causal inference will transform the human sciences from butterfly collections of correlations to causal inferential sciences capable of addressing the causal questions that animate our curiosities.
 

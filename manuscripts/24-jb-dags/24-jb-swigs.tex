@@ -211,21 +211,25 @@ Treatments}
       
 
 
-\date{2024-05-26}
+\date{2024-05-27}
 \begin{document}
 \maketitle
 \begin{abstract}
 The analysis of `moderation', `interaction', `mediation', and
 `longitudinal growth' is widespread in the human sciences, yet subject
-to confusion. We use advances in causal inference to explain why the
-quantities derived from statistical models routinely employed in the
-human sciences are often ambiguous. We emphasise the necessity of (1)
-clearly stating a causal question and (2) assessing the identifiability
-of the question with available data before statistical analysis. Without
-these steps, confusion is inevitable. Properly framing and addressing
-causal questions of interaction, mediation, and time-varying treatments
-reveals the limitations of popular methods and guides researchers to a
-clearer understanding of the phenomena that animate our interests.
+to confusion. To clarify these concepts, it is essential to state causal
+estimands, which requires specifying counterfactual contrasts for a
+target population on an appropriate scale. Once causal estimands are
+defined, we must consider their identification. I employ both causal
+acyclic diagrams and single world intervention graphs to elucidate the
+identification process. This approach reveals that common methods,
+including sophisticated techniques in multi-level regression and
+statistical structural equation modelling, cannot recover the quantities
+of interest when there are multiple treatments. By framing and
+addressing causal questions of interaction, mediation, and time-varying
+treatments properly, we can expose the limitations of popular methods
+and guide researchers to a clearer understanding of the phenomena that
+animate our interests.
 
 \textbf{KEYWORDS}: \emph{Causal Inference}; \emph{DAGs};
 \emph{Evolution}; \emph{Mediation}; \emph{Longitudinal Growth}; Single
@@ -254,7 +258,7 @@ conspicuous' (\citeproc{ref-darwin1887life}{Darwin 1887}: p.25) is cited
 in cultural evolution to emphasise the importance of theory for
 organising observations (\citeproc{ref-wilson2008evolution}{Wilson
 2008}). However, the importance of theory to scientific discovery
-carries even broader relevance: it applies to the statistical methods
+carries broader relevance: it applies to the statistical methods
 scientists routinely apply to the data they collect. Without a clear
 framework that relates statistical models to observations, the
 understanding we seek from our data remains elusive.
@@ -372,40 +376,39 @@ Data}\label{schematic-workflow-for-inferring-causal-effects-from-real-world-data
 \item
   \textbf{State a well-defined intervention.} Clearly define the
   treatment or exposure to ensure precise implementation and
-  interpretation. This clarity helps in standardizing the analysis of
+  interpretation. This clarity helps standardise the analysis of
   interventions across different settings and times.
 \item
   \textbf{State a well-defined outcome.} Specify the outcome measure so
   that a causal contrast is interpretable.
 \item
   \textbf{Clarify the target population.} Define the population to whom
-  the results will generalise to ensure the relevance and applicability
-  of the findings.
+  the results will generalise.
 \item
   \textbf{Ensure treatments to be compared satisfy causal consistency.}
-  Verify that the treatments correspond to interpretable intervention
-  (refer to Bulbulia (\citeproc{ref-bulbulia2023}{2023}))
+  Verify that the treatments correspond to interpretable interventions
+  (refer to Bulbulia (\citeproc{ref-bulbulia2023}{2023})).
 \item
   \textbf{Evaluate whether treatment groups, conditional on measured
-  covariates, are exchangeable.} By balancing confounding covariates
-  across treatment levels, ensure that group differences are
-  `ignorable'. This step is critical for internal validity.
+  covariates, are exchangeable.} Balancing confounding covariates across
+  treatment levels ensures that differences between groups are
+  `ignorable'.
 \item
   \textbf{Check if the positivity assumption is satisfied.} Confirm that
   all individuals have a non-zero probability of receiving each
   treatment level, given their covariates.
 \item
   \textbf{Ensure that the measures relate to the scientific questions at
-  hand.} Ensure that the data collected and the measures used are
-  directly relevant to the research question. As part of this, evaluate
-  the structural features of measurement error bias.
+  hand.} Ensure that the data collected and the measures used directly
+  relate to the research question. As part of this, evaluate structural
+  features of measurement error bias.
 \item
   \textbf{Consider strategies to ensure the study group measured at the
   end of the study represents the target population.} If the study
   population both at the beginning and end of treatment differs in the
   distribution of variables that modify the effect of a treatment on the
-  outcome the study will be biased `off-the-null'
-  (\citeproc{ref-hernan2017SELECTIONWITHOUTCOLLIDER}{Hernán 2017})
+  outcome, the study will be biased when there is a treatment effect
+  (see below).
 \item
   \textbf{Clearly communicate the reasoning, evidence, and
   decision-making that inform steps 1-8.} Provide transparent and
@@ -415,6 +418,11 @@ Data}\label{schematic-workflow-for-inferring-causal-effects-from-real-world-data
   population and the reliability of generalisations to the target
   population.
 \end{enumerate}
+
+(This workflow is repoduced from Bulbulia
+(\citeproc{ref-bulbulia2023}{2023}) and Bulbulia
+(\citeproc{ref-bulbulia2024wierd}{2024}), where it is explained in more
+detail. See also Ogburn and Shpitser (\citeproc{ref-ogburn2021}{2021}).)
 
 \subsubsection{Conventions Used in This
 Article}\label{conventions-used-in-this-article}
@@ -620,16 +628,18 @@ In this section, we consider effect modification.
 First, we define the `sharp-null hypothesis' as the supposition that
 there is no effect of the exposure on the outcome for any unit in the
 target population. Unless the sharp-null hypothesis is false, there may
-be effect-modification. The variability of individual units cannot be
-directly evaluated: recall each unit may receive only one treatment.
-However, the variability within groups of units may be quantified and
-compared. For any study worth conducting, we cannot evaluate whether the
-sharp-null hypothesis is false (otherwise, why conduct the study?).
-Therefore, we must assume that treatment effects may be heterogeneous.
-We might seek to qualitatively evaluate such heterogeneity (refer to
-Tibshirani \emph{et al.} (\citeproc{ref-grf2024}{2024}); Vansteelandt
-and Dukes (\citeproc{ref-vansteelandt2022a}{2022})). Alternatively, we
-might seek to compare the effects of interventions between groups.
+be effect-modification (Bulbulia
+(\citeproc{ref-bulbulia2024wierd}{2024})). The variability of individual
+units cannot be directly evaluated: recall each unit may receive only
+one treatment. However, the variability within groups of units may be
+quantified and compared. For any study worth conducting, we cannot
+evaluate whether the sharp-null hypothesis is false (otherwise, why
+conduct the study?). Therefore, we must assume that treatment effects
+may be heterogeneous. We might seek to qualitatively evaluate such
+heterogeneity (refer to Tibshirani \emph{et al.}
+(\citeproc{ref-grf2024}{2024}); Vansteelandt and Dukes
+(\citeproc{ref-vansteelandt2022a}{2022})). Alternatively, we might seek
+to compare the effects of interventions between groups.
 
 \begin{table}
 
@@ -691,8 +701,15 @@ easily transport from one population to another. The concept of an
 average treatment effect has no meaning without a population over which
 the effect marginalises. This point, although obvious, has profound
 implications when investigators seek to assess whether their research
-generalises. See (Hernan and Robins
-(\citeproc{ref-hernan2024WHATIF}{2024})).
+generalises; refer to Hernan and Robins
+(\citeproc{ref-hernan2024WHATIF}{2024}), Bulbulia
+(\citeproc{ref-bulbulia2024wierd}{2024}). For example, if the study
+population differs in the distribution of features that modify a
+treatment effect, and no correction is applied, effect estimates will be
+biased for the target population in at least one measure of effect
+(\citeproc{ref-bulbulia2024wierd}{Bulbulia 2024};
+\citeproc{ref-greenland2009commentary}{Greenland 2009};
+\citeproc{ref-lash2020}{Lash \emph{et al.} 2020})
 
 We present two candidate effect modifiers in
 Table~\ref{tbl-terminologyeffectmodificationtypes} \(\mathcal{G}_3\).
@@ -808,9 +825,25 @@ contrast and population, here defined by membership in \(F\).
 
 Imagine we obtain the following estimates from our study:
 
-Outcomes under A = 0: - \(\mu_{00} = 5\) - \(\mu_{01} = 15\)
+Outcomes under A = 0:
 
-Outcomes under A = 1: - \(\mu_{10} = 10\) - \(\mu_{11} = 20\)
+\begin{itemize}
+\tightlist
+\item
+  \(\mu_{00} = 5\)
+\item
+  \(\mu_{01} = 15\)
+\end{itemize}
+
+Outcomes under A = 1:
+
+\begin{itemize}
+\tightlist
+\item
+  \(\mu_{10} = 10\)
+\item
+  \(\mu_{11} = 20\)
+\end{itemize}
 
 Next, we calculate the treatment effects on the difference and ratio
 scales for each group:
@@ -870,7 +903,7 @@ This has several advantages:
   individually, enhancing precision and clarity (refer to
   \hyperref[id-app-c]{Appendix C}).
 \item
-  \textbf{Tracking d-separation}: SWIGs help investigators keep track of
+  \textbf{Tracks d-separation}: SWIGs help investigators keep track of
   d-separation for each intervention, which is particularly useful when
   dealing with multiple interventions.
 \end{enumerate}
@@ -878,22 +911,24 @@ This has several advantages:
 \begin{table}
 
 \caption{\label{tbl-swigtable}Single World Interventions Graphs
-\(\mathcal{G}_{3-4}\) present separate causal diagrams for each
+(\(\mathcal{G}_{3-4}\)) present separate causal diagrams for each
 treatment to be contrasted. A Single World Intervention Template
-\(\mathcal{G}_{2}\) is a `graph value function' that produces the
+(\(\mathcal{G}_{2}\)) is a `graph value function' that produces the
 individual counterfactual graphs
 (\citeproc{ref-richardson2013}{Richardson and Robins 2013a}).
-Contrastingly, causal directed acyclic graphs such as \(\mathcal{G}_1\)
-require positing interventional distributions. The formalism that
-underpins these interventional distributions is mathematically
-equivalent to that of the potential outcomes framework -- if we assume
-that the errors of the underlying structural causal models that define
-the nodes on which interventions occur are independent
-(\citeproc{ref-richardson2013}{Richardson and Robins 2013a}). Not only
-do SWIGs allow us to evaluate identification when errors are not
-independent, but they also allow the projection of distinct
-interventions to be compared to our causal diagram. This is helpful when
-more than one point intervention is considered.}
+Contrastingly, causal directed acyclic graphs, such as
+\(\mathcal{G}_1\), require positing interventional distributions. The
+formalism that underpins these interventional distributions is
+mathematically equivalent to that of the potential outcomes framework,
+assuming the errors of the underlying structural causal models that
+define the nodes on which interventions occur are independent
+(\citeproc{ref-richardson2013}{Richardson and Robins 2013a}). SWIGs not
+only allow us to evaluate identification when errors are not
+independent, but they also permit the comparison of distinct
+interventions to our causal diagram. This is particularly useful when
+considering more than one point intervention. An example of an error
+Pearl made, which is clearly avoidable using Single World Intervention
+Graphs, is provided in \hyperref[id-app-b]{Appendix B}.}
 
 \centering{
 
@@ -919,11 +954,11 @@ each value of \(A\) to be contrasted.
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{SWIG for \$A = 0}: Denoted as \(\mathcal{G}(A=0)\), this graph
-  shows the hypothetical scenario where \(A\) is set to 0.
+  \textbf{SWIG for \(A\) = 0}: Denoted as \(\mathcal{G}_{A=0}\), this
+  graph shows the hypothetical scenario where \(A\) is set to 0.
 \item
-  \textbf{SWIG for \$A = 1}: Denoted as \(\mathcal{G}(A=1)\), this graph
-  shows the hypothetical scenario where \(A\) is set to 1.
+  \textbf{SWIG for \(A\) = 1}: Denoted as \(\mathcal{G}_{A=1}\), this
+  graph shows the hypothetical scenario where \(A\) is set to 1.
 \end{enumerate}
 
 In these graphs, the node corresponding to the outcome \(A\) is split,
@@ -1072,13 +1107,12 @@ effect into natural direct and indirect effects clarifies the objectives
 of causal mediation analysis (\citeproc{ref-robins1992}{Robins and
 Greenland 1992}). This landmark paper has been to mediation analysis
 what ``On the Origin of Species'' has been to evolutionary biology.
-However, the practice of mediation analysis in human sciences is
-pervaded with confusion. The primary source of this confusion is the
-application of statistical models to data without first defining the
-causal quantities of interest. Associations derived from mediation
-analysis do not necessarily imply causation---indeed, they are typically
-uninterpretable. This section outlines how to formulate causal questions
-in mediation analysis.
+However, mediation analysis in the human sciences is rife with
+confusion. The primary source of this confusion is applying statistical
+models to data without first defining the causal quantities of interest.
+Associations derived from mediation analysis do not necessarily imply
+causation and are typically uninterpretable. This section outlines how
+to formulate causal questions in mediation analysis.
 
 \subsubsection{Defining a Mediation
 Estimand}\label{defining-a-mediation-estimand}
@@ -1888,9 +1922,9 @@ where, if the first object had not been, the second never would have
 existed' (\citeproc{ref-hume1902}{Hume 1902}). However, it was not until
 Jerzy Neyman's master's thesis that a quantitative analysis of causality
 was formalised (\citeproc{ref-neyman1923}{Splawa-Neyman \emph{et al.}
-1990}). Remarkably, Neyman's work went largely unnoticed until the 1970s
-when Harvard statistician Donald Rubin formalised what became known as
-the `Rubin Causal Model' (also the Rubin-Neyman Causal Model)
+1990}). Remarkably, Neyman's work went largely unnoticed until the
+1970s, when Harvard statistician Donald Rubin formalised what became
+known as the `Rubin Causal Model' (also the Rubin-Neyman Causal Model)
 (\citeproc{ref-holland1986}{Holland 1986};
 \citeproc{ref-rubin1976}{Rubin 1976}).
 
@@ -1898,20 +1932,19 @@ In 1986, Harvard statistician James Robins extended the potential
 outcomes framework to time-varying treatments, laying the foundation for
 powerful new longitudinal data science methods
 (\citeproc{ref-robins1986}{Robins 1986}). Judea Pearl introduced
-directed acyclic graphs (causal DAGs), which made addressing
-identification problems transparent and accessible to non-specialists
+directed acyclic graphs (causal DAGs), making identification problems
+transparent and accessible to non-specialists
 (\citeproc{ref-pearl1995}{Pearl 1995}). Robins and Richardson extended
-Pearl's graphical models, building on Robins' earlier work, to evaluate
-counterfactual causal contrasts on graphs. Concurrently, the foundations
-of the causal revolution in economics were being established, creating a
-fertile frontier in causal data sciences. By the early 2000s, targeted
-learning frameworks were being developed
-(\citeproc{ref-vanderlaan2011}{Van Der Laan and Rose 2011}), along with
-causal mediation analysis methods (\citeproc{ref-Diaz2023}{Dı́az \emph{et
-al.} 2023}; \citeproc{ref-pearl2009a}{Pearl 2009};
-\citeproc{ref-robins1992}{Robins and Greenland 1992};
-\citeproc{ref-rudolph2024mediation}{Rudolph \emph{et al.} 2024};
-\citeproc{ref-vanderweele2015}{VanderWeele 2015};
+Pearl's graphical models to evaluate counterfactual causal contrasts on
+graphs, building on Robins' earlier work. Concurrently, the causal
+revolution in economics was establishing a fertile frontier in causal
+data sciences. By the early 2000s, targeted learning frameworks were
+being developed (\citeproc{ref-vanderlaan2011}{Van Der Laan and Rose
+2011}), along with causal mediation analysis methods
+(\citeproc{ref-Diaz2023}{Dı́az \emph{et al.} 2023};
+\citeproc{ref-pearl2009a}{Pearl 2009}; \citeproc{ref-robins1992}{Robins
+and Greenland 1992}; \citeproc{ref-rudolph2024mediation}{Rudolph
+\emph{et al.} 2024}; \citeproc{ref-vanderweele2015}{VanderWeele 2015};
 \citeproc{ref-vanderweele2014a}{VanderWeele and Vansteelandt 2014};
 \citeproc{ref-vansteelandt2012}{Vansteelandt \emph{et al.} 2012}), and
 techniques for analysing time-varying treatments
@@ -1924,7 +1957,7 @@ techniques for analysing time-varying treatments
 \citeproc{ref-shpitser2022multivariate}{Shpitser \emph{et al.} 2022};
 \citeproc{ref-young2014identification}{Young \emph{et al.} 2014}).
 
-Readers should be aware that the causal inference literature contains
+Readers should note that the causal inference literature contains
 vigorous debates at the horizons of discovery. However, there is a
 shared consensus about the foundations of causal inference and a common
 conceptual and mathematical vocabulary within which to express
@@ -2125,6 +2158,10 @@ Barrett, M (2021) \emph{Ggdag: Analyze and create elegant directed
 acyclic graphs}. Retrieved from
 \url{https://CRAN.R-project.org/package=ggdag}
 
+\bibitem[\citeproctext]{ref-bulbulia2024wierd}
+Bulbulia, J (2024) The weirdest causal inferences in the world.
+doi:\href{https://doi.org/10.31234/osf.io/kj7rv}{10.31234/osf.io/kj7rv}.
+
 \bibitem[\citeproctext]{ref-bulbulia2023}
 Bulbulia, JA (2023) Causal diagrams (directed acyclic graphs): A
 practical guide.
@@ -2172,16 +2209,15 @@ doi:\href{https://doi.org/doi:10.1515/jci-2022-0077}{doi:10.1515/jci-2022-0077}.
 Freeman, K (1948) \emph{Ancilla to the pre-socratic philosophers},
 Reprint edition, Cambridge, MA: Harvard University Press.
 
+\bibitem[\citeproctext]{ref-greenland2009commentary}
+Greenland, S (2009) Commentary: Interactions in epidemiology: Relevance,
+identification, and estimation. \emph{Epidemiology}, \textbf{20}(1),
+14--17.
+
 \bibitem[\citeproctext]{ref-hernan2024WHATIF}
 Hernan, MA, and Robins, JM (2024) \emph{Causal inference: What if?},
 Taylor \& Francis. Retrieved from
 \url{https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/}
-
-\bibitem[\citeproctext]{ref-hernan2017SELECTIONWITHOUTCOLLIDER}
-Hernán, MA (2017) Invited commentary: Selection bias without colliders
-\textbar{} american journal of epidemiology \textbar{} oxford academic.
-\emph{American Journal of Epidemiology}, \textbf{185}(11), 1048--1050.
-Retrieved from \url{https://doi.org/10.1093/aje/kwx077}
 
 \bibitem[\citeproctext]{ref-hernan2004STRUCTURAL}
 Hernán, MA, Hernández-Díaz, S, and Robins, JM (2004) A structural
@@ -2215,6 +2251,11 @@ Hubbard, A (2023) \emph{Targeted learning in r: Causal data science with
 the tlverse software ecosystem}, Collins Foundation Press. Retrieved
 from \url{https://tlverse.org/tlverse-handbook/index.html}
 
+\bibitem[\citeproctext]{ref-lash2020}
+Lash, TL, Rothman, KJ, VanderWeele, TJ, and Haneuse, S (2020)
+\emph{Modern epidemiology}, Wolters Kluwer. Retrieved from
+\url{https://books.google.co.nz/books?id=SiTSnQEACAAJ}
+
 \bibitem[\citeproctext]{ref-mcelreath2020}
 McElreath, R (2020) \emph{Statistical rethinking: A {B}ayesian course
 with examples in r and stan}, CRC press.
@@ -2241,6 +2282,11 @@ effects based on stochastic interventions. \emph{Biometrics},
 Neal, B (2020) Introduction to causal inference from a machine learning
 perspective. \emph{Course Lecture Notes (Draft)}. Retrieved from
 \url{https://www.bradyneal.com/Introduction_to_Causal_Inference-Dec17_2020-Neal.pdf}
+
+\bibitem[\citeproctext]{ref-ogburn2021}
+Ogburn, EL, and Shpitser, I (2021) Causal modelling: The two cultures.
+\emph{Observational Studies}, \textbf{7}(1), 179--183.
+doi:\href{https://doi.org/10.1353/obs.2021.0006}{10.1353/obs.2021.0006}.
 
 \bibitem[\citeproctext]{ref-pearl1995}
 Pearl, J (1995) Causal diagrams for empirical research.
