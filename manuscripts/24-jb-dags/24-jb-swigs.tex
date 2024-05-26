@@ -211,25 +211,25 @@ Interaction, Mediation, and Time-Varying Treatments}
       
 
 
-\date{2024-05-24}
+\date{2024-05-26}
 \begin{document}
 \maketitle
 \begin{abstract}
 The analysis of `moderation', `interaction', `mediation', and
-`longitudinal growth' is widespread in the human sciences, yet confusion
-persists. We leverage decades of advancements in causal inference to
-explain why the quantities derived from statistical models are often
-ambiguous, despite model sophistication. We emphasise the necessity of
-(1) clearly stating a causal question and (2) assessing the
-identifiability of the question with available data before statistical
-analysis. Without these steps, confusion is inevitable. Properly framing
-and addressing causal question of interaction, mediation, and
-time-varying treatments reveals the limitations of popular methods and
-guides researchers towards more effective approaches.
+`longitudinal growth' is widespread in the human sciences, yet subject
+to confusion. We use advances in causal inference to explain why the
+quantities derived from statistical models routinely employed in the
+human sciences are often ambiguous. We emphasise the necessity of (1)
+clearly stating a causal question and (2) assessing the identifiability
+of the question with available data before statistical analysis. Without
+these steps, confusion is inevitable. Properly framing and addressing
+causal questions of interaction, mediation, and time-varying treatments
+reveals the limitations of popular methods and guides researchers to
+clearer understanding of the phenomena that animate our interests.
 
-\textbf{KEYWORDS}: \emph{Causal Inference}; \emph{SWIGs}; \emph{DAGs};
-\emph{Evolution}; \emph{Mediation}; \emph{Longitudinal Growth};
-\emph{Time-varying Treatments}
+\textbf{KEYWORDS}: \emph{Causal Inference}; \emph{DAGs};
+\emph{Evolution}; \emph{Mediation}; \emph{Longitudinal Growth}; Single
+World Intervention Graphs, \emph{SWIGs}; \emph{Time-varying Treatments}
 \end{abstract}
 
 \subsection{Introduction}\label{introduction}
@@ -239,13 +239,14 @@ In August 1831, he accompanied the geologist Adam Sedgwick to the
 Glyderau mountain range in northern Wales.
 
 \begin{quote}
-{[}N{]}either of us saw a trace of the wonderful glacial phenomena all
-around us; we did not notice the plainly scored rocks, the perched
-boulders, the lateral and terminal moraines. Yet these phenomena are so
-conspicuous that \ldots{} a house burnt down by fire did not tell its
-story more plainly than did this valley. If it had still been filled by
-a glacier, the phenomena would have been less distinct than they now
-are. (\citeproc{ref-darwin1887life}{Darwin 1887}: p.25)
+We spent many hours in Cwm Idwal, \ldots{} but neither of us saw a trace
+of the wonderful glacial phenomena all around us; we did not notice the
+plainly scored rocks, the perched boulders, the lateral and terminal
+moraines. Yet these phenomena are so conspicuous that \ldots{} a house
+burnt down by fire did not tell its story more plainly than did this
+valley. If it had still been filled by a glacier, the phenomena would
+have been less distinct than they now are.
+(\citeproc{ref-darwin1887life}{Darwin 1887}: p.25)
 \end{quote}
 
 This `striking instance of how easy it is to overlook phenomena, however
@@ -296,7 +297,7 @@ communicating results (\citeproc{ref-hernan2024WHATIF}{Hernan and Robins
 Here, our ambition is modest.
 
 \textbf{Part 1} considers how to ask causal questions when our interest
-is in comparing effect magnitudes between groups (effect-modification).
+is in comparing effect magnitudes between groups (effect modification).
 
 \textbf{Part 2} considers how to ask causal questions when our interest
 is in evaluating the joint effects of two independent interventions
@@ -314,74 +315,59 @@ We begin with a brief introduction to terminology.
 
 \subsubsection{Basic concepts}\label{basic-concepts}
 
-\textbf{Causality}: suppose we that we have measured states of the world
-with the indicators \(A\) and \(Y\). For unit \(i\), we say that \(A_i\)
-causes \(Y_i\) if a change in \(A_i\) from one level, say \(A_i = a^*\),
-to another level, say \(A_i = a\) \emph{would} results in a different
-outcome measured on this unit \(Y_i\). We assume an ordering in time
-such that \(A_i\) occurs before \(Y_i\). To compute a contrast between
-these two outcomes on the difference scale, we use the notation
-\(Y_i(\tilde{a})\) which means the outcome for unit \(i\) under the
-treatment level \(A_i  = \tilde{a}\). In other words, `individual \(i\)
-gets treatment \(A_i\) = \(\tilde{a}\)'. To quantitatively assess
-whether \(Y_i\) \emph{would} differ under the two treatments levels we
-wish to compare we must evaluate there is a difference in each of the
-possible outcomes on some scale of comparison. Say we are interested in
-the difference scale. We compute the difference for individual \(i\) as
-\(Y_i(a^*) - Y_i(a)\). We say there is a causal effect when for this
-individual if \(Y_i(a^*) - Y_i(a) \neq 0\). Stating this quantity allows
-us to clarify what we are interested in learning when we ask whether
-\(A_i\) causally affects \(Y_i\). We need something more than indicators
-of \(A\) and \(Y\) measured on \(i\) on an ordered timeline. We must
-state a level of contrast for \(A\), and a scale of contrast for at
-least two distinct outcomes two which we `treat' or `expose' individual
-\(i\). Following convention, we call \(A\) the `treatment' or
-equivalently the `exposure'. We call \(Y\) the outcome. Note that once
-we clearly state our causal question it becomes clear that, at most,
-only one level of treatment may be observed for unit \(i\) for any given
-application of \(A\) on an absolute timeline. At the individual level,
-we can observe at most \(Y_i|A_i =a\) or \(Y_i|A_i =a^*\), but not both.
-For this reason we refer to \$\(Y_i(\tilde{a})\) as a `potential' or
-`counterfactual' outcome.
+\section{Causality}\label{causality}
 
-\textbf{Fundamental Assumptions for Causal Inference}: we cannot
-generally observe individual causal effects, however, we can compute
-average treatment effects by aggregating individual observations by
-treatment conditions. For a binary treatment, we express this as the
-difference in mean outcomes by treatment condition:
-\(E[Y(1)] - E[Y(0)]\) or equivalently as the mean difference in outcomes
-by treatment condition \(E[Y(1) - Y(0)]\). This counterfactual contrast
-represents the quantity (on the difference scale) that we obtain for a
-sample population from an ideally conducted randomised controlled trial
---- an `experiment'. There are three fundamental assumptions required
-for computing average treament effects:
+Consider indicators \(A\) and \(Y\) measuring states of the world. For
+unit \(i\), we say that \(A_i\) causes \(Y_i\) if changing \(A_i\) from
+one level, say \(A_i = a^*\), to another level, \(A_i = a\), leads to a
+different outcome for \(Y_i\). We assume \(A_i\) occurs before \(Y_i\).
+To compare these outcomes, we use the notation \(Y_i(\tilde{a})\), which
+represents the outcome for unit \(i\) under the treatment level
+\(A_i = \tilde{a}\). To determine if \(Y_i\) differs under two treatment
+levels, we compute the difference \(Y_i(a^*) - Y_i(a)\). A causal effect
+exists for this individual if \(Y_i(a^*) - Y_i(a) \neq 0\). We must
+specify a level of contrast for \(A\) and a scale of contrast for the
+distinct outcomes for individual \(i\). Following convention, we call
+\(A\) the `treatment' or `exposure' and \(Y\) the `outcome'. Note that,
+for any given application of \(A\), we can only observe one level of
+treatment for unit \(i\). Therefore, we refer to \(Y_i(\tilde{a})\) as a
+`potential' or `counterfactual' outcome.
+
+\subsection{Fundamental Assumptions for Causal
+Inference}\label{fundamental-assumptions-for-causal-inference}
+
+Individual causal effects cannot generally be observed, but we can
+compute average treatment effects by aggregating individual observations
+by treatment conditions. For a binary treatment, this is expressed as
+the difference in mean outcomes: \(E[Y(1)] - E[Y(0)]\) or the mean
+difference in outcomes by treatment condition \(E[Y(1) - Y(0)]\). This
+counterfactual contrast represents the quantity obtained from an ideally
+conducted randomised controlled trial. There are three fundamental
+assumptions for computing average treatment effects:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{Causal Consistency}: treatment levels remain consistent within
-  the treatment arms to be compared (implied by `control'). Note there
-  must be at least two arms.
+  \textbf{Causal Consistency}: Treatment levels remain consistent within
+  the treatment arms to be compared. There must be at least two arms.
 \item
-  \textbf{(Conditional) Exchangeability}: covariates that might affect
+  \textbf{(Conditional) Exchangeability}: Covariates that might affect
   outcomes under treatment are balanced across all arms (implied by
-  `randomisation').
+  randomisation).
 \item
-  \textbf{Positivity}: each covariate that might affect treatment in the
+  \textbf{Positivity}: Each covariate that might affect treatment in the
   target population has a non-zero probability of being observed within
-  each treatment condition to be compared (implied by the combination of
-  randomisation and a clearly defined target population).
+  each treatment condition.
 \end{enumerate}
 
-Although experiments as realised often deviate from the ideal, leading
-to potential failure of these assumptions, in the ideal experiment,
-these assumptions are satisfied. However, in observational or
-`real-world' settings, none of these assumptions are guaranteed.
-Moreover, only the positivity assumption can be verified by data.
+While experiments often deviate from the ideal, potentially failing
+these assumptions, the ideal experiment satisfies them. In observational
+or `real-world' settings, none of these assumptions are guaranteed. Only
+the positivity assumption can be verified by data.
 
-To infer causal effects from real-world data requires a careful
-workflow.
+\subsection{Workflow for Inferring Causal Effects from Real-World
+Data}\label{workflow-for-inferring-causal-effects-from-real-world-data}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -400,14 +386,13 @@ workflow.
   ignorable, confounding covariates across treatment levels must be
   balanced, all backdoor paths between treatments and outcomes must be
   closed, treatments and outcomes must be d-separated, and there must be
-  no unmeasured confounding. Although terminology varies, the goal
-  remains the same: ensuring non-random `real-world' data can be
-  modelled to emulate a randomised controlled experiment.
+  no unmeasured confounding. The goal is to ensure non-random
+  `real-world' data can emulate a randomised controlled experiment.
 \item
   \textbf{Check if the positivity assumption is satisfied.}
 \item
   \textbf{Clearly communicate the reasoning, evidence, and
-  decision-makeing that inform steps 1-6.}
+  decision-making that inform steps 1-6.}
 \end{enumerate}
 
 \subsubsection{Meaning of Symbols}\label{meaning-of-symbols}
@@ -805,9 +790,9 @@ contrast and populaton, here defined by membership in \(F\).
 Let's work through an example imagining we obtain the following
 estimates:
 
-Group F = 0: - \(\mu_{00} = 5\) - \(\mu_{01} = 15\)
+Outcomes A = 0: - \(\mu_{00} = 5\) - \(\mu_{01} = 15\)
 
-Group F = 1: - \(\mu_{10} = 10\) - \(\mu_{11} = 20\)
+Outcomes A = 1: - \(\mu_{10} = 10\) - \(\mu_{11} = 20\)
 
 Next, we calculate the treatment effects on the difference and ratio
 scales for each group:
@@ -2003,7 +1988,7 @@ treatment (\citeproc{ref-sjuxf6lander2016}{Sjölander 2016}). If a
 treatment is continuous, the levels can be specified.
 
 We also load the \texttt{parameters} library, which creates nice tables
-(\citeproc{ref-parameters2020}{\textbf{parameters2020?}}).
+(\citeproc{ref-parameters2020}{Lüdecke \emph{et al.} 2020}).
 
 Next, we write a function to simulate data for the sample and and target
 populations.
@@ -2523,6 +2508,12 @@ about mean functionals of non-ignorable non-response data without
 identifying the joint distribution. \emph{Journal of the Royal
 Statistical Society Series B: Statistical Methodology}, \textbf{85}(3),
 913--935.
+
+\bibitem[\citeproctext]{ref-parameters2020}
+Lüdecke, D, Ben-Shachar, MS, Patil, I, and Makowski, D (2020)
+Extracting, computing and exploring the parameters of statistical models
+using {R}. \emph{Journal of Open Source Software}, \textbf{5}(53), 2445.
+doi:\href{https://doi.org/10.21105/joss.02445}{10.21105/joss.02445}.
 
 \bibitem[\citeproctext]{ref-mcelreath2020}
 McElreath, R (2020) \emph{Statistical rethinking: A {B}ayesian course
