@@ -136,9 +136,9 @@ Individual causal effects cannot generally be observed, but we can compute avera
 
 1. **Causal Consistency**: Treatment levels remain consistent within the treatment arms to be compared. There must be at least two arms.
 2. **(Conditional) Exchangeability**: Covariates that might affect outcomes under treatment are balanced across all arms (implied by randomisation).
-3. **Positivity**: Each covariate that might affect treatment in the target population has a non-zero probability of being observed within each treatment condition.
+3. **Positivity**: Each covariate that might affect treatment in the target population has a non-zero probability of being observed within each treatment condition (refer to @westreich2010; @bulbulia2023a).
 
-While experiments often deviate from the ideal, potentially failing these assumptions, the ideal experiment satisfies them. None of these assumptions are guaranteed in observational or 'real-world' settings. Only the positivity assumption can be verified by data.
+While experiments often deviate from the ideal, potentially failing these assumptions, the ideal experiment satisfies them [@hernan2024WHATIF]. None of these assumptions are guaranteed in observational or 'real-world' settings. Only the positivity assumption can be verified by data.
 
 ### Schematic Workflow for Inferring Causal Effects from Real-World Data 
 
@@ -152,7 +152,7 @@ While experiments often deviate from the ideal, potentially failing these assump
    Define the population to whom the results will generalise. 
 
 4. **Ensure treatments to be compared satisfy causal consistency.**
-   Verify that the treatments correspond to interpretable interventions (refer to @bulbulia2023).
+   Verify that the treatments correspond to interpretable interventions.
 
 5. **Evaluate whether treatment groups, conditional on measured covariates, are exchangeable.**
    Balancing confounding covariates across treatment levels ensures that differences between groups are 'ignorable'.
@@ -191,7 +191,7 @@ Terminology
 Elements of Causal Graphs 
 :::
 
-We will describe our graphical conventions as they are used, starting with the primary elements:
+We describe our graphical conventions as they are used, starting with the primary elements:
 
 - **Node**: or equivalently a 'variable,' denotes properties or characteristics of units within a population. In causal directed acyclic graphs, we draw nodes with respect to features in a *target population*, which is the population for whom we seek causal inferences [@suzuki2020]. A time-indexed node, $X_t$, allows us to index measurements within time intervals $t \in 1\dots T$, denoting relative chronology. If relative timing is not known, we may use $X_{\phi t}$. The directions of arrows on a causal directed acyclic graph imply causation, and causation implies temporal order.
 
@@ -209,7 +209,10 @@ The graphical rules that Pearl developed and proved are known as the rules of d-
      \item  {\bf Collider rule} ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioning on $C$, which introduces dependence: ($A \cancel{\coprod} B \mid C$). 
  \end{enumerate}
 
-The rules of d-separation give rise to the backdoor criterion and 'backdoor adjustment' theorem, which provide identification algorithms conditional on the structural assumptions encoded in a causal directed acyclic graph [@pearl1995]. Here, we use the symbol $\mathcal{G}$ to name a graph, which we will identify by referring to a row in a table.
+The rules of d-separation give rise to the backdoor criterion and 'backdoor adjustment' theorem, which provide identification algorithms conditional on the structural assumptions encoded in a causal directed acyclic graph [@pearl1995]. Causal directed acyclic graphs corresponding to these rules are given in @tbl-terminologygeneral. For an introduction to causal directed acyclic graphs, see @rohrer2018; @hernan2023; @cinelli2022; @barrett2021; @mcelreath2020; @greenland1999; @suzuki2020; @pearl2009a; @hernan2024WHATIF; @major2023exploring; @greenland1999;@bulbulia2023.
+
+Throughout we use the symbol $\mathcal{G}$ to name a graph, indexed by the row of the table in which it appears.  We next used causal graphs to clarify structural properties of effect modification.
+
 
 ::: {#tbl-terminologygeneral}
 ```{=latex}
@@ -218,19 +221,6 @@ The rules of d-separation give rise to the backdoor criterion and 'backdoor adju
 Elements of Causal Graphs 
 :::
 
-Consider @tbl-terminologygeneral $\mathcal{G}_1$: If we assume that $A$ and $B$ are not causally related, and further that they do not share common causes, then $A$ and $B$ will not be statistically related.
-
-Consider @tbl-terminologygeneral $\mathcal{G}_2$: If we assume that $A$ and $B$ are causally related, that they do not share common causes or that their common causes have been accounted for, then $A$ and $B$ will be statistically related.
-
-Consider @tbl-terminologygeneral $\mathcal{G}_3$: If we assume that $A$ causes $B$ and that $A$ causes $C$, then the rules of d-separation imply that we may condition on or 'control for' $A$ to consistently estimate the effect of $B$ on $C$.
-
-Consider @tbl-terminologygeneral $\mathcal{G}_4$: If we assume that $A$ causes $B$ and that $B$ causes $C$, then the rules of d-separation imply that if we condition on $B$, the true causal effect of $A$ on $C$ will be obscured such that $A$ will be independent of $C$ despite being causally associated with $C$.
-
-Finally, consider @tbl-terminologygeneral $\mathcal{G}_5$: If we assume that $A$ causes $C$ and that $B$ causes $C$, then the rules of d-separation imply that if we condition on $C$, the variables $A$ and $B$ will be associated, despite having no causal effect on each other.
-
-If we assume that the variables encoded in the graph correspond to 'Structural Causal Models' then all causal relationships can be defined by the elementary structures presented in @tbl-terminologygeneral.
-
-Now that we have clarified how causal directed acyclic graphs work, we may use them to clarify the first concept we consider: 'effect modification'.
 
 {{< pagebreak >}}
 
@@ -765,7 +755,7 @@ Of course, the details of every problem should be developed in relation to a sci
 
 The interest in causality is ancient. Democritus wrote, 'I would rather discover one cause than gain the kingdom of Persia' [@freeman1948ancilla]. Hume provided a general account of causality by referencing counterfactuals: '... where, if the first object had not been, the second never would have existed' [@hume1902]. However, it was not until Jerzy Neyman's master's thesis that a quantitative analysis of causality was formalised [@neyman1923]. Remarkably, Neyman's work went largely unnoticed until the 1970s, when Harvard statistician Donald Rubin formalised what became known as the 'Rubin Causal Model' (also the Rubin-Neyman Causal Model) [@holland1986; @rubin1976].
 
-In 1986, Harvard statistician James Robins extended the potential outcomes framework to time-varying treatments, laying the foundation for powerful new longitudinal data science methods [@robins1986]. Judea Pearl introduced directed acyclic graphs (causal DAGs), making identification problems transparent and accessible to non-specialists [@pearl1995]. Robins and Richardson extended Pearl's graphical models to evaluate counterfactual causal contrasts on graphs, building on Robins' earlier work. Concurrently, the causal revolution in economics was establishing a fertile frontier in causal data sciences. By the early 2000s, targeted learning frameworks were being developed [@vanderlaan2011], along with causal mediation analysis methods [@robins1992; @pearl2009a; @vanderweele2015; @vanderweele2014a; @Diaz2023; @rudolph2024mediation; @vansteelandt2012], and techniques for analysing time-varying treatments [@robins1986; @robins1999; @young2014identification; @richardson2013; @diaz2012population; @robins2008estimation; @shpitser2022multivariate; @richardson2023potential].
+In 1986, Harvard statistician James Robins extended the potential outcomes framework to time-varying treatments, laying the foundation for powerful new longitudinal data science methods [@robins1986]. Judea Pearl introduced directed acyclic graph, making identification problems transparent and accessible to non-specialists [@pearl1995]. Robins and Richardson extended Pearl's graphical models to evaluate counterfactual causal contrasts on graphs, building on Robins' earlier work. Concurrently, the causal revolution in economics was establishing a fertile frontier in causal data sciences. By the early 2000s, targeted learning frameworks were being developed [@vanderlaan2011], along with causal mediation analysis methods [@robins1992; @pearl2009a; @vanderweele2015; @vanderweele2014a; @Diaz2023; @rudolph2024mediation; @vansteelandt2012], and techniques for analysing time-varying treatments [@robins1986; @robins1999; @young2014identification; @richardson2013; @diaz2012population; @robins2008estimation; @shpitser2022multivariate; @richardson2023potential].
 
 Readers should note that the causal inference literature contains vigorous debates at the horizons of discovery. However, there is a shared consensus about the foundations of causal inference and a common conceptual and mathematical vocabulary within which to express disagreements and accumulate progress—a hallmark of a productive science.
 
@@ -794,7 +784,7 @@ Glossary
 ```{=latex}
 \pearltable
 ```
-On the limitations of causal DAGs compared to Single World Intervention Graphs. 
+On the limitations of causal directed acyclic graphs compared to Single World Intervention Graphs. 
 :::
 
 According to @pearl2009a, example 11.3.3. $Y(x_0, x_1)$ is not independent of $X_1$ given Z and $X_0$.  Template $\mathcal{G}_2$ and Single World Intervention Graphs $\mathcal{G}_2-6$ examine counterfactual independence. Counterfactual nodes are obtained by node-splitting. $\rightarrowlightgray$ denotes a backdoor path that is closed when a treatment is fixed. $\rightarrowcyan$ highlights identifying paths for $X_0 = x_0$ and $X_1 = x_1$. @robins2010alternative uses a variation of $\mathcal{G}_2$ to show that there is sequential exchangeability of $X_t \forall t: Y(x_1, x_0)\coprod X_0$ (unconditionally) and $Y(x_1, x_0)\coprod X_1(x_0) | Z(x_0), X_0$. By causal consistency $Z(x_0) = Z|X_0 = x_0$. Single world interventions $\mathcal{G}_{3-6}$ make this sequential exchangeability clear (refer to @richardson2013). Such clarity is, in my view, an excellent reason to use Single World Intervention Graphs.

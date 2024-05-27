@@ -210,17 +210,18 @@
       
 
 
-\date{2024-05-26}
+\date{2024-05-27}
 \begin{document}
 \maketitle
 \begin{abstract}
 Confounding bias arises when a treatment and outcome share a common
-cause. In randomised controlled trials (experiments), treatment
-assignment is random. It would appear there can be no confounding bias
-in experiments. Here, we use causal directed acyclic graphs to clarify
-seven structural sources of bias in randomised controlled trials and
-demonstrate the interest of causal inference methods for the design and
-analysis of experiments.
+cause. In randomised controlled trials, treatment assignment is random,
+ostensibly eliminating confounding bias. Here, we use causal directed
+acyclic graphs to unveil eight structural sources of bias that
+nevertheless persist in these trials. This analysis highlights the
+crucial role of causal inference methods in the design and analysis of
+experiments, ensuring the validity of conclusions drawn from
+experimental data.
 
 \textbf{Keywords:} \emph{Causal Inference}; \emph{Experiments};
 \emph{DAGs}; \emph{Evolution}; \emph{Per Protocol Effect};
@@ -229,43 +230,39 @@ analysis of experiments.
 
 \subsection{Introduction}\label{introduction}
 
-Here, we consider seven structural sources of bias in randomised
-controlled trials, henceforth `experiments.' The examples are not
-exhaustive. We do not consider biases from selection into the study,
-which may threaten generalisation, nor do we consider censoring biases
-from study attrition, where population characteristics of the restricted
-sample at the end of the study differ from those at baseline concerning
-treatment effects. Both types of sample/target population issues can
-invalidate experimental results. However, such biases present as
-failures in external validity. Our focus here will be on threats to
-internal validity from confounding that relate the treatment to the
-outcome in the absence of confounding. We will assume large samples such
-that random differences in the distribution of variables that may affect
-treatment do not come into play. We will also assume that the
-experimental designs are double-blind, that treatment conditions are the
-same across all arms, and that the investigators are careful and
-scrupulous. No chance event, other than randomisation, is left to
-chance.
+``Does not randomisation, by its very nature, eliminate all systematic
+causes of treatment assignment and outcome?''
 
-`Doesn't randomisation, by its very nature, eliminate all systematic
-causes of treatment assignment and so of treatment assignment and
-outcome?'
+Yes.
 
-We assume the answer is yes.
+``Does this mean that confounding is ruled out?''
 
-`Doesn't this mean that confounding is ruled out?'
+No.
 
-The answer is no. Eight examples illustrate why. Understanding how
-confounding arises in experiments is important for experimental design,
-data analysis, and inference. However, the examples clarify problems of
-general interest about how causality operates over time, confounding
-where the treatment affects attrition, non-compliance, and non-response,
-and differences between the effects of randomisation (intention-to-treat
-effects) and the causal effects of treatments themselves (per-protocol
-effects).
+Assume large sample sizes to minimise random differences in variable
+distribution. Assume that the experimental trials are double-blind, with
+consistent treatment conditions across all arms, applied by meticulous
+investigators. Assume no chance event, other than randomisation.
+Finally, assume that the target population is not restricted in the
+sample population, ensuring that the experiments, if internally valid,
+will generalise. Assume no measurement error in the measures.
 
-We begin by defining our terms (\hyperref[id-app-a]{Appendix A} provides
-a glossary of terms in causal inference.)
+Nevertheless, confounding biases can arise. Here, I use eight examples
+to illustrate common risks. Whereas some risks arise from common flaws
+in experimental designs, such as post-randomisation selection criteria
+and post-randomisation covariate adjustment, hazards in estimating the
+`per-protocol effect' of treatments do not arise from errors of design.
+These typically require the use of methods for causal inference in `real
+world' observational studies. The eight examples demonstrate the utility
+of causal directed acyclic graphs (causal DAGs) for easing the cognitive
+demand in diagnosing confounding bias in experimental designs. Overall,
+understanding how confounding occurs is crucial for experimental design,
+data analysis, and inference, demonstrating the utility of causal
+inference methods for diagnosing and addressing vulnerabilities in
+randomised experimental designs.
+
+We begin by defining our terms. \hyperref[id-app-a]{Appendix A} provides
+a glossary of terms in causal inference.
 
 \subsubsection{Terminology}\label{terminology}
 
@@ -365,79 +362,28 @@ causality from which all causal directed acyclic graphs can be built.}
 
 \end{table}%
 
-In the 1990s, Judea Pearl demonstrated that causal dependencies could be
-evaluated using observable probability distributions
+Pearl demonstrated that causal dependencies could be evaluated by
+linking observable probability distributions to directed acyclic graphs
 (\citeproc{ref-pearl1995}{Pearl 1995}, \citeproc{ref-pearl2009a}{2009}).
-He also showed that causal directed acyclic graphs (causal DAGs) could
-be employed to clarify the conditional dependencies among variables
-(\citeproc{ref-pearl1995}{Pearl 1995}). This means that, based on
-assumptions about causal structure, investigators could investigate
-strategies for identifying causal effects from the joint distributions
-of observed data.
+This means that, based on assumptions about causal structure,
+investigators could investigate strategies for identifying causal
+effects from the joint distributions of observed data. The graphical
+rules that Pearl developed and proved are known as the rules of
+d-separation (\citeproc{ref-pearl1995}{Pearl 1995}), and are presented
+in Table~\ref{tbl-fiveelementary}.
 
-The graphical rules that Pearl developed and proved are known as the
-rules of d-separation (\citeproc{ref-pearl1995}{Pearl 1995}).
+The rules of d-separation are as follows:
 
 \begin{enumerate}[a)]
-     \item  {\bf Fork rule} ($B \leftarrowNEW \boxed{A} \rightarrowNEW C$): $B$ and $C$ are independent when conditioning on $A$: ($B \coprod C \mid A$).
-     \item  {\bf Chain rule} ($A \rightarrowNEW \boxed{B} \rightarrowNEW C$): Conditioning on $B$ blocks the path between $A$ and $C$: ($A \coprod C \mid B$).
-     \item  {\bf Collider rule} ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioning on $C$, which introduces dependence: ($A \cancel{\coprod} B \mid C$). 
- \end{enumerate}
+     \item {\bf Fork rule} ($B \leftarrowNEW \boxed{A} \rightarrowNEW C$): $B$ and $C$ are independent when conditioning on $A$: ($B \coprod C \mid A$).
+     \item {\bf Chain rule} ($A \rightarrowNEW \boxed{B} \rightarrowNEW C$): Conditioning on $B$ blocks the path between $A$ and $C$: ($A \coprod C \mid B$).
+     \item {\bf Collider rule} ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioning on $C$, which introduces dependence: ($A \cancel{\coprod} B \mid C$). 
+\end{enumerate}
 
-The rules of d-separation give rise to the backdoor criterion and
+The rules of d-separation give rise to the backdoor criterion and the
 `backdoor adjustment' theorem, which provide identification algorithms
 conditional on the structural assumptions encoded in a causal directed
-acyclic graph (\citeproc{ref-pearl1995}{Pearl 1995}). Here, we use the
-symbol \(\mathcal{G}\) to name a graph, which we will identify by
-referring to a row in a table.
-
-\begin{table}
-
-\caption{\label{tbl-terminologygeneral}Elements of Causal Graphs}
-
-\centering{
-
-\terminologydirectedgraph
-
-}
-
-\end{table}%
-
-Consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_1\): If we
-assume that \(A\) and \(B\) are not causally related, and further that
-they do not share common causes, then \(A\) and \(B\) will not be
-statistically related.
-
-Consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_2\): If we
-assume that \(A\) and \(B\) are causally related, that they do not share
-common causes or that their common causes have been accounted for, then
-\(A\) and \(B\) will be statistically related.
-
-Consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_3\): If we
-assume that \(A\) causes \(B\) and that \(A\) causes \(C\), then the
-rules of d-separation imply that we may condition on or `control for'
-\(A\) to consistently estimate the effect of \(B\) on \(C\).
-
-Consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_4\): If we
-assume that \(A\) causes \(B\) and that \(B\) causes \(C\), then the
-rules of d-separation imply that if we condition on \(B\), the true
-causal effect of \(A\) on \(C\) will be obscured such that \(A\) will be
-independent of \(C\) despite being causally associated with \(C\).
-
-Finally, consider Table~\ref{tbl-terminologygeneral} \(\mathcal{G}_5\):
-If we assume that \(A\) causes \(C\) and that \(B\) causes \(C\), then
-the rules of d-separation imply that if we condition on \(C\), the
-variables \(A\) and \(B\) will be associated, despite having no causal
-effect on each other.
-
-If we assume that the variables encoded in the graph correspond to
-`Structural Causal Models' then all causal relationships can be defined
-by the elementary structures presented in
-Table~\ref{tbl-terminologygeneral}.
-
-Now that we have clarified how causal directed graphs work, we may use
-them to clarify the first concept we consider confounding bias in
-randomised experiments.
+acyclic graph (\citeproc{ref-pearl1995}{Pearl 1995}).
 
 \subsection{Eight Examples of Confounding Bias in
 Experiments}\label{eight-examples-of-confounding-bias-in-experiments}
@@ -455,12 +401,22 @@ confounding biases in Randomised Controlled Trials.}
 
 \end{table}%
 
+We use causal directed acyclic graphs to describe eight types of
+confounding bias in randomised controlled trials (`experiments'). We use
+the symbol \(\mathcal{G}\) to denote a causal directed acyclic graph in
+the table. The first digit in the graph subscript indexes the example.
+The second digit in the graph subscript indexes the problem or the
+response to the problem. Specifically, if the subscript `1' is used, it
+refers to the graph associated with the problem; if `2' is used, it
+refers to the graph associated with the response.
+
 \subsubsection{Example 1: Post-treatment Adjustment Blocks Treatment
 Effect}\label{example-1-post-treatment-adjustment-blocks-treatment-effect}
 
 Table~\ref{tbl-terminologyelconfoundersexperiments}
 \(\mathcal{G}_{1.1}\) illustrates the threat of confounding bias by
-conditioning on a post-treatment mediator. Imagine investigators are
+conditioning on a post-treatment mediator McElreath
+(\citeproc{ref-mcelreath2020}{2020}). Imagine investigators are
 interested in whether the framing of an authority as religious or
 secular -- `source framing' -- affects subjective ratings of confidence
 in the authority -- `source credibility.' There are two conditions. A
@@ -493,17 +449,18 @@ Bias}\label{example-2-post-treatment-adjustment-induces-collider-stratification-
 
 Table~\ref{tbl-terminologyelconfoundersexperiments}
 \(\mathcal{G}_{2.1}\) illustrates the threat of confounding bias by
-conditioning on a post-treatment collider. Imagine the same experiment
-as in Example 1 and the same conditioning strategy, where religiosity is
-measured following the treatment. We assume the treatment affects
-religiosity. However, in this example, religiosity has no causal effect
-on the outcome, source credibility. Finally, imagine an unmeasured
-variable affects both the mediator, religiosity (\(L_1\)), and the
-outcome, source credibility (\(Y_2\)). This unmeasured confounder might
-be religious education in childhood. In this scenario, conditioning on
-the post-treatment variable religiosity will open a backdoor path
-between the treatment and outcome, leading to an association in the
-absence of causation. Randomisation did not prevent confounding.
+conditioning on a post-treatment collider (\citeproc{ref-cole2010}{Cole
+\emph{et al.} 2010}). Imagine the same experiment as in Example 1 and
+the same conditioning strategy, where religiosity is measured following
+the treatment. We assume the treatment affects religiosity. However, in
+this example, religiosity has no causal effect on the outcome, source
+credibility. Finally, imagine an unmeasured variable affects both the
+mediator, religiosity (\(L_1\)), and the outcome, source credibility
+(\(Y_2\)). This unmeasured confounder might be religious education in
+childhood. In this scenario, conditioning on the post-treatment variable
+religiosity will open a backdoor path between the treatment and outcome,
+leading to an association in the absence of causation. Randomisation did
+not prevent confounding.
 
 Table~\ref{tbl-terminologyelconfoundersexperiments}
 \(\mathcal{G}_{2.2}\) clarifies a response: do not control
@@ -543,7 +500,7 @@ negative experimental effect in the absence of causality.
 
 Table~\ref{tbl-terminologyelconfoundersexperiments}
 \(\mathcal{G}_{3.2}\) clarifies a response: again, do not control
-post-treatment variables! Here, `religiosity' measured after the end of
+post-treatment variables. Here, `religiosity' measured after the end of
 the study. If the scientific interest is in effect modification or
 obtaining statistical precision, measure covariates before
 randomisation.
@@ -694,65 +651,122 @@ well-being, we require special estimators.
 
 \subsection{Conclusions}\label{conclusions}
 
-The examples we have considered here hardly exhaust threats to causal
-inference in experiments. Whenever the sample at the end of a study
-differs in the distribution of effect modifiers from the sample
-population at the start, results will not generalise as we hope. Such
-bias goes by different names, such as selection bias or
-target-restriction bias (refer to
-(\citeproc{ref-yola}{\textbf{yola?}})). We have not considered these
-threats here. However, I hope the eight examples presented persuade
-investigators of the following:
+The examples considered here do not exhaust all threats to causal
+inference in experiments. For example, I have not covered biases arising
+from sample attrition (refer to Bulbulia
+(\citeproc{ref-bulbulia2024wierd}{2024b})). However, I hope the eight
+examples presented persuade experimental investigators of the following:
 
-First, confounding biases are possible in randomised experiments even
-when randomisation succeeds.
+First, there is no need to adjust for baseline confounders in a
+non-sequential randomised experiment. Although an unadjusted difference
+of means should be reported, Lin has shown that if a study is
+sufficiently powered, regression adjustment where the full set of
+treatments are interacted with baseline covariates may improve (and will
+not diminish) asymptotic precision
+(\citeproc{ref-lin2012regressexperiments}{Lin 2013}). In some settings,
+investigators will want to evaluate effect modification with strata of
+covariates at baseline. However, in sufficiently large samples,
+randomisation ensures balance.
 
-Second, causal directed acyclic graphs are useful for clarifying these
-biases.
+Second, confounding biases can occur in randomised experiments even when
+randomisation succeeds. To evaluate such bias, we must first state
+whether our causal estimand is the intention-to-treat effect or the
+per-protocol effect. Randomisation recovers an unbiased estimate of the
+intention-to-treat effect --- that is, the effect of treatment
+assignment. Randomisation will only recover the per-protocol effect, the
+effect of following a treatment, if those assigned to treatment follow
+the treatment to which they have been assigned.
 
-Third, many such biases are self-inflicted, in the sense that it is easy
-to destroy the benefits of randomisation through poor research designs.
-These self-inflicted biases arise from conditioning on variables that
-may be affected by treatment assignment. By the same token, the remedy
-to self-inflicted injury is easily applied. Do not injury yourself. If
-an experiment consists of a single treatment, unless you are certain
-that treatments do not affect covariates, covariate data should be
-collected before randomisation.
+Third, causal directed acyclic graphs are useful for clarifying sources
+of bias for both the intention-to-treat effect and the per-protocol
+effect.
 
-Fourth, `attention checks' should not be used to select participants
-after treatments have been randomised. If attention is a relevant
-covariate, measures should be taken before randomisation.
+\begin{enumerate}
+\def\labelenumi{\roman{enumi}.}
+\tightlist
+\item
+  For the intention-to-treat effect, biases arise in two main ways:
 
-Fifth, investigators should not adopt naive practices of inferring
-per-protocol effects from the portion of the sample that has followed
-experimental protocols. Not only is such selection nearly guaranteed to
-result in differences between the study population at the start and end
-of the study, compromising external validity
-(\citeproc{ref-yola}{\textbf{yola?}}), but we have also considered that
-both measured and unmeasured confounders may invalidate per-protocol
-results for the retained sample.
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    when investigators impose selection criteria on participants after
+    randomisation (e.g., assessing treatment effects only in those who
+    have followed protocols) or
+  \item
+    when investigators estimate treatment effects using covariates
+    collected after randomisation. Both post-treatment selection and
+    post-treatment conditioning are self-inflicted sources of
+    confounding bias. The remedy: do not allow your design to compromise
+    randomisation.
+  \end{enumerate}
+\item
+  For the per-protocol effect, randomisation cannot guarantee unbiased
+  estimates. Obtaining consistent estimates for the per-protocol effect
+  requires the same assumptions and methods that are required when
+  estimating causal effects in observational studies.
+\end{enumerate}
 
-Sixth, methods for identifying causal effects in observational settings
-may be useful for identifying causal effects in randomised experiments
-because, after randomisation, every experiment becomes an observational
-study.
+Fourth, in a sequential randomised experiment, standard methods such as
+regression adjustment, statistical structural equation models, and
+multi-level models will often fail to yield unbiased estimands
+(\citeproc{ref-bulbulia2024swigstime}{Bulbulia 2024a};
+\citeproc{ref-richardson2013}{Richardson and Robins 2013};
+\citeproc{ref-young2014identification}{Young \emph{et al.} 2014}).
+Special estimators such as `g-methods'
+(\citeproc{ref-hernan2024WHATIF}{Hernan and Robins 2024}) or targeted
+learning (\citeproc{ref-vanderlaan2018}{Van Der Laan and Rose 2018}) may
+be necessary to recover per-protocal effects in sequential designs. The
+requirements for estimating per-protocol effects in experiments cannot
+be stated in isolation from the details of each study
+(\citeproc{ref-hernan2024WHATIF}{Hernan and Robins 2024};
+\citeproc{ref-robins1986}{Robins 1986}).
 
-Seventh, the points that we consider here for experiments apply to
-observational studies that have obtained pseudorandomisation through
-baseline adjustments. Standardly employed methods in observational
-science, such as structural equation models or multi-level models, will
-encounter the same problems that arise in experimental settings with
-sustained treatment strategies. Sustained treatment strategies require
-sequential randomisation (refer to Richardson and Robins
-(\citeproc{ref-richardson2013}{2013}); Young \emph{et al.}
-(\citeproc{ref-young2014identification}{2014});
-(\citeproc{ref-yola}{\textbf{yola?}})).
+From these observations, we offer the following practical advice:
 
-Here, we have demonstrated that satisfying the assumptions for valid
-causal inferences is typically much more challenging than many
-experimental human scientists presently understand. Methods for causal
-inference have wide scope for improving the design, analysis, and
-interpretation of experimental research.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Ensure covariate data are collected before randomisation into
+  treatments.
+\item
+  If attention is a relevant covariate, measure it before randomisation.
+  Do not use `attention checks' to select participants after
+  randomisation into treatments.
+\item
+  If adjustment is used in a single point treatment with baseline
+  covariates, interact every level of treatment with the baseline
+  covariates, following Lin
+  (\citeproc{ref-lin2012regressexperiments}{2013}).
+\item
+  For sequential treatments, collect data for adherence (where
+  possible).
+\item
+  For sequential treatments, at each measurement interval, ensure
+  covariate data collection for any variable that might affect
+  adherence, or that might be proxies for such variables, particularly
+  if these variables, or proxies of these variables, might affect
+  outcomes at the end of the study.
+\item
+  Do not infer per-protocol effects from the portion of the sample that
+  followed experimental protocols. Such selection can lead to
+  differences between the study population at the start and end,
+  compromising external validity.
+\item
+  Where possible, report both the per-protocol effect and the
+  intention-to-treat effect.
+\end{enumerate}
+
+It is beyond the scope of this commentary to describe the special
+methods for estimating per-protocol effects in sequential studies. Our
+task has been to demonstrate that satisfying the assumptions for valid
+causal inferences in experiments is typically more challenging than many
+experimental human scientists presently understand (refer to
+\citeproc{ref-montgomery2018}{Montgomery \emph{et al.} 2018}). Methods
+for causal inference have wide scope for improving the design, analysis,
+and interpretation of experimental research.
 
 \newpage{}
 
@@ -770,6 +784,22 @@ decision to publish it.
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-bulbulia2024swigstime}
+Bulbulia, J (2024a) Causal inference for interaction, mediation, and
+time-varying treatments. \emph{PsyArXiv}.
+doi:\href{https://doi.org/10.31234/osf.io/vr268}{10.31234/osf.io/vr268}.
+
+\bibitem[\citeproctext]{ref-bulbulia2024wierd}
+Bulbulia, J (2024b) The weirdest causal inferences in the world.
+\emph{PsyArXiv}.
+doi:\href{https://doi.org/10.31234/osf.io/kj7rv}{10.31234/osf.io/kj7rv}.
+
+\bibitem[\citeproctext]{ref-cole2010}
+Cole, SR, Platt, RW, Schisterman, EF, \ldots{} Poole, C (2010)
+Illustrating bias due to conditioning on a collider. \emph{International
+Journal of Epidemiology}, \textbf{39}(2), 417--420.
+doi:\href{https://doi.org/10.1093/ije/dyp334}{10.1093/ije/dyp334}.
+
 \bibitem[\citeproctext]{ref-diaz2021nonparametric}
 Dı́az, I, Hejazi, NS, Rudolph, KE, and Der Laan, MJ van (2021)
 Nonparametric efficient causal mediation with intermediate confounders.
@@ -796,11 +826,28 @@ Introducing longitudinal modified treatment policies: A unified
 framework for studying complex exposures.
 doi:\href{https://doi.org/10.48550/arXiv.2304.09460}{10.48550/arXiv.2304.09460}.
 
+\bibitem[\citeproctext]{ref-lin2012regressexperiments}
+Lin, W (2013) {Agnostic notes on regression adjustments to experimental
+data: Reexamining Freedman's critique}. \emph{The Annals of Applied
+Statistics}, \textbf{7}(1), 295--318.
+doi:\href{https://doi.org/10.1214/12-AOAS583}{10.1214/12-AOAS583}.
+
 \bibitem[\citeproctext]{ref-linden2020EVALUE}
 Linden, A, Mathur, MB, and VanderWeele, TJ (2020) Conducting sensitivity
 analysis for unmeasured confounding in observational studies using
 e-values: The evalue package. \emph{The Stata Journal}, \textbf{20}(1),
 162--175.
+
+\bibitem[\citeproctext]{ref-mcelreath2020}
+McElreath, R (2020) \emph{Statistical rethinking: A {B}ayesian course
+with examples in r and stan}, CRC press.
+
+\bibitem[\citeproctext]{ref-montgomery2018}
+Montgomery, JM, Nyhan, B, and Torres, M (2018) How conditioning on
+posttreatment variables can ruin your experiment and what to do about
+It. \emph{American Journal of Political Science}, \textbf{62}(3),
+760--775.
+doi:\href{https://doi.org/10.1111/ajps.12357}{10.1111/ajps.12357}.
 
 \bibitem[\citeproctext]{ref-pearl1995}
 Pearl, J (1995) Causal diagrams for empirical research.
@@ -814,6 +861,12 @@ Richardson, TS, and Robins, JM (2013) Single world intervention graphs:
 A primer. In, Citeseer. Retrieved from
 \url{https://core.ac.uk/display/102673558}
 
+\bibitem[\citeproctext]{ref-robins1986}
+Robins, J (1986) A new approach to causal inference in mortality studies
+with a sustained exposure period---application to control of the healthy
+worker survivor effect. \emph{Mathematical Modelling}, \textbf{7}(9-12),
+1393--1512.
+
 \bibitem[\citeproctext]{ref-suzuki2020}
 Suzuki, E, Shinozaki, T, and Yamamoto, E (2020) Causal Diagrams:
 Pitfalls and Tips. \emph{Journal of Epidemiology}, \textbf{30}(4),
@@ -826,6 +879,12 @@ Measures of effect: Relative risks, odds ratios, risk difference, and
 {`}number needed to treat{'}. \emph{Kidney International},
 \textbf{72}(7), 789--791.
 doi:\href{https://doi.org/10.1038/sj.ki.5002432}{10.1038/sj.ki.5002432}.
+
+\bibitem[\citeproctext]{ref-vanderlaan2018}
+Van Der Laan, MJ, and Rose, S (2018) \emph{Targeted Learning in Data
+Science: Causal Inference for Complex Longitudinal Studies}, Cham:
+Springer International Publishing. Retrieved from
+\url{http://link.springer.com/10.1007/978-3-319-65304-4}
 
 \bibitem[\citeproctext]{ref-young2014identification}
 Young, JG, Hernán, MA, and Robins, JM (2014) Identification, estimation

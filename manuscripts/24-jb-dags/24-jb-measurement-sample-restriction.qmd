@@ -192,7 +192,7 @@ where:
 
 - $Y_i$ is the observed outcome for individual $i$; 
 - $A_i$ is the treatment status for individual $i$, with $A_i = 1$ indicating treatment received and $A_i = 0$ indicating no treatment; 
-- $Y_i(1)$ and $Y_i(0)$ are the potential outcomes for individual $i$ under treatment and no treatment, respectively.
+- $Y_i(1)$ and $Y_i(0)$ are the potential outcomes for individual $i$ under treatment and no treatment, respectively (refer to @morgan2014; @vanderweele2009).
 
 The causal consistency assumption is necessary to link the theoretical concept of potential outcomes — the target quantities of interest — with observable data (see @bulbulia2023a).
 
@@ -227,7 +227,7 @@ where:
 - $L$ is a vector of covariates. 
 - $a$ and $l$ represent specific values of treatment and covariates, respectively.
 
-The positivity assumption, essential for valid treatment effect estimates, requires that every individual has a non-zero chance of receiving each treatment across all covariates in $L$. In practice, verifying this assumption faces two main challenges:
+The positivity assumption, essential for valid treatment effect estimates, requires that every individual has a non-zero chance of receiving each treatment across all covariates in $L$ [@westreich2010; @chatton2020; @hernan2024WHATIF; @bulbulia2023a]. In practice, verifying this assumption faces two main challenges:
 a. **Data sparsity**: Certain covariate combinations are rare or unobserved in the data, making it difficult to empirically confirm positivity for these groups.
 b. **Model dependence**: Researchers rely on statistical models to estimate treatment probabilities for all covariate patterns due to data sparsity. However, these assessments are only as reliable as the models used, which may be subject to misspecification or inaccuracies. For a discussion of causal assumption in relation to target validity, refer to @imai2008misunderstandings.
 
@@ -302,13 +302,13 @@ Note that our terminology differs in causal inference for the concepts we have d
 
 - $\mathbf{\mathcal{R}}$: Denotes randomisation to treatment condition $\big(\mathcal{R} \rightarrow A\big)$.
 
-- **Node**: Represents characteristics or features of units within a population on a causal diagram — that is, a 'variable.' In causal directed acyclic graphs (DAGs), we draw nodes with respect to the *target population*, which is the population for whom investigators seek causal inferences [@suzuki2020]. Time-indexed node: $X_t$ denotes relative chronology.
+- **Node**: Represents characteristics or features of units within a population on a causal diagram — that is, a 'variable.' In causal directed acyclic graphs, we draw nodes with respect to the *target population*, which is the population for whom investigators seek causal inferences [@suzuki2020]. Time-indexed node: $X_t$ denotes relative chronology.
 
 - **Edge without an Arrow** ($\association$): path of association, causality not asserted.
 
 - **Red Edge without an Arrow** ($\associationred$): confounding path: ignores arrows to clarify statistical dependencies. 
 
-- **Arrow** ($\rightarrow$): Denotes a causal relationship from the node at the base of the arrow (a 'parent') to the node at the tip of the arrow (a 'child'). In causal DAGs, it is conventional to refrain from drawing an arrow from treatment to outcome to avoid asserting a causal path from $A$ to $Y$ because we aim to ascertain whether causality can be identified for this path. All other nodes and paths — including the absence of nodes and paths — are typically assumed.
+- **Arrow** ($\rightarrow$): Denotes a causal relationship from the node at the base of the arrow (a 'parent') to the node at the tip of the arrow (a 'child'). In causal directed acyclic graphs, it is conventional to refrain from drawing an arrow from treatment to outcome to avoid asserting a causal path from $A$ to $Y$ because we aim to ascertain whether causality can be identified for this path. All other nodes and paths — including the absence of nodes and paths — are typically assumed.
 
 - **Red Arrow** ($\rightarrowred$): Denotes a path of non-causal association between the treatment and outcome. Despite the arrows, this path is associational and may flow against time.
 
@@ -323,10 +323,9 @@ Note that our terminology differs in causal inference for the concepts we have d
 - **$\mathcal{G}$**: Names a causal directed acyclic graph.
 
 
-### Causal Directed Acyclic Graphs (causal DAGs)
+### Causal Directed Acyclic Graphs (DAGs)
 
-In the 1990s, Judea Pearl showed that we can evaluate causal dependencies using observable probability distributions [@pearl1995; @pearl2009a]. He also demonstrated that causal directed acyclic graphs (causal DAGs) clarify the conditional dependencies among variables [@pearl1995]. Based on assumptions about causal structure, researchers can identify causal effects from joint distributions of observed data.
-
+Judea Pearl proved that, based on assumptions about causal structure, researchers can identify causal effects from joint distributions of observed data [@pearl1995; @pearl2009a]. The rules of d-separation are given in @tbl-terminologygeneral.
 
 ::: {#tbl-terminologygeneral}
 ```{=latex}
@@ -335,29 +334,17 @@ In the 1990s, Judea Pearl showed that we can evaluate causal dependencies using 
 Elements of Causal Graphs 
 :::
 
-
-Pearl developed graphical rules known as d-separation [@pearl1995]:
+Pearl's rules of d-separation are as follows:
 
 - **Fork rule** ($B \leftarrowNEW \boxed{A} \rightarrowNEW C$): $B$ and $C$ are independent when conditioned on $A$ ($B \coprod C \mid A$).
 - **Chain rule** ($A \rightarrowNEW \boxed{B} \rightarrowNEW C$): Conditioning on $B$ blocks the path between $A$ and $C$ ($A \coprod C \mid B$).
 - **Collider rule** ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioned on $C$, which introduces dependence ($A \cancel{\coprod} B \mid C$).
 
-These rules lead to the backdoor criterion and 'backdoor adjustment' theorem, which provide algorithms for identifying causal effects based on the structural assumptions encoded in a causal DAG [@pearl1995].
-
-Consider the following graphs:
-
-- **$\mathcal{G}_1$**: If $A$ and $B$ are not causally related and share no common causes, $A$ and $B$ will not be statistically related.
-- **$\mathcal{G}_2$**: If $A$ causes $B$, and they share no common causes or their common causes are accounted for, $A$ and $B$ will be statistically related.
-- **$\mathcal{G}_3$**: If $A$ causes $B$ and $A$ causes $C$, then conditioning on $A$ allows us to estimate the effect of $B$ on $C$.
-- **$\mathcal{G}_4$**: If $A$ causes $B$ and $B$ causes $C$, conditioning on $B$ obscures the true causal effect of $A$ on $C$, making $A$ independent of $C$.
-- **$\mathcal{G}_5$**: If $A$ causes $C$ and $B$ causes $C$, conditioning on $C$ associates $A$ and $B$, despite no direct causal effect.
-
-If we assume that the variables in the graph correspond to Structural Causal Models, all causal relationships can be defined by the elementary structures presented above.
-
+@tbl-terminologygeneral shows causal directed acyclic graphs corresponding to these rules. Because all causal relationships can be assembled from combinations of the five structures presented in @tbl-terminologygeneral, we can use causal graphs to evaluate whether and how causal effects may be identified from data (refer to @bulbulia2023). Pearl's general identification algorithm  is known as the 'back door adjustment theorem' [@pearl2009a].
 
 ### Effect-Modification on Causal Directed Acyclic Graphs
 
-The primary function of a causal directed acyclic graph is to clarify relations of conditional independence [@tbl-terminologygeneral] for the purposes of causal identification. We have noted that modifying a causal effect within one or more strata of the target population opens the possibility for biased average treatment effect estimates when the distribution of these effect modifiers differs in the sample population. 
+The primary function of a causal directed acyclic graph is to apply the Pearl's backdoor adjustment theorem to establish relations of conditional independence [@tbl-terminologygeneral] for the purposes of causal identification. We have noted that modifying a causal effect within one or more strata of the target population opens the possibility for biased average treatment effect estimates when the distribution of these effect modifiers differs in the sample population. 
 
 We do not generally represent non-linearities in causal directed acyclic graphs, which are tools for obtaining relationships of conditional and unconditional independence from assumed structural relationships encoded in a causal diagram that may lead to a non-causal treatment/outcome association.
 
@@ -374,7 +361,7 @@ To focus on effect modification, we do not draw a causal arrow from the direct e
 
 ## Part 1: How Measurement Error Bias Makes Your Causal Inferences **weird** (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion) {#id-sec-1}
 
-Measurements record reality, but they are not always accurate. When variables are measured with error, our results can be misleading. Every study must therefore consider how its measurements might mislead. Causal directed acyclic graphs (DAGs) can deepen understanding because, as implied by the concept of 'record', there are structural or causal properties of measurement error. Understanding these properties can greatly assist with study design, data collection, data analysis, and inference.
+Measurements record reality, but they are not always accurate. When variables are measured with error, our results can be misleading. Every study must therefore consider how its measurements might mislead. Causal directed acyclic graphs can deepen understanding because, as implied by the concept of 'record', there are structural or causal properties of measurement error. Understanding these properties can greatly assist with study design, data collection, data analysis, and inference.
 
 Measurement error can take various forms, each with distinct implications for causal inference. Causal diagrams clarify these types of measurement error bias:
 
@@ -394,22 +381,22 @@ Example of measurement error bias
 
 Understanding these types of measurement error bias helps researchers design better studies, collect more accurate data, and apply analytical techniques that address measurement error bias. As we will consider in Parts 2 and 3, these four types of measurement error bias will enable us to better clarify the promise and perils of comparative research. 
 
-### Example 1: Uncorrelated Errors under Sharp Null: No Treatment Effect
+### Example 1: Uncorrelated Non-Differential Errors under Sharp Null: No Treatment Effect
 
 @tbl-terminologymeasurementerror $\mathcal{G}_1$ illustrates uncorrelated non-differential measurement error under the 'sharp-null,' which arises when the error terms in the exposure and outcome are independent. In this setting, the measurement error structure is not expected to produce bias.
 
-For example, consider a study investigating the causal effect of beliefs in big Gods on social complexity in ancient societies. Imagine that societies either randomly omitted or inaccurately recorded details about their beliefs in big Gods and their social complexities. This might happen due to the varying preservation of records across cultures, unrelated to the actual beliefs or social complexities. In this scenario, the errors in historical records for beliefs in big Gods and for social complexity will be independent. Such errors may generally not introduce bias — suggesting an effect — when there is no true effect (although see @richardson2013 for edge cases). 
+For example, consider a study investigating the causal effect of beliefs in big Gods on social complexity in ancient societies. Imagine that societies either randomly omitted or inaccurately recorded details about their beliefs in big Gods and their social complexities. This might occur due to varying preservation of records across cultures, unrelated to the actual beliefs or social complexities. In this scenario, the errors in historical records for beliefs in big Gods and for social complexity will be independent. When the treatment is randomised, uncorrelated and undirected errors will generally not introduce bias—suggesting an effect—when there is no true effect. However, see @robins2004effects (p.2216) for a discussion of how in non-experimental settings, mismeasured confounders can introduce bias even when the measurement errors of the treatment and outcome are uncorrelated and undirected. This is because mismeasured confounders will not control for confounding bias. We present an illustration in @tbl-terminologyselectionrestrictionbaseline $\mathcal{G}_6$, where we discuss challenges to comparative research in which the accuracy of confounder measurements varies across the sites to be compared.
 
-Generally, uncorrelated undirected errors will not be be weird **weird** (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion)
+Assuming no unmeasured confounding conditional on measured covariates, uncorrelated undirected errors not generally bias results away from the null, rendering the results  **weird** (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion).
 
-### Example 2: Uncorrelated Errors under Treatment Effect Biases True Effects toward the Null
+### Example 2:  Uncorrelated Non-Differential Errors 'Off The Null' (True Treatment Effect) Biases True Effects toward the Null
 
 @tbl-terminologymeasurementerror $\mathcal{G}_2$ illustrates uncorrelated non-differential measurement error, which arises when the error terms in the exposure and outcome are independent (information bias). In this setting, bias will typically attenuate a true treatment effect.
 
 Consider again the example of a study investigating a causal effect of beliefs in big Gods on social complexity in ancient societies, where there are uncorrelated errors in the treatment and outcome. In this case, measurement error will typically make it seem that the true causal effects of beliefs in big Gods are smaller than they are, or perhaps even that such an effect is absent.
 
 
-Uncorrelated undirected measurement error in the presence of a true effect leads to distortion of true causal effects, inviting **weird** results (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion)
+Uncorrelated undirected measurement error in the presence of a true effect leads to distortion of true causal effects, inviting **weird** results (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion).
 
 ### Example 3: Correlated Errors Non-Differential (Undirected) Measurement Errors
 
@@ -417,29 +404,29 @@ Uncorrelated undirected measurement error in the presence of a true effect leads
 
 Consider an example: imagine that societies with more sophisticated record-keeping systems tend to offer more precise and comprehensive records of both beliefs in big Gods and social complexity. In this setting, it is the record-keeping systems that give an illusion of a relationship between big Gods and social complexity. This might occur without any effect of big-God beliefs on measuring social complexity or vice versa. Nevertheless, the correlated sources of error for both the exposure and outcome may suggest causation in its absence.
 
-Correlated non-differential measurement error invites **weird** results (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion)
+Correlated non-differential measurement error invites **weird** results (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion).
 
-### Example 4: Uncorrelated Directed Measurement Error: Exposure Affects Error of Outcome
+### Example 4: Uncorrelated Differential Measurement Error: Exposure Affects Error of Outcome
 
 @tbl-terminologymeasurementerror $\mathcal{G}_4$ illustrates the structure of uncorrelated differential (or directed) measurement error, where a non-causal path is opened linking the treatment, the outcome, or a common cause of the treatment and outcome.
 
 Continuing with our previous example, imagine that beliefs in big Gods lead to inflated records of social complexity in a culture's record-keeping. This might happen because the record keepers in societies that believe in big Gods prefer societies to reflect the grandeur of their big Gods. Suppose further that cultures lacking beliefs in big Gods prefer Bacchanalian-style feasting to record-keeping. In this scenario, societies with record keepers who believe in big Gods would appear to have more social complexity than equally complex societies without such record keepers.
 
-Uncorrelated directed measurement error bias also invites **weird** results (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion)
+Uncorrelated directed measurement error bias also invites **weird** results (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion).
 
-### Example 5: Uncorrelated Directed Error: Outcome Affects Error of Exposure
+### Example 5: Uncorrelated Differential Measurement Error: Outcome Affects Error of Exposure
 
 @tbl-terminologymeasurementerror $\mathcal{G}_5$ illustrates the structure of uncorrelated differential (or directed) measurement error, this time when the outcome affects the recording of the treatment that preceded the outcome.
 
-Consider if 'history is written by the victors.' How might this affect measurement error bias? Suppose that social complexity causes beliefs in big Gods. Perhaps kings create big Gods after the image of kings. If the kings prefer a history in which big Gods were historically present, this might bias the historical record, opening a path of association that reverses the order of causation. Such results would be **weird**: (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion)
+Consider if 'history is written by the victors.' How might this affect measurement error bias? Suppose that social complexity causes beliefs in big Gods. Perhaps kings create big Gods after the image of kings. If the kings prefer a history in which big Gods were historically present, this might bias the historical record, opening a path of association that reverses the order of causation. Such results would be **weird**: (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion).
 
-### Example 6: Directed Error: Outcome Affects Error of Exposure
+### Example 6: Uncorrelated Differential Error: Outcome Affects Error of Exposure
 
 @tbl-terminologymeasurementerror $\mathcal{G}_6$ illustrates the structure of correlated differential (directed) measurement error, which occurs when the exposure affects levels of already correlated error terms.
 
 Suppose social complexity produces a flattering class of religious elites who tend to produce vainglorious depictions of kings and their dominions, and also of the extent and scope of their society's beliefs in big Gods. For example, such elites might tend to downplay widespread cultural practices of worshipping lesser gods, inflate population estimates, and overstate the range of their economies. In this scenario, the errors of the exposure and of the outcome are both correlated and differential.
 
-Such results would be **weird**: (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion)
+Such results would be **weird**: (**w**rongly **e**stimated inferences due to **i**nappropriate **r**estriction and **d**istortion).
 
 ### Summary
 
@@ -674,7 +661,7 @@ We avoid **weird** (**w**rongly **e**stimated inferences due to **i**nappropriat
 9. **Clearly communicate the reasoning, evidence, and decision-making that inform steps 1-8.**
    Provide transparent and thorough documentation of the causal inference process. This includes detailing the assumptions, methods, and decisions made throughout the study to support the validity of causal inference for the study population and the reliability of generalisations to the target population.
 
-The demands in following this workflow in comparative research are more stringent because measurement error bias must be evaluated at every site to be compared. Heterogeneity in measurement error can open biasing paths, and the target populations may not be easily defined, sampled, or -- where the scientific question requires -- restricted. Methodologists broadly agree on these points, but they can easily forget them. We have considered how workflows for causal inference provide the essential preflight checklists needed for ambitious, effective, and safe comparative cultural research.
+The demands in following this workflow in comparative research are more stringent because measurement error bias must be evaluated at every site to be compared. Heterogeneity in measurement error can open biasing paths, and the target populations may not be easily defined, sampled, or -- where the scientific question requires -- restricted. Methodologists broadly agree on these points, but they can easily forget them. We have shown how workflows for causal inference act as essential preflight checklists for ambitious, effective, and safe comparative cultural research. These workflows help propel science forward without overreaching.
 
 
 {{< pagebreak >}}

@@ -250,7 +250,7 @@
       
 
 
-\date{2024-05-26}
+\date{2024-05-27}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -543,7 +543,9 @@ where:
   indicating treatment received and \(A_i = 0\) indicating no treatment;
 \item
   \(Y_i(1)\) and \(Y_i(0)\) are the potential outcomes for individual
-  \(i\) under treatment and no treatment, respectively.
+  \(i\) under treatment and no treatment, respectively (refer to Morgan
+  and Winship (\citeproc{ref-morgan2014}{2014}); VanderWeele
+  (\citeproc{ref-vanderweele2009}{2009})).
 \end{itemize}
 
 The causal consistency assumption is necessary to link the theoretical
@@ -611,7 +613,11 @@ where:
 
 The positivity assumption, essential for valid treatment effect
 estimates, requires that every individual has a non-zero chance of
-receiving each treatment across all covariates in \(L\). In practice,
+receiving each treatment across all covariates in \(L\)
+(\citeproc{ref-bulbulia2023a}{Bulbulia \emph{et al.} 2023};
+\citeproc{ref-chatton2020}{Chatton \emph{et al.} 2020};
+\citeproc{ref-hernan2024WHATIF}{Hernan and Robins 2024};
+\citeproc{ref-westreich2010}{Westreich and Cole 2010}). In practice,
 verifying this assumption faces two main challenges: a. \textbf{Data
 sparsity}: Certain covariate combinations are rare or unobserved in the
 data, making it difficult to empirically confirm positivity for these
@@ -825,7 +831,7 @@ pragmatically useful discussion, refer to Stuart \emph{et al.}
 \item
   \textbf{Node}: Represents characteristics or features of units within
   a population on a causal diagram --- that is, a `variable.' In causal
-  directed acyclic graphs (DAGs), we draw nodes with respect to the
+  directed acyclic graphs, we draw nodes with respect to the
   \emph{target population}, which is the population for whom
   investigators seek causal inferences (\citeproc{ref-suzuki2020}{Suzuki
   \emph{et al.} 2020}). Time-indexed node: \(X_t\) denotes relative
@@ -839,12 +845,12 @@ pragmatically useful discussion, refer to Stuart \emph{et al.}
 \item
   \textbf{Arrow} (\(\rightarrow\)): Denotes a causal relationship from
   the node at the base of the arrow (a `parent') to the node at the tip
-  of the arrow (a `child'). In causal DAGs, it is conventional to
-  refrain from drawing an arrow from treatment to outcome to avoid
-  asserting a causal path from \(A\) to \(Y\) because we aim to
-  ascertain whether causality can be identified for this path. All other
-  nodes and paths --- including the absence of nodes and paths --- are
-  typically assumed.
+  of the arrow (a `child'). In causal directed acyclic graphs, it is
+  conventional to refrain from drawing an arrow from treatment to
+  outcome to avoid asserting a causal path from \(A\) to \(Y\) because
+  we aim to ascertain whether causality can be identified for this path.
+  All other nodes and paths --- including the absence of nodes and paths
+  --- are typically assumed.
 \item
   \textbf{Red Arrow} (\(\rightarrowred\)): Denotes a path of non-causal
   association between the treatment and outcome. Despite the arrows,
@@ -872,17 +878,14 @@ pragmatically useful discussion, refer to Stuart \emph{et al.}
   \textbf{\(\mathcal{G}\)}: Names a causal directed acyclic graph.
 \end{itemize}
 
-\subsubsection{Causal Directed Acyclic Graphs (causal
-DAGs)}\label{causal-directed-acyclic-graphs-causal-dags}
+\subsubsection{Causal Directed Acyclic Graphs
+(DAGs)}\label{causal-directed-acyclic-graphs-dags}
 
-In the 1990s, Judea Pearl showed that we can evaluate causal
-dependencies using observable probability distributions
-(\citeproc{ref-pearl1995}{Pearl 1995}, \citeproc{ref-pearl2009a}{2009}).
-He also demonstrated that causal directed acyclic graphs (causal DAGs)
-clarify the conditional dependencies among variables
-(\citeproc{ref-pearl1995}{Pearl 1995}). Based on assumptions about
-causal structure, researchers can identify causal effects from joint
-distributions of observed data.
+Judea Pearl proved that, based on assumptions about causal structure,
+researchers can identify causal effects from joint distributions of
+observed data (\citeproc{ref-pearl1995}{Pearl 1995},
+\citeproc{ref-pearl2009a}{2009}). The rules of d-separation are given in
+Table~\ref{tbl-terminologygeneral}.
 
 \begin{table}
 
@@ -896,8 +899,7 @@ distributions of observed data.
 
 \end{table}%
 
-Pearl developed graphical rules known as d-separation
-(\citeproc{ref-pearl1995}{Pearl 1995}):
+Pearl's rules of d-separation are as follows:
 
 \begin{itemize}
 \tightlist
@@ -916,49 +918,24 @@ Pearl developed graphical rules known as d-separation
   (\(A \cancel{\coprod} B \mid C\)).
 \end{itemize}
 
-These rules lead to the backdoor criterion and `backdoor adjustment'
-theorem, which provide algorithms for identifying causal effects based
-on the structural assumptions encoded in a causal DAG
-(\citeproc{ref-pearl1995}{Pearl 1995}).
-
-Consider the following graphs:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{\(\mathcal{G}_1\)}: If \(A\) and \(B\) are not causally
-  related and share no common causes, \(A\) and \(B\) will not be
-  statistically related.
-\item
-  \textbf{\(\mathcal{G}_2\)}: If \(A\) causes \(B\), and they share no
-  common causes or their common causes are accounted for, \(A\) and
-  \(B\) will be statistically related.
-\item
-  \textbf{\(\mathcal{G}_3\)}: If \(A\) causes \(B\) and \(A\) causes
-  \(C\), then conditioning on \(A\) allows us to estimate the effect of
-  \(B\) on \(C\).
-\item
-  \textbf{\(\mathcal{G}_4\)}: If \(A\) causes \(B\) and \(B\) causes
-  \(C\), conditioning on \(B\) obscures the true causal effect of \(A\)
-  on \(C\), making \(A\) independent of \(C\).
-\item
-  \textbf{\(\mathcal{G}_5\)}: If \(A\) causes \(C\) and \(B\) causes
-  \(C\), conditioning on \(C\) associates \(A\) and \(B\), despite no
-  direct causal effect.
-\end{itemize}
-
-If we assume that the variables in the graph correspond to Structural
-Causal Models, all causal relationships can be defined by the elementary
-structures presented above.
+Table~\ref{tbl-terminologygeneral} shows causal directed acyclic graphs
+corresponding to these rules. Because all causal relationships can be
+assembled from combinations of the five structures presented in
+Table~\ref{tbl-terminologygeneral}, we can use causal graphs to evaluate
+whether and how causal effects may be identified from data (refer to
+Bulbulia (\citeproc{ref-bulbulia2023}{2023})). Pearl's general
+identification algorithm is known as the `back door adjustment theorem'
+(\citeproc{ref-pearl2009a}{Pearl 2009}).
 
 \subsubsection{Effect-Modification on Causal Directed Acyclic
 Graphs}\label{effect-modification-on-causal-directed-acyclic-graphs}
 
-The primary function of a causal directed acyclic graph is to clarify
-relations of conditional independence Table~\ref{tbl-terminologygeneral}
-for the purposes of causal identification. We have noted that modifying
-a causal effect within one or more strata of the target population opens
-the possibility for biased average treatment effect estimates when the
+The primary function of a causal directed acyclic graph is to apply the
+Pearl's backdoor adjustment theorem to establish relations of
+conditional independence Table~\ref{tbl-terminologygeneral} for the
+purposes of causal identification. We have noted that modifying a causal
+effect within one or more strata of the target population opens the
+possibility for biased average treatment effect estimates when the
 distribution of these effect modifiers differs in the sample population.
 
 We do not generally represent non-linearities in causal directed acyclic
@@ -1000,11 +977,10 @@ Your Causal Inferences \textbf{weird} (\textbf{w}rongly
 Measurements record reality, but they are not always accurate. When
 variables are measured with error, our results can be misleading. Every
 study must therefore consider how its measurements might mislead. Causal
-directed acyclic graphs (DAGs) can deepen understanding because, as
-implied by the concept of `record', there are structural or causal
-properties of measurement error. Understanding these properties can
-greatly assist with study design, data collection, data analysis, and
-inference.
+directed acyclic graphs can deepen understanding because, as implied by
+the concept of `record', there are structural or causal properties of
+measurement error. Understanding these properties can greatly assist
+with study design, data collection, data analysis, and inference.
 
 Measurement error can take various forms, each with distinct
 implications for causal inference. Causal diagrams clarify these types
@@ -1053,9 +1029,9 @@ techniques that address measurement error bias. As we will consider in
 Parts 2 and 3, these four types of measurement error bias will enable us
 to better clarify the promise and perils of comparative research.
 
-\subsubsection{Example 1: Uncorrelated Errors under Sharp Null: No
-Treatment
-Effect}\label{example-1-uncorrelated-errors-under-sharp-null-no-treatment-effect}
+\subsubsection{Example 1: Uncorrelated Non-Differential Errors under
+Sharp Null: No Treatment
+Effect}\label{example-1-uncorrelated-non-differential-errors-under-sharp-null-no-treatment-effect}
 
 Table~\ref{tbl-terminologymeasurementerror} \(\mathcal{G}_1\)
 illustrates uncorrelated non-differential measurement error under the
@@ -1067,21 +1043,32 @@ For example, consider a study investigating the causal effect of beliefs
 in big Gods on social complexity in ancient societies. Imagine that
 societies either randomly omitted or inaccurately recorded details about
 their beliefs in big Gods and their social complexities. This might
-happen due to the varying preservation of records across cultures,
-unrelated to the actual beliefs or social complexities. In this
-scenario, the errors in historical records for beliefs in big Gods and
-for social complexity will be independent. Such errors may generally not
-introduce bias --- suggesting an effect --- when there is no true effect
-(although see Richardson and Robins
-(\citeproc{ref-richardson2013}{2013}) for edge cases).
+occur due to varying preservation of records across cultures, unrelated
+to the actual beliefs or social complexities. In this scenario, the
+errors in historical records for beliefs in big Gods and for social
+complexity will be independent. When the treatment is randomised,
+uncorrelated and undirected errors will generally not introduce
+bias---suggesting an effect---when there is no true effect. However, see
+Robins \emph{et al.} (\citeproc{ref-robins2004effects}{2004}) (p.2216)
+for a discussion of how in non-experimental settings, mismeasured
+confounders can introduce bias even when the measurement errors of the
+treatment and outcome are uncorrelated and undirected. This is because
+mismeasured confounders will not control for confounding bias. We
+present an illustration in
+Table~\ref{tbl-terminologyselectionrestrictionbaseline}
+\(\mathcal{G}_6\), where we discuss challenges to comparative research
+in which the accuracy of confounder measurements varies across the sites
+to be compared.
 
-Generally, uncorrelated undirected errors will not be be weird
-\textbf{weird} (\textbf{w}rongly \textbf{e}stimated inferences due to
-\textbf{i}nappropriate \textbf{r}estriction and \textbf{d}istortion)
+Assuming no unmeasured confounding conditional on measured covariates,
+uncorrelated undirected errors not generally bias results away from the
+null, rendering the results \textbf{weird} (\textbf{w}rongly
+\textbf{e}stimated inferences due to \textbf{i}nappropriate
+\textbf{r}estriction and \textbf{d}istortion).
 
-\subsubsection{Example 2: Uncorrelated Errors under Treatment Effect
-Biases True Effects toward the
-Null}\label{example-2-uncorrelated-errors-under-treatment-effect-biases-true-effects-toward-the-null}
+\subsubsection{Example 2: Uncorrelated Non-Differential Errors `Off The
+Null' (True Treatment Effect) Biases True Effects toward the
+Null}\label{example-2-uncorrelated-non-differential-errors-off-the-null-true-treatment-effect-biases-true-effects-toward-the-null}
 
 Table~\ref{tbl-terminologymeasurementerror} \(\mathcal{G}_2\)
 illustrates uncorrelated non-differential measurement error, which
@@ -1100,7 +1087,7 @@ Uncorrelated undirected measurement error in the presence of a true
 effect leads to distortion of true causal effects, inviting
 \textbf{weird} results (\textbf{w}rongly \textbf{e}stimated inferences
 due to \textbf{i}nappropriate \textbf{r}estriction and
-\textbf{d}istortion)
+\textbf{d}istortion).
 
 \subsubsection{Example 3: Correlated Errors Non-Differential
 (Undirected) Measurement
@@ -1122,11 +1109,11 @@ exposure and outcome may suggest causation in its absence.
 
 Correlated non-differential measurement error invites \textbf{weird}
 results (\textbf{w}rongly \textbf{e}stimated inferences due to
-\textbf{i}nappropriate \textbf{r}estriction and \textbf{d}istortion)
+\textbf{i}nappropriate \textbf{r}estriction and \textbf{d}istortion).
 
-\subsubsection{Example 4: Uncorrelated Directed Measurement Error:
+\subsubsection{Example 4: Uncorrelated Differential Measurement Error:
 Exposure Affects Error of
-Outcome}\label{example-4-uncorrelated-directed-measurement-error-exposure-affects-error-of-outcome}
+Outcome}\label{example-4-uncorrelated-differential-measurement-error-exposure-affects-error-of-outcome}
 
 Table~\ref{tbl-terminologymeasurementerror} \(\mathcal{G}_4\)
 illustrates the structure of uncorrelated differential (or directed)
@@ -1145,11 +1132,11 @@ equally complex societies without such record keepers.
 
 Uncorrelated directed measurement error bias also invites \textbf{weird}
 results (\textbf{w}rongly \textbf{e}stimated inferences due to
-\textbf{i}nappropriate \textbf{r}estriction and \textbf{d}istortion)
+\textbf{i}nappropriate \textbf{r}estriction and \textbf{d}istortion).
 
-\subsubsection{Example 5: Uncorrelated Directed Error: Outcome Affects
-Error of
-Exposure}\label{example-5-uncorrelated-directed-error-outcome-affects-error-of-exposure}
+\subsubsection{Example 5: Uncorrelated Differential Measurement Error:
+Outcome Affects Error of
+Exposure}\label{example-5-uncorrelated-differential-measurement-error-outcome-affects-error-of-exposure}
 
 Table~\ref{tbl-terminologymeasurementerror} \(\mathcal{G}_5\)
 illustrates the structure of uncorrelated differential (or directed)
@@ -1163,10 +1150,11 @@ kings prefer a history in which big Gods were historically present, this
 might bias the historical record, opening a path of association that
 reverses the order of causation. Such results would be \textbf{weird}:
 (\textbf{w}rongly \textbf{e}stimated inferences due to
-\textbf{i}nappropriate \textbf{r}estriction and \textbf{d}istortion)
+\textbf{i}nappropriate \textbf{r}estriction and \textbf{d}istortion).
 
-\subsubsection{Example 6: Directed Error: Outcome Affects Error of
-Exposure}\label{example-6-directed-error-outcome-affects-error-of-exposure}
+\subsubsection{Example 6: Uncorrelated Differential Error: Outcome
+Affects Error of
+Exposure}\label{example-6-uncorrelated-differential-error-outcome-affects-error-of-exposure}
 
 Table~\ref{tbl-terminologymeasurementerror} \(\mathcal{G}_6\)
 illustrates the structure of correlated differential (directed)
@@ -1184,7 +1172,7 @@ differential.
 
 Such results would be \textbf{weird}: (\textbf{w}rongly
 \textbf{e}stimated inferences due to \textbf{i}nappropriate
-\textbf{r}estriction and \textbf{d}istortion)
+\textbf{r}estriction and \textbf{d}istortion).
 
 \subsubsection{Summary}\label{summary}
 
@@ -1848,9 +1836,10 @@ to be compared. Heterogeneity in measurement error can open biasing
 paths, and the target populations may not be easily defined, sampled, or
 -- where the scientific question requires -- restricted. Methodologists
 broadly agree on these points, but they can easily forget them. We have
-considered how workflows for causal inference provide the essential
-preflight checklists needed for ambitious, effective, and safe
-comparative cultural research.
+shown how workflows for causal inference act as essential preflight
+checklists for ambitious, effective, and safe comparative cultural
+research. These workflows help propel science forward without
+overreaching.
 
 \newpage{}
 
@@ -1907,6 +1896,14 @@ doi:\href{https://doi.org/10.5281/zenodo.10907724}{10.5281/zenodo.10907724}.
 Bulbulia, JA, Afzali, MU, Yogeeswaran, K, and Sibley, CG (2023)
 Long-term causal effects of far-right terrorism in {N}ew {Z}ealand.
 \emph{PNAS Nexus}, \textbf{2}(8), pgad242.
+
+\bibitem[\citeproctext]{ref-chatton2020}
+Chatton, A, Le Borgne, F, Leyrat, C, \ldots{} Foucher, Y (2020)
+G-computation, propensity score-based methods, and targeted maximum
+likelihood estimator for causal inference with different covariates
+sets: a comparative simulation study. \emph{Scientific Reports},
+\textbf{10}(1), 9219.
+doi:\href{https://doi.org/10.1038/s41598-020-65917-x}{10.1038/s41598-020-65917-x}.
 
 \bibitem[\citeproctext]{ref-cole2008}
 Cole, SR, and Hernán, MA (2008) Constructing inverse probability weights
@@ -2053,6 +2050,12 @@ Association}, \textbf{117}(539), 1415--1423.
 McElreath, R (2020) \emph{Statistical rethinking: A {B}ayesian course
 with examples in r and stan}, CRC press.
 
+\bibitem[\citeproctext]{ref-morgan2014}
+Morgan, SL, and Winship, C (2014) \emph{Counterfactuals and causal
+inference: Methods and principles for social research}, 2nd edn,
+Cambridge: Cambridge University Press.
+doi:\href{https://doi.org/10.1017/CBO9781107587991}{10.1017/CBO9781107587991}.
+
 \bibitem[\citeproctext]{ref-neal2020introduction}
 Neal, B (2020) Introduction to causal inference from a machine learning
 perspective. \emph{Course Lecture Notes (Draft)}. Retrieved from
@@ -2065,15 +2068,16 @@ Pearl, J (1995) Causal diagrams for empirical research.
 \bibitem[\citeproctext]{ref-pearl2009a}
 Pearl, J (2009) \emph{Causality}, Cambridge University Press.
 
-\bibitem[\citeproctext]{ref-richardson2013}
-Richardson, TS, and Robins, JM (2013) Single world intervention graphs:
-A primer. In, Citeseer. Retrieved from
-\url{https://core.ac.uk/display/102673558}
-
 \bibitem[\citeproctext]{ref-richardson2014causal}
 Richardson, TS, and Rotnitzky, A (2014) Causal etiology of the research
 of {J}ames {M}. {R}obins. \emph{Statistical Science}, \textbf{29}(4),
 459--484.
+
+\bibitem[\citeproctext]{ref-robins2004effects}
+Robins, JM, Hernán, MA, and SiEBERT, U (2004) Effects of multiple
+interventions. \emph{Comparative Quantification of Health Risks: Global
+and Regional Burden of Disease Attributable to Selected Major Risk
+Factors}, \textbf{1}, 2191--2230.
 
 \bibitem[\citeproctext]{ref-rubin1976}
 Rubin, DB (1976) Inference and missing data. \emph{Biometrika},
@@ -2145,6 +2149,11 @@ Inference for Observational and Experimental Data}, New York, NY:
 Springer. Retrieved from
 \url{https://link.springer.com/10.1007/978-1-4419-9782-1}
 
+\bibitem[\citeproctext]{ref-vanderweele2009}
+VanderWeele, TJ (2009) Concerning the consistency assumption in causal
+inference. \emph{Epidemiology}, \textbf{20}(6), 880.
+doi:\href{https://doi.org/10.1097/EDE.0b013e3181bd5638}{10.1097/EDE.0b013e3181bd5638}.
+
 \bibitem[\citeproctext]{ref-vanderweele2012}
 VanderWeele, TJ (2012) Confounding and Effect Modification: Distribution
 and Measure. \emph{Epidemiologic Methods}, \textbf{1}(1), 55--82.
@@ -2180,6 +2189,11 @@ Vansteelandt, S, and Dukes, O (2022a) Assumption-lean inference for
 generalised linear model parameters. \emph{Journal of the Royal
 Statistical Society Series B: Statistical Methodology}, \textbf{84}(3),
 657--685.
+
+\bibitem[\citeproctext]{ref-westreich2010}
+Westreich, D, and Cole, SR (2010) Invited commentary: positivity in
+practice. \emph{American Journal of Epidemiology}, \textbf{171}(6).
+doi:\href{https://doi.org/10.1093/aje/kwp436}{10.1093/aje/kwp436}.
 
 \bibitem[\citeproctext]{ref-westreich2017}
 Westreich, D, Edwards, JK, Lesko, CR, Stuart, E, and Cole, SR (2017a)
