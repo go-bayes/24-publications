@@ -250,7 +250,7 @@
       
 
 
-\date{2024-05-27}
+\date{2024-06-03}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -390,7 +390,22 @@ target population. When there is restriction of the target population in
 the sample population at baseline, this may bias results. I focus on
 structural threats to inference when the sample population is (1) too
 restrictive (for example, too WEIRD) and (2) insufficiently restrictive
-(WEIRD sampling leads to bias).
+(WEIRD sampling leads to bias). Here, we discover that
+population-restriction biases are formally equivalent to measurement
+error bias.
+
+\hyperref[id-sec-4]{Part 4} uses Single World Intervention Graphs
+(SWIGs) to clarify ambiguities that arise when using causal directed
+acyclic graphs to address population-restriction and measurement-error
+biases. Despite the absence of confounding biases, differences often
+emerge between the causal estimands we seek at the outset of a study and
+those derived from the data at the end. SWIGs allow us to precisely
+represent counterfactual dependencies on a causal diagramme. Here, we
+develop the concept of a `reporter' to distinguish measurements of
+reality from the realities they measure. Not only does locating
+reporters on SWIGs help diagnose points at which non-confounding biases
+arise, but it also suggests remedies for more closely approximating the
+estimands we seek.
 
 The importance of causal inference for comparative research has been
 discussed in several recent studies
@@ -664,7 +679,8 @@ To avoid terminology confusion, we define the meanings of our terms:
   strategies for confounding control.
 \item
   \textbf{Measurement}: A recorded trace of a variable, such as a column
-  in one's dataset.
+  in one's dataset. When placing measurements within causal settings we
+  call measurements \textbf{Reporters'}.
 \item
   \textbf{Measurement error}: A misalignment between the true state of a
   variable and its recorded state. `Alice was born on 30 November;
@@ -1745,6 +1761,127 @@ unless each is proven innocent of structural measurement error bias, it
 is generally best to report the results for each culture separately,
 without attempting comparisons.
 
+\newpage{}
+
+\subsubsection{Part 4. Measurement Error Bias Understood Through Single
+World Intervention
+Graphs}\label{part-4.-measurement-error-bias-understood-through-single-world-intervention-graphs}
+
+Directed acyclic graphs (causal DAGs) help us examine and connect
+measurement error biases and population-restriction biases, but they do
+not directly represent counterfactuals on a graph. In causal DAGs, nodes
+are labelled with variable names such as \(A\) and \(Y\). However, in
+the potential outcomes framework, we use notations like
+\(A = \tilde{a}\) and \(Y(\tilde{a})\). This difference arises because
+causal DAGs were not developed for the potential outcomes framework.
+Instead, Judea Pearl's laws of \(d\)-separation, along with his backdoor
+adjustment criterion, allow researchers to interpret conditional
+independencies based on hypothetical interventions performed on the
+nodes of a causal DAG (\citeproc{ref-bulbulia2023}{Bulbulia 2023};
+\citeproc{ref-pearl2009a}{Pearl 2009};
+\citeproc{ref-neal2020}{\textbf{neal2020?}}).
+
+We have encountered challenges in using causal DAGs to represent biases
+that do not arise from confounding. Among the five biases considered in
+\hyperref[id-sec-3]{Part 3} when investigating population-restriction
+bias at baseline, only one could be classified as confounding bias. A
+similar form of bias was observed in \hyperref[id-sec-2]{Part 2}
+(Table~\ref{tbl-terminologycensoring} \(\mathcal{G}_5\)), where biases
+emerged at the end of the study due to a mismatch between the remaining
+sample population and the target population at the start. In
+\hyperref[id-sec-1]{Part 1}, we explored undirected/uncorrelated
+measurement error bias and found that measurement bias can arise `off
+the null' without any confounding
+(Table~\ref{tbl-terminologymeasurementerror} \(\mathcal{G}_2\)).
+Although causal DAGs are powerful tools for checking conditional
+independence, they are not well-suited for addressing certain forms of
+measurement-error bias and population-restriction biases because such
+biases remain even after all backdoor paths between treatment and
+outcome have been closed.
+
+To clarify bias from restriction and measurement in the absence of
+confounding we turn to Single World Intervention Graphs (SWIGs). SWIGs
+are causal diagrams that allow counterfactual dependencies to be read
+directly off the graphs (\citeproc{ref-richardson2013}{Richardson and
+Robins 2013}). SWIGs to unify the potential outcomes framework and
+Pearl's structural causal model framework by allowing investigators to
+check the conditional independencies of potential outcomes and the
+treatments that precede them directly off the graph.
+
+SWIGs operate by `node-splitting' at each intervention
+(\citeproc{ref-richardson2013}{Richardson and Robins 2013};
+\citeproc{ref-bulbulia2024c}{\textbf{bulbulia2024c?}}), dividing the
+intervention into a random component and a fixed component. In
+single-point or sequential interventions, one reads a SWIG just as one
+would read a causal DAG, ensuring there are no backdoor paths linking
+the random part of the node to the outcome. The deterministic part of a
+node is fixed, preventing confounding in the counterfactual future from
+the fixed portion of the node unless an open backdoor path arises before
+a subsequent intervention.
+
+For time-varying confounders, Robins and Richardson developed a dynamic
+extended g-formula that allows investigators to ensure that the
+treatment is not a confounder of the outcome. The issue arises in
+sequential treatments when assignment to a condition depends on the
+level of treatment one would have had in the absence of an intervention,
+as well as other previous indicators from one's treatment history. The
+extended g-formula effectively requires that counterfactual data
+following an intervention must be independent of the treatment,
+covariate history leading up to the treatment, and any future
+counterfactual history following the treatment that may link future
+treatments to the potential outcome(s) at the end of study. Again, the
+focus of a Single World Intervention Graph is on identifying causal
+effects in settings where there may be (time-varying) confounding.
+
+We begin by using Single World Intervention Graphs to Clarify sources of
+bias in the absence of counfounding when there is non-directional
+uncorrelated measurement error. We call a `reporter' a measurment of a
+treatment, outcome, or common cause of a treatment and outcome that
+features in a Single World Intervention Graph. Table~\ref{tbl-tblme}
+presents a series of Single World Intervention Graphs that present
+either reporters of the Treatment, node \(B(\tilde{a})\) in
+Table~\ref{tbl-tblme} \(\mathcal{G}_{1.1 - 1.4}\) or in the outcome
+Table~\ref{tbl-tblme} \(\mathcal{G}_{2.1 - 2.4}\)
+
+\begin{table}
+
+\caption{\label{tbl-tblme}Uncorrelated/Undirected Measurement Error in
+Single World Intervention Graph}
+
+\centering{
+
+\tblme
+
+}
+
+\end{table}%
+
+\begin{table}
+
+\caption{\label{tbl-tblswigme}Uncorrelated/Undirected Measurement Error
+in Single World Intervention Graph}
+
+\centering{
+
+\tblswigme
+
+}
+
+\end{table}%
+
+\begin{table}
+
+\caption{\label{tbl-tblswigme}Uncorrelated/Undirected Measurement Error
+in Single World Intervention Graph}
+
+\centering{
+
+\tblswigmex
+
+}
+
+\end{table}%
+
 \subsection{Conclusions}\label{conclusions}
 
 In causal inference, we begin by specifying clear treatments and
@@ -2067,6 +2204,11 @@ Pearl, J (1995) Causal diagrams for empirical research.
 
 \bibitem[\citeproctext]{ref-pearl2009a}
 Pearl, J (2009) \emph{Causality}, Cambridge University Press.
+
+\bibitem[\citeproctext]{ref-richardson2013}
+Richardson, TS, and Robins, JM (2013) Single world intervention graphs:
+A primer. In, Citeseer. Retrieved from
+\url{https://core.ac.uk/display/102673558}
 
 \bibitem[\citeproctext]{ref-richardson2014causal}
 Richardson, TS, and Rotnitzky, A (2014) Causal etiology of the research
@@ -2429,13 +2571,15 @@ We also load the \texttt{parameters} library, which creates nice tables
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\#|label: loadlibs}
+
 \CommentTok{\# to obtain marginal effects}
 \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{requireNamespace}\NormalTok{(}\StringTok{\textquotesingle{}stdReg\textquotesingle{}}\NormalTok{, }\AttributeTok{quietly =} \ConstantTok{TRUE}\NormalTok{)) }\FunctionTok{install.packages}\NormalTok{(}\StringTok{\textquotesingle{}stdReg\textquotesingle{}}\NormalTok{)}
 \FunctionTok{library}\NormalTok{(stdReg)}
 
 \CommentTok{\#  to view data}
 \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{requireNamespace}\NormalTok{(}\StringTok{\textquotesingle{}skimr\textquotesingle{}}\NormalTok{, }\AttributeTok{quietly =} \ConstantTok{TRUE}\NormalTok{)) }\FunctionTok{install.packages}\NormalTok{(}\StringTok{\textquotesingle{}skimr\textquotesingle{}}\NormalTok{)}
-\FunctionTok{library}\NormalTok{(parameters)}
+\FunctionTok{library}\NormalTok{(skimr)}
 
 \CommentTok{\# to create nice tables}
 \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{requireNamespace}\NormalTok{(}\StringTok{\textquotesingle{}parameters\textquotesingle{}}\NormalTok{, }\AttributeTok{quietly =} \ConstantTok{TRUE}\NormalTok{)) }\FunctionTok{install.packages}\NormalTok{(}\StringTok{\textquotesingle{}parameters\textquotesingle{}}\NormalTok{)}
