@@ -210,7 +210,7 @@
       
 
 
-\date{2024-06-08}
+\date{2024-06-09}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -1420,7 +1420,7 @@ models has led to considerable confusion across the human sciences
 (\citeproc{ref-bulbulia2022}{Bulbulia 2022};
 \citeproc{ref-vanderweele2015}{VanderWeele 2015};
 \citeproc{ref-vanderweele2022}{VanderWeele 2022};
-\citeproc{ref-vanderweele2022b}{VanderWeele and Vansteelandt 2022}).
+\citeproc{ref-vanderweele2022b}{\textbf{vanderweele2022b?}}).
 
 \subsection{Part 3. How Causal Directed Acyclic Graphs Clarify the
 Importance of Timing of Events Recorded in Data}\label{id-sec-3}
@@ -2592,131 +2592,97 @@ recovering the remaining half.
 \subsection{Appendix D Pearl's Do-Calculus and Structural Causal
 Models}\label{id-app-d}
 
-Below is Díaz \emph{et al.} (\citeproc{ref-duxedaz2021}{2021})'s
-formulation of Pearl (\citeproc{ref-pearl2009a}{2009})'s mathematical
-representation of a structural causal model. I use Díaz \emph{et al.}
-(\citeproc{ref-duxedaz2021}{2021})'s formulation because it allows us to
-present a structural causal model for dynamic treatment strategies
-Richardson and Robins (\citeproc{ref-richardson2013}{2013a}), also known
-as longitudinal modified treatment policies Hoffman \emph{et al.}
-(\citeproc{ref-hoffman2023}{2023}).
-
-We begin by defining the sequence of variables in our model:
-
-\[
-S_i= (W, Y_0, L_1, A_1, L_2, A_2, ..., L_\tau, A_\tau, Y_{\tau}) \sim \mathbf{P}
-\]
-
-where \(S_i\) is a sample from the distribution \(\mathbf{P}\) and
-includes baseline covariates \(W\), intermediate outcomes \(L_t\),
-treatments \(A_t\), and final outcomes \(Y_{\tau}\) over time periods
-\(t = 1, 2, \ldots, \tau\).
-
-We define the final outcome:
+In the potential outcomes framework, we represent interventions by
+setting variables to specific levels, e.g., setting the treatment to a
+specific value \(A = \tilde{a}\). Counterfactual outcomes are conceived
+as the outcomes that would occur if, perhaps contrary to fact, the
+treatment were set to a specific level. We use the convention \(Y_i(a)\)
+or equivalently \(Y_i^{a}\) to denote the counterfactual or `potential'
+outcome for individual \(i\) when that individual's treatment is set to
+\(A_i = a\). Because we assume individual treatments to be independent
+and identically distributed (i.i.d.), we drop the subscripts when
+describing the potential outcomes for multiple individuals under
+specific levels of treatment. Thus, we write \(Y(a)\) or \(Y^a\) as
+shorthand for the average potential outcome:
 
 \[
-Y = A_{\tau + 1}
+Y(a) = \frac{1}{n} \sum_{i=1}^n Y_i(a)
 \]
 
-We define the history of all variables up to treatment \(A_t\) as:
+We say that the conditional exchangeability is satisfied if the
+potential outcomes are independent of the treatments assigned
+conditional on measured covariates:
 
 \[
-H_t = (\bar{A}_{t-1}, \bar{L}_t)
+A \coprod Y(\tilde{a}) \mid L
 \]
 
-Here, \(\bar{A}_{t-1}\) represents the history of treatments up to time
-\(t-1\), and \(\bar{L}_t\) represents the history of intermediate
-outcomes up to time \(t\).
+Causal directed acyclic graphs do not directly represent counterfactual
+outcomes. Instead, they evaluate whether causality can be identified
+from hypothetical interventions on the variables represented in a graph.
+Formally, causal directed acyclic graphs rely on Judea Pearl's
+do-calculus (\citeproc{ref-pearl2009a}{Pearl 2009}), which relies on the
+concept of an `interventional distribution'. The idea is that any node
+in a graph can be intervened upon. Nodes and edges in a causal diagram
+correspond to non-parametric structural equations. Note that
+non-parametric structural equations are causal-structural models. They
+are fundamentally different from statistical structural equation models
+that are employed in may human sciences.
 
-We define the vector of exogenous variables (error terms). Note on
-Pearl's structural causal model account, but not the potential outcomes
-framework, the error terms must always be independent:
+In a causal directed acyclic graph, non-parametric structural equations
+represent the underlying causal mechanisms without making specific
+parametric assumptions about the functional forms of relationships. For
+example, if \(L\) denotes the common causes of treatment \(A\) and
+outcome \(Y\), then:
 
-\[
-U = (U_{L,t}, U_{A,t}, U_{Y}: t \in \{1 \dots \tau\})
-\]
-
-Where \(U\) describes the set of exogenous variables affecting \(L_t\),
-\(A_t\), and \(Y\).
-
-We assume the following deterministic functions for the intermediate
-outcomes, treatments, and final outcome:
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
+\begin{itemize}
 \tightlist
 \item
-  For intermediate outcomes:
-\end{enumerate}
-
-\[
-L_t = f_{L_t}(A_{t-1}, H_{t-1}, U_{L,t})
-\]
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{1}
-\tightlist
+  The node \(L\) corresponds to the non-parametric structural equation
+  \(L = f_L(U_L)\).
 \item
-  For treatments:
-\end{enumerate}
-
-\[
-A_t = f_{A_t}(H_t, U_{A,t})
-\]
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
+  The treatment is expressed \(A = f_A(L, U_A)\).
 \item
-  For the final outcome:
-\end{enumerate}
+  And the outcome is expressed \(Y = f_Y(A, L, U_Y)\).
+\end{itemize}
+
+In Pearl's formalism, we assume that \(U_L, U_A, U_Y\) are independent
+exogenous random variables. That is, there are no arrows linking \(A\)
+to \(Y\) except those from the parent node \(L\). Causal diagrams allow
+us to factorise the joint observations of \(L\), \(A\) and \(Y\). Define
+\(O\) as a distribution of independent identically distributed
+observations such that \(O = (L, A, Y)\). The true distribution \(P_O\)
+is factorised as:
 
 \[
-Y = f_{Y}(A_{\tau}, H_{\tau}, U_{Y})
+P_O = P_O(Y \mid A, L) P_O(A \mid L) P_O(L)
 \]
 
-Longitudinal modified treatment policies (LMTPs) are defined as
-functions that assign treatments flexibly based on individual co-variate
-histories. Note that where there are multiple treatments, these
-histories will be partially counterfactual.
+Where: - \(P_O(L)\) is the marginal distribution of the covariates
+\(L\). - \(P_O(A \mid L)\) is the conditional distribution of the
+treatment given the covariates. - \(P_O(Y \mid A, L)\) is the
+conditional expectation of the outcome given the treatment and
+covariates.
 
-We replace the deterministic function for treatments:
+Pearl's do-calculus allows us to evaluate the consequences of
+intervening on variables represented in a causal DAG to interpret
+probabilistic dependencies and independencies in the conditional and
+marginal associations presented on a graph. By contrast, the potential
+outcomes framework considers potential outcomes to be fixed and real
+(even if assigned non-deterministically).
 
-\[
-A_t = f_{A_t}(H_t, U_{A,t})
-\]
-
-With the intervention function:
-
-\[
-A^\mathbf{g}_t
-\]
-
-On the structural causal model account, this intervention produces
-counterfactual histories given:
-
-\[
-L_t(\bar{A}^\mathbf{g}_{t-1}) = f_{L_t}(A^\mathbf{g}_{t-1}, H_{t-1}(\bar{A}^\mathbf{g}_{t-2}), U_{L,t})
-\]
-
-For treatments, the counterfactual variable
-\(A_t(\bar{A}^\mathbf{g}_{t-1})\) is defined as the natural value of the
-treatment, i.e., the value of the treatment that would have been
-observed at time \(t\) under the intervention history leading up to it
-at \(t-1\), and then discontinued:
-
-\[
-A_t(\bar{A}^\mathbf{g}_{t-1}) = f_{A_t}(H_t(\bar{A}^\mathbf{g}_{t-1}), H_{t-1}(\bar{A}^\mathbf{g}_{t-2}), U_{L,t})
-\]
-
-When all variables are intervened on, the counterfactual final outcome
-is:
-
-\[
-Y(\bar{A}^\mathbf{g}) = f_Y(A^\mathbf{g}_\tau, H_\tau(\bar{A}^\mathbf{g}_{\tau-1}), U_{Y})
-\]
+It is not inherently problematic that causal DAGs do not explicitly
+represent potential outcomes. The theory of counterfactual inference on
+which causal DAGs are based does not require this explicit
+representation. Judea Pearl's rules of d-separation and the backdoor
+adjustment criterion allow us to interpret conditional independencies
+based on hypothetical interventions on the nodes of a causal DAG
+(\citeproc{ref-neal2020introduction}{Neal 2020};
+\citeproc{ref-pearl2009a}{Pearl 2009}). However, as we consider in
+\hyperref[id-sec-4]{Part 4} and \hyperref[id-app-f]{Appendix F},
+presenting counterfactual histories under specific interventions on
+Single World Intervention Graphs can help clarify structural
+relationships that are not well-represented on a causal DAG.
 
 Again, mathematically the potential outcomes framework is mathematically
 equivalent to the structural causal model framework when it is assumed
@@ -2771,7 +2737,7 @@ mediator that fully captures the causal effect
 \begin{CSLReferences}{1}{0}
 \bibitem[\citeproctext]{ref-angrist2009mostly}
 Angrist, JD, and Pischke, J-S (2009) \emph{Mostly harmless econometrics:
-An empiricist's companion}, Princeton university press.
+An empiricist's companion}, Princeton University Press.
 
 \bibitem[\citeproctext]{ref-athey2019}
 Athey, S, Tibshirani, J, and Wager, S (2019) Generalized random forests.
@@ -2816,7 +2782,7 @@ panel studies. \emph{PsyArXiv Preprints}.
 doi:\href{https://doi.org/10.31234/osf.io/uyg3d}{10.31234/osf.io/uyg3d}.
 
 \bibitem[\citeproctext]{ref-bulbulia2024swigstime}
-Bulbulia, J (2024b) Causal inference for interaction, mediation, and
+Bulbulia, J (2024b) Causal inference: Interaction, mediation, and
 time-varying treatments. \emph{PsyArXiv}.
 doi:\href{https://doi.org/10.31234/osf.io/vr268}{10.31234/osf.io/vr268}.
 
@@ -2825,8 +2791,9 @@ Bulbulia, J (2024c) Confounding in experiments. \emph{PsyArXiv}.
 doi:\href{https://doi.org/10.31234/osf.io/6rnj5}{10.31234/osf.io/6rnj5}.
 
 \bibitem[\citeproctext]{ref-bulbulia2024wierd}
-Bulbulia, J (2024d) The weirdest causal inferences in the world.
-\emph{PsyArXiv}.
+Bulbulia, J (2024d) The weirdest causal inferences: Why comparative
+cultural research requires a causal understanding of measurement error
+bias. \emph{PsyArXiv}.
 doi:\href{https://doi.org/10.31234/osf.io/kj7rv}{10.31234/osf.io/kj7rv}.
 
 \bibitem[\citeproctext]{ref-bulbulia2022}
@@ -2886,12 +2853,6 @@ doi:\href{https://doi.org/10.1093/aje/kwr301}{10.1093/aje/kwr301}.
 \bibitem[\citeproctext]{ref-decoulanges1903}
 De Coulanges, F (1903) \emph{La cité antique: Étude sur le culte, le
 droit, les institutions de la grèce et de rome}, Hachette.
-
-\bibitem[\citeproctext]{ref-duxedaz2021}
-Díaz, I, Williams, N, Hoffman, KL, and Schenck, EJ (2021) Non-parametric
-causal effects based on longitudinal modified treatment policies.
-\emph{Journal of the American Statistical Association}.
-doi:\href{https://doi.org/10.1080/01621459.2021.1955691}{10.1080/01621459.2021.1955691}.
 
 \bibitem[\citeproctext]{ref-diaz2021nonparametric}
 Dı́az, I, Hejazi, NS, Rudolph, KE, and Der Laan, MJ van (2021)
@@ -3087,7 +3048,7 @@ example assessing whether religiosity promotes cooperation.
 
 \bibitem[\citeproctext]{ref-mcelreath2020}
 McElreath, R (2020) \emph{Statistical rethinking: A {B}ayesian course
-with examples in r and stan}, CRC press.
+with examples in {R} and {S}tan}, CRC press.
 
 \bibitem[\citeproctext]{ref-montgomery2018}
 Montgomery, JM, Nyhan, B, and Torres, M (2018) How conditioning on
@@ -3349,12 +3310,6 @@ doi:\href{https://doi.org/10.1093/aje/kwr458}{10.1093/aje/kwr458}.
 VanderWeele, TJ, Mathur, MB, and Chen, Y (2020) Outcome-wide
 longitudinal designs for causal inference: A new template for empirical
 studies. \emph{Statistical Science}, \textbf{35}(3), 437--466.
-
-\bibitem[\citeproctext]{ref-vanderweele2022b}
-VanderWeele, TJ, and Vansteelandt, S (2022) A statistical test to reject
-the structural interpretation of a latent factor model. \emph{Journal of
-the Royal Statistical Society Series B: Statistical Methodology},
-\textbf{84}(5), 2032--2054.
 
 \bibitem[\citeproctext]{ref-vansteelandt2022a}
 Vansteelandt, S, and Dukes, O (2022) Assumption-lean inference for
