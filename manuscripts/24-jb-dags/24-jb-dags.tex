@@ -210,7 +210,7 @@
       
 
 
-\date{2024-05-27}
+\date{2024-06-08}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -247,8 +247,8 @@ many researchers report non-causal associations, collecting data,
 applying complex regressions, and reporting coefficients. We often speak
 of covariates as `predicting' outcomes. Yet, even when our models
 predict well, it remains unclear how these predictions relate to the
-scientific questions that sparked our interest. We fail to recognise
-that these `oracles' lack coherent interpretation.
+scientific questions that sparked our interest. Our predictions lack
+meaning and fail to address our core scientific questions.
 
 Some say that association cannot imply causation. However, our
 experimental traditions reveal that when interventions are controlled
@@ -257,29 +257,32 @@ permit causal interpretations.
 
 Despite familiarity with experimental protocols, many researchers
 struggle to emulate randomisation and control with non-experimental or
-`real-world' data. Though many use terms like `control' and employ
-sophisticated adjustment strategies---such as multilevel modelling and
-structural equation models---these practices are not systematic. We
-often overlook that what we take as control can undermine our ability to
-consistently estimate causal effects. Although the term `crisis' is
-overused, the state of causal inference across many human sciences,
-including experimental sciences, has much headroom for improvement.
-Moreover, poor experimental designs unintentionally weaken causal
-claims; causal inferences in experiments also deserve greater attention.
-Fortunately, recent decades have seen progress in the health sciences,
-economics, and computer science that has markedly improved our ability
-to obtain causal inferences in scientific research. This work
-demonstrates that obtaining causal inferences from data is feasible but
-requires careful, systematic workflows.
+`real-world' data. Though we use terms such as `control' and employ
+sophisticated adjustment strategies, such as multilevel modelling and
+structural equation models, our practices are not systematic. We often
+overlook that what we take as control can undermine our ability to
+consistently estimate causal effects
+(\citeproc{ref-montgomery2018}{Montgomery \emph{et al.} 2018}). Although
+the term `crisis' is overused, the state of causal inference across many
+human sciences, including experimental sciences, has much headroom for
+improvement. `Room for headroom' applies to poor experimental designs
+that unintentionally weaken causal claims
+(\citeproc{ref-bulbulia_2024_experiments}{Bulbulia 2024c};
+\citeproc{ref-hernan2017per}{Hernán \emph{et al.} 2017}). Fortunately,
+recent decades have seen considerable progress in causal data science,
+more commonly known as `causal inference.' The progress has transformed
+those areas of health science, economics, and computer science that have
+adopted it. Causal inference provides methods for obtaining valid causal
+inferences from data through careful, systematic workflows.
 
 Within the workflows of causal inference, causal diagrams---or causal
 graphs---are powerful tools for evaluating whether and how causal
 effects can be identified from data. My purpose here is to explain where
 these tools fit within causal inference workflows and to illustrate
 their practical applications. I focus on causal directed acyclic graphs
-because they are relatively easy to use and optimally clear for most
-applications. However, causal directed acyclic graphs can also be
-misused. I will also explain common pitfalls and how to avoid them.
+(DAGs) because they are relatively easy to use and clear for most
+applications. However, DAGs can be misused. I will also explain common
+pitfalls and how to avoid them.
 
 In \hyperref[id-sec-1]{Part 1}, I review the conceptual foundations of
 causal inference. The basis of all causal inference lies in
@@ -302,26 +305,20 @@ data.
 In \hyperref[id-sec-3]{Part 3}, I apply causal directed acyclic graphs
 to practical problems, showing how repeated measures data collection can
 solve seven common identification issues. Timing is critical but not
-sufficient alone. I also use causal diagrams to highlight the
-limitations of repeated-measures data collection for identifying causal
-effects, tempering enthusiasm for easy solutions. Indeed, I will review
-how many statistical structural equation models and sophisticated
-multi-level models are not well-calibrated for identifying causal
-effects.
+sufficient alone. I also use causal diagrams to explain the limitations
+of repeated-measures data collection for identifying causal effects,
+tempering enthusiasm for easy solutions. Indeed, I will review how many
+statistical structural equation models and sophisticated multi-level
+models are not well-calibrated for identifying causal effects.
 
 In \hyperref[id-sec-4]{Part 4}, I offer practical suggestions for
 creating and reporting causal directed acyclic graphs in scientific
 research. These graphs represent investigator assumptions about causal
 (or structural) relationships in nature. These relationships cannot
 typically be derived from data alone and must be developed with
-scientific specialists. Where ambiguity or debate exists, investigators
-should report multiple causal diagrams and conduct distinct analyses. I
-explain how to do this and walk through the steps.
-
-By understanding and applying causal directed acyclic graphs,
-investigators can more effectively identify and communicate causal
-relationships, in the service of the causal questions that animate our
-scientific interests.
+scientific specialists. Where there is ambiguity or debate,
+investigators should report multiple causal diagrams and conduct
+distinct analyses for each.
 
 \subsection{Part 1: Causal Inference as Counterfactual Data
 Science}\label{id-sec-1}
@@ -339,8 +336,10 @@ The first step in answering a causal question is to ask it
 \end{enumerate}
 
 Causal diagrams come after we have stated a causal question and
-identified the population of interest, the `target population'. We begin
-by considering what is required to state these questions precisely.
+clarified the population for whom we hope to obtain valid causal
+inferences, the `target population'. We begin by considering what is
+required to state a causal question and define a target population
+precisely.
 
 \paragraph{The Fundamental Problem of Causal Inference: Missing
 Counterfactual
@@ -354,10 +353,10 @@ that \(A\) causes \(Y\) if altering \(A\) would lead to a change in
 change \(Y\), we say that \(A\) has no causal effect on \(Y\).
 
 In causal inference, we aim to quantitatively contrast the potential
-outcomes of \(Y\) in response to different levels of a well-defined
-intervention. Commonly, we refer to such interventions as `exposures' or
-`treatments;' we refer to the possible effects of interventions as
-`potential outcomes.'
+outcomes in response to different levels of a well-defined intervention.
+Commonly, we refer to such interventions as `exposures' or `treatments;'
+we refer to the possible effects of interventions as `potential
+outcomes.'
 
 Consider a binary treatment variable \(A \in \{0,1\}\). For each unit
 \(i\) in the set \(\{1, 2, \ldots, n\}\), when \(A_i\) is set to 0, the
@@ -369,7 +368,7 @@ interventions describe counterfactual states.
 
 Suppose that each unit \(i\) receives either \(A_i = 1\) or \(A_i = 0\).
 The corresponding outcomes are realised as \(Y_i|A_i = 1\) or
-\(Y_i|A_i = 0\). For now, let us assume that each realised outcome under
+\(Y_i|A_i = 0\). For now, we assume that each realised outcome under
 that intervention is equivalent to one of the potential outcomes
 required for a quantitative causal contrast, such that
 \([(Y_i(a)|A_i = a)] = (Y_i|A_i = a)\). Thus, when \(A_i = 1\),
@@ -380,10 +379,7 @@ that \(Y_i(0)|A_i = 1\) is not observed:
 Y_i|A_i = 1 \implies Y_i(0)|A_i = 1~ \text{is counterfactual}
 \]
 
-Conversely, if \(A_i = 0\), we may assume the potential outcome
-\(Y_i(0)|A_i = 0\) is observed as \(Y_i|A_i = 0\). However, the
-potential outcome \(Y_i(1)|A_i = 0\) is never realised and so not
-observed:
+Conversely:
 
 \[
 Y_i|A_i = 0 \implies Y_i(1)|A_i = 0~ \text{is counterfactual}
@@ -396,13 +392,10 @@ and express the individual causal effect as:
 \delta_i = Y_i(1) - Y_i(0)
 \]
 
-Notice that each unit can only be exposed to one level of the treatment
-\(A_i = a\) at a time. This implies that \(\delta_i\) is not merely
-unobserved but inherently \emph{unobservable}.
-
-That individual causal effects cannot be identified from observations is
-known as `\emph{the fundamental problem of causal inference}'
-(\citeproc{ref-holland1986}{Holland 1986};
+An individual causal effect is a contrast between treatments one of
+which is excluded by the other. That individual causal effects cannot be
+identified from observations is known as `\emph{the fundamental problem
+of causal inference}' (\citeproc{ref-holland1986}{Holland 1986};
 \citeproc{ref-rubin1976}{Rubin 1976}).
 
 \paragraph{Identifying Causal Effects Using Randomised
@@ -413,8 +406,7 @@ effects, under certain assumptions, it may be possible to estimate
 \emph{average} treatment effects, also called `marginal effects'. We
 define an average treatment effect (ATE) as the difference between the
 expected or average outcomes under treatment and contrast conditions for
-a pre-specified population, typically the population from which an
-observed sample is drawn.
+a pre-specified population.
 
 Consider a binary treatment, \(A \in \{0,1\}\):
 
@@ -430,24 +422,22 @@ estimand --- that is, in terms of the complete counterfactual dataset
 where the missing potential outcomes, inherent in observational data,
 were somehow available. The text highlighted in red denotes inherently
 missing responses over the joint distribution of the full counterfactual
-dataset (also stated by underbraces). We find that for each treatment
-condition, half the observations over the joint distribution of the
-counterfactual data are inherently unobserved.
+dataset. We find that for each treatment condition, half the
+observations over the joint distribution of the counterfactual data are
+inherently unobserved.
 
 \[
 \text{Average Treatment Effect} = \left(\underbrace{\underbrace{\mathbb{E}[Y(1)|A = 1]}_{\text{observed for } A = 1} + \underbrace{\textcolor{red}{\mathbb{E}[Y(1)|A = 0]}}_{\textcolor{red}{\text{unobserved for } A = 0}}}_{\text{effect among treated}}\right) - \left(\underbrace{\underbrace{\mathbb{E}[Y(0)|A = 0]}_{\text{observed for } A = 0} + \underbrace{\textcolor{red}{\mathbb{E}[Y(0)|A = 1]}}_{\textcolor{red}{\text{unobserved for } A = 1}}}_{\text{effect among untreated}}\right)
 \]
 
 Randomisation allows investigators to recover the treatment group
-averages even though treatment groups contain inherently missing
-observations. We do not require the joint distribution over the full
-data (i.e., the counterfactual data) to obtain average treatment groups.
-This is because when investigators randomise units into treatment
-conditions, there is full adherence, and the sample is sufficiently
-large to rule out chance differences in the composition of the treatment
-groups. Randomisation under such conditions rules out explanations for
-differences in treatment group averages except for the treatment. Put
-differently, randomisation implies:
+averages despite the inherently missing observations within these
+groups. We do not require the joint distribution over the full data
+(i.e., the counterfactual data) to obtain these averages. When
+investigators randomise units into treatment conditions, ensuring full
+adherence and a sufficiently large sample to rule out chance differences
+in group composition, we can generally attribute differences in
+treatment group averages to the treatment itself. Randomisation implies:
 
 \[
 \mathbb{E}[Y(0) | A = 1] = \mathbb{E}[Y(0) | A = 0]
@@ -459,7 +449,7 @@ and
 \mathbb{E}[Y(1) | A = 1] = \mathbb{E}[Y(1) | A = 0]
 \]
 
-We assume (by causal consistency, explained in the next sub-section):
+If we assume:
 
 \[ 
 \mathbb{E}[Y(1) | A = 1] = \mathbb{E}[Y | A = 1]
@@ -471,8 +461,8 @@ and
 \mathbb{E}[Y(0) | A = 0] = \mathbb{E}[Y | A = 0]
 \]
 
-It follows that the average treatment effect of the randomised
-experiment can be computed as:
+it follows that the average treatment effect of a randomised experiment
+can be computed:
 
 \[
 \text{Average Treatment Effect} = \widehat{\mathbb{E}}[Y | A = 1] - \widehat{\mathbb{E}}[Y | A = 0]
@@ -481,13 +471,12 @@ experiment can be computed as:
 There are four critical aspects of how ideally randomised experiments
 enable the estimation of average treatment effects worth highlighting.
 
-First, investigators must specify a population for whom they seek to
-generalise their results. We refer to this population as the
-\emph{target population}. If the study population differs from the
-target population in the distribution of covariates that interact with
-the treatment, the investigators will have no guarantees their results
-will generalise (for discussions of sample/target population mismatch,
-refer to: Imai \emph{et al.}
+First, we must specify a population for whom they seek to generalise
+their results. We refer to this population as the \emph{target
+population}. If the study population differs from the target population
+in the distribution of covariates that interact with the treatment, we
+will have no guarantees our results will generalise (for discussions of
+sample/target population mismatch, refer to: Imai \emph{et al.}
 (\citeproc{ref-imai2008misunderstandings}{2008}); Westreich \emph{et
 al.} (\citeproc{ref-westreich2019target}{2019}); Westreich \emph{et al.}
 (\citeproc{ref-westreich2017}{2017}); Pearl and Bareinboim
@@ -497,21 +486,23 @@ al.} (\citeproc{ref-westreich2019target}{2019}); Westreich \emph{et al.}
 Breskin (\citeproc{ref-webster2021directed}{2021})).
 
 Second, because the units in the study sample at randomisation may
-differ from the units in the study after randomisation, investigators
-must be careful to avoid biases that arise from sample/population
-mismatch over time. If there is sample attrition or non-response, the
-treatment effect investigators obtain for the sample may differ from the
-treatment effect in the target population.
+differ from the units in the study after randomisation, we must be
+careful to avoid biases that arise from sample/population mismatch over
+time. If there is sample attrition or non-response, the treatment effect
+we obtain for the sample may differ from the treatment effect in the
+target population.
 
 Third, a randomised experiment recovers the causal effect of random
 treatment assignment, not of the treatment itself, which may differ if
 some participants do not adhere to their treatment (even if they remain
 in the study). The effect of randomised assignment is called the
-intent-to-treat effect. The effect of perfect adherence is called the
-per-protocol effect (\citeproc{ref-hernan2017per}{Hernán \emph{et al.}
-2017}; \citeproc{ref-lash2020}{Lash \emph{et al.} 2020}). To obtain the
-per protocol effect for randomised experiments, methods for causal
-inference in observational settings must be applied.
+`intent-to-treat effect' or equivalently the `intention-to-treat
+effect'. The effect of perfect adherence is called the `per-protocol
+effect' (\citeproc{ref-hernan2017per}{Hernán \emph{et al.} 2017};
+\citeproc{ref-lash2020}{Lash \emph{et al.} 2020}). To obtain the
+per-protocol effect for randomised experiments, methods for causal
+inference in observational settings must be applied
+(\citeproc{ref-bulbulia_2024_experiments}{Bulbulia 2024c}).
 
 Fourth, I have presented the average treatment effect on the difference
 scale, that is, as a difference in average potential outcomes for the
@@ -523,10 +514,11 @@ such that treatment effects vary across different strata of the
 population, an estimate of the causal effect on the risk difference
 scale will differ in at least one stratum to be compared from the
 estimate on the risk ratio scale
-(\citeproc{ref-greenland2003quantifying}{Greenland 2003}). The
-sensitivity of treatment effects in the presence of interactions to the
-scale of contrast underscores the importance of pre-specifying a scale
-for the causal contrast investigators hope to obtain.
+(\citeproc{ref-greenland2003quantifying}{Greenland 2003};
+\citeproc{ref-vanderweele2012}{VanderWeele 2012}). The sensitivity of
+treatment effects in the presence of interactions to the scale of
+contrast underscores the importance of pre-specifying a scale for the
+causal contrast investigators hope to obtain.
 
 Fifth, investigators may unintentionally spoil randomisation by
 adjusting for indicators that might be affected by the treatment,
@@ -549,29 +541,28 @@ treatment. This treatment effect is sometimes called the average
 treatment effect in the treated (ATT) and may be expressed as:
 
 \[
-\text{Average Treatment Effect in the Treated} = \mathbb{E}[Y(1) - Y(0) | A = 1]
+\text{Average Treatment Effect in the Treated} = \mathbb{E}[Y(1) - Y(0) \mid A = 1]
 \]
 
 Consider that if investigators are interested in the average treatment
 effect in the treated, counterfactual comparisons are deliberately
-\emph{restricted} to the sample population that was treated. That is,
-the investigators will seek to obtain the average of the missing
-counterfactual outcomes for \emph{the treated population were they not
-treated}, without necessarily obtaining the counterfactual outcomes for
+restricted to the sample population that was treated. That is, the
+investigators will seek to obtain the average of the missing
+counterfactual outcomes for the treated population were they not
+treated, without necessarily obtaining the counterfactual outcomes for
 the untreated population were they treated. This difference in focus may
-imply different assumptions and analytic workflows.
-\hyperref[id-app-b]{Appendix B} describes an example for which the
-assumptions required to estimate the average treatment effect may be
-preferred. In what follows, we will use the term ATE as a placeholder to
-mean the average treatment effect, or equivalently the `marginal
-effect', for a target population on a pre-specified scale of causal
-contrast.
+imply different assumptions and analytic workflows. Appendix B describes
+an example for which the assumptions required to estimate the average
+treatment effect may be preferred. In what follows, we will use the term
+ATE as a placeholder to mean the average treatment effect, or
+equivalently the `marginal effect', for a target population on a
+pre-specified scale of causal contrast.
 
 Setting aside the important detail that the `average treatment effect'
 requires considerable care in its specification, it is worth pausing to
 marvel at how an ideally conducted randomised controlled experiment
 provides a means for identifying inherently unobservable
-counterfactuals. It does so by using a Sherlock-Holmes-method of
+counterfactuals. It does so by using a Sherlock-Holmes method of
 inference by elimination of confounders, which randomisation balances
 across treatments.
 
@@ -582,20 +573,18 @@ every other explanation except that of the treatment. They are entitled
 to this inference because randomisation balances the distribution of
 potential confounders across the treatment groups to be compared.
 
-Outside of randomised experiments, however, we lack guarantees of
-balance in the confounders. For this reason, investigators should prefer
-developing sound randomised experiments for addressing every causal
-question that experiments can address. Unfortunately, randomised
-experiments cannot address many scientifically important questions. This
-bitter constraint is familiar to evolutionary human scientists. We
-typically confront `What if?' questions that are rooted in the
-unidirectional nature of human history.
-
-Understanding how randomisation obtains the missing counterfactual
-outcomes that we require to consistently estimate average treatment
-effects clarifies the tasks of causal inference in non-experimental
-settings (\citeproc{ref-hernuxe1n2008a}{Hernán \emph{et al.} 2008a};
-\citeproc{ref-hernuxe1n2022}{Hernán \emph{et al.} 2022};
+Outside of randomised experiments, however, we lack guarantees for
+balance in the confounders. For this reason, we should prefer developing
+sound randomised experiments for addressing every causal question that
+experiments can address. Unfortunately, randomised experiments cannot
+address many scientifically important questions. This bitter constraint
+is familiar to evolutionary human scientists. We typically confront
+`What if?' questions that are rooted in the unidirectional nature of
+human history. However, understanding how randomisation obtains the
+missing counterfactual outcomes that we require to consistently estimate
+average treatment effects clarifies the tasks of causal inference in
+non-experimental settings (\citeproc{ref-hernuxe1n2008a}{Hernán \emph{et
+al.} 2008a}; \citeproc{ref-hernuxe1n2022}{Hernán \emph{et al.} 2022};
 \citeproc{ref-hernuxe1n2006}{Hernán and Robins 2006a}).
 
 Next, we examine these identification assumptions in greater detail
@@ -640,7 +629,8 @@ investigators may satisfy causal consistency in real-world settings.
 We satisfy the positivity assumption if there is a non-zero probability
 of receiving each treatment level for every combination of covariates
 that occurs in the population. Where \(A\) is the treatment and \(L\) is
-a vector of covariates, positivity is achieved if:
+a vector of covariates sufficient for ensuring no unmeasured
+confounding, we say positivity is achieved if:
 
 \[
 0 < Pr(A = a | L = l) < 1, \quad \text{for all } a, l \text{ with } Pr(L = l) > 0
@@ -694,9 +684,8 @@ Conditional exchangeability is satisfied when:
 Y(a) \coprod A | L \quad \text{or equivalently} \quad A \coprod Y(a) | L
 \]
 
-Assuming conditional exchangeability and the other assumptions required
-for consistent causal inference hold, we may compute the average
-treatment effect (ATE) on the difference scale:
+If we assume that positivity and consistency assumptions also, we may
+compute the average treatment effect (ATE) on the difference scale:
 
 \[
 \text{Average Treatment Effect} = \mathbb{E}[Y(1) | L] - \mathbb{E}[Y(0) | L]
@@ -705,8 +694,8 @@ treatment effect (ATE) on the difference scale:
 In randomised controlled experiments, exchangeability is unconditional.
 Although adjusting by interacting the treatment with pre-treatment
 variables may improve efficiency and diminish threats to randomisation
-from chance imbalances, it is a confusion to think of such adjustment as
-`control.'
+from chance imbalances, it is confusing to think of such an adjustment
+as `control.'
 
 In real-world observational studies, where measured confounders are
 sufficient to ensure conditional exchangeability, we obtain estimates
@@ -735,41 +724,42 @@ sources of bias that may lead to an association between an exposure and
 outcome in the absence of causation. These graphs visually encode
 features of a causal order necessary to evaluate the assumptions of
 conditional exchangeability---also called `no-unmeasured confounding',
-`ignorability', and in the idiom of causal graphical models,
-`d-separation'. Although directed acyclic graphs can also be useful for
-addressing broader threats and opportunities for causal inferences, they
-are designed to evaluate the assumptions of conditional exchangeability.
+`ignorability', and `d-separation' (explained below). Although causal
+directed acyclic graphs can also be useful for addressing broader
+threats and opportunities for causal inferences, it is important to
+understand that causal directed acyclic graphs are designed to evaluate
+the assumptions of conditional exchangeability.
 
 Finally, without randomisation, we cannot fully ensure the no-unmeasured
 confounding assumption necessary to recover the missing counterfactuals
 required to consistently estimate causal effects from data
 (\citeproc{ref-greifer2023}{Greifer \emph{et al.} 2023};
-\citeproc{ref-stuart2015}{Stuart \emph{et al.} 2015}). Because we must
-nearly always assume unmeasured confounding, the workflows of causal
-data science must ultimately rely on sensitivity analyses to clarify how
-much unmeasured confounding would be required to compromise a study's
+\citeproc{ref-stuart2015}{Stuart \emph{et al.} 2015}). Because
+unmeasured confounding is almost always a concern, causal data science
+workflows typically include sensitivity analyses to determine how much
+unmeasured confounding would be required to compromise a study's
 findings (\citeproc{ref-vanderweele2019}{VanderWeele 2019}).
 
 \subsubsection{Summary of Part 1}\label{summary-of-part-1}
 
-Causal data science is not ordinary data science. The initial step
-involves formulating a precise causal question that clearly identifies
-the exposure, outcome, and population of interest. We must then satisfy
-the three fundamental assumptions required for causal inference, which
-are implicit in the ideal of a randomised experiment:
+Causal data science is distinct from ordinary data science. The initial
+step involves formulating a precise causal question that clearly
+identifies the exposure, outcome, and population of interest. We must
+then satisfy the three fundamental assumptions required for causal
+inference, implicit in the ideal of a randomised experiment:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Causal consistency}: Ensuring outcomes at a specific exposure
-  level align with their counterfactual counterparts.
+  \textbf{Causal consistency}: Outcomes at a specific exposure level
+  must align with their counterfactual counterparts.
 \item
-  \textbf{Positivity}: The existence of a non-zero probability for each
-  exposure level across all covariates.
+  \textbf{Positivity}: Each exposure level must have a non-zero
+  probability across all covariates.
 \item
-  \textbf{Conditional exchangeability}: The absence of unmeasured
-  confounding, or equivalently the `ignorability' of treatment
-  assignment, conditional on measured confounders.
+  \textbf{Conditional exchangeability}: There should be no unmeasured
+  confounding, meaning treatment assignment is `ignorable' conditional
+  on measured confounders.
 \end{itemize}
 
 \newpage{}
@@ -804,8 +794,8 @@ Conventions}\label{variable-naming-conventions}
   variable. This is the variable for which we seek to understand the
   effect of intervening on it. It is the `cause.'
 \item
-  \textbf{\(A=a\)}: Denotes a fixed `treatment' or `exposure.' Random
-  variable \(A\) is set to level \(A=a\).
+  \textbf{\(A=a\)}: Denotes a fixed `treatment' or `exposure.' The
+  random variable \(A\) is set to level \(A=a\).
 \item
   \textbf{\(Y\)}: Denotes the outcome or response of an intervention. It
   is the `effect.'
@@ -814,7 +804,7 @@ Conventions}\label{variable-naming-conventions}
   \(Y\) in response to setting the level of the treatment to a specific
   level, \(A=a\). The outcome \(Y\) as it would be observed when,
   perhaps contrary to fact, treatment \(A\) is set to level \(A=a\).
-  There are different conventions for expressing a potential or
+  Different conventions exist for expressing a potential or
   counterfactual outcome, such as \(Y^a\), \(Y_a\).
 \item
   \textbf{\(L\)}: Denotes a measured confounder or set of confounders.
@@ -844,11 +834,11 @@ Y(a) \cancel{\coprod} A \mid L \quad \text{[because of unmeasured } U]
 \begin{itemize}
 \item
   \textbf{\(F\)}: Denotes a modifier of the treatment effect. \(F\)
-  alters the magnitude or direction of the effect of a treatment \(A\)
-  on an outcome \(Y\).
+  alters the magnitude or direction of the effect of treatment \(A\) on
+  an outcome \(Y\).
 \item
   \textbf{\(M\)}: Denotes a mediator, a variable that transmits the
-  effect of a treatment \(A\) on an outcome \(Y\).
+  effect of treatment \(A\) on an outcome \(Y\).
 \item
   \textbf{\(\bar{X}\)}: Denotes a sequence of variables, for example, a
   sequence of treatments.
@@ -867,8 +857,10 @@ relationships of conditional and unconditional independence between the
 treatment and outcome. Although directed acyclic graphs are accessible
 tools, general graphical models such as `Single World Intervention
 Graphs,' which allow for the explicit representation of counterfactual
-dependencies, may be preferable when there are multiple interventions
-(\citeproc{ref-richardson2013}{Richardson and Robins 2013a}).
+dependencies, may be preferable for investigators to estimate causal
+effects under multiple interventions
+(\citeproc{ref-bulbulia2024swigstime}{Bulbulia 2024b};
+\citeproc{ref-richardson2013}{Richardson and Robins 2013a}).
 
 \subsubsection{Convention We Use to Draw Causal Directed Acyclic
 Graphs}\label{convention-we-use-to-draw-causal-directed-acyclic-graphs}
@@ -924,32 +916,29 @@ given in Table~\ref{tbl-general}.
   \textbf{Dashed Red Arrow} (\(\rightarrowdottedred\)): highlights
   over-conditioning bias from conditioning on a mediator.
 \item
-  \textbf{Open Blue Arrow} (\(\rightarrowblue\)): highlights effect
-  modification, which occurs when the levels of the effect of treatment
-  vary within levels of a covariate. We do not assess the causal effect
-  of the effect modifier on the outcome, recognising that it may be
-  incoherent to consider intervening on the effect modifier.
-  \textbf{This is an `off-label' convention we use to clarify that (1)
-  direct or indirect effect modification is assumed for the parent node
-  (2) we do not attempt to identify causality in the relationship of
-  effect-modification that we project on the graph.} It would be
-  possible, however, to replace these open blue arrows with ordinary
-  nodes together with an explanation that we draw the edges not for
-  identification by for generalisation (see
-  \citeproc{ref-bulbulia2024swigstime}{Bulbulia 2024b})
+  \textbf{Open Blue Arrow} (\(\rightarrowblue\)): Highlights effect
+  modification, occurring when the treatment effect levels vary within
+  covariate levels. We do not assess the causal effect of the effect
+  modifier on the outcome, recognising that intervening on the effect
+  modifier may be incoherent. This is an off-label convention we use to
+  clarify our interest in effect modification within strata of a
+  covariate when there is a true treatment effect. However, it is
+  possible to replace these open blue arrows with ordinary nodes and
+  explain that the edges are drawn not for identification but for
+  evaluating generalisations (see
+  \citeproc{ref-bulbulia2024swigstime}{Bulbulia 2024b}).
 \item
-  \textbf{Boxed Variable} \(\big(\boxed{X}\big)\): conditioning or
-  adjustment for \(X\).
+  \textbf{Boxed Variable} \(\boxed{X}\): conditioning or adjustment for
+  \(X\).
 \item
-  \textbf{Red-Boxed Variable} \(\big(\boxedred{X}\big)\): highlights the
-  source of confounding bias from adjustment.
+  \textbf{Red-Boxed Variable} \(\boxedred{X}\): highlights the source of
+  confounding bias from adjustment.
 \item
-  \textbf{Dashed Circle} \(\big( \circledotted{X}\big)\): no adjustment
-  is made for a variable (implied for unmeasured confounders.)
+  \textbf{Dashed Circle} \(\circledotted{X}\): no adjustment is made for
+  a variable (implied for unmeasured confounders.)
 \item
-  \textbf{\(\mathbf{\mathcal{R}}\)}
-  \(\big(\mathcal{R} \rightarrow A\big)\) randomisation into the
-  treatment condition.
+  \textbf{\(\mathbf{\mathcal{R}}\)} randomisation, for example,
+  randomisation into treatment: \(\mathcal{R} \rightarrow A\).
 \item
   \textbf{Presenting Temporal Order}: Causal directed acyclic graphs
   must be --- as truth in advertising implies--- \emph{acyclic.}
@@ -981,25 +970,24 @@ they occur before the treatments of interest; hence, we place
 confounders to the left of the treatments and outcomes they are assumed
 to affect, but without any time indexing.
 
-Again, both spatial and temporal organisation in a causal directed
-acyclic graph are optional. Temporal order is implied by the
-relationship of nodes and edges. However, explicitly representing the
-order in the layout of one's causal graph often makes it easier to
-evaluate, and the convention representing uncertainty is useful,
-particularly when the data do not ensure the relative timing of the
-occurrence of the variable in a causal graph.
+Again, temporal order is implied by the relationship of nodes and edges.
+However, explicitly representing the order in the layout of one's causal
+graph often makes it easier to evaluate, and the convention representing
+uncertainty is useful, particularly when the data do not ensure the
+relative timing of the occurrence of the variable in a causal graph.
 
 More generally, investigators use various conventions to convey causal
 structures on graphs. Whichever convention we adopt must be clear.
 
-Finally, note that all nodes and paths on causal graphs -- including the
-absence of nodes and paths -- are asserted. Constructing causal diagrams
+Finally, note that all nodes and paths on causal graphs---including the
+absence of nodes and paths---are asserted. Constructing causal diagrams
 requires expert judgment of the scientific system under investigation.
-It is a great power that we bestow upon those who construct causal
-graphs. With great power comes great responsibility to be transparent.
-If there is debate about which graphical model fits reality,
-investigators should present multiple causal graphs, and where
-identification is possible, perform and report multiple analyses.
+It is a great power given to those who construct causal graphs, and with
+great power comes great responsibility to be transparent. When
+investigators are unclear or there is debate about which graphical model
+fits reality, they should present multiple causal graphs. Where
+identification is possible, they should perform and report multiple
+analyses.
 
 \subsubsection{How Causal Directed Acyclic Graphs Relate Observations to
 Counterfactuals}\label{how-causal-directed-acyclic-graphs-relate-observations-to-counterfactuals}
@@ -1024,12 +1012,12 @@ graph as follows:
 It follows that a parent and child are \textbf{adjacent nodes} connected
 by a directed edge.
 
-We denote the set of all parents of a node \(B\) as \(\text{Pa}(B)\).
+We denote the set of all parents of a node \(B\) as \(\text{pa}(B)\).
 
 In a directed acyclic graph, the directed edge \(A \rightarrow B\)
 indicates a statistical dependency where \(A\) may provide information
 about \(B\). In a causal directed acyclic graph, the directed edge
-\(A \rightarrow B\) is interpreted as a causal relationship such that
+\(A \rightarrow B\) is interpreted as a causal relationship, meaning
 \(A\) is a direct cause of \(B\).
 
 We further define the relations of \textbf{ancestor} and
@@ -1058,11 +1046,11 @@ It follows that a node can have multiple ancestors and descendants.
 Assumption}\label{markov-factorisation-and-the-local-markov-assumption}
 
 Pearl (\citeproc{ref-pearl2009a}{2009}) p 52 asks us to imagine the
-following. Suppose we have a distribution \(\mathcal{P}\) defined on n
-discrete variables, \(X_1, X_2, \dots, X_n\). By the chain rule, the
-joint distribution for variables \(X_1, X_2, \dots, X_n\) on a graph can
-be decomposed into the product of \(n\) conditional distributions such
-that we may obtain the following factorisation:
+following. Suppose we have a distribution \(P\) defined on n discrete
+variables, \(X_1, X_2, \dots, X_n\). By the chain rule, the joint
+distribution for variables \(X_1, X_2, \dots, X_n\) on a graph can be
+decomposed into the product of \(n\) conditional distributions such that
+we may obtain the following factorisation:
 
 \[
 \Pr(x_1, \dots, x_n) = \prod_{j=1}^n \Pr(x_j \mid x_1, \dots, x_{j-1})
@@ -1111,7 +1099,7 @@ Appendix E; Neal (\citeproc{ref-neal2020introduction}{2020})).
 The compatibility assumption ensures that the joint distribution of
 variables aligns with the conditional independencies implied by the
 causal graph. This assumption requires that the probabilistic model
-conform to the graph's structural assumptions. Demonstrating
+conforms to the graph's structural assumptions. Demonstrating
 compatibility directly from data is challenging, as it involves
 verifying that all conditional independencies specified by the causal
 directed acyclic graph (DAG) are present in the data. Therefore, we
@@ -1233,7 +1221,7 @@ Mathematically, potential outcomes and counterfactual interventions are
 equivalent, such that:
 
 \[
-P(Y(a) = y) \equiv P(Y = y \mid do(A = a))
+\Pr(Y(a) = y) \equiv \Pr(Y = y \mid do(A = a))
 \]
 
 where the left-hand side of the equivalence is the potential outcomes
@@ -1254,15 +1242,7 @@ treat causality as primitive, they are less concerned with the
 requirement for falsification (\citeproc{ref-diaz2021nonparametric}{Dı́az
 \emph{et al.} 2021}, \citeproc{ref-Diaz2023}{2023};
 \citeproc{ref-pearl2009a}{Pearl 2009};
-\citeproc{ref-rudolph2024mediation}{Rudolph \emph{et al.} 2024}). On the
-other hand, some advocates of the potential outcomes framework require
-falsifiability (\citeproc{ref-richardson2023potential}{Richardson and
-Robins 2023}; \citeproc{ref-robins2010alternative}{Robins and Richardson
-2010}). Conversely, the potential outcomes framework can obtain
-identification while the do-calculus does not because the potential
-outcomes framework does not require the non-independence of all error
-structures irrespective of a specific intervention level
-(\citeproc{ref-richardson2013}{Richardson and Robins 2013a}).
+\citeproc{ref-rudolph2024mediation}{Rudolph \emph{et al.} 2024})
 
 I have presented the potential outcomes framework because it is easier
 to interpret, more general, and---to my mind---clearer and more
@@ -1271,13 +1251,7 @@ verificationist to adopt it). However, for nearly every practical
 purpose, the do-calculus and `po-calculus' (potential outcomes
 framework, refer to Shpitser and Tchetgen
 (\citeproc{ref-shpitser2016causal}{2016})) are both mathematically and
-practically equivalent. Furthermore, readers should be aware that there
-are causal diagrams called `Single World Intervention Graphs' which
-enable investigators to represent conditional independencies of
-potential outcomes on graphs
-(\citeproc{ref-richardson2013swigsprimer}{Richardson and Robins 2013b}),
-which can be useful, refer to Bulbulia
-(\citeproc{ref-bulbulia2024swigstime}{2024b}).
+practically equivalent.
 
 \subsubsection{Five Elementary Structures of
 Causality}\label{five-elementary-structures-of-causality}
@@ -1296,60 +1270,10 @@ causality from which all causal directed acyclic graphs can be built.}
 \end{table}%
 
 Table~\ref{tbl-fiveelementary} presents five elementary structures of
-causality from which all causal directed acyclic graphs are built.
-
-\paragraph{Causal Relations with Two
-Variables}\label{causal-relations-with-two-variables}
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  \textbf{Causality Absent:} There is no causal effect between variables
-  \(A\) and \(B\). They do not influence each other, denoted as
-  \(A \coprod B\), indicating they are statistically independent.
-\item
-  \textbf{Causality:} Variable \(A\) causally affects variable \(B\).
-  This relationship suggests an association between them, denoted as
-  \(A \cancel{\coprod} B\), indicating they are statistically dependent.
-\end{enumerate}
-
-\paragraph{Causal Relations with Three
-Variables}\label{causal-relations-with-three-variables}
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
-\item
-  \textbf{Fork Relation:} Variable \(A\) causally affects both \(B\) and
-  \(C\). Variables \(B\) and \(C\) are conditionally independent given
-  \(A\), denoted as \(B \coprod C \mid A\). This structure implies that
-  knowing \(A\) removes any association between \(B\) and \(C\) due to
-  their common cause.
-\item
-  \textbf{Chain Relation:} A causal chain exists where \(C\) is affected
-  by \(B\), which in turn is affected by \(A\). Variables \(A\) and
-  \(C\) are conditionally independent given \(B\), denoted as
-  \(A \coprod C \mid B\). This indicates that \(B\) mediates the effect
-  of \(A\) on \(C\), and knowing \(B\) breaks the association between
-  \(A\) and \(C\).
-\item
-  \textbf{Collider Relation:} Variable \(C\) is affected by both \(A\)
-  and \(B\), which are independent. However, conditioning on \(C\)
-  induces an association between \(A\) and \(B\), denoted as
-  \(A \cancel{\coprod} B \mid C\). This structure is important because
-  it suggests that \(A\) and \(B\), while initially independent, become
-  associated when we account for their common effect \(C\).
-\end{enumerate}
-
-Understanding the basic relationships between two variables allows us to
-build upon these to create more complex relationships. These elementary
-structures can be assembled in different combinations to clarify the
-causal relationships presented in a causal directed acyclic graph. Such
-clarity is crucial for ensuring whether confounders may be balanced
-across treatment groups to be compared, conditional on measured
-covariates, so that \(Y(a) \coprod A \mid L\).
+causality from which all causal directed acyclic graphs are built. These
+elementary structures can be assembled in different combinations to
+clarify the causal relationships presented in a causal directed acyclic
+graph.
 
 \newpage{}
 
@@ -1383,6 +1307,7 @@ for causal identification across a broad range of settings.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
+\tightlist
 \item
   \textbf{Ensure That Treatments Precede Outcomes}: This rule is a
   logical consequence of our assumption that causality follows the arrow
@@ -1390,24 +1315,28 @@ for causal identification across a broad range of settings.
   ordering. However, the assumption that treatments precede outcomes may
   be easily violated where investigators cannot ensure the relative
   timing of events from their data.
+\end{enumerate}
 
-  Note that this assumption does not raise concerns in settings where
-  past outcomes may affect future treatments. Indeed, an effective
-  strategy for confounding control in such settings is to condition on
-  past outcomes, and where relevant, on past treatments as well. For
-  example, if we wish to identify the causal effect of \(A_1\) on
-  \(Y_2\), and repeated-measures time series data are available, it may
-  be useful to condition such that
-  \(\boxed{A_{-1}} \to \boxed{Y_0} \to A_1 \rightarrow Y_2\).
-  Critically, the relations of variables must be arranged sequentially
-  without cycles.
+Note that this assumption does not raise concerns in settings where past
+outcomes may affect future treatments. Indeed, an effective strategy for
+confounding control in such settings is to condition on past outcomes,
+and where relevant, on past treatments as well. For example, if we wish
+to identify the causal effect of \(A_1\) on \(Y_2\), and
+repeated-measures time series data are available, it may be useful to
+condition such that
+\(\boxed{A_{-1}} \to \boxed{Y_0} \to A_1 \rightarrow Y_2\). Critically,
+the relations of variables must be arranged sequentially without cycles.
 
-  To estimate a causal effect of \(Y\) on \(A\), we would focus on:
-  \(\boxed{Y_{-1}} \to \boxed{A_0} \to Y_1 \rightarrow A_2\). Departing
-  from convention, here \(Y\) denotes the treatment and \(A\) denotes
-  the outcome. Graphs must be acyclic. Most processes in nature include
-  feedback loops. There is no contradiction as long as we represent
-  these loops as sequential events.
+To estimate a causal effect of \(Y\) on \(A\), we would focus on:
+\(\boxed{Y_{-1}} \to \boxed{A_0} \to Y_1 \rightarrow A_2\). Departing
+from convention, here \(Y\) denotes the treatment and \(A\) denotes the
+outcome. Causal directed acyclic graphs must be acyclic. Yet most
+processes in nature include feedback loops. However there is no
+contradiction as long as we represent these loops as sequential events.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
 \item
   \textbf{Condition on Common Causes or Their Proxies}: This rule
   applies to settings in which the treatment \(A\) and the outcome \(Y\)
@@ -1470,16 +1399,16 @@ equation modelling traditions (see also Rohrer \emph{et al.}
 (\citeproc{ref-rohrer2022PATH}{2022})). Although Pearl's formalism is
 built upon `Non-Parametric Structural Equation Models,' the term
 `Structural Equation Model' can be misleading. Causal graphs are
-structural models, not statistical models. We use structural causal
-models to evaluate identifiability. We create causal graphs before we
-embark on statistical modelling. They aim to clarify how to write
-statistical models by elucidating which variables we must include in our
-statistical models and, equally important, which variables we must
-exclude to avoid invalidating our causal inferences. All causal graphs
-are grounded in our assumptions about the structures of causation.
-Although it is sometimes possible to use causal diagrams for causal
-discovery, their primary (and original) use is to evaluate the
-implications of assumptions.
+structural models that represent assumptions about reality, they are not
+statistical models. We use structural causal models to evaluate
+identifiability. We create causal graphs before we embark on statistical
+modelling. They aim to clarify how to write statistical models by
+elucidating which variables we must include in our statistical models
+and, equally important, which variables we must exclude to avoid
+invalidating our causal inferences. All causal graphs are grounded in
+our assumptions about the structures of causation. Although it is
+sometimes possible to use causal diagrams for causal discovery, their
+purpose is to clarify d-separation.
 
 This distinction between structural and statistical models is
 fundamental because, absent clearly defined causal contrasts and
@@ -1520,13 +1449,10 @@ The first seven case studies illustrate the focus that causal directed
 acyclic graphs bring to the fundamental imperative to ensure accurate
 timing in the chronology of events recorded in data. These illustrations
 refer to causal graphs in Table~\ref{tbl-elementary-chronological-hyg}.
-We use the symbol \(\mathcal{G}\) to denote a causal directed acyclic
-graph in the table. The first digit in the graph subscript indexes the
-example. The second digit in the graph subscript indexes the problem or
-the response to the problem. Specifically, if the subscript `1' is used,
-it refers to the graph associated with the problem; if `2' is used, it
-refers to the graph associated with the response. We use this convention
-throughout the remainder of this article.
+The symbol \(\mathcal{G}\) denotes a graph. We use the convention:
+\(\mathcal{G}_{\{\text{row}\}\{.\}\{1 = \text{problem}; 2 = \text{solution}\}}\)
+to identify a causal directed acyclic graph in the table. The context
+will also make it clear to understand which graph we are discussing.
 
 \subsubsection{Example 1: Reverse
 Causation}\label{example-1-reverse-causation}
@@ -1560,15 +1486,13 @@ namely:
 
 Each of these outcomes allows for a specific contrast. There are
 \(\binom{4}{2}\) unique contrasts. Which of the six unique contrasts do
-we wish to consider? Not only is it important to order our data in time,
-but the question,`What is the causal effect of marriage on happiness?'
-is also ambiguous. We must state a causal contrast of interest, given
-our substantive research interests. This statement requires a sequence
-of treatments to be contrasted and a population over whom causal
-inferences are meant to generalise. Refer to Bulbulia
-(\citeproc{ref-bulbulia2024swigstime}{2024b}) for a worked example,
-revealing the complexity of estimating causal effects when considering
-interventions on marriage in the presence of time-varying confounding.
+we wish to consider? It is important that we can order our data in time.
+However, even before thinking about data we must recognise that the
+question `What is the causal effect of marriage on happiness?' is
+ill-defined. This question does not uniquely indicate which of the six
+causal contrasts to consider. The first step is to state this question.
+(For a worked example refer to Bulbulia
+(\citeproc{ref-bulbulia2024swigstime}{2024b})).
 
 \subsubsection{Example 2: Confounding by Common
 Cause}\label{example-2-confounding-by-common-cause}
@@ -1636,11 +1560,7 @@ of the treatment and the outcome.
 Table~\ref{tbl-elementary-chronological-hyg} \(\mathcal{G}_{4.2}\)
 clarifies a response. If the worry is that cooperativeness is a
 confounder, ensure that cooperativeness is measured before the
-initiation of exposure to religious settings. Note that in experimental
-settings, investigators do not have this worry, assuming randomisation
-succeeds and samples are large. However, conditioning on a variable that
-is associated with the outcome may improve estimation efficiency and
-safeguard against random imbalance arising from sampling variability.
+initiation of exposure to religious settings.
 
 \subsubsection{Example 5: Collider Proxy
 Bias}\label{example-5-collider-proxy-bias}
@@ -1678,10 +1598,10 @@ introduced confounding into our randomised experiment.
 Table~\ref{tbl-elementary-chronological-hyg} \(\mathcal{G}_{6.2}\)
 clarifies a response. Do not condition on a variable that the treatment
 may affect (refer to Cole \emph{et al.} (\citeproc{ref-cole2010}{2010})
-for theoretical examples; refer to Montgomery \emph{et al.}
-(\citeproc{ref-montgomery2018}{2018}) for evidence of the widespread
-prevalence of post-treatment adjustment in political science
-experiments).
+for a discussion of theoretical examples; refer to Montgomery \emph{et
+al.} (\citeproc{ref-montgomery2018}{2018}) for evidence of the
+widespread prevalence of post-treatment adjustment in published
+political science experiments).
 
 \subsubsection{Example 7: Conditioning on Past Treatments and Past
 Outcomes to Control for Unmeasured
@@ -1698,18 +1618,17 @@ for past measurements of the treatment as well as past measurements of
 the outcome. With such control, any unmeasured confounder must be
 orthogonal to its effects at baseline (refer to VanderWeele \emph{et
 al.} (\citeproc{ref-vanderweele2020}{2020})). Moreover, controlling for
-past treatments allows investigators to estimate an \textbf{incident
-exposure} effect over a \textbf{prevalence exposure effect}. The
-prevalence exposure effect describes the effect of current or ongoing
-exposures (treatments) on outcomes. This effect risks pointing to
-erroneous conclusions. The incident exposure targets initiation into
-treatment, which is typically the effect we obtain from experiments. To
-obtain the incident exposure effect, we generally require that events in
-the data can be accurately classified into at least three relative time
-intervals (refer to Hernán \emph{et al.}
-(\citeproc{ref-hernuxe1n2016}{2016a}); Danaei \emph{et al.}
-(\citeproc{ref-danaei2012}{2012}); VanderWeele \emph{et al.}
-(\citeproc{ref-vanderweele2020}{2020}); Bulbulia
+past treatments allows investigators to estimate an incident exposure
+effect over a prevalence exposure effect. The prevalence exposure effect
+describes the effect of current or ongoing exposures (treatments) on
+outcomes. This effect risks leading to erroneous conclusions. The
+incident exposure effect targets initiation into treatment, which is
+typically the effect we obtain from experiments. To obtain the incident
+exposure effect, we generally require that events in the data can be
+accurately classified into at least three relative time intervals (refer
+to Hernán \emph{et al.} (\citeproc{ref-hernuxe1n2016}{2016a}); Danaei
+\emph{et al.} (\citeproc{ref-danaei2012}{2012}); VanderWeele \emph{et
+al.} (\citeproc{ref-vanderweele2020}{2020}); Bulbulia
 (\citeproc{ref-bulbulia2022}{2022})).
 
 \subsection{Summary Part 3}\label{summary-part-3}
@@ -1727,10 +1646,8 @@ Insufficiency of the Timing of Events Recorded in Data}\label{id-sec-4}
 
 We next present a series of illustrations that clarify ordering
 variables in time is insufficient insurance against confounding biases.
-Time is on your side but time is not enough. Again we read graphs by
-rows from left to right, such that \(\mathcal{G}_{1.1}\) is the
-left-most graph in a row, followed by \(\mathcal{G}_{1.2} \ldots\). All
-graphs in Part 4 refer to Table~\ref{tbl-chronology-notenough}.
+All graphs in \hyperref[id-sec-4]{Part 4} refer to
+Table~\ref{tbl-chronology-notenough}.
 
 \begin{table}
 
@@ -1748,17 +1665,16 @@ which chronology is not enough.}
 \subsubsection{Example 1: M-bias}\label{example-1-m-bias}
 
 Table~\ref{tbl-chronology-notenough} \(\mathcal{G}_{1.1}\) illustrates
-the threat of over-conditioning on pre-treatment variables. Suppose we
-hope to estimate the effect of religious service attendance on
-charitable donations. We obtain time-series data and include a rich set
-of covariates, including baseline measures of religious service and
+the threat of over-conditioning on pre-treatment variables -- `M-bias'.
+Suppose we want to estimate the effect of religious service attendance
+on charitable donations. We obtain time-series data and include a rich
+set of covariates, including baseline measures of religious service and
 charity. Suppose there is no treatment effect. Suppose further that we
 condition on loyalty measures, yet loyalty neither affects religious
-service attendance nor charitable giving. Measures of loyalty are
-included in the confounder set \(L\). However, imagine that loyalty is
-affected by two unmeasured confounders. Imagine that one's childhood
-upbringing (an unmeasured variable) affects both loyalty and
-inclinations to religious service but not charitable giving. \(U_A\)
+service attendance nor charitable giving. However, imagine that loyalty
+is affected by two unmeasured confounders. Furthermore, imagine that
+one's childhood upbringing (an unmeasured variable) affects both loyalty
+and inclinations to religious service but not charitable giving. \(U_A\)
 denotes this unmeasured confounder. Furthermore, suppose wealth affects
 loyalty and charitable giving but not religious service. \(U_Y\) denotes
 this unmeasured confounder. In this setting, because loyalty is a
@@ -1803,34 +1719,34 @@ unmeasured confounding. This is bad.
 
 Table~\ref{tbl-chronology-notenough} \(\mathcal{G}_{3.2}\) clarifies a
 response. Suppose \(U\) also affects melanin production in hair
-follicles. If grey hair is an effect of curiosity along the path to
-educational attainment and cannot be an effect of educational
-attainment, we could diminish unmeasured confounding by adjusting for
-grey hair in adulthood. This example illustrates how conditioning on a
-variable that occurs after the treatment has occurred, or even after the
-outcome has been observed, may prove useful for confounding control.
-When considering adjustment strategies, it is sometimes useful to
-consider adjustment on post-treatment confounders.
+follicles. If grey hair is an effect of a cause of curiosity, and if
+grey hair cannot be an effect of educational attainment, we could
+diminish unmeasured confounding by adjusting for grey hair in adulthood.
+This example illustrates how conditioning on a variable that occurs
+after the treatment has occurred, or even after the outcome has been
+observed, may prove useful for confounding control. When considering
+adjustment strategies, it is sometimes useful to consider adjustment on
+post-treatment confounders.
 
 \subsubsection{Example 4: Residual Confounding After Conditioning on
 Past Treatments and Past
 Outcomes}\label{example-4-residual-confounding-after-conditioning-on-past-treatments-and-past-outcomes}
 
-Table~\ref{tbl-chronology-notenough} \(\mathcal{G}_{4.1}\) illustrates
-the threat of confounding even after adjusting for baseline measures of
-the treatment and the outcome. Imagine that childhood deprivation, an
+Table~\ref{tbl-chronology-notenough} \(\mathcal{G}_{4}\) illustrates the
+threat of confounding even after adjusting for baseline measures of the
+treatment and the outcome. Imagine that childhood deprivation, an
 unmeasured variable, affects both religious service attendance and
 charitable giving. Despite adjusting for religious status and charitable
-giving at baseline, childhood deprivation might affect the incidence of
-change in one or both variables, inducing a longitudinal association
-between religious service and charitable giving without a causal
-association.
-
-Table~\ref{tbl-chronology-notenough} \(\mathcal{G}_{4.2}\) clarifies a
-response. This response pertains to all `real-world' observational
-studies. Perform sensitivity analyses (refer to Linden \emph{et al.}
-(\citeproc{ref-linden2020EVALUE}{2020})); seek negative controls (refer
-to Hernan and Robins (\citeproc{ref-hernan2024WHATIF}{2024})).
+giving at baseline, childhood deprivation might influence changes in one
+or both variables over time. This can create a longitudinal association
+between religious service attendance and charitable giving without a
+causal relationship. Strictly speaking, the causal effect cannot be
+identified. We may estimate an effect and perform sensitivity analyses
+to check how much unmeasured confounding would be required to explain
+way an effect (refer to Linden \emph{et al.}
+(\citeproc{ref-linden2020EVALUE}{2020})); we may also seek negative
+controls (refer to Hernan and Robins
+(\citeproc{ref-hernan2024WHATIF}{2024})).
 
 \subsubsection{Example 5: Intermediary Confounding in Causal
 Mediation}\label{example-5-intermediary-confounding-in-causal-mediation}
@@ -1869,18 +1785,16 @@ to obtain a natural indirect effect estimate that decomposes the effect
 of the treatment into that part that goes through the intermediary path
 \(A \associationred V \associationred M \associationred Y\) and that
 part that goes through the mediated path independently of \(V\), namely
-\(A \associationred V \associationred M \associationred Y\), at least
-not without additional assumptions and methods to disentangle separable
-effects or that permute the estimand (refer to Dı́az \emph{et al.}
-(\citeproc{ref-Diaz2023}{2023}); Shpitser \emph{et al.}
-(\citeproc{ref-shpitser2022multivariate}{2022}); Stensrud \emph{et al.}
-(\citeproc{ref-stensrud2023conditional}{2023})). However, it may be
-possible to estimate controlled direct effects---that is, direct effects
-when the mediator is fixed to different levels (refer to Greenland
-\emph{et al.} (\citeproc{ref-greenland1999}{1999}); VanderWeele
-(\citeproc{ref-vanderweele2015}{2015})). We consider intermediate
-confounding in more detail in Bulbulia
-(\citeproc{ref-bulbulia2024swigstime}{2024b}).
+\(A \associationred V \associationred M \associationred Y\). However, it
+may be possible to estimate controlled direct effects---that is, direct
+effects when the mediator is fixed to different levels
+(\citeproc{ref-greenland1999}{Greenland \emph{et al.} 1999};
+\citeproc{ref-shpitser2022multivariate}{Shpitser \emph{et al.} 2022};
+\citeproc{ref-vanderweele2015}{VanderWeele 2015}), or to obtain
+approximations of the natural direct effect (refer to Dı́az \emph{et al.}
+(\citeproc{ref-Diaz2023}{2023}); Stensrud \emph{et al.}
+(\citeproc{ref-stensrud2023conditional}{2023}); Bulbulia
+(\citeproc{ref-bulbulia2024swigstime}{2024b}){]}.
 
 \subsubsection{Example 6: Treatment Confounder Feedback in Sequential
 Treatments}\label{example-6-treatment-confounder-feedback-in-sequential-treatments}
@@ -2029,12 +1943,11 @@ statistical estimands and estimation here (refer to Bulbulia
 Directed acyclic graphs reveal that ensuring the timing of events in
 one's data does not ensure identification. In some cases, certain
 mediated effects cannot be identified by any data, as we discussed in
-the context of mediation. However, across the human sciences, we often
-apply statistical models to data and interpret the outputs as
-meaningful. The key takeaway from this article is that causal diagrams
+the context of mediation analysis with intermediate confounding.
+However, across the human sciences, we often apply statistical models to
+data and interpret the outputs as meaningful. Causal diagrams
 demonstrate that standard approaches, no matter how sophisticated, are
-often hazardous and can lead to misleading conclusions. (Refer to
-Bulbulia (\citeproc{ref-bulbulia2024swigstime}{2024b}))
+often hazardous and can lead to misleading conclusions.
 
 \subsection{Part 5. Creating Causal Diagrams: Pitfalls and
 Tips}\label{id-sec-5}
@@ -2050,33 +1963,39 @@ acyclic graphs.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
+\tightlist
 \item
   \textbf{Clarify the causal question and target population}
+\end{enumerate}
 
-  An identification strategy is relative to the question at hand. The
-  adjustment criteria for estimating an effect of \(A\) on \(Y\) will
-  generally differ from the adjustment criteria for estimating an effect
-  of \(Y\) on \(A\). Before attempting to draw any causal diagram, state
-  the problem your diagram addresses and the population to whom it
-  applies. Consider further that in adopting a specific identification
-  strategy for a treatment or set of treatments, the coefficients we
-  obtain for the other variables in the model will often be biased
-  causal effect estimates for those variables. Moreover, the
-  coefficients we obtain from statistical models we develop to estimate
-  causal effects will typically not have a marginal interpretation
-  unless we employ marginal structural models (refer to Cole and Hernán
-  (\citeproc{ref-cole2008}{2008}); VanderWeele
-  (\citeproc{ref-vanderweele2009a}{2009b})). This structural implication
-  has wide-ranging implications for scientific reporting. For example,
-  if regression coefficients are reported at all, they should be
-  reported with clearly labelled warnings against interpreting them as
-  having any meaning or interpretation (refer to Westreich and Greenland
-  (\citeproc{ref-westreich2013}{2013}); McElreath
-  (\citeproc{ref-mcelreath2020}{2020}); Bulbulia
-  (\citeproc{ref-bulbulia2023}{2023})). Powerful machine learning
-  algorithms treat these parameters as nuisance, and in many cases,
-  coefficients cannot be obtained. Referees of human science journals
-  will need to be alerted to this fact and retrained.
+An identification strategy is relative to the question at hand. The
+adjustment criteria for estimating an effect of A on Y will generally
+differ from the adjustment criteria for estimating an effect of Y on A .
+Before attempting to draw any causal diagram, state the problem your
+diagram addresses and the population to whom it applies. Additionally,
+when adopting a specific identification strategy for a treatment or set
+of treatments, the coefficients we obtain for the other variables in the
+model will often be biased causal effect estimates for those variables.
+
+Moreover, the coefficients obtained from statistical models developed to
+estimate causal effects will typically not have a marginal
+interpretation (\citeproc{ref-chatton2020}{Chatton \emph{et al.} 2020};
+\citeproc{ref-cole2008}{Cole and Hernán 2008};
+\citeproc{ref-vanderweele2009a}{VanderWeele 2009b}). This structural
+implication has wide-ranging consequences for scientific reporting. For
+example, if regression coefficients are reported at all, they should
+come with clear warnings against interpreting them as having any causal
+meaning or interpretation (refer to Westreich and Greenland
+(\citeproc{ref-westreich2013}{2013}); McElreath
+(\citeproc{ref-mcelreath2020}{2020}); Bulbulia
+(\citeproc{ref-bulbulia2023}{2023})). Powerful machine learning
+algorithms treat these parameters as a nuisance, and in many cases,
+coefficients cannot be obtained. Referees of human science journals need
+to be alerted to this fact and retrained accordingly.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
 \item
   \textbf{Consider whether the three fundamental assumptions for causal
   inference may be satisfied}
@@ -2084,20 +2003,20 @@ acyclic graphs.
   Merely possessing data, even if the data are richly detailed
   time-series data, does not mean our causal questions will find
   answers. Along with identification, we must also consider the causal
-  consistency and positivity assumptions (refer to
+  consistency and positivity assumptions, refer to
   \hyperref[id-sec-1]{Part 1}.
 \item
   \textbf{Clarify the meanings of symbols and conventions}
 
   It is fair to say that the state of terminology in causal inference is
   a dog's breakfast. Meanings and conventions vary not only for
-  terminology but also for causal graphs. For example, whereas we have
-  denoted unmeasured confounders using the variable \(U\), those who
-  follow Pearl will often draw a bi-directional arrow. Although
-  investigators will have their preferences, there is generally little
-  substantive interest in one's conventions, only that they are made
-  clear, frequently repeated (as I have done for each graph table), and
-  applied correctly.
+  terminology but also for causal graphical conventions. For example,
+  whereas we have denoted unmeasured confounders using the variable
+  \(U\), those who follow Pearl will often draw a bi-directional arrow.
+  Although investigators will have their preferences, there is generally
+  little substantive interest in one's conventions, only that they are
+  made clear, frequently repeated (as I have done for each graph table),
+  and applied correctly.
 \item
   \textbf{Include all common causes of the treatment and outcome}
 
@@ -2106,29 +2025,36 @@ acyclic graphs.
   recent common causes (parents) of both the treatment and the outcome,
   or, where measures are not available, measures for available proxies.
 
-  Where possible, aggregate functionally similar common causes into a
-  single variable notation. For example, include all functionally
-  similar demographic variables in \(L_0\).
+  Where possible, aggregate functionally similar common causes and label
+  them with a single node. For example, all baseline confounders that
+  are a common cause of the treatment and outcome might be labelled
+  \(L_0\). Time-varying confounders might be labelled
+  \(L_1, L_2, \dots L_{\tau -1}\), where \(Y_\tau\) is the outcome at
+  the end of study.
 
-  Recall that a causal directed acyclic graph \emph{asserts} structural
-  assumptions. Merely because one has become expert in crafting causal
-  diagrams does not ensure that one will be an expert in encoding
-  plausible structural assumptions. The processes of creating and
-  revising them should be detailed in published research, typically in
-  supplements.
+  How do we determine whether a variable is a common cause of the
+  treatment and the outcome? We might not always be in a position to
+  know. Remember that a causal directed acyclic graph (DAG) asserts
+  structural assumptions. Expertise in crafting causal diagrams does not
+  guarantee expertise in encoding plausible structural assumptions.
+  Therefore, creating and revising causal DAGs should involve topic
+  specialists. Additionally, the decision-making processes should be
+  thoroughly documented in published research, even if this
+  documentation is placed in supplementary materials.
 \item
   \textbf{Consider potential unmeasured confounders}
 
-  We leverage domain expertise not merely to clarify measured sources of
-  confounding but also---and perhaps most importantly---to clarify
-  possible unmeasured confounding. We should include these in our causal
-  diagrams.
-
-  Note that because we cannot guard against all unmeasured confounding,
-  we will always need to perform sensitivity analyses and consider
-  negative control treatments, negative control outcomes, instrumental
-  variables, and other strategies for improving the clarity of our
-  causal inferences and their limitations.
+  We leverage domain expertise not only to identify measured sources of
+  confounding but also---and perhaps most importantly---to identify
+  potential unmeasured confounders. These should be included in our
+  causal diagrams. Because we cannot guard against all unmeasured
+  confounding, it is essential to perform sensitivity analyses and to
+  consider developing multiple analytic strategies to provide multiple
+  channels of evidence for the question at hand, such as instrumental
+  variables, negative control treatments, negative control outcomes, and
+  mendelian randomisation (refer to
+  \citeproc{ref-angrist2009mostly}{Angrist and Pischke 2009};
+  \citeproc{ref-smith2022combining}{Smith \emph{et al.} 2022}).
 \item
   \textbf{Ensure the causal directed acyclic graph is acyclic}
 
@@ -2137,9 +2063,7 @@ acyclic graphs.
   \(Y_2\)), as we have done here. Moreover, spatially ordering your
   directed acyclic graph to reflect the progression of causality in
   time---either left-to-right or top-to-bottom---will often enhance the
-  graph's comprehensibility. Again, although establishing temporal
-  ordering is not sufficient for addressing identification problems, it
-  is necessary.
+  graph's comprehensibility.
 \item
   \textbf{Represent paths structurally, not parametrically}
 
@@ -2150,9 +2074,10 @@ acyclic graphs.
 
   Consider a subway map of Paris. We do not include all the streets on
   this map, all noteworthy sites, or a detailed overview of the holdings
-  by room in the Louvre. We use other maps for these purposes. Almost
-  every detail about assumed reality must be left out of a causal
-  diagram if it is to be useful for causal identification.
+  by room in the Louvre. We use other maps for these purposes. Remember,
+  the primary function of a causal diagram is to ensure d-separation. If
+  a causal diagram is to be useful, it must remove almost every detail
+  about the reality it assumes.
 \item
   \textbf{Minimise paths to those necessary for addressing an
   identification problem}
@@ -2165,117 +2090,129 @@ acyclic graphs.
   assume that such arrows exist, drawing them was not, in these
   examples, relevant to evaluating the identification problem at hand.
 \item
-  \textbf{When temporal order is unknown, explicitly represent this
-  uncertainty on your causal diagram}
+  \textbf{When Temporal Order is Unknown, Explicitly Represent This
+  Uncertainty on Your Causal Diagram}
 
   In many settings, the relevant timing of events cannot be ascertained
-  with confidence. Here we have adopted a convention of indexing nodes
-  with uncertain timing using \(X_{\phi t}\) notation. There is no
-  widely adopted convention for representing uncertainty in timing. We
-  are only bound to be clear.
+  with confidence. To address this, we adopt the convention of indexing
+  nodes with uncertain timing using \(X_{\phi t}\) notation. Although
+  there is no widely adopted convention for representing uncertainty in
+  timing, our primary obligation is to be clear.
 \item
-  \textbf{Create, report, and deploy multiple graphs}
-
-  Causal inference turns on assumptions. Experts might disagree. Where
-  the structure of reality encoded in a causal graph is uncertain or
-  debated, investigators should produce multiple causal diagrams that
-  reflect uncertainties and debates.
-
-  By stating different assumptions and adopting multiple modelling
-  strategies that accord with these different assumptions, we might
-  discover that our causal conclusions are robust to differences in
-  structural assumptions. Even where the implications of different
-  structural assumptions lead to opposing causal inferences, such
-  knowledge might better direct future data collection to eventually
-  settle such differences. The overarching requirement of causal
-  inference, as with other areas of science, is to truthfully advance
-  empirical understanding. Assertions are poor substitutes for honesty.
-  Rather than asserting one causal directed graph, investigators might
-  want to follow the implications of several.
-\item
-  \textbf{Use automated identification algorithms with care}
-
-  Automated software can assist with identification tasks, which amount
-  to factorising typically complex conditional independencies. However,
-  automated software may not converge on identifying the optimal set of
-  confounders in the presence of intractable confounding.
-
-  Consider Tyler Vanderweele's \textbf{modified disjunctive cause
-  criterion}. VanderWeele (\citeproc{ref-vanderweele2019}{2019})
-  recommends obtaining a maximally efficient adjustment, which he calls
-  a `confounder set.' A member of this set is any set of variables that
-  can reduce or remove structural sources of bias. The strategy is as
-  follows:
-
-  \begin{enumerate}
-  \def\labelenumii{\alph{enumii}.}
-  \item
-    Control for any variable that causes the treatment, the outcome, or
-    both.
-  \item
-    Control for any proxy for an unmeasured variable that is a shared
-    cause of both the treatment and outcome.
-  \item
-    Define an instrumental variable as a variable associated with the
-    treatment but does not influence the outcome independently, except
-    through the treatment. Exclude any instrumental variable that is not
-    a proxy for an unmeasured confounder from the confounder set
-    (\citeproc{ref-vanderweele2019}{VanderWeele 2019}).
-  \end{enumerate}
-
-  Vanderweele's modified disjunctive cause criterion is an excellent
-  strategy for selecting an optimal confounder set. However, this set
-  might not, and likely will not, remove all structural sources of
-  confounding bias in most observational settings. As such, an automated
-  algorithm might reject it. However, we might think that such rejection
-  is unwise because where treatment assignment has not been randomised,
-  we should almost always draw relations of unmeasured confounding on
-  our causal graphs. Rejecting causal inferences in observational
-  settings entirely would be unwise because there are many examples in
-  which they closely approximate randomised control trials (refer to
-  Hernán \emph{et al.} (\citeproc{ref-hernan2016}{2016b}); Hernán and
-  Robins (\citeproc{ref-hernan2006estimating}{2006b}); Hernán \emph{et
-  al.}
-  (\citeproc{ref-hernan2008aObservationalStudiesAnalysedLike}{2008b})).
-
-  For example, return to Table~\ref{tbl-chronology-notenough}
-  \(\mathcal{G} 2.1\). We encountered intractable confounding. What if
-  there were no proxy for an unmeasured confounder? Should we condition
-  on the measured confounder and induce M-bias or leave the backdoor
-  path from the measured confounder open? Or should we simply not
-  attempt causal inferences? The answer will depend on assumptions about
-  the relative strength of confounding in the graph. In place of a
-  generic strategy, we require subject-specialist expertise.
-\item
-  \textbf{Clarify assumptions about structural bias from measurement
-  error and restriction bias}
-
-  Space constraints prevented us from examining how causal directed
-  acyclic graphs may be used to clarify structural biases from
-  measurement error and restrictions of the target population in the
-  sample population at the start and end of the study. We can (and
-  should) examine structural features of bias in these settings. Refer
-  to Bulbulia (\citeproc{ref-bulbulia2024wierd}{2024d}) for an overview.
+  \textbf{Create, Report, and Deploy Multiple Graphs}
 \end{enumerate}
+
+Causal inference hinges on assumptions, and experts might disagree. When
+the structure of reality encoded in a causal graph is uncertain or
+debated, investigators should produce multiple causal diagrams that
+reflect these uncertainties and debates.
+
+By stating different assumptions and adopting multiple modelling
+strategies that align with these assumptions, we might find that our
+causal conclusions are robust despite differences in structural
+assumptions. Even when different structural assumptions lead to opposing
+causal inferences, this knowledge can guide future data collection to
+resolve these differences. The primary goal of causal inference, as with
+all science, is to truthfully advance empirical understanding.
+Assertions are poor substitutes for honesty. Rather than asserting a
+single causal directed graph, investigators should follow the
+implications of several.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{10}
+\tightlist
+\item
+  \textbf{Use Automated Identification Algorithms with Care}
+\end{enumerate}
+
+Automated software can assist with identification tasks, such as
+factorising complex conditional independencies. However, automated
+software may not converge on identifying the optimal set of confounders
+in the presence of intractable confounding.
+
+Consider Tyler VanderWeele's \textbf{modified disjunctive cause
+criterion}. VanderWeele (\citeproc{ref-vanderweele2019}{2019})
+recommends obtaining a maximally efficient adjustment, termed a
+`confounder set.' A member of this set is any variable that can reduce
+or remove structural sources of bias. The strategy is as follows:
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\item
+  Control for any variable that causes the treatment, the outcome, or
+  both.
+\item
+  Control for any proxy of an unmeasured variable that is a shared cause
+  of both the treatment and outcome.
+\item
+  Define an instrumental variable as a variable associated with the
+  treatment but not influencing the outcome independently, except
+  through the treatment. Exclude any instrumental variable that is not a
+  proxy for an unmeasured confounder from the confounder set
+  (\citeproc{ref-vanderweele2019}{VanderWeele 2019}).
+\end{enumerate}
+
+VanderWeele's modified disjunctive cause criterion is an excellent
+strategy for selecting an optimal confounder set. However, this set
+might not remove all structural sources of confounding bias in most
+observational settings. As such, an automated algorithm might reject it.
+This rejection could be unwise because, in non-randomised treatment
+assignments, we should often include relations of unmeasured confounding
+in our causal graphs. Rejecting causal inferences in observational
+settings entirely would be imprudent, as many examples closely
+approximate randomised control trials
+(\citeproc{ref-hernan2008aObservationalStudiesAnalysedLike}{Hernán
+\emph{et al.} 2008b}; \citeproc{ref-hernan2016}{Hernán \emph{et al.}
+2016b}; \citeproc{ref-hernan2006estimating}{Hernán and Robins 2006b}).
+
+For example, consider Table~\ref{tbl-chronology-notenough}
+\(\mathcal{G}_{2.1}\), where we encountered intractable confounding.
+What if there were no proxy for an unmeasured confounder? Should we
+condition on the measured confounder and induce M-bias, leave the
+backdoor path from the measured confounder open, or not attempt causal
+inferences at all? The answer depends on assumptions about the relative
+strength of confounding in the causal diagram. Rather than relying on a
+generic strategy, we require subject-specialist expertise, sensitivity
+analyses, and multiple causal identification strategies
+(\citeproc{ref-smith2022combining}{Smith \emph{et al.} 2022}).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{11}
+\tightlist
+\item
+  \textbf{Clarify Assumptions about Structural Bias from Measurement
+  Error and Target Population Restriction (also known as `Selection
+  Bias')}
+\end{enumerate}
+
+Space constraints prevented us from examining how causal directed
+acyclic graphs can clarify structural biases from measurement error and
+restrictions of the target population in the sample population at the
+start and end of the study. We can (and should) examine structural
+features of bias in these settings. For an overview, refer to Bulbulia
+(\citeproc{ref-bulbulia2024wierd}{2024d}).
 
 \subsection{Conclusions}\label{id-sec-6}
 
 \paragraph{Limitations}\label{limitations}
 
-\textbf{First, I have focussed here on the application of causal
-diagrams to confounding bias, not bias generally}: Causal directed
-acyclic graphs can also be extended to evaluate measurement-error biases
-and some features of target population restriction bias (also called
-`selection restriction bias') (refer to Hernán
-(\citeproc{ref-hernan2017SELECTIONWITHOUTCOLLIDER}{2017}); Liu \emph{et
-al.} (\citeproc{ref-liu2023application}{2023}); Hernan and Robins
-(\citeproc{ref-hernan2024WHATIF}{2024}); Hernán and Cole
-(\citeproc{ref-hernan2009MEASUREMENT}{2009}); VanderWeele and Hernán
-(\citeproc{ref-vanderweele2012MEASUREMENT}{2012})). Valid causal
-inferences require addressing all structural sources of bias. This work
-does not aim for complete coverage but hopes to stimulate curiosity.
-(Refer to Bulbulia (\citeproc{ref-bulbulia2024wierd}{2024d}) for an
-overview.)
+\textbf{First, I have focused on the application of causal diagrams to
+confounding bias; however, there are other biases that threaten causal
+inference besides confounding biases.} Causal directed acyclic graphs
+can also be extended to evaluate measurement-error biases and some
+features of target population restriction bias (also called `selection
+restriction bias'). Valid causal inferences require addressing all
+structural sources of bias. This work does not aim for complete coverage
+of how causal diagrams may be useful for off-label applications other
+than assessing d-separation, but it hopes to stimulate curiosity
+(\citeproc{ref-bulbulia2024wierd}{Bulbulia 2024d};
+\citeproc{ref-hernan2024WHATIF}{Hernan and Robins 2024};
+\citeproc{ref-hernan2017SELECTIONWITHOUTCOLLIDER}{Hernán 2017};
+\citeproc{ref-hernan2009MEASUREMENT}{Hernán and Cole 2009};
+\citeproc{ref-liu2023application}{Liu \emph{et al.} 2023};
+\citeproc{ref-vanderweele2012MEASUREMENT}{VanderWeele and Hernán 2012}).
 
 \textbf{Second, I have not reviewed other graphical tools for
 identification, such as Single World Intervention Graphs}: Although
@@ -2286,48 +2223,47 @@ researchers use to investigate causality. For example, Robins
 causally interpreted structured tree graph (FFRCISTG),' which has been
 more recently revived and simplified in Single World Intervention Graphs
 (refer to Richardson and Robins
-(\citeproc{ref-richardson2013swigsprimer}{2013b})). Such graphs
+(\citeproc{ref-richardson2013swigsprimer}{2013b})). These graphs
 explicitly factorise counterfactual states, which can be helpful for
-identification in complex longitudinal settings. Moreover, for some, the
-representation of counterfactual states on a graph is more satisfying,
-as it allows inspection of the conditional independence of expectations
-over \(Y(a^*)\) and \(Y(a)\) separately on a graph. Refer to Bulbulia
+identification in complex longitudinal settings. For some, representing
+counterfactual states on a graph is more satisfying, as it allows
+inspection of the conditional independence of expectations over
+\(Y(a^*)\) and \(Y(a)\) separately. Refer to Bulbulia
 (\citeproc{ref-bulbulia2024swigstime}{2024b}) for use cases.
 
 \textbf{Third, I have not reviewed workflows downstream of causal
-identification}: I have not discussed statistical estimands, statistical
-estimation, and the interpretations and reporting of causal inferences,
-all of which come downstream of causal graphs in the workflows of causal
-inference. Rapid developments in machine learning present applied
-researchers with new tools for handling model misspecification (refer to
-Van Der Laan and Rose (\citeproc{ref-vanderlaan2018}{2018}); Laan and
-Gruber (\citeproc{ref-van2012targeted}{2012}); Dı́az \emph{et al.}
+identification}: This discussion does not cover statistical estimands,
+statistical estimation, and the interpretation and reporting of causal
+inferences, which come downstream of causal graphs in causal inference
+workflows. Rapid developments in machine learning offer applied
+researchers new tools for handling model misspecification (refer to Van
+Der Laan and Rose (\citeproc{ref-vanderlaan2018}{2018}); Laan and Gruber
+(\citeproc{ref-van2012targeted}{2012}); Dı́az \emph{et al.}
 (\citeproc{ref-diaz2021nonparametric}{2021}); Williams and Díaz
 (\citeproc{ref-williams2021}{2021}); Hoffman \emph{et al.}
-(\citeproc{ref-hoffman2023}{2023})) and for assessing treatment effect
+(\citeproc{ref-hoffman2023}{2023})) and assessing treatment effect
 heterogeneity (refer to Athey \emph{et al.}
 (\citeproc{ref-athey2019}{2019}); Athey and Wager
 (\citeproc{ref-athey2021}{2021}); Wager and Athey
 (\citeproc{ref-wager2018}{2018}); Vansteelandt and Dukes
 (\citeproc{ref-vansteelandt2022a}{2022})). Those interested in workflows
 within the human sciences might consider VanderWeele \emph{et al.}
-(\citeproc{ref-vanderweele2020}{2020}); the workflows in my research
-group may be found here: Bulbulia
-(\citeproc{ref-bulbulia2024PRACTICAL}{2024a}). However, I expect all
-such workflows will evolve considerably in the near future.
+(\citeproc{ref-vanderweele2020}{2020}). The workflows in my research
+group can be found here: Bulbulia
+(\citeproc{ref-bulbulia2024PRACTICAL}{2024a}). However, readers should
+be aware that estimation workflows are quickly evolving and improving.
 
 Nevertheless, after precisely stating our causal question, the most
 difficult and important challenge is considering whether and how it
-might be identified in the data. I believe the `statistical models
-first' approach routinely applied in most human sciences is soon ending.
-This approach has been attractive because it is relatively easy to
-implement---the methods do not require extensive training---and because
-the application of statistical models to data appears rigorous. However,
-if the coefficients we recover from these methods have meaning, this is
-typically accidental. It is not merely that the coefficients are
-uninformative about what works and why; absent a causal framework, they
-do not have any meaning (\citeproc{ref-ogburn2021}{Ogburn and Shpitser
-2021}).
+might be identified in the data. The `statistical models first' approach
+routinely applied in most human sciences is soon ending. This approach
+has been attractive because it is relatively easy to implement---the
+methods do not require extensive training---and because the application
+of statistical models to data appears rigorous. However, if the
+coefficients we recover from these methods have meaning, this is
+typically accidental. Without a causal framework, these coefficients are
+not just uninformative about what works and why; they lack any meaning
+(\citeproc{ref-ogburn2021}{Ogburn and Shpitser 2021}).
 
 There are many good resources available for learning causal directed
 acyclic graphs (\citeproc{ref-barrett2021}{Barrett 2021};
@@ -2365,12 +2301,12 @@ aims to add to these resources by:
 \subsubsection{Neurath's Boat: On the Priority of Assumptions in
 Science}\label{neuraths-boat-on-the-priority-of-assumptions-in-science}
 
-We might wonder, ``If not from the data, where do our assumptions about
-causality come from?'' We have said that they must come from expert
-knowledge. This reliance on expert knowledge might seem counterintuitive
-for building scientific knowledge---shouldn't we use data to build
-knowledge, not the other way around? Isn't scientific history a record
-of expert opinions being undone?
+We might wonder, if not from the data, where do our assumptions about
+causality come from? We have said that our assumptions must come from
+expert knowledge. Our reliance on expert knowledge might seem
+counterintuitive for building scientific knowledge. Shouldn't we use
+data to build scientific knowledge, not the other way around? Isn't
+scientific history a record of expert opinions being undone?
 
 The Austrian philosopher Otto Neurath famously described scientific
 progress using the metaphor of a ship that must be rebuilt at sea:
@@ -2386,9 +2322,11 @@ and driftwood, the ship can be shaped entirely anew, but only by gradual
 reconstruction. (\citeproc{ref-neurath1973}{Neurath 1973 p. 199})
 \end{quote}
 
-This quotation emphasises the iterative process of accumulating
-scientific knowledge; new insights are formed from the foundation of
-existing knowledge.
+Neurath emphasises the iterative process of accumulating scientific
+knowledge; new insights are formed from the foundation of existing
+knowledge (\citeproc{ref-godfrey2006strategy}{Godfrey-Smith 2006},
+\citeproc{ref-godfrey2009theory}{2009};
+\citeproc{ref-quine1981theories}{Quine 1981}).
 
 Causal diagrams are at home in Neurath's boat. The tradition of science
 that believes knowledge develops solely from the results of statistical
@@ -2590,22 +2528,13 @@ K \coprod Y(k) | L
 
 According to the theory of causal inference under multiple versions of
 treatment, we may think of \(K\) as a `coarsened indicator' for \(A\).
-
-The theory also clarifies what we require to estimate causal effects in
-the presence of interference or `spill-over', a special case of
-treatment-effect heterogeneity. To handle interference, the potential
-outcome of each unit \(i \neq j\) must be independent of its own
-treatment received as well as the treatment that all other units
-received on \(j \neq i\), conditional on measured covariates \(L\):
-
-\[
-Y_i(k) \coprod K_i, K_j | L, \quad \forall i, \forall j \neq i
-\]
-
 Although the theory of causal inference under multiple versions of
 treatment provides a formal solution to the problem of treatment-effect
-heterogeneity, computing and interpreting causal effect estimates under
-this theory can be challenging.
+heterogeneity and treatment-effect dependencies (also known as SUTVA -
+the `stable unit treatment value assumption', refer to Rubin
+(\citeproc{ref-rubin1980randomization}{1980})), computing and
+interpreting causal effect estimates under this theory can be
+challenging.
 
 Consider the question of whether a reduction in Body Mass Index (BMI)
 affects health (\citeproc{ref-hernuxe1n2008}{Hernán and Taubman 2008}).
@@ -2832,8 +2761,7 @@ remaining between \(A\) and \(B\), and any confounding between \(B\) and
 The frontdoor criterion is less widely used compared to the backdoor
 criterion because it requires the identification of an appropriate
 mediator that fully captures the causal effect
-(\citeproc{ref-pearl2009a}{Pearl 2009}). Here, we state the frontdoor
-path criterion for completeness.
+(\citeproc{ref-pearl2009a}{Pearl 2009}).
 
 \newpage{}
 
@@ -2841,6 +2769,10 @@ path criterion for completeness.
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-angrist2009mostly}
+Angrist, JD, and Pischke, J-S (2009) \emph{Mostly harmless econometrics:
+An empiricist's companion}, Princeton university press.
+
 \bibitem[\citeproctext]{ref-athey2019}
 Athey, S, Tibshirani, J, and Wager, S (2019) Generalized random forests.
 \emph{The Annals of Statistics}, \textbf{47}(2), 1148--1178.
@@ -2916,6 +2848,14 @@ Bulbulia, J., Geertz, AW, Atkinson, QD, \ldots{} Wilson, DS (2013) The
 cultural evolution of religion. In P. J. Richerson and M. Christiansen,
 eds., Cambridge, MA: MIT press, 381--404.
 
+\bibitem[\citeproctext]{ref-chatton2020}
+Chatton, A, Le Borgne, F, Leyrat, C, \ldots{} Foucher, Y (2020)
+G-computation, propensity score-based methods, and targeted maximum
+likelihood estimator for causal inference with different covariates
+sets: a comparative simulation study. \emph{Scientific Reports},
+\textbf{10}(1), 9219.
+doi:\href{https://doi.org/10.1038/s41598-020-65917-x}{10.1038/s41598-020-65917-x}.
+
 \bibitem[\citeproctext]{ref-cinelli2022}
 Cinelli, C, Forney, A, and Pearl, J (2022) A Crash Course in Good and
 Bad Controls. \emph{Sociological Methods \&Research}, 00491241221099552.
@@ -2971,6 +2911,14 @@ modern germany. \emph{Past \& Present}, (104), 31--55.
 Geertz, AW, Atkinson, QD, Cohen, E, \ldots{} Wilson, DS (2013) The
 cultural evolution of religion. In P. J. Richerson and M. Christiansen,
 eds., Cambridge, MA: MIT press, 381--404.
+
+\bibitem[\citeproctext]{ref-godfrey2006strategy}
+Godfrey-Smith, P (2006) The strategy of model-based science.
+\emph{Biology and Philosophy}, \textbf{21}, 725--740.
+
+\bibitem[\citeproctext]{ref-godfrey2009theory}
+Godfrey-Smith, P (2009) \emph{Theory and reality: An introduction to the
+philosophy of science}, University of Chicago Press.
 
 \bibitem[\citeproctext]{ref-greenland2003quantifying}
 Greenland, S (2003) Quantifying biases in causal models: Classical
@@ -3210,6 +3158,9 @@ to transportability across populations. In, 1st edn, Vol. 36, New York,
 NY, USA: Association for Computing Machinery, 451--482. Retrieved from
 \url{https://doi.org/10.1145/3501714.3501741}
 
+\bibitem[\citeproctext]{ref-quine1981theories}
+Quine, WVO (1981) \emph{Theories and things}, Harvard University Press.
+
 \bibitem[\citeproctext]{ref-richardson2013}
 Richardson, TS, and Robins, JM (2013a) Single world intervention graphs:
 A primer. In, Citeseer. Retrieved from
@@ -3259,6 +3210,12 @@ Rubin, DB (1976) Inference and missing data. \emph{Biometrika},
 \textbf{63}(3), 581--592.
 doi:\href{https://doi.org/10.1093/biomet/63.3.581}{10.1093/biomet/63.3.581}.
 
+\bibitem[\citeproctext]{ref-rubin1980randomization}
+Rubin, DB (1980) Randomization analysis of experimental data: The fisher
+randomization test comment. \emph{Journal of the American Statistical
+Association}, \textbf{75}(371), 591--593.
+doi:\href{https://doi.org/10.2307/2287653}{10.2307/2287653}.
+
 \bibitem[\citeproctext]{ref-rudolph2024mediation}
 Rudolph, KE, Williams, NT, and Diaz, I (2024) {Practical causal
 mediation analysis: extending nonparametric estimators to accommodate
@@ -3293,6 +3250,11 @@ hierarchy of interventions. \emph{Annals of Statistics}, \textbf{44}(6),
 Slingerland, E, Atkinson, QD, Ember, CR, \ldots{} Gray, RD (2020) Coding
 culture: Challenges and recommendations for comparative cultural
 databases. \emph{Evolutionary Human Sciences}, \textbf{2}, e29.
+
+\bibitem[\citeproctext]{ref-smith2022combining}
+Smith, GD, Richmond, RC, and Pingault, J-B (2022) \emph{Combining human
+genetics and causal inference to understand human disease and
+development}, Cold Spring Harbor Laboratory Press.
 
 \bibitem[\citeproctext]{ref-stensrud2023conditional}
 Stensrud, MJ, Robins, JM, Sarvet, A, Tchetgen Tchetgen, EJ, and Young,
@@ -3346,6 +3308,11 @@ doi:\href{https://doi.org/10.1097/EDE.0b013e3181bd5638}{10.1097/EDE.0b013e3181bd
 \bibitem[\citeproctext]{ref-vanderweele2009a}
 VanderWeele, TJ (2009b) Marginal structural models for the estimation of
 direct and indirect effects. \emph{Epidemiology}, 18--26.
+
+\bibitem[\citeproctext]{ref-vanderweele2012}
+VanderWeele, TJ (2012) Confounding and Effect Modification: Distribution
+and Measure. \emph{Epidemiologic Methods}, \textbf{1}(1), 55--82.
+doi:\href{https://doi.org/10.1515/2161-962X.1004}{10.1515/2161-962X.1004}.
 
 \bibitem[\citeproctext]{ref-vanderweele2015}
 VanderWeele, TJ (2015) \emph{Explanation in causal inference: Methods
