@@ -549,13 +549,13 @@ Consider another identification challenge, as described in template @tbl-medatio
 
 Under the rules of d-separation, conditioning on income relief payments, denoted as $Z$, would attenuate the natural value of the mediator, trust in the government, under exposure to the lockdowns. This blocking of the exposure's effect is represented by the causal path $A \to \boxed{Z} \rightarrowdotted Y$. Additionally, the causal path $A \to \boxed{Z} \rightarrowdotted M$ partially blocks the exposure's effect on the mediator. However, if we do not condition on $Z$, the path from trust in government, $M$, to psychological distress, $Y$, would be confounded by the common cause $Z$, hence: $Y \leftarrowred Z \rightarrowred M$.
 
-In such a scenario, it would not be feasible to consistently decompose the total effect of the exposure (pandemic lockdowns) on the outcome (psychological distress) into natural indirect and direct effects. Nevertheless, if all other assumptions hold, we could ascertain from data the controlled direct effect of pandemic lockdowns on psychological distress under fixed levels of trust in government. 
+In such a scenario, it would not be feasible to consistently decompose the total effect of the exposure (pandemic lockdowns) on the outcome (psychological distress) into natural indirect and direct effects. However, if all other assumptions were to hold, we could we might obtain an unbiased estimate for the controlled direct effect of pandemic lockdowns on psychological distress as a fixed level of goverment trust. 
 
 @tbl-medationassumptions $\mathcal{G}_2$ presents the weaker assumptions required to identify a controlled direct effect. We might examine the effect of the pandemic lockdown if we could intervene and set everyone's trust in government to, say, one standard deviation above the baseline, compared with fixing trust in government to the average level at baseline. We might use modified treatment policies (described below) that specify interventions as functions of the data. For instance, we might investigate interventions that 'shift only those whose mistrust of government was below the mean level of trust at baseline and compare these potential outcomes with those observed.' Asking and answering precisely formulated causal questions such as this might lead to clearer policy advice, especially in situations where policymakers can influence public attitudes towards the government; see: @williams2021; @díaz2021; @hoffman2022; @hoffman2023. 
 
 In any case, I hope this discussion of causal mediation analysis clarifies that it would be unwise to simply examine the coefficients obtained from structural equation models and interpret them as meaningful as in statistical mediation analysis. To answer any causal question, we must first state it, with respect to clearly defined counterfactual contrasts and a target population. Once we state our causal question, we find have no guarantees that these coefficients are interpretable [@vanderweele2015]. 
 
-For those interested in stistical estimators for causal mediation analysis, I recommend visiting the CMAverse website ([https://bs1125.github.io/CMAverse/articles/overview.html](https://bs1125.github.io/CMAverse/articles/overview.html), accessed 12 December 2023). This excellent resource provides comprehensive documentation, software, and practical examples, including sensitivity analyses. Next, we will consider more complex scenarios that involve feedback between treatments and confounders across multiple time points, settings in which traditional statistical methods also fail to provide valid causal inferences.
+For those interested in stistical estimators for causal mediation analysis, I recommend visiting the CMAverse website [https://bs1125.github.io/CMAverse/articles/overview.html](https://bs1125.github.io/CMAverse/articles/overview.html), accessed 12 December 2023. This excellent resource provides comprehensive documentation, software, and practical examples, including sensitivity analyses. Next, we will consider more complex scenarios that involve feedback between treatments and confounders across multiple time points, settings in which traditional statistical methods also fail to provide valid causal inferences.
 
 ## Part 4: Time-fixed and Time-Varying Sequential Treatments (Treatment Strategies, Modified Treatment Policies) {#id-sec-4}
 
@@ -567,34 +567,37 @@ As before, to answer a causal question, we must first clearly state it. This inv
 
 ### Worked Example: Does Marriage Affect Happiness?
 
-Richard McElreath considers the question of whether marriage affects happiness and provides a simulation to clarify how age structure complicates causal inferences [@mcelreath2020 pp. 123-144]. We expand on this example by first clearly stating our causal question concerning two treatment intervals and then focusing on the challenges of identification in this simple setting. This illustrates how addressing a clear causal question in settings with treatment-confounder feedback requires estimators familiar to most human scientists.
+Richard McElreath considers the question of whether marriage affects happiness and provides a simulation to clarify how age structure complicates causal inferences [@mcelreath2020 pp. 123-144]. We expand on this example by first clearly stating a causal question, and second, by considering how time-varying confounding invalidates the use of standard estimation methods such as multi-level regression.
 
-Let $A_t = 1$ denote the state of being married at time $t$ and $A_t = 0$ denote the state of not being married, where $t \in \{0, 1, \tau\}$ and $\tau$ is the end of the study. The outcome, Happiness, is denoted by $Y_\tau$.
+Let $A_t = 1$ denote the state of being married at time $t$ and $A_t = 0$ denote the state of not being married, where $t \in \{0, 1, \tau\}$ and $\tau$ is the end of the study. $Y_\tau$ denotes happiness at the end of study. For simplicity, assume this is concept is well defined and measured with out error.
 
 The table below reveals four treatment strategies and six causal contrasts that we may estimate for each treatment strategy combination.
 
 **Treatment Strategies:**
 
-| Type     | Description      | Counterfactual Outcome |
-|----------|------------------|------------------------|
-| Regime   | Always married   | $Y(1,1)$               |
-| Regime   | Never married    | $Y(0,0)$               |
-| Regime   | Divorced         | $Y(1,0)$               |
-| Regime   | Gets married     | $Y(0,1)$               | 
+
+| Regime           | Counterfactual Outcome |
+|------------------|------------------------|
+| Always married   | $Y(1,1)$           |
+| Never married    | $Y(0,0)$           |
+| Divorced         | $Y(1,0)$           |
+| Gets married     | $Y(0,1)$           |
+
 
 : Table outlines four fixed treatment regimens and six causal contrasts in time-series data where exposure varies. These labels apply only to the two time points. {#tbl-regimens-marriage}
 
 
 **Causal Contrasts:**
 
-| Contrast | Description                               | Counterfactual Outcome              |
-|----------|-------------------------------------------|-------------------------------------|
-| Contrast | Always married vs. Never married          | $E[Y(1,1) - Y(0,0)]$                |
-| Contrast | Always married vs. Divorced               | $E[Y(1,1) - Y(1,0)]$                |
-| Contrast | Always married vs. Gets married           | $E[Y(1,1) - Y(0,1)]$                |
-| Contrast | Never married vs. Divorced                | $E[Y(0,0) - Y(1,0)]$                |
-| Contrast | Never married vs. Gets married            | $E[Y(0,0) - Y(0,1)]$                |
-| Contrast | Divorced vs. Gets married                 | $E[Y(1,0) - Y(0,1)]$                |
+| Comparison                          | Counterfactual Outcome              |
+|-------------------------------------|-------------------------------------|
+| Always married vs. Never married    | $E[Y(1,1) - Y(0,0)]$            |
+| Always married vs. Divorced         | $E[Y(1,1) - Y(1,0)]$            |
+| Always married vs. Gets married     | $E[Y(1,1) - Y(0,1)]$            |
+| Never married vs. Divorced          | $E[Y(0,0) - Y(1,0)]$            |
+| Never married vs. Gets married      | $E[Y(0,0) - Y(0,1)]$            |
+| Divorced vs. Gets married           | $E[Y(1,0) - Y(0,1)]$            |
+
 
 : Table outlines four fixed treatment regimens and six causal contrasts in time-series data where exposure varies. These labels apply only to the two time points. {#tbl-regimens-marriage-contrasts}
 
@@ -615,9 +618,9 @@ Single World Intervention Graph for sequential treatments.
 ### Time-Varying Confounding with Treatment-confounder Feedback
 
 
-@tbl-swigtabledeveloped $\mathcal{G}_1$ and @tbl-swigtabledeveloped $\mathcal{G}_2$ represent two subsets of possible confounding structures for a treatment regime conducted over two intervals. Covariates in $L_t$ denote measured confounders, and $U$ denotes unmeasured confounders. $A_t$ denotes the treatment, 'Marriage Status,' at time $t$. $Y$ denotes 'Happiness' measured at the end of the study. We assume that conditioning on $L_t$ is sufficient to block all backdoor paths for $A_{t+1}$. We include indicators of 'Happiness' in $L_t$, thus controlling for happiness as a common cause of marriage at time $t+1$ and happiness at the end of the study, $\tau = \bar{A}_{\tau -1}$.
+@tbl-swigtabledeveloped $\mathcal{G}_1$ and @tbl-swigtabledeveloped $\mathcal{G}_2$ represent two subsets of possible confounding structures for a treatment regime conducted over two intervals. Covariates in $L_t$ denote measured confounders, and $U$ denotes unmeasured confounders. $A_t$ denotes the treatment, 'Marriage Status,' at time $t$. $Y$ denotes 'Happiness' measured at the end of the study. 
 
-Consider the structure of confounding presented in @tbl-swigtabledeveloped $\mathcal{G}_1$. To close the backdoor path from $A_1$ to $Y$, we must condition on $L_0$. To close the backdoor path from $A_3$ to $Y$, we must likewise condition on $L_2$. However, $L_2$ is a collider of treatment $A_1$ and unmeasured confounders, such that conditioning on $L_2$ opens a backdoor path between $A_1$ and $Y$. This path is highlighted in red: $A_1 \associationred L_2({\mathbf{\tilde{a_1}}}) \associationred U \associationred ({\mathbf{\tilde{a_1}, \tilde{a_2}}})$.
+Consider the structure of confounding presented in @tbl-swigtabledeveloped $\mathcal{G}_1$. To close the backdoor path from $A_1$ to $Y$, we must condition on $L_0$. To close the backdoor path from $A_2$ to $Y$, we must condition on $L_2$. However, $L_2$ is a collider of treatment $A_1$ and unmeasured confounders, such that conditioning on $L_2$ opens a backdoor path between $A_1$ and $Y$. This path is highlighted in red: $A_1 \associationred L_2({\mathbf{\tilde{a_1}}}) \associationred U \associationred ({\mathbf{\tilde{a_1}, \tilde{a_2}}})$.
 
 If @tbl-swigtabledeveloped $\mathcal{G}_1$ faithfully represents causality, it might seem that we cannot obtain valid inferences for any of the six causal contrasts we have defined. Indeed, using standard methods, we could not obtain valid causal inferences. However, @robins1986 first described a consistent estimation function that can be constructed where there is time-varying confounding (refer to @robins2004effects, @hernan2004STRUCTURAL).
 
@@ -625,19 +628,19 @@ If @tbl-swigtabledeveloped $\mathcal{G}_1$ faithfully represents causality, it m
 
 If all backdoor paths are closed into the random partitions of the nodes on which interventions occur, we can graphically verify that the treatment is independent of the counterfactual outcome for that intervention node. Where there are multiple interventions, we ensure sequential exchangeability at the following node—which we likewise split and relabel—by closing all backdoor paths between the random portion of the following treatment node. We have sequential independence if, for each intervention node, all backdoor paths are closed (refer to @robins2010alternative; @richardson2013swigsprimer; @richardson2023potential).
 
-The Single World Intervention Template @tbl-swigtabledeveloped $\mathcal{G}_3$ makes it clear that sequential identification may be obtained. $A_1$ is d-separated from $Y$ by conditioning on $L_0$; $A_3$ is d-separated from $Y$ by conditioning on $L_2$. Suppose that the only confounder in $L$ is happiness. By estimating the effect of $L_2$ on $Y$, adjusting for $A_1, L_2, L_0$, we obtain valid inference for $Y$. By adjusting for $L_0$, we obtain valid inference for $A_1$.
+The Single World Intervention Template @tbl-swigtabledeveloped $\mathcal{G}_3$ makes it clear that sequential identification may be obtained. $A_1$ is d-separated from $Y$ by conditioning on $L_0$; $A_2$ is d-separated from $Y$ by conditioning on $L_2$. 
 
-Importantly, we cannot estimate the combined effect of a treatment strategy over $A_1$ and $A_2$ by employing regression, multi-level regression, statistical structural equation models, or propensity score matching. However, special estimators may be constructed (refer to @robins1986; @robins2004effects; @vanderlaan2011; @diaz2021nonparametric). Because we are interested in identification, we shall review these estimators (for recent reviews, refer to @hernan2024WHATIF; @chatton2020; @vanderlaan2018; @chatton2024causal).
+Notice that we cannot estimate the combined effect of a treatment strategy over $A_1$ and $A_2$ by employing regression, multi-level regression, statistical structural equation models, or propensity score matching. However, special estimators may be constructed (refer to @robins1986; @robins2004effects; @vanderlaan2011; @diaz2021nonparametric). Because we are interested in identification, we shall review these estimators (for recent reviews, refer to @hernan2024WHATIF; @chatton2020; @vanderlaan2018; @chatton2024causal).
 
 ### Time-Varying Confounding *without* Treatment-Confounder Feedback
 
-Consider how we may have time-varying confounding in the absence of treatment-confounder feedback. Again, we are interested in contrasts for a two-treatment 'marriage' intervention on 'happiness' measured at the end of the study. We assume that these variables are well-defined, that the time intervals separating the measurements make theoretical sense, that 'marriage' can be intervened upon, that we have specified a target population, and that our questions are scientifically interesting. We focus on whether the estimands we state can be obtained from observational data. @tbl-swigtabledeveloped $\mathcal{G}_1$ presents a structure with time-varying confounding.
+Consider how we may have time-varying confounding in the absence of treatment-confounder feedback. Suppose again that we are interested in computing a causal effect estimate for a two-treatment 'marriage' intervention on 'happiness'. We again assume that all variables are well-defined, that 'marriage' can be intervened upon, that we have specified a target population, and that our questions are scientifically interesting. We focus on whether the estimands we state can be obtained from observational data. @tbl-swigtabledeveloped $\mathcal{G}_1$ presents a structure with time-varying confounding.
 
-$U_{AL}$ denotes an over-confident personality, an unmeasured variable, that is causally associated with decisions to marry early and with wealth. We do not suppose that $U_{AL}$ affects happiness. Therefore, on this assumption, investigators should make no adjustment for $U_{AL}$. Note that we could imagine a more plausible confounder -- $U_{AA}$ (not on any graph here) -- that relates to decisions to marry at each time interval. Candidate confounders might be: 'prefers not being married', 'prefers marriage', 'prefers stability', or 'prefers change'. The structure of the problem would remain the same if as in the example we are considering here. There would be time-varying confounding without treatment-confounder feedback. However, here, we will keep the structure such that it is $U_{LA}$ that opens a path for confounding. This will allow us to use @tbl-swigtabledeveloped $\mathcal{G}_2$ when considering time-varying treatments in the next section. 
+$U_{AL}$ denotes an over-confident personality, an unmeasured variable, that is causally associated with decisions to marry early and with wealth. We do not suppose that $U_{AL}$ affects happiness. Therefore, on this assumption, we should make no adjustment for $U_{AL}$. Note that we could imagine a more plausible confounder -- $U_{AA}$ (not on any graph here) -- that relates to decisions to marry at each time interval. Candidate confounders might be: 'prefers not being married', 'prefers marriage', 'prefers stability', or 'prefers change'. The structure of the problem would remain the same if as in the example we are considering here. There would be time-varying confounding without treatment-confounder feedback. However, here, we will keep the structure such that it is $U_{LA}$ that opens a path for confounding. This will allow us to use @tbl-swigtabledeveloped $\mathcal{G}_2$ when considering time-varying treatments in the next section. 
 
 $U_{AY}$ denotes a common cause of variables in $L_2$ and happiness. Suppose this is 'job status', which affects wealth and happiness. To sharpen the confounding problem, we can present it in its minimal form, assuming that job status has no effect on baseline marriage rates (whether it does or not makes no difference to the structural features of the problem). @tbl-swigtabledeveloped $\mathcal{G}_2$ presents the confounding structure for this problem. (To declutter, we remove the baseline measurement of $L_0$, which we assume to be conditioned on but does not block the hidden variable wealth—ultra-wealthy individuals are unemployed, professors with status get paid peanuts, etc.—nor does status block the backdoor path through over-confidence).
 
-In this example, then, there is no treatment-confounder feedback. We do not imagine that marriage affects stated wealth, but only that stated wealth affects marriage (perhaps because wealth is a surrogate of a latent cause of stated wealth and happiness). To obtain valid inference for the effect of $A_2$ on $Y$, we must adjust for $L_2$. However, $L_2$ is a collider of $U_{AL}$ and $U_{AY}$. Adjusting for $L_2$ opens the path:
+Notice that in this example there is no treatment-confounder feedback. We do not imagine that marriage affects stated wealth, but only that stated wealth affects marriage (perhaps because wealth is a surrogate of a latent cause of stated wealth and happiness). To obtain valid causal inference for the effect of $A_2$ on $Y$, we must adjust for $L_2$. However, $L_2$ is a collider of $U_{AL}$ and $U_{AY}$. In this setting, adjusting for $L_2$ opens the path:
 
 $$
 A_1 \associationred U_{AL} \associationred L_2({\mathbf{\tilde{a_1}}})  \associationred U_{AY} \associationred Y({\mathbf{\tilde{a_1}, \tilde{a_2}}})
@@ -652,18 +655,18 @@ We have confounding without treatment-confounder feedback (refer to @hernan2024W
 
 In a dynamic treatment strategy, or 'modified treatment policy,' the value at which a treatment is fixed is a function of measured events leading up to it.
 
-Suppose investigators were interested in the population average effect of divorce on happiness if divorce was only permitted for those with high social status. 
+Suppose we were interested in the population average effect of divorce on happiness if divorce was only permitted for those with high social status. 
 
 This question is easy to ask but deceptively difficult to answer. For example, we cannot fit an interaction of time $\times$ social status $\times$ marriage status because marital status might affect social status. Yet even if marriage did not affect social status, as in @tbl-swigtabledeveloped $\mathcal{G}_4$, regression would not produce valid estimates for the counterfactual question we asked.
 
-To sharpen focus, imagine that investigators obtained indicators of social status at baseline.
+To sharpen focus, imagine that we obtained indicators of social status at baseline.
 
-Suppose the investigators state the following fixed treatment strategy:
+Suppose we wamt to consider the following fixed treatment strategy:
 
-$g_1(\cdot)$: remain married for at least two additional years:
+$g^\phi(\cdot)$: remain married for at least two additional years:
 
 $$
-A_t^{+}(\mathbf{g}) = \mathbf{g}(A_{t}) = \begin{cases} 
+A_t^{+}(\mathbf{g^\phi}) = \mathbf{g^\phi}(A_{t}) = \begin{cases} 
    a_{1} = 1 & \\ 
    a_{2} = 1 &   
 \end{cases}
@@ -671,27 +674,28 @@ $$
 
 This regime is identified. The setting is identical to @tbl-swigtabledeveloped $\mathcal{G}_3$ however with no unmeasured variables and no arrow from $A_1$ to $L_2$.
 
-However, every causal contrast requires a second counterfactual intervention.
+However, every causal contrast requires a comparison of at least two intervention.
 
-$g_2(\cdot)$: at each measurement interval, divorce only if one's social status is at least 50% greater than average and the individual would have divorced in the absence of intervention; otherwise, enforce marriage:
+We next consider the treatment policy $g^\lambda(\cdot)$: at each measurement interval, divorce only if one's social status is at least 50% greater than average and the individual would have divorced in the absence of intervention; otherwise, enforce marriage:
 
 $$
-A_t^{+}(\mathbf{g}) = \mathbf{g}(A_{t}) = \begin{cases} 
+A_t^{+}(\mathbf{g^\lambda}) = \mathbf{g^\lambda}(A_{t}) = \begin{cases} 
    a_{1} = 0 & \text{if income} > 1.5 \times  \mu_{\text{income}} \& A_1 = 0 \\ 
    a_{2} = 0 & \text{if income} > 1.5 \times  \mu_{\text{income}} \& A_2 = 0 \\ 
    a_{t}(\mathbf{g}) = 1 & \text{otherwise} 
 \end{cases}
 $$
 
-Notice that in this estimand, treatment is computed as a function of income at both the natural value of $A_t$ and the social status $L_t$, for $t = \{1,2\}$.
+Notice that for the treatment policy $\mathbf{g}^\lambda(\cdot)$, treatment is computed as a function of income at both the natural value of $A_t$ and the social status $L_t$, for $t = \{1,2\}$.
 
-Template @tbl-swigtabledeveloped $\mathcal{G}_5$ presents the confounding structure. To convey the dependence of the fixed node on covariate history under treatment, we use @richardson2013's conventions and draw a dashed line to convey new paths specified by the treatment regime: $\rightarrowdottedgreen$.
+Template @tbl-swigtabledeveloped \(\mathcal{G}_5\) presents the confounding structure. To convey the dependence of the fixed node on covariate history under treatment, we use @richardson2013's conventions and draw a dashed line (\(\rightarrowdottedgreen\)) to indicate paths from the variables on which the time-varying treatment regime depends to the deterministic portion of the intervention node. This strategy clarifies that setting the treatment level requires information about prior variables, including the 'natural value of the treatment' in the absence of any intervention [@young2014identification]. 
 
+The reason for noting these dependencies on a Single World Intervention Graph (SWIG) is that such dependencies impose stronger identification conditions. At every time $t$, $A_t$ must be conditionally independent not only of the potential outcome at the end of the study but also of any future variable that might lead to a non-causal association between future treatments and the potential outcome at the end of the study. We clarify this additional requirement for *strong sequential exchangeability* in the next section.
 
 #### Identification of Dynamic Time-Varying Treatment Strategies using an Extension of Robin's Dynamic G-formula
 
 
-[Appendix C](#id-app-c) describes Richardson and Robins extension of @robins1986 dynamic g-formula. Essentially, the algorithm is:
+[Appendix C](#id-app-c) describes Richardson and Robins extension of @robins1986 dynamic g-formula. Essentially, the algorithm can be stated as follows.
 
 
 First, identify all the variables that influence the outcome $Y(\mathbf{g})$, excluding those that are current or past treatment variables or covariates.
