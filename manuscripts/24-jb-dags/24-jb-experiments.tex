@@ -210,7 +210,7 @@
       
 
 
-\date{2024-06-09}
+\date{2024-06-10}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -249,7 +249,7 @@ Nevertheless, confounding biases can arise. Here, I use eight examples
 to illustrate common risks. Whereas some risks arise from common flaws
 in experimental designs, such as post-randomisation selection criteria
 and post-randomisation covariate adjustment, hazards in estimating the
-`per-protocol effect' of treatments do not arise from errors of design.
+`per-protocol effect' of treatments do not arise from design errors.
 These typically require the use of methods for causal inference in `real
 world' observational studies. The eight examples demonstrate the utility
 of causal directed acyclic graphs (causal DAGs) for easing the cognitive
@@ -286,11 +286,14 @@ a glossary of terms in causal inference.
 \widehat{ATE}_{\text{target}}^{\text{Per-Protocol}} \ne \widehat{ATE}_{\text{target}}^{\text{Intention-to-Treat}}
 \]
 
-When evaluating evidence for causality, in addition to specifying their
-causal contrast, effect measure, and target population, investigators
-should specify whether they are estimating an intention-to-treat or
-per-protocol effect (\citeproc{ref-hernuxe1n2004}{Hernán 2004};
-\citeproc{ref-tripepi2007}{Tripepi \emph{et al.} 2007}).
+When evaluating evidence for causality, investigators should specify
+whether they are estimating an intention-to-treat or per-protocol
+effect. They should do this in addition to stating a causal contrast,
+effect measure, and target population,
+(\citeproc{ref-hernuxe1n2004}{Hernán 2004};
+\citeproc{ref-tripepi2007}{Tripepi \emph{et al.} 2007}) and to
+evaluating sources of measurement error bias
+(\citeproc{ref-bulbulia2024wierd}{Bulbulia 2024b}).
 
 \subsubsection{Meaning of Symbols}\label{meaning-of-symbols}
 
@@ -378,10 +381,31 @@ The rules of d-separation are as follows:
      \item {\bf Collider rule} ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioning on $C$, which introduces dependence: ($A \cancel{\coprod} B \mid C$). 
 \end{enumerate}
 
-The rules of d-separation give rise to the backdoor criterion and the
-`backdoor adjustment' theorem, which provide identification algorithms
-conditional on the structural assumptions encoded in a causal directed
-acyclic graph (\citeproc{ref-pearl1995}{Pearl 1995}).
+The rules of d-separation give rise to the backdoor criterion which
+provides an identification algorithm conditional on the structural
+assumptions encoded in a causal directed acyclic graph
+(\citeproc{ref-pearl1995}{Pearl 1995}).
+
+\textbf{Backdoor Adjustment}: In a causal directed acyclic graph, we say
+that a set of variables \(L\) satisfies the backdoor adjustment theorem
+relative to the treatment \(A\) and the outcome \(Y\) if \(L\) blocks
+every path between \(A\) and \(Y\) that contains an arrow pointing into
+\(A\) (a backdoor path). Formally, \(L\) must satisfy two conditions:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{No Path Condition}: No element of \(L\) is a descendant of
+  \(A\).
+\item
+  \textbf{Blocking Condition}: \(L\) blocks all backdoor paths from
+  \(A\) to \(Y\).
+\end{enumerate}
+
+If \(L\) satisfies these conditions, we say the causal effect of \(A\)
+on \(Y\) is identified conditional on \(\boxed{L}\)
+(\citeproc{ref-pearl2009a}{Pearl 2009}).
 
 \subsection{Eight Examples of Confounding Bias in
 Experiments}\label{eight-examples-of-confounding-bias-in-experiments}
@@ -430,8 +454,8 @@ intervention will partially block the effect of the treatment on the
 outcome. It might make it appear that the treatment does not work for
 religious people, when in reality it works because it amplifies
 religiosity. (Note that in this graph we assume that \(L_1\) occurs
-before \(Y_2\), however investigators may have measured \(L_1\) after
-\(Y_2\). Our time index pertains to the occurrence of the event, not of
+before \(Y_2\), however, investigators may have measured \(L_1\) after
+\(Y_2\). Our time index pertains to the occurrence of the event, not to
 its measurement. This statement applies to all examples that follow.)
 
 Table~\ref{tbl-terminologyelconfoundersexperiments}
@@ -470,7 +494,7 @@ exclusion based on `attention checks'. Consider that if an experimental
 condition affects attention and an unmeasured variable is a common cause
 of attention and the outcome, then selection on attention will induce
 confounding bias in a randomised experiment. For example, imagine that
-people are more attentive in the scientific authority design because
+people are more attentive to the scientific authority design because
 science is interesting -- whether or not one is religious, yet religion
 is not interesting whether or not one is religious. Suppose further that
 an unmeasured `altruistic disposition' affects both attention and
@@ -494,12 +518,12 @@ this measure as a covariate. However, doing so induces collider bias
 such that if both the treatment and outcome are positively associated
 with religiosity, the collider, they will be negatively associated with
 each other. Conditioning on the collider risks the illusion of a
-negative experimental effect in the absence of causality.
+negative experimental effect without causality.
 
 Table~\ref{tbl-terminologyelconfoundersexperiments}
 \(\mathcal{G}_{3.2}\) clarifies a response: again, do not control
-post-treatment variables. Here, `religiosity' measured after the end of
-the study. If the scientific interest is in effect modification or
+post-treatment variables. Here, `religiosity' is measured after the end
+of the study. If the scientific interest is in effect modification or
 obtaining statistical precision, measure covariates before
 randomisation.
 
@@ -518,8 +542,8 @@ covariate religiosity and the outcome source credibility. This
 unmeasured confounder might be religious education in childhood. In this
 scenario, conditioning on the post-treatment variable religiosity will
 open a backdoor path between the treatment and outcome, leading to an
-association in the absence of causation. Again, we find that
-randomisation did not prevent confounding.
+association without causation. Again, we find that randomisation did not
+prevent confounding.
 
 Table~\ref{tbl-terminologyelconfoundersexperiments}
 \(\mathcal{G}_{4.2}\) clarifies a response. Again, unless investigators
@@ -540,9 +564,8 @@ investigators to be irreligious, participants in the religious source
 framing condition might report less credibility for religious
 authorities than they secretly harbour. Directed measurement error from
 the treatment to the measurement error of the outcomes creates an
-association in the absence of true causality, which we denote by
-removing any arrow between the treatment \(A\) and the true outcome
-\(Y\).
+association without true causality, which we denote by removing any
+arrow between the treatment \(A\) and the true outcome \(Y\).
 
 Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{5}\)
 suggests there is no easy solution to directed measurement error bias in
@@ -552,7 +575,7 @@ al.} 2009}). Additional experiments might be devised that are
 insensitive to directed measurement error bias. Investigators might
 compute sensitivity analyses to examine how much measurement error bias
 would be required to explain away a result (refer to Linden \emph{et
-al.} (\citeproc{ref-linden2020EVALUE}{2020}) for relatively
+al.} (\citeproc{ref-linden2020EVALUE}{2020}) for a relatively
 easy-to-implement sensitivity analysis). The point we make here is that
 randomisation does not prevent confounding by directed measurement error
 bias. Investigators must be vigilant.
@@ -600,13 +623,13 @@ illustrates the threat for identifying the per-protocol effect in
 sustained treatments where past treatments affect measured confounder of
 future treatment adherence. Suppose that yoga affects flexibility. We
 should condition on pre-treatment measures of flexibility to identify
-the per-protocal effect. However, conditioning on the post-treatment
-measure of flexibilty, \(\boxed{L_1}\) induces collider stratification
+the per-protocol effect. However, conditioning on the post-treatment
+measure of flexibility, \(\boxed{L_1}\) induces collider stratification
 bias. This path runs from
 \(A_1 \associationred L_1 \associationred U \associationred Y_3\).
 However, if we do not condition on \(L_1\) there is an open backdoor
 path from \(A_1 \associationred U \associationred Y_3\). We cannot
-estimate a per-protocal effect by conditioning strategies.
+estimate a per-protocol effect by conditioning strategies.
 
 Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{7}\)
 does not clarify the response. However, in a sequential treatment with
@@ -615,9 +638,9 @@ unmeasured confounding at each time point -- valid estimators for the
 sequential treatments may be constructed (refer to Hernan and Robins
 (\citeproc{ref-hernan2024WHATIF}{2024}); Dı́az \emph{et al.}
 (\citeproc{ref-diaz2021nonparametric}{2021}); Hoffman \emph{et al.}
-(\citeproc{ref-hoffman2023}{2023})). Although we may niavely obtain an
-intention-to-treat effect estimate withouth special methods, infering an
-effect of doing yoga on well-being -- the per-protocal effect, requires
+(\citeproc{ref-hoffman2023}{2023})). Although we may naively obtain an
+intention-to-treat effect estimate without special methods, inferring an
+effect of doing yoga on well-being -- the per-protocol effect, requires
 special methods. These methods are not routinely used in the human
 sciences.
 
@@ -628,27 +651,27 @@ Adherence}\label{example-8-per-protocol-effect-lost-in-sustained-treatments-beca
 
 Table~\ref{tbl-terminologyelconfoundersexperiments} \(\mathcal{G}_{8}\)
 illustrates the threat for identifying the per-protocol effect in
-sustained treatments where there are both measured and unmeasured
-confounders. Suppose flexibility affects adherence, yoga affects
-flexibility, and an unmeasured variable, such as prejudice toward
-eastern spiritual practices, affects adherence. We have no measures for
-this variable. There is unmeasured confounding.
+sustained treatments with measured and unmeasured confounders. Suppose
+flexibility affects adherence, yoga affects flexibility, and an
+unmeasured variable, such as prejudice toward Eastern spiritual
+practices, affects adherence. We have no measures for this variable.
+There is unmeasured confounding.
 
 If there were no effect of yoga on well-being except through
-flexibility, and if flexibility were not affected by the unmeasured
-antipathy toward eastern spiritual practices, and further, if the effect
-of flexibility on yoga at each time point were conditionally independent
-of all future counterfactual data, both for the treatments and the
-outcomes, then it might be possible to construct special estimators that
-identify the per-protocol effect of yoga on well-being in the presence
-of unmeasured confounding that affects adherence (refer to Hernán
-\emph{et al.} (\citeproc{ref-hernan2017per}{2017})). These special
-estimators are quite different from the ANOVAs, regressions models, and
-multi-level regression models routinely deployed in experimental
-studies. However, if we seek to understand the effect of yoga on
-well-being and not the effect of random assignment to yoga on well-being
-the routine estimators will not work: we require special estimators
-(\citeproc{ref-diaz2023lmtp}{Díaz \emph{et al.} 2023};
+flexibility, and furthermore if flexibility were not affected by the
+unmeasured antipathy toward Eastern spiritual practices, and further, if
+the effect of flexibility on yoga at each time point were conditionally
+independent of all future counterfactual data, both for the treatments
+and the outcomes, then it might be possible to construct special
+estimators that identify the per-protocol effect of yoga on well-being
+in the presence of unmeasured confounding that affects adherence (refer
+to Hernán \emph{et al.} (\citeproc{ref-hernan2017per}{2017})). These
+special estimators are quite different from the ANOVAs, regressions
+models, and multi-level regression models routinely deployed in
+experimental studies. However, if we seek to understand the effect of
+yoga on well-being and not the effect of random assignment to yoga on
+well-being the routine estimators will not work: we require special
+estimators (\citeproc{ref-diaz2023lmtp}{Díaz \emph{et al.} 2023};
 \citeproc{ref-hernan2024stating}{Hernán and Greenland 2024};
 \citeproc{ref-hoffman2023}{Hoffman \emph{et al.} 2023}).
 
@@ -675,10 +698,10 @@ Second, confounding biases can occur in randomised experiments even when
 randomisation succeeds. To evaluate such bias, we must first state
 whether our causal estimand is the intention-to-treat effect or the
 per-protocol effect. Randomisation recovers an unbiased estimate of the
-intention-to-treat effect --- that is, the effect of treatment
-assignment. Randomisation will only recover the per-protocol effect, the
-effect of following a treatment, if those assigned to treatment adhere
-to their assigned treatment.
+intention-to-treat effect---that is, the effect of treatment assignment.
+Randomisation will only recover the per-protocol effect, the effect of
+following treatment, when those assigned to treatment adhere to their
+assignments.
 
 Third, causal directed acyclic graphs are useful for clarifying sources
 of bias for both the intention-to-treat effect and the per-protocol
@@ -751,7 +774,7 @@ treatments. Our task has been to demonstrate that satisfying the
 assumptions for valid causal inferences in experiments is typically more
 challenging than many experimental human scientists presently understand
 (refer to \citeproc{ref-montgomery2018}{Montgomery \emph{et al.} 2018}).
-Methods for causal inference have wide scope for improving the design,
+Methods for causal inference have a wide scope for improving the design,
 analysis, and interpretation of experimental research.
 
 \newpage{}
