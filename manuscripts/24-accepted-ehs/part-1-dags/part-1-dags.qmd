@@ -112,7 +112,7 @@ Despite familiarity with experimental protocols, many researchers struggle to em
 
 Within the workflows of causal inference, causal diagrams—or causal graphs—are powerful tools for evaluating whether and how causal effects can be identified from data. My purpose here is to explain where these tools fit within causal inference workflows and to illustrate their practical applications. I focus on causal directed acyclic graphs (DAGs) because they are relatively easy to use and clear for most applications. However, DAGs can be misused. I will also explain common pitfalls and how to avoid them.
 
-In [Part 1](#id-sec-1), I review the conceptual foundations of causal inference. The basis of all causal inference lies in counterfactual contrasts. Although there are different philosophical approaches to counterfactual reasoning, they are largely similar in practice. The overview here builds on the Neyman-Rubin potential outcomes framework, extended for longitudinal data by epidemiologist James Robins. Although this is not the framework within which causal directed acyclic graphs were developed, the potential outcomes framework is easier to interpret. (I discuss Pearl's non-parametric structural equation approach in [Appendix D](#id-app-d)).
+In [Part 1](#id-sec-1), I review the conceptual foundations of causal inference. The basis of all causal inference lies in counterfactual contrasts. Although there are different philosophical approaches to counterfactual reasoning, they are largely similar in practice. The overview here builds on the Neyman-Rubin potential outcomes framework, extended for longitudinal data by epidemiologist James Robins. Although this is not the framework within which causal directed acyclic graphs were developed, the potential outcomes framework is easier to interpret.
 
 In [Part 2](#id-sec-2), I describe how causal directed acyclic graphs help identify causal effects. I outline five elementary graphical structures that encode all causal relations, forming the building blocks of all causal directed acyclic graphs. I then examine five rules that clarify whether and how investigators can identify causal effects from data.
 
@@ -223,7 +223,7 @@ $$
 \text{Average Treatment Effect in the Treated} = \mathbb{E}[Y(1) - Y(0) \mid A = 1]
 $$
 
-Consider that if investigators are interested in the average treatment effect in the treated, counterfactual comparisons are deliberately restricted to the sample population that was treated. That is, the investigators will seek to obtain the average of the missing counterfactual outcomes for the treated population were they not treated, without necessarily obtaining the counterfactual outcomes for the untreated population were they treated. This difference in focus may imply different assumptions and analytic workflows. Appendix B describes an example for which the assumptions required to estimate the average treatment effect may be preferred. In what follows, we will use the term ATE as a placeholder to mean the average treatment effect, or equivalently the `marginal effect', for a target population on a pre-specified scale of causal contrast.
+Consider that if investigators are interested in the average treatment effect in the treated, counterfactual comparisons are deliberately restricted to the sample population that was treated. That is, the investigators will seek to obtain the average of the missing counterfactual outcomes for the treated population were they not treated, without necessarily obtaining the counterfactual outcomes for the untreated population were they treated. This difference in focus may imply different assumptions and analytic workflows. Supplementary materials **S2** describes an example for which the assumptions required to estimate the average treatment effect may be preferred. In what follows, we will use the term ATE as a placeholder to mean the average treatment effect, or equivalently the `marginal effect', for a target population on a pre-specified scale of causal contrast.
 
 Setting aside the important detail that the 'average treatment effect' requires considerable care in its specification, it is worth pausing to marvel at how an ideally conducted randomised controlled experiment provides a means for identifying inherently unobservable counterfactuals. It does so by using a Sherlock-Holmes method of inference by elimination of confounders, which randomisation balances across treatments.
 
@@ -250,7 +250,7 @@ Y_i(a) & \text{if } A_i = a
 \end{cases}
 $$
 
-The causal consistency assumption implies that the observed outcome at a specific treatment level equates to the counterfactual outcome for that individual at the observed treatment level. Although it seems straightforward, treatment conditions vary, and treatment heterogeneity poses considerable challenges to satisfying this assumption. Refer to [Appendix C](#id-app-c) for further discussion on how investigators may satisfy causal consistency in real-world settings.
+The causal consistency assumption implies that the observed outcome at a specific treatment level equates to the counterfactual outcome for that individual at the observed treatment level. Although it seems straightforward, treatment conditions vary, and treatment heterogeneity poses considerable challenges to satisfying this assumption. Refer to supplementary materials **S3** for further discussion on how investigators may satisfy causal consistency in real-world settings.
 
 #### Assumption 2: Positivity
 
@@ -265,7 +265,7 @@ There are two types of positivity violation:
 1. **Random non-positivity**: When a treatment is theoretically possible but specific treatment levels are not represented in the data, random non-positivity is the only identifiability assumption verifiable with data.
 2. **Deterministic non-positivity**: When the treatment is implausible by nature, such as a hysterectomy in biological males.
 
-Satisfying the positivity assumption can present considerable data challenges [@westreich2010; @bulbulia2023a]. For instance, if we wanted to estimate a one-year causal effect of weekly religious service attendance on charitable donations, controlling for baseline attendance, and the natural transition rate to weekly service attendance is low, the effective sample size for the treatment condition may be insufficient. Where the positivity assumption is violated, causal diagrams will be of limited utility because observations in the data do not support valid causal inferences. ([Appendix B](#id-app-b) presents a worked example illustrating this difficulty in a cultural evolutionary context.)
+Satisfying the positivity assumption can present considerable data challenges [@westreich2010; @bulbulia2023a]. For instance, if we wanted to estimate a one-year causal effect of weekly religious service attendance on charitable donations, controlling for baseline attendance, and the natural transition rate to weekly service attendance is low, the effective sample size for the treatment condition may be insufficient. Where the positivity assumption is violated, causal diagrams will be of limited utility because observations in the data do not support valid causal inferences. Supplementary materials **S2** presents a worked example illustrating this difficulty in a cultural evolutionary context.)
 
 #### Assumption 3: Conditional Exchangeability (also 'No Unmeasured Confounding', 'Conditional Ignorability', 'd-separation')
 
@@ -322,7 +322,7 @@ Causal data science is distinct from ordinary data science. The initial step inv
 
 ## Part 2: How Causal Directed Acyclic Graphs Clarify the Conditional Exchangeability Assumption {#id-sec-2}
 
-We introduce causal directed acyclic graphs by describing the meaning of our symbols.
+We introduce causal directed acyclic graphs by describing the meaning of our symbols. (Supplementary materials **S1** provides a glossary for commonly used causal inference terms).
 
 
 ### Variable Naming Conventions
@@ -468,7 +468,7 @@ The minimality assumption combines (a) the local Markov assumption with (b) the 
 
 #### Causal Edges Assumption
 
-The **causal edges assumption** states that every parent is a direct cause of their children. Given minimalism, the causal edges assumption allows us to read causal dependence in directed acyclic graphs. In Pearl's formalism, we use non-parametric structural equations to evaluate causal assumptions using statistical distributions (refer to Appendix E; @neal2020introduction).
+The causal edges assumption states that every parent is a direct cause of their children. Given the minimality assumption, the causal edges assumption allows us to interpret the conditional dependence between variables on a graph based on the causal relationships encoded by the arrangement of nodes and edges.
 
 #### Compatibility Assumption
 
@@ -531,9 +531,9 @@ In this case, we can use the front-door adjustment to estimate the causal effect
 
 Mathematically, the front-door adjustment is expressed as:
 
-$$P(C \mid do(A)) = \sum_B P(B \mid A) \sum_{A'} P(C \mid A', B) P(A')$$
+$$P(C \mid do(A)) = \sum_B P(B \mid A) P(C \mid A, B)$$
 
-where $P(C \mid do(A))$ represents the causal effect of $A$ on $C$, $P(B \mid A)$ is the effect of $A$ on $B$, and $P(C \mid A', B)$ is the effect of $B$ on $C$ while adjusting for $A$.
+where $P(C \mid do(A))$ represents the causal effect of $A$ on $C$, $P(B \mid A)$ is the effect of $A$ on $B$, and $P(C \mid A, B)$ is the effect of $B$ on $C$ while adjusting for $A$.
 
 The front-door criterion is less widely used than the back-door criterion because it requires the identification of an appropriate mediator that fully captures the causal effect. However, understanding the front-door adjustment helps develop intuition for how estimating causal effects may be possible when there is unmeasured confounding but there are measured mediators that fully mediate a treatment effect [@pearl2009a].  
 
@@ -546,8 +546,7 @@ $$
 Y(a) = \frac{1}{n} \sum_{i=1}^n Y_i(a)
 $$
 
-We say that the conditional exchangeability is satisfied if the potential outcomes are independent of the treatments assigned conditional on measured covariates:
-
+We say that conditional exchangeability is satisfied if the potential outcomes are independent of the treatment assignment conditional on the measured covariates:
 
 $$
 A \coprod Y(\tilde{a}) \mid L
@@ -563,7 +562,7 @@ Let $L$ denote the common causes of treatment $A$ and outcome $Y$:
 - The treatment node $A$ in $\mathcal{G}$ is associated with the non-parametric structural equation: $A = f_A(L, U_A)$, where $f_A$ is an unspecified function, $L$ represents the common causes, and $U_A$ represents the exogenous error term or unmeasured factors affecting $A$.
 - The outcome node $Y$ in $\mathcal{G}$ is associated with the non-parametric structural equation: $Y = f_Y(A, L, U_Y)$, where $f_Y$ is an unspecified function, $A$ represents the treatment, $L$ represents the common causes, and $U_Y$ represents the exogenous error term or unmeasured factors affecting $Y$.
 
-In Pearl's formalism, we assume that $U_L$, $U_A$, and $U_Y$ are independent exogenous random variables. That is, we assume there are no direct arrows linking $A$ to $Y$ except through the common cause node $L$. Causal diagrams allow us to factorize the joint distribution of $L$, $A$, and $Y$ as a product of conditional probability distributions.
+In Pearl's formalism, we assume that $U_L$, $U_A$, and $U_Y$ are independent exogenous random variables. That is, we assume there are no direct arrows linking $A$ to $Y$ except through the common cause node $L$. Causal diagrams allow us to factorise the joint distribution of $L$, $A$, and $Y$ as a product of conditional probability distributions. Again, nodes and edges in a causal directed acyclic graph correspond to non-parametric structural equations: these equations represent causal mechanisms *without* making specific assumptions about the functional form of relationships. This is a key distinction from statistical structural equation models (SEMs) commonly used in social sciences, which rely on causal assumptions but which do not often, in current practice, evaluate whether causality is identified [@bulbulia2024swigstime].
 
 Define $O$ as a distribution of independent and identically distributed observations such that $O = (L, A, Y)$. The true distribution $P_O$ is factorized as:
 $$

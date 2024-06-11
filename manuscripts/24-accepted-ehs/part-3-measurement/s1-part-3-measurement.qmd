@@ -1,0 +1,382 @@
+---
+title: 'Supplementary files for "Methods in Causal Inference Part 2: Interaction, Mediation, and Time-Varying Treatments"'
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: no
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: true
+    toc: true
+    toc-depth: 2
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: true
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+
+{{< pagebreak >}}
+## S1. Glossary {#id-app-a}
+::: {#tbl-experiments}
+```{=latex}
+\glossaryTerms
+```
+Glossary
+:::
+{{< pagebreak >}}
+## S2. Generalisability and Transportability {#id-app-b}
+Generalisability: When a study sample is drawn randomly from the target population, we may generalise from the sample to the target population as follows.
+
+Suppose we sample randomly from the target population, where:
+
+- $n_S$ denotes the size of the study's analytic sample $S$.
+- $N_T$ denotes the total size of the target population $T$.
+- $\widehat{ATE}_{n_S}$ denotes the estimated average treatment effect in the analytic sample $S$.
+- $ATE_{T}$ denotes the true average treatment effect in the target population $T$.
+- $\epsilon$ denotes an arbitrarily small positive value.
+
+Assuming the rest of the causal inference workflow goes to plan (randomisation succeeds, there is no measurement error, no model misspecification, etc.), as the random sample size $n_S$ increases, the estimated treatment effect in the analytic sample $S$ converges in probability to the true treatment effect in the target population $T$:
+
+$$
+\lim_{n_S \to N_T} P(|\widehat{ATE}_{n_S} - ATE_{T}| < \epsilon) = 1
+$$
+
+for any small positive value of $\epsilon$.
+
+Transportability: When the analytic sample is not drawn from the target population, we cannot directly generalise the findings. However, we can transport the estimated causal effect from the source population to the target population under certain assumptions. This involves adjusting for differences in the distributions of effect modifiers between the two populations. The closer the source population is to the target population, the more plausible the transportability assumptions are, and the less we need to rely on complex adjustment methods.
+Suppose we have an analytic sample $n_S$ drawn from a source population $S$, and we want to estimate the average treatment effect in a target population $T$.
+Define:
+
+$\widehat{ATE}_{S}$ as the estimated average treatment effect in the analytic sample drawn from the source population $S$.
+$\widehat{ATE}_{T}$ as the estimated average treatment effect in the target population $T$.
+$f(n_S, R)$ as the mapping function that adjusts the estimated effect in the analytic sample using a set of measured covariates $R$, allowing for valid projection from the source population to the target population.
+
+The transportability assumption is that there exists a function $f$ such that:
+$$ \widehat{ATE}_{T} = f(n_S, R) $$
+
+Finding a suitable function $f$ is the central challenge in adjusting for sampling bias and achieving transportability [@bareinboim2013general; @westreich2017transportability; @dahabreh2019generalizing; @deffner2022].
+
+{{< pagebreak >}}
+## S3. A Mathematical Explanation for the Difference in Marginal Effects between Censored and Uncensored Populations {#id-app-c}
+
+This appendix provides an explanation for why marginal effects may differ between the censored and uncensored sample population in the absence of unmeasured confounding.
+
+#### Definitions:
+
+- **$A$**: Exposure variable, where $a$ represents the reference level and $a^*$ represents the comparison level
+- **$Y$**: Outcome variable
+- **$F$**: Effect modifier
+- **$C$**: Indicator for the uncensored population ($C = 0$) or the censored population ($C = 1$)
+
+#### Average Treatment Effects:
+
+The average treatment effects for the uncensored and censored populations are defined as:
+
+$$ \Delta_{\text{uncensored}} = \mathbb{E}[Y(a^*) - Y(a) \mid C = 0] $$
+
+$$ \Delta_{\text{censored}} = \mathbb{E}[Y(a^*) - Y(a) \mid C = 1] $$
+
+#### Potential Outcomes:
+
+By causal consistency, potential outcomes can be expressed in terms of observed outcomes:
+
+$$ \Delta_{\text{uncensored}} = \mathbb{E}[Y \mid A=a^*, C=0] - \mathbb{E}[Y \mid A=a, C=0] $$
+
+$$ \Delta_{\text{censored}} = \mathbb{E}[Y \mid A=a^*, C=1] - \mathbb{E}[Y \mid A=a, C=1] $$
+
+#### Law of Total Probability:
+
+Applying the Law of Total Probability, we can weight the average treatment effects by the conditional probability of the effect modifier $F$:
+
+$$ \Delta_{\text{uncensored}} = \sum_{f} \left\{\mathbb{E}[Y \mid A=a^*, F=f, C=0] - \mathbb{E}[Y \mid A=a, F=f, C=0]\right\} \times \Pr(F=f \mid C=0) $$
+
+$$ 
+\Delta_{\text{censored}} = \sum_{f} \left\{\mathbb{E}[Y \mid A=a^*, F=f, C=1] - \mathbb{E}[Y \mid A=a, F=f, C=1]\right\} \times \Pr(F=f \mid C=1) 
+$$
+
+#### Assumption of Informative Censoring:
+
+We assume that the distribution of the effect modifier $F$ differs between the censored and uncensored populations:
+
+$$ \Pr(F=f \mid C=0) \neq \Pr(F=f \mid C=1) $$
+
+Under this assumption, the probability weights used to calculate the marginal effects for the uncensored and censored populations differ.
+
+#### Effect Estimates for Censored and Uncensored Populations:
+
+Given that $\Pr(F=f \mid C=0) \neq \Pr(F=f \mid C=1)$, we cannot guarantee that:
+
+$$ 
+\Delta_{\text{uncensored}} = \Delta_{\text{censored}} 
+$$
+
+The equality of marginal effects between the two populations will only hold if there is a universal null effect (i.e., no effect of the exposure on the outcome for any individual) across all units, by chance, or under specific conditions discussed by @vanderweele2007 and further elucidated by @suzuki2013counterfactual. Otherwise:
+
+$$ \Delta_{\text{uncensored}} \ne \Delta_{\text{censored}} $$
+
+Furthermore, @vanderweele2012 proved that if there is effect modification of $A$ by $F$, there will be a difference in at least one scale of causal contrast, such that:
+
+$$ \Delta^{\text{risk ratio}}_{\text{uncensored}} \ne \Delta^{\text{risk ratio}}_{\text{censored}} $$
+
+or
+
+$$ \Delta^{\text{difference}}_{\text{uncensored}} \ne \Delta^{\text{difference}}_{\text{censored}} $$
+
+For comprehensive discussions on sampling and inference, refer to @dahabreh2019 and @dahabreh2021study.
+{{< pagebreak >}}
+## S4. R Simulation to Clarify Why The Distribution of Effect Modifiers Matters For Estimating Treatment Effects For A Target Population  {#id-app-d}
+
+First, we load the `stdReg` library, which obtains marginal effect estimates by simulating counterfactuals under different levels of treatment [@sjölander2016]. If a treatment is continuous, the levels can be specified.
+
+We also load the `parameters` library, which creates nice tables [@parameters2020].
+
+```{r}
+#|label: loadlibs
+
+# to obtain marginal effects
+if (!requireNamespace('stdReg', quietly = TRUE)) install.packages('stdReg')
+library(stdReg)
+
+#  to view data
+if (!requireNamespace('skimr', quietly = TRUE)) install.packages('skimr')
+library(skimr)
+
+# to create nice tables
+if (!requireNamespace('parameters', quietly = TRUE)) install.packages('parameters')
+library(parameters)
+```
+
+Next, we write a function to simulate data for the sample and target populations.
+
+We assume the treatment effect is the same in the sample and target populations, that the coefficient for the effect modifier and the coefficient for interaction are the same, that there is no unmeasured confounding throughout the study, and that there is only selective attrition of one effect modifier such that the baseline population differs from the analytic sample population at the end of the study.
+
+That is: **the distribution of effect modifiers is the only respect in which the sample will differ from the target population.**
+
+This function will generate data under a range of scenarios. Refer to documentation in the `margot` package: @margot2024
+
+```{r}
+# function to generate data for the sample and population, 
+# Along with precise sample weights for the population, there are differences 
+# in the distribution of the true effect modifier but no differences in the treatment effect 
+# or the effect modification. all that differs between the sample and the population is 
+# the distribution of effect modifiers.
+
+# seed
+set.seed(123)
+
+# simulate data -- you can use different parameters
+data <- margot::simulate_ate_data_with_weights(
+  n_sample = 10000,
+  n_population = 100000,
+  p_z_sample = 0.1,
+  p_z_population = 0.5,
+  beta_a = 1,
+  beta_z = 2.5,
+  noise_sd = 0.5
+)
+
+# inspect
+# skimr::skim(data)
+```
+
+We have generated both sample and population data.
+
+Next, we verify that the distributions of effect modifiers differ in the sample and in the target population:
+
+```{r}
+# obtain the generated data
+sample_data <- data$sample_data
+population_data <- data$population_data
+
+# check imbalance
+table(sample_data$z_sample) # type 1 is rare
+table(population_data$z_population) # type 1 is common
+```
+
+The sample and population distributions differ.
+
+Next, consider the question: 'What are the differences in the coefficients that we obtain from the study population at the end of the study, compared with those we would obtain for the target population?'
+
+First, we obtain the regression coefficients for the sample. They are as follows:
+
+```{r}
+# model coefficients sample
+model_sample  <- glm(y_sample ~ a_sample * z_sample, 
+  data = sample_data)
+
+# summary
+parameters::model_parameters(model_sample, ci_method = 'wald')
+```
+
+Next, we obtain the regression coefficients for the weighted regression of the sample. Notice that the coefficients are virtually the same:
+
+```{r}
+# model the sample weighted to the population, again note that these coefficients are similar 
+model_weighted_sample <- glm(y_sample ~ a_sample * z_sample, 
+  data = sample_data, weights = weights)
+
+# summary
+summary(parameters::model_parameters(model_weighted_sample, 
+  ci_method = 'wald'))
+```
+
+We might be tempted to infer that weighting wasn't relevant to the analysis. However, we'll see that such an interpretation would be a mistake.
+
+Next, we obtain model coefficients for the population. Note again there is no difference -- only narrower errors owing to the large sample size.
+
+```{r}
+# model coefficients population -- note that these coefficients are very similar. 
+model_population <- glm(y_population ~ a_population * z_population, 
+  data = population_data)
+
+parameters::model_parameters(model_population, ci_method = 'wald')
+```
+
+Again, there is no difference. That is, we find that all model coefficients are practically equivalent. The different distribution of effect modifiers does not result in different coefficient values for the treatment effect, the effect-modifier 'effect,' or the interaction of the effect modifier and treatment.
+
+Consider why this is the case: in a large sample where the causal effects are invariant -- as we have simulated them to be -- we will have good replication in the effect modifiers within the sample, so our statistical model can recover the *coefficients* for the population without challenge.
+
+However, in causal inference, we are interested in the marginal effect of the treatment within a population of interest or within strata of this population. That is, we seek an estimate for the counterfactual contrast in which everyone in a pre-specified population or stratum of a population was subject to one level of treatment compared with a counterfactual condition in which everyone in a population was subject to another level of the same treatment.
+
+**The marginal effect estimates will differ in at least one measure of effect when the analytic sample population has a different distribution of effect modifiers compared to the target population.**
+
+To see this, we use the `stdReg` package to recover marginal effect estimates, comparing (1) the sample ATE, (2) the true oracle ATE for the population, and (3) the weighted sample ATE. We will use the outputs of the same models above. The only difference is that we will calculate marginal effects from these outputs. We will contrast a difference from an intervention in which everyone receives treatment = 0 with one in which everyone receives treatment = 1; however, this choice is arbitrary, and the general lessons apply irrespective of the estimand.
+
+First, consider this Average Treatment Effect for the analytic population:
+
+```{r}
+# What inference do we draw?  
+# we cannot say the models are unbiased for the marginal effect estimates. 
+# regression standardisation 
+library(stdReg) # to obtain marginal effects 
+
+# obtain sample ate
+fit_std_sample <- stdReg::stdGlm(model_sample, 
+  data = sample_data, X = 'a_sample')
+
+# summary
+summary(fit_std_sample, contrast = 'difference', reference = 0)
+```
+
+The treatment effect is given as a 1.06 unit change in the outcome across the analytic population, with a confidence interval from 1.04 to 1.08.
+
+Next, we obtain the true (oracle) treatment effect for the target population under the same intervention:
+
+```{r}
+## note the population effect is different
+
+# obtain true ate
+fit_std_population <- stdReg::stdGlm(model_population, 
+  data = population_data, X = 'a_population')
+
+# summary
+summary(fit_std_population, contrast = 'difference', reference = 0)
+```
+
+Note that the true treatment effect is a 1.25-unit change in the population, with a confidence bound between 1.24 and 1.26. This is well outside the ATE that we obtain from the analytic population!
+
+Next, consider the ATE in the weighted regression, where the analytic sample was weighted to the target population's true distribution of effect modifiers:
+
+```{r}
+## next try weights adjusted ate where we correctly assign population weights to the sample
+fit_std_weighted_sample_weights <- stdReg::stdGlm(model_weighted_sample, 
+  data = sample_data, X = 'a_sample')
+
+# this gives us the right answer
+summary(fit_std_weighted_sample_weights, contrast = 'difference', reference = 0)
+```
+
+We find that we obtain the population-level causal effect estimate with accurate coverage by weighting the sample to the target population. So with appropriate weights, our results generalise from the sample to the target population.
+
+## Lessons
+
+- **Regression coefficients do not clarify the problem of sample/target population mismatch** — or selection bias as discussed in this manuscript.
+- **Investigators should not rely on regression coefficients alone** when evaluating the biases that arise from sample attrition. This advice applies to both methods that authors use to investigate threats of bias. To implement this advice, authors must first take it themselves.
+- **Observed data are generally insufficient for assessing threats**. Observed data do not clarify structural sources of bias, nor do they clarify effect-modification in the full counterfactual data condition where all receive the treatment and all do not receive the treatment (at the same level).
+- **To properly assess bias, one needs access to the counterfactual outcome** — what would have happened to the missing participants had they not been lost to follow-up or had they responded? The joint distributions over 'full data' are inherently unobservable [@vanderlaan2011].
+- **In simple settings, like the one we just simulated, we can address the gap between the sample and target population using methods such as modelling the censoring (e.g., censoring weighting).** However, we never know what setting we are in or whether it is simple—such modelling must be handled carefully. There is a large and growing epidemiology literature on this topic (see, for example, @li2023non).
+{{< pagebreak >}}
+## S5. Bias Correction as Interventions on Reporters {#id-app-F}
+
+::: {#tbl-tblswigme}
+```{=latex}
+\tblswigme
+```
+Single World Intervention Graph reveals strategies for redressing measurement error.
+:::
+
+Single World Intervention Graphs (SWIGs) help us understand why bias correction works. We can think of bias correction without relying on mathematically restrictive models by considering reporters of the true but unobserved states of the world as elements of a causal reality that we represent in SWIGs.
+
+@tbl-tblswigme$\mathcal{G}_{1.1}$ shows how to represent the true counterfactual outcome as a function $Y(\mathbf{h}(E^A, B(\tilde{a})))$. If this function were known, we could intervene to correct the bias in reporter $B$ when $A = \tilde{a}$ to obtain $Y(\tilde{a})$. The dotted green arrows indicate the counterfactual variables whose functional relationship to the observed values $B(\tilde{a})$ are relevant for correcting this bias. Like an optometrist fitting spectacles to correct vision, knowing how $B(\tilde{a})$ relates to $E^A$ would allow us to recover $A = \tilde{a}$ from $B(\tilde{a})$ and thus obtain $\mathbb{E}[Y(\tilde{a})]$ from $\mathbb{E}[Y(B(\tilde{a}))]$.
+
+Similarly, @tbl-tblswigme$\mathcal{G}_{1.2}$ shows how to represent the true counterfactual outcome as a function $V(\mathbf{h}(E^Y, V(\tilde{a})))$. If this function were known, we could intervene to correct the bias of outcome reporter $V(\tilde{a})$ when $A = \tilde{a}$ to recover the true state $Y(\tilde{a})$ from its distorted representation in $V(\tilde{a})$. The dotted green arrows indicate the counterfactual variables relevant for correcting this bias. Knowing how $V(\tilde{a})$ relates to $E^Y$ would allow us to recover $Y(\tilde{a})$ from $V(\tilde{a})$.
+
+@tbl-tblswigmex$\mathcal{G}_{1.1-1.2}$ reveals that obtaining corrections for biased reporters requires additional information when there is a directed measurement error. In this setting, bias correction requires knowledge of a function in which the treatment and unmeasured sources of error interact to distort reported potential outcomes under treatment. The SWIG shows that directed measurement error bias can occur if the treatment affects the outcome reporter, even without a direct effect of the treatment on the error terms of the outcome reporter.
+
+@tbl-tblswigmex$\mathcal{G}_{2.1-2.2}$ clarifies that correlated biases in the errors of the treatment and outcome reporters create additional demands for measurement error correction. The behaviour of the correlated error must be evaluated for both $B(\tilde{a})$ and $V(\tilde{a})$. To obtain $V(\tilde{a})$, we must first obtain $\tilde{a}$ from a function $f_{B}(B(\tilde{a}), E^{AY})$, which cannot be derived from the data because $E^{AY}$ is unobserved. Similarly, a function that recovers $Y(\tilde{a})$ from $V(\tilde{a})$ cannot be obtained from the data because of the unobserved $E^{AY}$. Further complications arise when considering bias in settings with both directed and correlated measurement errors.
+
+Recall from the main article **Part 3** that we considered how the distribution of effect modifiers across populations complicates inference. These problems are compounded when we include treatment and outcome reporters in our SWIGs. Even if treatment effects were constant across populations, there might be effect modification in the mismeasurement of treatments across populations. Statistical tests alone cannot distinguish between effect modification from treatment effect heterogeneity and effect modification from heterogeneous reporting of treatments or outcomes.
+
+::: {#tbl-tblswigmex}
+```{=latex}
+\tblswigmex
+```
+Single World Intervention Graph reveals strategies for redressing measurement error.
+:::
+
+### Summary
+
+Our interest in SWIGs has been to understand the causal underpinnings of certain population restriction biases and measurement error biases that arise absent confounding biases. Even assuming strong sequential exchangeability, we can use SWIGs to clarify the mechanisms by which non-confounding biases operate, methods for correcting such biases, and the challenges of comparative research where the distribution of effect modifiers of bias in reporters must be considered to obtain valid causal contrasts for potential outcomes under treatment.
+
+Considerations when using Single World Intervention Graphs for clarifying structural sources of measurement error bias (and other biases):
+
+1. There must be a directed edge from a latent variable to its reporter.
+2. If the reporter of the treatment has an arrow entering it from another variable, and causal contrasts are obtained from outcomes under-reported treatments, there will generally be measurement error bias on at least one causal contrast scale (ignoring accidental cancellations of errors), see main article **Part 4**.
+3. Likewise, if the reporter of an outcome has an arrow entering it from another variable, and causal contrasts are obtained from reported outcomes, there will generally be measurement error bias on at least one causal contrast scale (ignoring accidental cancellations of errors); see the main article, Part 4.
+4. We cannot often control for measurement error biases by *conditioning* on variables in the model because these biases are not confounding biases.
+5. However, if the functions that lead to differences between unobserved variables of interest and their reporters are known, investigators can correct for such differences by reweighting the data or applying direct corrections [@carroll2006measurement; @lash2009applying].
+6. Certain population restriction biases can be viewed as varieties of measurement error bias, as discussed in the main articles **Part 2** and **Part 3**. SWIGs clarify that certain measurement error biases arise from effect modification, where the error term interacts with the underlying variable of interest, as discussed in the main article **Part 4**.
+7.  Using SWIGs to approach measurement errors as effect modification is useful because errors might not operate at all intervention levels. Causal DAGs do not readily allow investigators to appreciate these prospects.
+8. Despite the formal equivalence of certain forms of measurement error bias and certain forms of population restriction bias, we may use Single World Intervention Graphs to show that both biases may operate together and in conjunction with confounding biases. We would add effect modifier nodes to the SWIGs in @tbl-tblswigme and @tbl-tblswigmex.
+9. Despite the utility of Single World Intervention Graphs (and causal DAGs) for clarifying structural features of bias, whether confounding or otherwise, investigators should not be distracted from the goal when using these tools: to understand whether and how valid causal effects may be obtained from observational data for the populations of interest. Every inclination to use causal diagrams should be resisted if their use complicates this objective.
+
+
+## References
+
+::: {#refs}
+:::
+
+
+
+
+

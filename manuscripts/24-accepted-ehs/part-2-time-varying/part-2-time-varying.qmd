@@ -109,7 +109,7 @@ This 'striking instance of how easy it is to overlook phenomena, however conspic
 
 Across many human sciences, we apply statistical models to data and report 'moderation', 'interaction', 'mediation', and 'longitudinal growth'. How are we to interpret the results of these models? It is often unclear. The confidence with which investigators report findings does not make interpretation any clearer. The problem is that investigators are typically interested in causal questions. However, lacking the associations we obtain from our statistical models may hallucinate true causal association and their signs [@westreich2013]. As such, it is often unclear whether the associations we obtain from our statistical models are evidence for association, much less causation.
 
-There is good news. Progress in the health sciences, computer science, and economics has led to a common vocabulary with robust workflows that allow investigators to formulate causal questions that may be addressed with data, to evaluate the assumptions under which consistent estimates may be obtained, to construct valid statistical estimators of these quantities, and then -- at the end of the workflow -- to apply statistical models. This conceptual framework is anchored in a foundation of mathematical proofs that enable investigators to clarify, communicate, and evaluate causal questions using observational data. The consensus that has emerged in causal inference during the past several decades is, in my view, as wide-ranging in its implications for the human sciences as the theory of glaciation was to geology, or as Darwin's theory of evolution was to biology. By reformulating questions of interaction, mediation, and time-varying treatments as causal questions, I hope to persuade those who are new to causal inference of the framework's interest, relevance, and power.
+There is good news. Progress in the health sciences, computer science, and economics has led to a common vocabulary and robust workflows that enable investigators to formulate causal questions addressable with data. These advancements allow for the evaluation of assumptions necessary for obtaining consistent estimates, the construction of valid statistical estimators, and the application of statistical models at the end of the workflow. This conceptual framework, grounded in mathematical proofs, enables investigators to clarify, communicate, and evaluate causal questions using observational data. The consensus that has emerged in causal inference over the past several decades is, in my view, as transformative for the human sciences as the theory of glaciation was for geology, or as Darwin's theory of evolution was for biology. By reformulating questions of interaction, mediation, and time-varying treatments as causal questions, I aim to clarify the framework’s interest, relevance, and power.
 
 Several excellent resources are available that clarify workflows for causal inference, from stating causal questions to communicating results [@hernan2024WHATIF; @vanderweele2015; @tlverse_handbook; @grf2024; @morgan2014; @montgomery2018; @neal2020introduction; @pearl2009a].
 
@@ -128,13 +128,18 @@ I begin with a brief introduction to key concepts and terminology.
 
 ### Fundamental Assumptions for Causal Inference
 
-Consider indicators $A$ and $Y$ measuring states of the world. For unit $i$, we say that $A_i$ causes $Y_i$ if changing $A_i$ from one level, say $A_i = a^*$, to another level, $A_i = a$, leads to a different outcome for $Y_i$. We assume $A_i$ occurs before $Y_i$. To compare these outcomes, we use the notation $Y_i(\tilde{a})$, which represents the outcome for unit $i$ under the treatment level $A_i = \tilde{a}$. To determine whether $Y_i(\tilde{a})$ quantitatively differs under two treatment levels on the difference scale, we would compute the contrast $Y_i(a^*) - Y_i(a)$. If $Y_i(a^*) - Y_i(a) \neq 0$, we would say there is causal effect of $A$ on $Y$ for individual $i$. Following convention, we call $A$ the 'treatment' or 'exposure' and $Y$ the 'outcome'. Note that, for any given application of $A$ for unit $i$, we can only observe one level of treatment. Therefore, we refer to $Y_i(a^*) - Y_i(a) \neq 0$ as a counterfactual contrast, or equivalently, as a contrast of potential outcomes. We note that because an individual may only receive one of two treatments at any given time, individual causal effects cannot generally be observed. However, when certain assumptions are satisfied, we may compute average treatment effects by aggregating individual observations under different treatment conditions. For a binary treatment, the difference in the average of the potential outcomes under two different treatment levels for the population from which a sample is drawn may be expressed as the difference in mean outcomes: $\mathbb{E}[Y(1)] - \mathbb{E}[Y(0)]$ or equivalently as the average of the differences of the potential outcomes: $\mathbb{E}[Y(1) - Y(0)]$. This counterfactual contrast represents the quantity obtained from an ideally conducted randomised controlled trial, any common cause of the treatment and the outcome would occur only by chance. There are three fundamental assumptions for computing average treatment effects that, although generally satisfied in an ideally randomised experiment may not be satisfied in observational or 'real world' data:
+Consider indicators $A$ and $Y$ measuring states of the world. For unit $i$, we say that $A_i$ causes $Y_i$ if changing $A_i$ from one level, say $A_i = a^*$, to another level, $A_i = a$, leads to a different outcome for $Y_i$. We assume $A_i$ occurs before $Y_i$. To compare these outcomes, we use the notation $Y_i(\tilde{a})$, which represents the outcome for unit $i$ under the treatment level $A_i = \tilde{a}$. To determine whether $Y_i(\tilde{a})$ quantitatively differs under two treatment levels on the difference scale, we would compute the contrast $Y_i(a^*) - Y_i(a)$. If $Y_i(a^*) - Y_i(a) \neq 0$, we would say there is a causal effect of $A$ on $Y$ for individual $i$. Following convention, we call $A$ the 'treatment' or 'exposure' and $Y$ the 'outcome'.
+
+Note that, for any given application of $A$ for unit $i$, we can only observe one level of treatment. Therefore, we refer to $Y_i(a^*) - Y_i(a) \neq 0$ as a counterfactual contrast, or equivalently, as a contrast of potential outcomes. Because an individual may only receive one of two treatments at any given time, individual causal effects cannot generally be observed. However, when certain assumptions are satisfied, we may compute average treatment effects by aggregating individual observations under different treatment conditions. For a binary treatment, the difference in the average of the potential outcomes under two different treatment levels for the population from which a sample is drawn may be expressed as the difference in mean outcomes: $\mathbb{E}[Y(1)] - \mathbb{E}[Y(0)]$ or equivalently as the average of the differences of the potential outcomes: $\mathbb{E}[Y(1) - Y(0)]$.
+
+This counterfactual contrast represents the quantity obtained from an ideally conducted randomised controlled trial, where any common cause of the treatment and the outcome would occur only by chance. There are three fundamental assumptions for computing average treatment effects that, although generally satisfied in an ideally randomised experiment, may not be satisfied in observational or 'real world' data:
 
 1. **Causal Consistency**: Treatment levels remain consistent within the treatment arms to be compared. There must be at least two arms.
 2. **(Conditional) Exchangeability**: Covariates that might affect outcomes under treatment are balanced across all arms (implied by randomisation).
 3. **Positivity**: Each covariate that might affect treatment in the target population has a non-zero probability of being observed within each treatment condition (refer to @westreich2010; @bulbulia2023a).
 
 Note that we speak of an 'ideal' experiment because real-world experiments may fail these assumptions [@hernan2017per; @bulbulia_2024_experiments]. Our interest here is restricted to observational or 'real world' data.
+
 
 ### Schematic Workflow for Inferring Causal Effects from Real-World Data Before Stating Statistical Estimators and Performing Statistical Analysis
 
@@ -148,7 +153,7 @@ In causal inference, we do not apply statistical models to data until after we h
    Specify the outcome measure so that a causal contrast is interpretable. 'Well-being' is a vaguely stated outcome.  The outcome, 'Psychological distress measured one year after the intervention using the Kessler-6 distress scale [@kessler2002]' is more clearly defined. 
 
 3. **Clarify the target population.**
-   Define the population to whom the results will generalise. The eligibility criteria for a study will define the source population from which units in the study are sampled. However, sampling from the source population may yeild a study population that differs from the source population in variables that modify the effects of treatment [@dahabreh2019; @dahabreh2019generalizing; @stuart2018generalizability]. Investigators may also seek to generalise beyond the source population, which requires additional assumptions and may require additional knowledge [@deffner2022; @bareinboim2013general; @westreich2017transportability; @dahabreh2019; @bulbulia2024wierd]. 
+   Define the population to whom the results will generalise. The eligibility criteria for a study will define the source population from which units in the study are sampled. However, sampling from the source population may yield a study population that differs from the source population in variables that modify the effects of treatment [@dahabreh2019; @dahabreh2019generalizing; @stuart2018generalizability]. Investigators may also seek to generalise beyond the source population, which requires additional assumptions and may require additional knowledge [@deffner2022; @bareinboim2013general; @westreich2017transportability; @dahabreh2019; @bulbulia2024wierd]. 
 
 
 4. **Evaluate whether treatment groups, conditional on measured covariates, are exchangeable.**
@@ -172,7 +177,7 @@ In causal inference, we do not apply statistical models to data until after we h
 
 ### Conventions Used in This Article
 
-@tbl-terminologylocalconventions reports our variables. @tbl-terminologygeneral describes our graphical conventions. Here, we use two types of graphical tools to clarify causal questions: causal directed acyclic graphs and Single World Intervention Graphs. 
+@tbl-terminologylocalconventions reports our variables. @tbl-terminologygeneral describes our graphical conventions. Here, we use two types of graphical tools to clarify causal questions: causal directed acyclic graphs and Single World Intervention Graphs. (Refer to supplementary materials **S1** for a glossary for commonly used causal inference terms).
 
 ::: {#tbl-terminologylocalconventions}
 ```{=latex}
@@ -212,7 +217,7 @@ From these rules, Pearl derived a 'backdoor adjustment theorem', which provides 
 1. Not be a descendant of $A$.
 2. Block all backdoor paths from $A$ to $Y$.
 
-If $L$ satisfies these conditions, the causal effect of $A$ on $Y$ is identified by conditioning on $\boxed{L}$[@pearl2009a].  Here, I will assume readers are familiar with causal directed acyclic graphs. Accessible introductions to causal directed acyclic graphs can be found in @pearl2009a; @barrett2021; @mcelreath2020; @neal2020introduction; @hernan2024WHATIF; @bulbulia2023. (For an introduction to Single World Intervention Graphs, used below, refer to @richardson2013; @richardson2013swigsprimer.) 
+If $L$ satisfies these conditions, the causal effect of $A$ on $Y$ is identified by conditioning on $\boxed{L}$[@pearl2009a].  In what follows, I will assume readers are familiar with causal directed acyclic graphs. Accessible introductions to causal directed acyclic graphs can be found in @pearl2009a; @barrett2021; @mcelreath2020; @neal2020introduction; @hernan2024WHATIF; @bulbulia2023. (For an introduction to Single World Intervention Graphs, used below, refer to @richardson2013; @richardson2013swigsprimer.) 
 
 
 ::: {#tbl-terminologydirectedgraph}
@@ -362,13 +367,13 @@ The discrepancy in evidence for effect modification depending on the scale we ch
 
 When evaluating evidence for interaction, we must assess whether the combined effects of two treatments differ from the unique effects of each treatment relative to a baseline where neither treatment is administered. Understanding multiple interventions can be facilitated by using Single World Intervention Graphs (SWIGs) [@richardson2013].
 
-SWIGs employ Pearl's rules of d-separation but offer additional benefits by graphically representing the complex factorisations required for identification, presenting distinct interventions in separate graphs.  The first advantage is **greater precision and clarity**: SWIGs allow us to consider identification conditions for each counterfactual outcome individually. Such precision is useful because identification conditions may differ for one, but not another, of the treatments to be compared. Node-splitting also makes it easier to determine identification conditions that are obscured in causal directed acylic graphs, for an example refer to [Appendix C](#id-app-c)). The second advantage **Single World Intervention Graphs unify the potential outcomes framework with Pearl's structural causal model framework**: any causal relationship that can be represented in a causal directed acyclic graph can als be represented in a Single World Intervention Graph [@richardson2013swigsprimer].
+SWIGs employ Pearl's rules of d-separation but offer additional benefits by graphically representing the complex factorisations required for identification, presenting distinct interventions in separate graphs.  The first advantage is **greater precision and clarity**: SWIGs allow us to consider identification conditions for each counterfactual outcome individually. Such precision is useful because identification conditions may differ for one, but not another, of the treatments to be compared. Node-splitting also makes it easier to determine identification conditions that are obscured in causal directed acylic graphs, for an example refer to supplementary materials **S2**. The second advantage **Single World Intervention Graphs unify the potential outcomes framework with Pearl's structural causal model framework**: any causal relationship that can be represented in a causal directed acyclic graph can also be represented in a Single World Intervention Graph [@richardson2013swigsprimer].
 
 ::: {#tbl-swigtable}
 ```{=latex}
 \swigtable
 ```
-Single World Interventions Graphs ($\mathcal{G}_{3-4}$) present separate causal diagrams for each treatment to be contrasted. A Single World Intervention Template ($\mathcal{G}_{2}$) is a 'graph value function' that produces the individual counterfactual graphs [@richardson2013]. Contrastingly, causal directed acyclic graphs, such as $\mathcal{G}_1$, require positing interventional distributions. The formalism that underpins these interventional distributions is mathematically equivalent to that of the potential outcomes framework, assuming the errors of the underlying structural causal models that define the nodes on which interventions occur are independent [@richardson2013]. SWIGs not only allow us to evaluate identification when errors are not independent, but they also permit the comparison of distinct interventions to our causal diagram. This is particularly useful when considering more than one point intervention. An example of is provided in [Appendix B](#id-app-b).
+Single World Interventions Graphs ($\mathcal{G}_{3-4}$) present separate causal diagrams for each treatment to be contrasted. A Single World Intervention Template ($\mathcal{G}_{2}$) is a 'graph value function' that produces the individual counterfactual graphs [@richardson2013]. Contrastingly, causal directed acyclic graphs, such as $\mathcal{G}_1$, require positing interventional distributions. The formalism that underpins these interventional distributions is mathematically equivalent to that of the potential outcomes framework, assuming the errors of the underlying structural causal models that define the nodes on which interventions occur are independent [@richardson2013]. SWIGs not only allow us to evaluate identification when errors are not independent, but they also permit the comparison of distinct interventions to our causal diagram. This is particularly useful when considering more than one point intervention. An example of is provided in supplementary materials **S2**.
 :::
 
 #### Single World Intervention Graphs Work by Node-Splitting
@@ -706,7 +711,7 @@ The reason for noting these dependencies on a Single World Intervention Graph (S
 #### Identification of Dynamic Time-Varying Treatment Strategies using an Extension of Robin's Dynamic G-formula
 
 
-[Appendix C](#id-app-c) describes Richardson and Robins extension of @robins1986 dynamic g-formula. Essentially, the algorithm can be stated as follows.
+Supplementary materials **S3** describes Richardson and Robins extension of @robins1986 dynamic g-formula. Essentially, the algorithm can be stated as follows.
 
 
 **Step 1**: where $\mathbf{g}(\cdot)$ is a modified treatment policy, identify all the variables that influence the outcome $Y(\mathbf{g})$, excluding those that are current or past treatment variables or covariates.
@@ -766,7 +771,7 @@ A_i & \text{otherwise}
 \end{cases}
 $$
 
-Whereas $\mathbf{g}^{\lambda}$ sets everyone in the population to the same treatment level, $\mathbf{g}^{\phi}$ sets only those below a certain threshold to a fixed level but does not estimate treatment effects for those above [@hoffman2023]. We can also write stochastic treatment functions [@diaz2012population; @vanderweele2014a; @young2014identification; @diaz2021nonparametric].
+Whereas $\mathbf{g}^{\lambda}$ sets everyone in the population to the same treatment level, $\mathbf{g}^{\phi}$ sets only those below a certain threshold to a fixed level but does not estimate treatment effects for those above [@hoffman2023]. We can also write stochastic treatment functions [@diaz2012population; @vanderweele2014a; @young2014identification; @diaz2021nonparametric], see supplementary materials **S4**.
 
 Of course, the details of every problem must be developed in relation to the scientific context and the practical questions that address gaps in present science. However, causal inference teaches us that the questions we ask—seemingly coherent and tractable questions such as whether marriage makes people happy—demand considerable scrutiny to become interpretable. When such questions are made interpretable, causal inference often reveals that answers may elude us, regardless of the quality and abundance of our data, or even if we randomise interventions. Modest treatment functions, however, might be more credible and useful for many scientific and practical questions. Such functions cannot be estimated using the models routinely taught in the human sciences, such as multi-level modelling and statistical structural equation modelling.
 
@@ -786,89 +791,12 @@ Despite the progress and momentum of the causal revolution in certain human scie
 
 This work is supported by a grant from the Templeton Religion Trust (TRT0418) and RSNZ Marsden 3721245, 20-UOA-123; RSNZ 19-UOO-090. I also received support from the Max Planck Institute for the Science of Human History. The Funders had no role in preparing the manuscript or deciding to publish it.
 
-{{< pagebreak >}}
-#### Appendix A: Glossary {#id-app-a}
-::: {#tbl-gloassary}
-```{=latex}
-\glossaryTerms
-```
-Glossary
-:::
-{{< pagebreak >}}
 
-## Appendix B Single World Intervention Graphs Eludicate Complex Identification Problems{#id-app-b}
-::: {#tbl-pearltable}
-```{=latex}
-\pearltable
-```
-On the limitations of causal directed acyclic graphs compared to Single World Intervention Graphs. 
-:::
+## Acknowledgements
 
-According to @pearl2009a, example 11.3.3. $Y(x_0, x_1)$ is not independent of $X_1$ given Z and $X_0$.  Template $\mathcal{G}_2$ and Single World Intervention Graphs $\mathcal{G}_2-6$ examine counterfactual independence. Counterfactual nodes are obtained by node-splitting. $\rightarrowlightgray$ denotes a backdoor path that is closed when a treatment is fixed. $\rightarrowcyan$ highlights identifying paths for $X_0 = x_0$ and $X_1 = x_1$. @robins2010alternative uses a variation of $\mathcal{G}_2$ to show that there is sequential exchangeability of $X_t \forall t: Y(x_1, x_0)\coprod X_0$ (unconditionally) and $Y(x_1, x_0)\coprod X_1(x_0) | Z(x_0), X_0$. By causal consistency $Z(x_0) = Z|X_0 = x_0$. Single world interventions $\mathcal{G}_{3-6}$ make this sequential exchangeability clear (refer to @richardson2013). Such clarity is, in my view, an excellent reason to use Single World Intervention Graphs.
+I am grateful to Dr. Inkuk Kim for checking previous versions of this manuscript and offering feedback, to two anonymous reviewers and the editors, Charles Efferson and Ruth Mace, for their constructive feedback. 
 
-{{< pagebreak >}}
-## Appendix C Richardson and Robin's Extended Dynamic G-formula {#id-app-c}
-
-
-@richardson2013 propose an extension of @robins1986's dynamic g-formula for identifying causality under dynamic treatment regimes. Here, I reproduce the key details of their identification algorithm. I refer readers to @richardson2013 for the full algorithm and its proofs.
-
-First, define the set of counterfactual variables in our dynamic Single World Intervention Graph (or Template):
-
-$\mathbb{A}^+(\mathbf{g})$: denotes the set of modified treatment variables under a dynamic regime 
-$\mathbb{V}(\mathbf{g})$: denotes the set of counterfactual nodes following treatments.
-$\mathbb{W}(\mathbf{g})$: denotes the combined set of all counterfactual variables under a dynamic regime corresponding to @tbl-swigtabledeveloped $\mathbf{G}_4$.
-
-@richardson2013 define this set as follows:
-
-$$
-\mathbb{W}(\mathbf{g}) \equiv \mathbb{A}^+(\mathbf{g}) \cup \mathbb{V}(\mathbf{g})
-$$
-
-Next, at each intervention node $t$, our task is to find all ancestors of $Y(\mathbf{g})$ in $\mathbb{W}(\mathbf{g})$ that are not in the set of current or past treatment covariates. @richardson2013 define this set as follows:
-
-$$
-\mathbb{Z}_t(\mathbf{g}) \equiv \text{an}_{\mathcal{G}(\mathbf{g})}(Y(\mathbf{g})) \setminus (\mathbb{L}_t(\mathbf{g}) \cup \mathbb{A}_t(\mathbf{g}) \cup \mathbb{A}^+(\mathbf{g}))
-$$
-
-Third, our task is to map $\mathbb{Z}$ to a new Single World Intervention Graph $\mathcal{G}(\mathbf{a}^*)$, where the intervention $\mathbf{a}^*$ is a specific value of $A = a$ assigned under $f^g(\cdot)$. 
-
-This new `dSWIG` or `dynamic Single World Intervention Graph` $\mathcal{G}(\mathbf{a}^*)$ is simply the original dSWIG $\mathcal{G}(\mathbf{g})$ with the dashed arrows removed. 
-
-Fourth, our task is to ensure conditional independence of the treatment $A_t = a^*$ with members of the set $\mathbb{Z}_t$, for all $\mathbf{a}^*$ (fixed nodes) and all time points $t \in 1...\tau$, where $\tau$ is the end of the study. @richardson2013 define this set as follows:
-
-$$
-\mathbb{Z}_t(\mathbf{a}^*) \coprod I(A_t(\mathbf{a}^*) = a^*_t) \mid \bar{\mathbb{L}}_t(\mathbf{a}^*), \bar{\mathbb{A}}_{t-1}(\mathbf{a}^*) = \bar{\mathbf{a}^*}_{t-1}
-$$
-
-where the authors use $I$ to denote the indicator function:
-
-$$
-I(A_k(\mathbf{a}^*) = a^*_t) = 
-\begin{cases} 
-1 & \text{if } A_k(\mathbf{a}^*) = a^*_t, \\
-0 & \text{otherwise}.
-\end{cases}
-$$
-
-where:
-
-- **$\mathbb{Z}_t(\mathbf{a}^*)$**: denotes the subset of vertices in $\mathcal{G}(\mathbf{a}^*)$ corresponding to $\mathbb{Z}_t(\mathbf{g})$.
-- **$A_t(\mathbf{a}^*) = a^*_t$**: denotes the specific value of the treatment variable at time $t$ under the intervention $\mathbf{a}^*$.
-- **$\bar{\mathbb{L}}_t(\mathbf{a}^*)$**: denotes the set of covariates up to time $t$ under the intervention $\mathbf{a}^*$.
-- **$\bar{\mathbb{A}}_{t-1}(\mathbf{a}^*)$**: denotes the set of past treatment variables up to time $t-1$ under the intervention $\mathbf{a}^*$.
-
-In the example describe in @tbl-swigtabledeveloped $\mathcal{G}_4$, $\mathbb{Z}_t(\mathbf{g})$, we apply @richardson2013's dynamic extended g-formula, and obtain:
-
-$$
-\begin{aligned}
-\mathbb{Z}(\mathbf{g}) &= \{A_1, L_1(\mathbf{g}), A_1(\mathbf{g}), A_2(\mathbf{g}), Y(\mathbf{g})\} \\
-\mathbb{Z}_1(\mathbf{g}) &= \{A_1(\mathbf{g}), L_1(\mathbf{g}), Y(\mathbf{g})\} \\
-\mathbb{Z}_2(\mathbf{g}) &= \{Y(\mathbf{g})\}
-\end{aligned}
-$$
-
-Then we check conditional independencies for each treatment on @tbl-swigtabledeveloped $\mathcal{G}_4$ (which is $\mathcal{G}_5$ without the dashed green arrows). We inspect this template and learn the dynamic treatment strategy under consideration is not identified.
-
+Any remaining errors are my own.
 
 {{< pagebreak >}}
 
@@ -877,96 +805,6 @@ Then we check conditional independencies for each treatment on @tbl-swigtabledev
 ::: {#refs}
 :::
 
-
-
-
-<!-- 
-
-
-$\rightarrowred$ & \textbf{Red arrow:} Path through which bias flows. 
-
-
-**Red Arrow** ($\rightarrowred$): This path represents a non-causal association between the treatment and outcome. Despite the arrows, this path is associational and may flow against time.
-
-**Dashed Arrow** ($\rightarrowdotted$): This denotes a true association between the treatment and outcome that becomes partially obscured when conditioning on a mediator, assuming $A$ causes $Y$.
-
-**Dashed Red Arrow** ($\rightarrowdottedred$): This highlights over-conditioning bias from conditioning on a mediator.
-
-**Open Blue Arrow** ($\rightarrowblue$): This highlights effect modification, which occurs when the levels of the effect of treatment vary within levels of a covariate. We do not assess the causal effect of the effect modifier on the outcome, recognising that it may be incoherent to consider intervening on the effect modifier.
-
-**Boxed Variable** $\boxed{X}$: This indicates conditioning or adjustment for $X$. 
-
-**Red-Boxed Variable** $\boxedred{X}$: This highlights the source of confounding bias from adjustment.
-
-**Dashed Circle** $\circledotted{X}$: This indicates no adjustment is made for a variable (implied for unmeasured confounders).
-
-**$\big(\mathcal{R} \rightarrow A\big)$**: This denotes randomisation into the treatment condition.
-
-**Node Splitting** $\switbasic$: This is used in Single World Intervention Graphs (SWIGs) to denote counterfactual histories that arise following interventions. Node splitting allows investigators to separately evaluate identification for each counterfactual to be contrasted. All causal DAGs can be restated using SWIGs. However, each SWIG may encode at most one level of treatment or one sequence of treatments. We may use a Single World Intervention Template to denote the graph-valued function from which multiple SWIGs may be generated to avoid proliferating graphs.
-
-**Green Dashed Arrow** $\rightarrowdottedgreen$: This indicates dependency in dynamic sequential treatment strategies where the 'natural value' of a treatment value under a specific treatment regime depends on the values obtained from the counterfactual histories that precede the node in a SWIG. Dynamic strategies enable flexible, realistic causal inferences but impose stronger identification assumptions. For example, arrows to the 'natural value' of the treatment may compromise sequential exchangeability, threatening identification (refer to @richardson2013).
-
- -->
-
-
-<!-- @tbl-swigtable $\mathcal{G}$ 1 is a causal directed acyclic graph, where the associated factorisation of the joint distribution is given:
-
-$$
-P(y, a, l) = P(l) P(a | l) P(y | a, l)
-$$ -->
-
-<!-- 
-
-- $P(l)$: the marginal probability of the covariate $L$.
-- $P(a | l)$: the conditional probability of the treatment $A$ given the covariate $L$.
-- $P(y | a, l)$: the conditional probability of the outcome $Y$ given both the treatment $A$ and the covariate $L$. -->
-
-<!-- 
-Notice that the counterfactual outcomes to be contrasted do not appear directly on the causal directed acyclic graph. However, the corresponding counterfactual outcomes are given by Pearl's do-calculus @pearl2009a, such that the average treatment effect for $A$ on $Y$ is identified by conditioning on $L$:
-
-$$
-P(Y(a)|A,L) = P(Y = y|do(A =a), L=l) = P(Y=y|A=a L=l)
-$$
- -->
-<!-- 
-In Single World Intervention Graphs we obtain counterfactual factoriations directly from the graph. 
-
-@tbl-swigtable $\mathcal{G}$ 2 is a Single World Intervention Template, a graph-valued function, that allows us to generate separate causal diagrams for each intervention. $A = \Tilde{a}$ can take any value $A \in \mathcal{A}$, where  $\mathcal{A}$ is the set of all possible inteventions for $A$. 
-
-The function takes inputs: 
-
-$$
-P(A = \Tilde{a}, Y(A = \Tilde{a}, L))  = P(A = \Tilde{a})P(Y = \Tilde{y}|A = \Tilde{A}, L)
-$$ -->
-
-<!-- @tbl-swigtable $\mathcal{G}$ 3 is the graph value or Single World Intervention Graph for the Single World Intervention Template $\mathcal{G} 2$ when is set to $A =0$.  This gives us the factorisation:  -->
-<!-- 
-### Factorisation and Modularity
-
-The rules of d-separation in the SWIGs allow us to read independent relationships under each intervention to be compared. For example:
-
-- In $\mathcal{G}(A=0)$, $A$ is set to 0, and $L$ is the only edge into $A$ and $Y$. Thus, conditioning on $L$ leads to $A \coprod Y(0)$.
-- Similarly, in $\mathcal{G}(A=1)$, $A$ is set to 1, and $L$ is the only edge into $A$ and $Y$. Thus, conditioning on $L$ leads to $A \coprod Y(1)$.
-
-
-The structure of the SWIGs clarifies the factorisation of the joint distribution associated with these graphs. For the original DAG, the joint distribution $P(A, Y, L)$ can be factorised as $P(L)P(A|L)P(Y|A,L)$.
-
-For each Single World Intervention Graph, these factorisations are:
-
-$$
-P(A = \tilde{a}, Y(\tilde{a}=0) = y, L = l) = P(A = \tilde{a}|L = l)P(Y(\tilde{a}=0) = y|A = \tilde{a}, L = l)P(L = l)
-$$
-$$
-P(A = \tilde{a}, Y(\tilde{a}=1) = y, L = l) = P(A = \tilde{a}|L = l)P(Y(\tilde{a}=1) = y|A = \tilde{a}, L = l)P(L = l)
-$$
-
-These factorisations align with the standard causal directed acyclic graph factorisations, where $L$ is the only parent of $A$, $Y(\tilde{a}=0)$, and $Y(\tilde{a}=1)$ in their respective Single World Intervention Graphs.
-
-Identification holds if:
-
-$$
-P(Y(\tilde{a}) = y) = \sum_l P(Y = y|L = l, A = \tilde{a}) P(L = l)
-$$ -->
 
 
 
