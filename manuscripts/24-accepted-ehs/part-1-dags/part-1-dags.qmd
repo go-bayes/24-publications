@@ -232,7 +232,7 @@ When experimenters observe a difference in average treatment effects, and all el
 However, we lack guarantees for balance in the confounders outside of randomised experiments. For this reason, we should prefer developing sound randomised experiments for addressing every causal question that experiments can address. Unfortunately, randomised experiments cannot address many scientifically important questions. This bitter constraint is familiar to evolutionary human scientists. We typically confront 'What if?' questions that are rooted in the unidirectional nature of human history.
 However, understanding how randomisation obtains the missing counterfactual outcomes that we require to consistently estimate average treatment effects clarifies the tasks of causal inference in non-experimental settings [@hernán2008a; @hernán2006; @hernán2022].
 
-Next, we examine these identification assumptions in greater detail because using causal diagrams without understanding these assumptions is unsafe.
+Next, we examine these identification assumptions in greater detail because using causal diagrams without understanding these assumptions may lead to false confidence where none is warranted.
 
 ### Fundamental Assumptions Required for Causal Inference in the Potential Outcomes Framework
 
@@ -442,7 +442,7 @@ We further define the relations of **ancestor** and **descendant** on a directed
 1. Node $A$ is an **ancestor** of node $C$ if there exists a directed path from $A$ to $C$. Formally, $A$ is an ancestor of $C$ if there exists a sequence of adjacent nodes $(A, B_1, B_2, \ldots, B_t, C)$ such that $A \rightarrow B_1 \rightarrow B_2 \rightarrow \cdots \rightarrow B_t \rightarrow C$.
 2. Node $C$ is a **descendant** of node $A$ if there exists a directed path from $A$ to $C$. Formally, $C$ is a descendant of $A$ if there exists a sequence of adjacent nodes $(A, B_1, B_2, \ldots, B_t, C)$ such that $A \rightarrow B_1 \rightarrow B_2 \rightarrow \cdots \rightarrow B_t \rightarrow C$.
 
-It follows that a node can have multiple ancestors and descendants.
+It follows that a node can have multiple ancestors and multiple descendants.
 
 #### Markov Factorisation and the Local Markov Assumption
 
@@ -476,37 +476,35 @@ The compatibility assumption ensures that the joint distribution of variables al
 
 #### Faithfulness
 
-**Faithfulness** complements Markov factorisation in causal diagrams. A causal diagram is considered faithful to a given set of data if all the conditional independencies present in the data are accurately depicted in the graph. Conversely, the graph is faithful if every dependency implied by the graph's structure can be observed in the data [@hernan2024WHATIF]. This concept ensures that the graphical representation of relationships between variables aligns with empirical evidence [@pearl2009a].
+A causal diagram is considered faithful to a given set of data if all the conditional independencies present in the data are accurately depicted in the graph. Conversely, the graph is faithful if every dependency implied by the graph's structure can be observed in the data [@hernan2024WHATIF]. Faithfulness ensures that the graphical representation of relationships between variables aligns with empirical evidence [@pearl2009a].
 
 The distinction between **weak faithfulness** and **strong faithfulness** addresses the nature of observed independencies:
 
-- **Weak faithfulness** allows for the possibility that some observed independencies might occur by chance, such as through cancellation of effects among multiple causal paths.
-
-- **Strong faithfulness** assumes that all observed statistical relationships directly reflect the underlying causal structure, with no difference left to chance. 
+- **Weak faithfulness** allows for the possibility that some observed independencies might occur by chance, such as through the cancellation of effects among multiple causal paths.
+- **Strong faithfulness** assumes that all observed statistical relationships directly reflect the underlying causal structure, with no difference left to chance.
 
 The faithfulness assumption, whether weak or strong, is not directly testable from observed data [@pearl2009a].
 
-#### The Rules of d-separation
+#### d-separation
 
-**d-separation**: in a causal diagram, a path is 'blocked' or 'd-separated' if a node along it interrupts causation. Two variables are d-separated if all paths connecting them are blocked, making them conditionally independent. Conversely, unblocked paths result in 'd-connected' variables, implying potential dependence [@pearl1995; @pearl2009a]. (Note that 'd' stands for 'directional'.)
+In a causal diagram, a path is 'blocked' or 'd-separated' if a node along it interrupts causation. Two variables are d-separated if all paths connecting them are blocked, making them conditionally independent. Conversely, unblocked paths result in 'd-connected' variables, implying potential dependence [@pearl1995; @pearl2009a]. (Note that 'd' stands for 'directional'.)
 
 The rules of d-separation are as follows:
 
-1. **Fork rule** ($B \leftarrowNEW \boxed{A} \rightarrowNEW C$): $B$ and $C$ are independent when conditioning on $A$ ($B \coprod C \mid A$).
-2. **Chain rule** ($A \rightarrowNEW \boxed{B} \rightarrowNEW C$): Conditioning on $B$ blocks the path between $A$ and $C$ ($A \coprod C \mid B$).
-3. **Collider rule** ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioning on $C$, which introduces dependence ($A \cancel{\coprod} B \mid C$).
+1. **Fork rule** ($B \leftarrow \boxed{A} \rightarrow C$): $B$ and $C$ are independent when conditioning on $A$ ($B \coprod C \mid A$).
+2. **Chain rule** ($A \rightarrow \boxed{B} \rightarrow C$): Conditioning on $B$ blocks the path between $A$ and $C$ ($A \coprod C \mid B$).
+3. **Collider rule** ($A \rightarrow \boxed{C} \leftarrow B$): $A$ and $B$ are independent unless conditioning on $C$, which introduces dependence ($A \cancel{\coprod} B \mid C$).
 
 Judea Pearl proved these theorems in the 1990s [@pearl1995; @pearl2009a]. It follows that:
 
-1. An open path (no variables conditioned on) is blocked only if two arrows point to the same node: $A \rightarrowred C \leftarrowred B$. The node of common effect (here $C$) is called a *collider*.
-2. Conditioning on a collider does not block a path, such that $A \rightarrowred \boxed{C} \leftarrowred B$ can lead to an association between $A$ with $B$ in the absence of causation.
-3. Conditioning on a descendant of a collider does not block a path, such that if $C \rightarrowNEW \boxed{C'}$, then $A \rightarrowred \boxed{C'} \leftarrowred B$ is open.
-4. If a path does not contain a collider, any variable conditioned along the path is blocked, such that $A \rightarrowNEW \boxed{B} \rightarrowNEW C$ blocks the path from $A$ to $C$ [@pearl2009a; @hernan2023, p. 78].
-
+1. An open path (no variables conditioned on) is blocked only if two arrows point to the same node: $A \rightarrow C \leftarrow B$. The node of common effect (here $C$) is called a *collider*.
+2. Conditioning on a collider does not block a path; thus, $A \rightarrow \boxed{C} \leftarrow B$ can lead to an association between $A$ and $B$ in the absence of causation.
+3. Conditioning on a descendant of a collider does not block a path; thus, if $C \rightarrow \boxed{C'}$, then $A \rightarrow \boxed{C'} \leftarrow B$ is open.
+4. If a path does not contain a collider, any variable conditioned along the path blocks it; thus, $A \rightarrow \boxed{B} \rightarrow C$ blocks the path from $A$ to $C$ [@pearl2009a; @hernan2023, p. 78].
 
 #### Backdoor Adjustment
 
-Pearl's general identification algorithm is known as the 'back door adjustment theorem' [@pearl2009a]. 
+Pearl's general identification algorithm is known as the 'backdoor adjustment theorem' [@pearl2009a].
 
 Let us shift to the general notation that we will use in the following examples. Where $A$ denotes the treatment, $Y$ denotes the outcome, and $L$ denotes a set (or subset) of measured covariates. In a causal directed acyclic graph (causal DAG), we say that a set of variables $L$ satisfies the backdoor adjustment theorem relative to the treatment $A$ and the outcome $Y$ if $L$ blocks every path between $A$ and $Y$ that contains an arrow pointing into $A$ (a backdoor path). Formally, $L$ must satisfy two conditions:
 
@@ -515,21 +513,81 @@ Let us shift to the general notation that we will use in the following examples.
 
 If $L$ satisfies these conditions, the causal effect of $A$ on $Y$ can be estimated by conditioning on $\boxed{L}$ [@pearl2009a].
 
-Pearl also proves a 'front-door adjustment' criterion, which is rarely used, refer to [Appendix E](#id-app-e).
 
-####  Comment on Pearl's Do-Calculus versus the Potential Outcomes Framework
+## Front Door Path Criterion
 
-Here, we have developed counterfactual contrasts using the potential outcomes framework. Pearl develops counterfactual contrasts using operations on structural functionals, referred to as 'do-calculus'. In Pearl's framework, we obtain counterfactual inference by assuming that the nodes in a causal directed acyclic graph correspond to a system of structural equation models, refer to [Appendix D](#id-app-d).
+Pearl also proves a 'front-door adjustment' criterion, which is rarely used in practice but is worth understanding for its conceptual value. The front-door criterion is useful when we cannot estimate the causal effect of $A$ on $C$ directly due to confounding, but we can find a mediator variable $B$ that allows us to estimate the effect indirectly.
+
+Imagine a scenario where we want to estimate the causal effect of a new educational program ($A$) on students' grades ($C$). However, there may be confounders, such as socioeconomic status, that affect both the probability of participating in the program and the students' grades. In this case, estimating the direct effect of $A$ on $C$ would lead to biased results.
+
+Now, suppose we can identify a mediator variable $B$, such as the students' motivation levels, that satisfies the following conditions:
+
+1. The educational program, $A$,  affects the students' motivation, $B$.
+2. The students' motivation, $B$, affects their grades, $C$.
+3. There are no backdoor paths from the educational program $A$ to the students' motivation $B$.
+4. All backdoor paths from the students' motivation, $B$ to their grades $C$ are blocked by conditioning on the educational program $A$.
+
+In this case, we can use the front-door adjustment to estimate the causal effect of the educational program on the students' grades indirectly. We do this by decomposing the effect into two parts: the effect of the program on motivation and the effect of motivation on grades, while adjusting for the program.
+
+Mathematically, the front-door adjustment is expressed as:
+
+$$P(C \mid do(A)) = \sum_B P(B \mid A) \sum_{A'} P(C \mid A', B) P(A')$$
+
+where $P(C \mid do(A))$ represents the causal effect of $A$ on $C$, $P(B \mid A)$ is the effect of $A$ on $B$, and $P(C \mid A', B)$ is the effect of $B$ on $C$ while adjusting for $A$.
+
+The front-door criterion is less widely used than the back-door criterion because it requires the identification of an appropriate mediator that fully captures the causal effect. However, understanding the front-door adjustment helps develop intuition for how estimating causal effects may be possible when there is unmeasured confounding but there are measured mediators that fully mediate a treatment effect [@pearl2009a].  
+
+#### Pearl's Structural Causal Models
+
+
+In the potential outcomes framework, we represent interventions by setting variables to specific levels, e.g., setting the treatment to a specific value $A = \tilde{a}$. Counterfactual outcomes are conceived as the outcomes that would occur if, perhaps contrary to fact, the treatment were set to a specific level. We use the convention $Y_i(a)$ or equivalently $Y_i^{a}$ to denote the counterfactual or 'potential' outcome for individual $i$ when that individual's treatment is set to $A_i = a$. Because we assume individual treatments to be independent and identically distributed (i.i.d.), we drop the subscripts when describing the potential outcomes for multiple individuals under specific levels of treatment. Thus, we write $Y(a)$ or $Y^a$ as shorthand for the average potential outcome:
+
+$$
+Y(a) = \frac{1}{n} \sum_{i=1}^n Y_i(a)
+$$
+
+We say that the conditional exchangeability is satisfied if the potential outcomes are independent of the treatments assigned conditional on measured covariates:
+
+
+$$
+A \coprod Y(\tilde{a}) \mid L
+$$
+
+Causal directed acyclic graphs do not directly represent counterfactual outcomes. Instead, they evaluate whether causality can be identified from hypothetical interventions on the variables represented in a graph. Formally, causal directed acyclic graphs rely on Judea Pearl's do-calculus [@pearl2009a], which relies on the concept of an 'interventional distribution'. The idea is that any node in a graph can be intervened upon. Nodes and edges in a causal diagram correspond to non-parametric structural equations. Note that non-parametric structural equations are causal-structural models. They are fundamentally different from statistical structural equation models that are employed in many human sciences.
+
+In a causal directed acyclic graph, non-parametric structural equations represent the underlying causal mechanisms without making specific parametric assumptions about the functional forms of relationships. It is important to note that non-parametric structural equations, also known as structural causal models, are mathematical representations of the causal relationships between variables in a system. These equations describe the functional relationships between variables without specifying the particular functional form or the probability distributions of the variables. In contrast, statistical structural equation models, commonly used in the social sciences and psychology, make specific assumptions about the functional form of the relationships (e.g., linear, polynomial, or exponential) and the probability distributions of the variables (e.g., normal, Poisson, or binomial). Statistical structural equation models model observed data. Non-parametric structural equations state the assumed causal structure of the system. When we employ statistical structural equation models or any other statistical model, we must first state the assumed functional relationships that we maintain (under expert advice) hold for the data. We must do so without making assumptions about the functional form of the statistical model we will eventually employ -- statistics come later, only after we have evaluated whether the causal effect we seek may be identified with data. Pearl's do-calculus and the rules of d-separation are based on non-parametric structural equations, which provide a flexible and generalisable framework for causal inference [@pearl2009a; @pearl2012causal]. Pearl's structural causal models work as follows. 
+
+Let $L$ denote the common causes of treatment $A$ and outcome $Y$:
+
+- The node $L$ in the corresponding directed acyclic graph (DAG) $\mathcal{G}$ corresponds to the non-parametric structural equation: $L = f_L(U_L)$, where $f_L$ is an unspecified function and $U_L$ represents the exogenous error term or unmeasured factors affecting $L$.
+- The treatment node $A$ in $\mathcal{G}$ is associated with the non-parametric structural equation: $A = f_A(L, U_A)$, where $f_A$ is an unspecified function, $L$ represents the common causes, and $U_A$ represents the exogenous error term or unmeasured factors affecting $A$.
+- The outcome node $Y$ in $\mathcal{G}$ is associated with the non-parametric structural equation: $Y = f_Y(A, L, U_Y)$, where $f_Y$ is an unspecified function, $A$ represents the treatment, $L$ represents the common causes, and $U_Y$ represents the exogenous error term or unmeasured factors affecting $Y$.
+
+In Pearl's formalism, we assume that $U_L$, $U_A$, and $U_Y$ are independent exogenous random variables. That is, we assume there are no direct arrows linking $A$ to $Y$ except through the common cause node $L$. Causal diagrams allow us to factorize the joint distribution of $L$, $A$, and $Y$ as a product of conditional probability distributions.
+
+Define $O$ as a distribution of independent and identically distributed observations such that $O = (L, A, Y)$. The true distribution $P_O$ is factorized as:
+$$
+P_O = P_O(Y \mid A, L) P_O(A \mid L) P_O(L)
+$$
+
+Where:
+- $P_O(L)$ is the marginal distribution of the covariates $L$.
+- $P_O(A \mid L)$ is the conditional distribution of the treatment given the covariates.
+- $P_O(Y \mid A, L)$ is the conditional distribution of the outcome given the treatment and covariates.
+
+Pearl's do-calculus allows us to evaluate the consequences of intervening on variables represented in a causal DAG to interpret probabilistic dependencies and independencies in the conditional and marginal associations presented on a graph.
+
+Here, we have developed counterfactual contrasts using the potential outcomes framework. The potential outcomes framework considers potential outcomes to be fixed and real (even if assigned non-deterministically). Pearl develops counterfactual contrasts using operations on structural functionals, referred to as 'do-calculus'. In Pearl's framework, we obtain counterfactual inference by assuming that the nodes in a causal directed acyclic graph correspond to a system of structural equation models, such as those we just described.
 
 Mathematically, potential outcomes and counterfactual interventions are equivalent, such that:
 
 $$
-\Pr(Y(a) = y) \equiv \Pr(Y = y \mid do(A = a))
+\overbrace{\Pr(Y(a) = y)}^{\text{Potential Outcomes Framework}} \equiv \overbrace{\Pr(Y = y \mid do(A = a))}^{\text{Do-Calculus}}
 $$
 
-where the left-hand side of the equivalence is the potential outcomes framework formalisation of a potential outcome recovered by causal consistency, and the right-hand side is given by Pearl's do-calculus, which formalises interventional distributions on nodes of a graph that correspond to structural causal models or, equivalently, to non-parametric structural equation models with independent errors.
+where the left-hand side of the equivalence is the potential outcomes framework formalisation of a potential outcome recovered by causal consistency, and the right-hand side is given by Pearl's do-calculus, which, as just mentioned, formalises interventional distributions on nodes of a graph that correspond to structural causal models.
 
-In practice, whether one uses the do-calculus or the potential outcomes framework to interpret causal inferences is often irrelevant to identification results. However, there are theoretically interesting debates about edge cases. For example, Pearl's structural causal models permit the identification of contrasts that cannot be falsified under any experiment [@richardson2013]. Because advocates of non-parametric structural equation models treat causality as primitive, they are less concerned with the requirement for falsification [@pearl2009a; @diaz2021nonparametric; @Diaz2023; @rudolph2024mediation]
+In practice, whether one uses Pearl's do-calculus or the potential outcomes framework to interpret causal inferences is often irrelevant to identification results. However, there are theoretically interesting debates about edge cases. For example, Pearl's structural causal models permit the identification of contrasts that cannot be falsified under any experiment [@richardson2013]. Because advocates of non-parametric structural equation models treat causality as primitive, they are less concerned with the requirement for falsification [@pearl2009a; @diaz2021nonparametric; @Diaz2023; @rudolph2024mediation]. Additionally, the potential outcomes framework allows for identification in settings where the error terms in the a structural causal model are not independent [@bulbulia2024swigstime].
 
 I have presented the potential outcomes framework because it is easier to interpret, more general, and—to my mind—clearer and more intellectually compelling (moreover, one does not need to be a verificationist to adopt it). However, for nearly every practical purpose, the do-calculus and 'po-calculus' (potential outcomes framework, refer to @shpitser2016causal) are both mathematically and practically equivalent. 
 
@@ -853,10 +911,7 @@ This work is supported by a grant from the Templeton Religion Trust (TRT0418) an
 
 ## Acknowledgements
 
-I am grateful to Dr Inkuk Kim for checking previous versions of this manuscript and offering
-feedback. 
-
-I am also grateful to two anonymous reviewers and the editor, Charles Efferson, of Evolutionary Human Sciences, for their constructive feedback, which improved this manuscript. 
+I am grateful to Dr. Inkuk Kim for checking previous versions of this manuscript and offering feedback, to two anonymous reviewers and the editors, Charles Efferson and Ruth Mace, for their constructive feedback. 
 
 Any remaining errors are my own.
 
@@ -864,260 +919,9 @@ Any remaining errors are my own.
 {{< pagebreak >}}
 
 
-
-## Appendix A: Glossary {#id-app-a}  
-
-
-::: {#tbl-experiments}
-```{=latex}
-\glossaryTerms
-```
-Glossary
-:::
-
-{{< pagebreak >}}
-
-
-## Appendix B: Causal Inference in History: The Difficulty in Satisfying the Three Fundamental Assumptions for Causal Inference{#id-app-b}
-
-Consider the Protestant Reformation of the 16th century, which initiated religious change throughout much of Europe. Historians have argued that Protestantism caused social, cultural, and economic changes in those societies where it took hold (see: @weber1905; @weber1993; @swanson1967; @swanson1971; @basten2013, and for an overview, see: @becker2016).
-
-Suppose we want to estimate the Protestant Reformation's 'Average Treatment Effect'. Let $A = a^*$ denote the adoption of Protestantism. We compare this effect with that of remaining Catholic, represented as $A = a$. We assume that both the concepts of 'adopting Protestantism' and 'economic development' are well-defined (e.g., GDP +1 century after a country has a Protestant majority contrasted with remaining Catholic). The causal effect for any individual country is $Y_i(a^*) - Y_i(a)$. Although we cannot identify this effect, if the basic assumptions of causal inference are met, we can estimate the average or marginal effect by conditioning on the confounding effects of $L$:
-
-$$
-ATE_{\textnormal{economic~development}} = \mathbb{E}[Y(\textnormal{Became~Protestant}|L) - Y(\textnormal{Remained~Catholic}|L)]
-$$
-
-When asking causal questions about the economic effect of adopting Protestantism versus remaining Catholic, several challenges arise regarding the three fundamental assumptions required for causal inference.
-
-**Causal Consistency**: This requires that the outcome under each level of treatment to be compared is well-defined. In this context, defining what 'adopting Protestantism' and 'remaining Catholic' mean may present challenges. The practices and beliefs of each religion might vary significantly across countries and time periods, making it difficult to create a consistent, well-defined treatment. Furthermore, the outcome—economic development—may also be challenging to measure consistently across different countries and time periods.
-
-There is undoubtedly considerable heterogeneity in the 'Protestant treatment.' In England, Protestantism was closely tied to the monarchy [@collinson2003]. In Germany, Martin Luther's teachings emphasised individual faith in scripture, which, it has been claimed, supported economic development by promoting literacy [@gawthrop1984]. In England, King Henry VIII abolished Catholicism [@collinson2003]. The Reformation, then, occurred differently in different places. The treatment needs to be better defined.
-
-There is also ample scope for interference: 16th-century societies were interconnected through trade, diplomacy, and warfare. Thus, the religious decisions of one society were unlikely to have been independent from those of other societies.
-
-**Exchangeability**: This requires that given the confounders, the potential outcomes are independent of the treatment assignment. It might be difficult to account for all possible confounders in this context. For example, historical, political, social, and geographical factors could influence both a country's religious affiliations and its economic development.
-
-**Positivity**: This requires that there is a non-zero probability of every level of treatment for every stratum of confounders. If we consider various confounding factors such as geographical location, historical events, or political circumstances, some countries might only ever have the possibility of either remaining Catholic or becoming Protestant, but not both. For example, it is unclear under which conditions 16th-century Spain could have been randomly assigned to Protestantism [@nalle1987; @westreich2010].
-
-Perhaps a more credible measure of effect in the region of our interests is the Average Treatment Effect in the Treated (ATT) expressed:
-
-$$
-ATT_{\textnormal{economic~development}} = \mathbb{E}[(Y(a^*) - Y(a))|A = a^*,L]
-$$
-
-Where $Y(a^*)$ represents the potential outcome if treated, and $Y(a)$ represents the potential outcome if not treated. The expectation is taken over the distribution of the treated units (i.e., those for whom $A = a^*$). $L$ is a set of covariates on which we condition to ensure that the potential outcomes $Y(a^*)$ and $Y(a)$ are independent of the treatment assignment $A$, given $L$. This accounts for any confounding factors that might bias the estimate of the treatment effect.
-
-Here, the ATT defines the expected difference in economic success for cultures that became Protestant compared with the expected economic success if those cultures had not become Protestant, conditional on measured confounders $L$, among the exposed ($A = a^*$). To estimate this contrast, our models would need to match Protestant cultures with comparable Catholic cultures effectively. By estimating the ATT, we avoid the assumption of non-deterministic positivity for the untreated. However, whether matching is conceptually plausible remains debatable. Ostensibly, it would seem that assigning a religion to a culture is not as easy as administering a pill [@watts2018].
-
-{{< pagebreak >}}
-
-## Appendix C: Causal Consistency Under Multiple Versions of Treatment {#id-app-c}
-
-To better understand how the causal consistency assumption might fail, consider a question discussed in the evolutionary human science literature about whether a society's beliefs in big Gods affect its development of social complexity [@whitehouse2023; @slingerland2020coding; @beheim2021; @watts2015; @sheehan2022; @johnson2015; @norenzayan2016]. Historians and anthropologists report that such beliefs vary over time and across cultures in intensity, interpretations, institutional management, and rituals [@decoulanges1903; @wheatley1971; @bulbuliaj.2013; @geertz2013]. This variation in content and settings could influence social complexity. Moreover, the treatments realised in one society might affect those realised in other societies, resulting in *spill-over* effects in the exposures ('treatments') to be compared [@murray2021a; @shiba2023uncovering].
-
-The theory of causal inference under multiple versions of treatment, developed by VanderWeele and Hernán, formally addresses this challenge of treatment-effect heterogeneity [@vanderweele2009; @vanderweele2013; @vanderweele2018]. The authors proved that if the treatment variations, $K$, are conditionally independent of the potential outcomes, $Y(k)$, given covariates $L$, then conditioning on $L$ allows us to consistently estimate causal effects over the heterogeneous treatments [@vanderweele2009].
-
-Where $\coprod$ denotes independence, we may assume causal consistency where the interventions to be compared are independent of their potential outcomes, conditional on covariates, $L$:
-
-$$
-K \coprod Y(k) | L
-$$
-
-According to the theory of causal inference under multiple versions of treatment, we may think of $K$ as a 'coarsened indicator' for $A$. Although the theory of causal inference under multiple versions of treatment provides a formal solution to the problem of treatment-effect heterogeneity and treatment-effect dependencies (also known as SUTVA - the 'stable unit treatment value assumption', refer to @rubin1980randomization), computing and interpreting causal effect estimates under this theory can be challenging.
-
-Consider the question of whether a reduction in Body Mass Index (BMI) affects health [@hernán2008]. Weight loss can occur through various methods, each with different health implications. Specific methods, such as regular exercise or a calorie-reduced diet, benefit health. However, weight loss might result from adverse conditions such as infectious diseases, cancers, depression, famine, or accidental amputations, which are generally not beneficial to health. Hence, even if causal effects of 'weight loss' could be consistently estimated when adjusting for covariates $L$, we might be uncertain about how to interpret the effect we are consistently estimating. This uncertainty highlights the need for precise and well-defined causal questions. For example, rather than stating the intervention vaguely as 'weight loss', we could state the intervention clearly and specifically as 'weight loss achieved through aerobic exercise over at least five years, compared with no weight loss.' This specificity in the definition of the treatment, along with comparable specificity in the statement of the outcomes, helps ensure that the causal estimates we obtain are not merely unbiased but also interpretable; for discussion, see @hernán2022; @murray2021a; @hernán2008.
-
-Beyond uncertainties for the interpretation of heterogeneous treatment effect estimates, there is the additional consideration that we cannot fully verify from data whether the measured covariates $L$ suffice to render the multiple versions of treatment independent of the counterfactual outcomes. This problem is acute when there is *interference*, which occurs when treatment effects are relative to the density and distribution of treatment effects in a population. Scope for interference will often make it difficult to warrant the assumption that the potential outcomes are independent of the many versions of treatment that have been realised, dependently, on the administration of previous versions of treatments across the population [@bulbulia2023a; @ogburn2022; @vanderweele2013].
-
-In short, although the theory of causal inference under multiple versions of treatment provides a formal solution for consistent causal effect estimation in observational settings, *treatment heterogeneity* remains a practical threat. Generally, we should assume that causal consistency is unrealistic unless proven innocent.
-
-For now, we note that the causal consistency assumption provides a theoretical starting point for recovering the missing counterfactuals required for computing causal contrasts. It identifies half of these missing counterfactuals directly from observed data. The concept of conditional exchangeability, which we examine next, offers a means for recovering the remaining half.
-
-
-{{< pagebreak >}}
-
-## Appendix D Pearl's Do-Calculus and Structural Causal Models {#id-app-d}
-<!-- 
-Below is @díaz2021's formulation of @pearl2009a's mathematical representation of a structural causal model. I use @díaz2021's formulation because it allows us to present a structural causal model for dynamic treatment strategies @richardson2013, also known as longitudinal modified treatment policies @hoffman2023.
-
-
-We begin by defining the sequence of variables in our model:
-
-$$
-S_i= (W, Y_0, L_1, A_1, L_2, A_2, ..., L_\tau, A_\tau, Y_{\tau}) \sim \mathbf{P}
-$$
-  
-where $S_i$ is a sample from the distribution $\mathbf{P}$ and includes baseline covariates $W$, intermediate outcomes $L_t$, treatments $A_t$, and final outcomes $Y_{\tau}$ over time periods $t = 1, 2, \ldots, \tau$.
-
-We define the final outcome:
-
-$$
-Y = A_{\tau + 1}
-$$
-
-
-We define the history of all variables up to treatment $A_t$ as:
-   
-$$
-H_t = (\bar{A}_{t-1}, \bar{L}_t)
-$$
-
-Here, $\bar{A}_{t-1}$ represents the history of treatments up to time $t-1$, and $\bar{L}_t$ represents the history of intermediate outcomes up to time $t$.
-
-
-We define the vector of exogenous variables (error terms). Note on Pearl's structural causal model account, but not the potential outcomes framework, the error terms must always be independent:
-
-$$
-U = (U_{L,t}, U_{A,t}, U_{Y}: t \in \{1 \dots \tau\})
-$$
-
-Where $U$ describes the set of exogenous variables affecting $L_t$, $A_t$, and $Y$.
-
-
-We assume the following deterministic functions for the intermediate outcomes, treatments, and final outcome:
-   
-1. For intermediate outcomes:
-
-$$
-L_t = f_{L_t}(A_{t-1}, H_{t-1}, U_{L,t})
-$$
-
-2. For treatments:
-   
-$$
-A_t = f_{A_t}(H_t, U_{A,t})
-$$
-
-3. For the final outcome:
-
-$$
-Y = f_{Y}(A_{\tau}, H_{\tau}, U_{Y})
-$$
-
-
-Longitudinal modified treatment policies (LMTPs) are defined as functions that assign treatments flexibly based on individual co-variate histories. Note that where there are multiple treatments, these histories will be partially counterfactual. 
-   
-We replace the deterministic function for treatments:
-
-$$
-A_t = f_{A_t}(H_t, U_{A,t})
-$$
-
-With the intervention function:
-
-$$
-A^\mathbf{g}_t
-$$
-
-
-On the structural causal model account, this intervention produces counterfactual histories given:
-
-$$
-L_t(\bar{A}^\mathbf{g}_{t-1}) = f_{L_t}(A^\mathbf{g}_{t-1}, H_{t-1}(\bar{A}^\mathbf{g}_{t-2}), U_{L,t})
-$$
-
-
-For treatments, the counterfactual variable $A_t(\bar{A}^\mathbf{g}_{t-1})$ is defined as the natural value of the treatment, i.e., the value of the treatment that would have been observed at time $t$ under the intervention history leading up to it at $t-1$, and then discontinued:
-
-$$
-A_t(\bar{A}^\mathbf{g}_{t-1}) = f_{A_t}(H_t(\bar{A}^\mathbf{g}_{t-1}), H_{t-1}(\bar{A}^\mathbf{g}_{t-2}), U_{L,t})
-$$
-
-When all variables are intervened on, the counterfactual final outcome is:
-
-$$
-Y(\bar{A}^\mathbf{g}) = f_Y(A^\mathbf{g}_\tau, H_\tau(\bar{A}^\mathbf{g}_{\tau-1}), U_{Y})
-$$
- -->
-
-In the potential outcomes framework, we represent interventions by setting variables to specific levels, e.g., setting the treatment to a specific value $A = \tilde{a}$. Counterfactual outcomes are conceived as the outcomes that would occur if, perhaps contrary to fact, the treatment were set to a specific level. We use the convention $Y_i(a)$ or equivalently $Y_i^{a}$ to denote the counterfactual or 'potential' outcome for individual $i$ when that individual's treatment is set to $A_i = a$. Because we assume individual treatments to be independent and identically distributed (i.i.d.), we drop the subscripts when describing the potential outcomes for multiple individuals under specific levels of treatment. Thus, we write $Y(a)$ or $Y^a$ as shorthand for the average potential outcome:
-
-$$
-Y(a) = \frac{1}{n} \sum_{i=1}^n Y_i(a)
-$$
-
-We say that the conditional exchangeability is satisfied if the potential outcomes are independent of the treatments assigned conditional on measured covariates:
-
-
-$$
-A \coprod Y(\tilde{a}) \mid L
-$$
-
-Causal directed acyclic graphs do not directly represent counterfactual outcomes. Instead, they evaluate whether causality can be identified from hypothetical interventions on the variables represented in a graph. Formally, causal directed acyclic graphs rely on Judea Pearl's do-calculus [@pearl2009a], which relies on the concept of an 'interventional distribution'. The idea is that any node in a graph can be intervened upon. Nodes and edges in a causal diagram correspond to non-parametric structural equations. Note that non-parametric structural equations are causal-structural models. They are fundamentally different from statistical structural equation models that are employed in may human sciences.
-
-In a causal directed acyclic graph, non-parametric structural equations represent the underlying causal mechanisms without making specific parametric assumptions about the functional forms of relationships. For example, if $L$ denotes the common causes of treatment $A$ and outcome $Y$, then:
-
-- The node $L$ corresponds to the non-parametric structural equation $L = f_L(U_L)$.
-- The treatment is expressed $A = f_A(L, U_A)$.
-- And the outcome is expressed $Y = f_Y(A, L, U_Y)$.
-
-In Pearl's formalism, we assume that $U_L, U_A, U_Y$ are independent exogenous random variables. That is, there are no arrows linking $A$ to $Y$ except those from the parent node $L$.  Causal diagrams allow us to factorise the joint observations of $L$, $A$ and $Y$. Define $O$ as a distribution of independent identically distributed observations such that $O = (L, A, Y)$. The true distribution $P_O$ is factorised as:
-
-$$
-P_O = P_O(Y \mid A, L) P_O(A \mid L) P_O(L)
-$$
-
-Where:
-- $P_O(L)$ is the marginal distribution of the covariates $L$.
-- $P_O(A \mid L)$ is the conditional distribution of the treatment given the covariates.
-- $P_O(Y \mid A, L)$ is the conditional expectation of the outcome given the treatment and covariates.
-
-Pearl's do-calculus allows us to evaluate the consequences of intervening on variables represented in a causal DAG to interpret probabilistic dependencies and independencies in the conditional and marginal associations presented on a graph. By contrast, the potential outcomes framework considers potential outcomes to be fixed and real (even if assigned non-deterministically).
-
-It is not inherently problematic that causal DAGs do not explicitly represent potential outcomes. The theory of counterfactual inference on which causal DAGs are based does not require this explicit representation. Judea Pearl's rules of d-separation and the backdoor adjustment criterion allow us to interpret conditional independencies based on hypothetical interventions on the nodes of a causal DAG [@pearl2009a; @neal2020introduction]. However, as we consider in [Part 4](#id-sec-4) and [Appendix F](#id-app-f), presenting counterfactual histories under specific interventions on Single World Intervention Graphs can help clarify structural relationships that are not well-represented on a causal DAG.
-
-Again, mathematically the potential outcomes framework is mathematically equivalent to the structural causal model framework when it is assumed the the exogenous error structures are independent. However, the potential outcomes framework is more general and clarifies how identification is possible even when the error structures are not independent. See @robins1986, @richardson2013.
-
-
-{{< pagebreak >}}
-
-
-## Appendix E: Front Door Path Criterion {#id-app-e}
-
-To obtain an unbiased estimate for the causal effect of $A$ on $C$ using the front door criterion, we need to identify a set of variables $M$ that mediates the effect of $A$ on $C$. 
-
-Pearl defines the front door criterion more generally as follows: a set of variables $B$ satisfies the front door criterion relative to variables $A$ and $C$ in a causal directed acyclic graph $\mathcal{G}$ if:
-
-1. $B$ is affected by $A$.
-2. $B$ affects $C$.
-3. There are no backdoor paths from $A$ to $B$.
-4. All backdoor paths from $B$ to $C$ are blocked by conditioning on $A$.
-
-In other words, $B$ must be an intermediate variable that captures the entire causal effect of $A$ on $C$, with no confounding paths remaining between $A$ and $B$, and any confounding between $B$ and $C$ must be blocked by $A$.
-
-The frontdoor criterion is less widely used than the backdoor criterion because it requires the identification of an appropriate mediator that fully captures the causal effect [@pearl2009a].  
-
-
-{{< pagebreak >}}
-
 ## References
 
 ::: {#refs}
 :::
-
-
-<!-- **Internal Validity**: we say internal validity is compromised if the association between the treatment and outcome in a study does not consistently reflect causality in the sample population as defined at baseline. -->
-
-<!-- **External validity**: we say external validity is compromised if the association between the treatment and outcome in a study does not consistently reflect causality in the target population as defined at baseline -->
-
-
-<!-- The following failure modes threaten human science research: -->
-
-<!--   - **Failures to Ask a Question**:  -->
-<!--     - We have not stated the quantities we want to estimate. In causal inference, these are counterfactual quantities. -->
-<!--     - We have not stated the population for whom knowledge is meant to generalise -->
-
-<!--   - **Failures to Answer our Question**: -->
-<!--     **Failures of Internal Validity**: the associations we obtain from applying models to data do not reflect causality. -->
-<!--           **Poor Estimators**:  -->
-<!--           **Poor Data** -->
-<!--           **Poor Models** -->
-
-<!--     **Failures of External Validity**: our findings do not generalise from the *sample population* to the *target population*.  We fail when our results do not generalise as we think. -->
-
-<!--   -  **Other Failures of Interpretation**: we made a paper airplane, and imagined we could fly it to the moon.  -->
-
-
 
 
