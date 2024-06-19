@@ -1,12 +1,12 @@
 ---
 title: 'Methods in Causal Inference Part 2: Interaction, Mediation, and Time-Varying Treatments'
 abstract: |
- The analysis of 'moderation', 'interaction', 'mediation', and 'longitudinal growth' is widespread in the human sciences, yet subject to confusion. To clarify these concepts, it is essential to state causal estimands, which requires specifying counterfactual contrasts for a target population on an appropriate scale. Once causal estimands are defined, we must consider their identification. I employ causal directed acyclic diagrams (causal DAGs) and Single World Intervention Graphs to elucidate identification workflows. I show that when multiple treatments exist, common methods for statistical inference, such as multi-level regressions and statistical structural equation models, cannot typically recover the causal quantities we seek. By properly framing and addressing causal questions of interaction, mediation, and time-varying treatments, we can expose the limitations of popular methods and guide researchers to a clearer understanding of the phenomena that animate our interests.
+ The analysis of 'moderation', 'interaction', 'mediation', and 'longitudinal growth' is widespread in the human sciences, yet subject to confusion. To clarify these concepts, it is essential to state causal estimands, which requires specifying counterfactual contrasts for a target population on an appropriate scale. Once causal estimands are defined, we must consider their identification. I employ causal directed acyclic graphs (causal DAGs) and Single World Intervention Graphs to elucidate identification workflows. I show that when multiple treatments exist, common methods for statistical inference, such as multi-level regressions and statistical structural equation models, cannot typically recover the causal quantities we seek. By properly framing and addressing causal questions of interaction, mediation, and time-varying treatments, we can expose the limitations of popular methods and guide researchers to a clearer understanding of the phenomena that animate our interests.
  
- **KEYWORDS**: *Causal Inference*; *DAGs*; *Evolution*; *Mediation*; *Moderation*; *Longitudinal Growth*; Single World Intervention Graphs, *SWIGs*; *Time-varying Treatments*
+ **KEYWORDS**: *DAGs*; *Mediation*; *Moderation*; *SWIGs*; *Time-varying Treatments*
 author: 
   - name: Joseph A. Bulbulia
-    affiliation: Victoria University of Wellington, New Zealand
+    affiliation: Victoria University of Wellington,  NEW ZEALAND
     orcid: 0000-0002-5861-2056
     email: joseph.bulbulia@vuw.ac.nz
     corresponding: no
@@ -43,7 +43,7 @@ execute:
   eval: true
 fontfamily: libertinus
 bibliography: /Users/joseph/GIT/templates/bib/references.bib
-csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+csl: /Users/joseph/GIT/templates/csl/apa-7.csl
 ---
 
 
@@ -99,7 +99,6 @@ loadfonts(device = 'all')
 ```
 
 
-
 ## Introduction  {#id-introduction}  
 
 The young Charles Darwin was a keen fossil hunter and amateur geologist. In August 1831, he accompanied the geologist Adam Sedgwick to the Glyderau mountain range in northern Wales.
@@ -129,7 +128,7 @@ I begin with a brief introduction to key concepts and terminology.
 
 ### Fundamental Assumptions for Causal Inference
 
-Consider indicators $A$ and $Y$ measuring states of the world. For unit $i$, we say that $A_i$ causes $Y_i$ if changing $A_i$ from one level, say $A_i = a^*$, to another level, $A_i = a$, leads to a different outcome for $Y_i$. We assume $A_i$ occurs before $Y_i$. To compare these outcomes, we use the notation $Y_i(\tilde{a})$, which represents the outcome for unit $i$ under the treatment level $A_i = \tilde{a}$. To determine whether $Y_i(\tilde{a})$ quantitatively differs under two treatment levels on the difference scale, we would compute the contrast $Y_i(a^*) - Y_i(a)$. If $Y_i(a^*) - Y_i(a) \neq 0$, we would say there is a causal effect of $A$ on $Y$ for individual $i$. Following convention, we call $A$ the 'treatment' or 'exposure' and $Y$ the 'outcome'.
+Consider indicators $A$ and $Y$ measuring states of the world. Let $A$ denote the 'treatment' or 'exposure' and $Y$ the 'outcome'.  For unit $i$, we say that $A_i$ causes $Y_i$ if changing $A_i$ from one level, say $A_i = a^*$, to another level, $A_i = a$, leads to a different outcome for $Y_i$. We assume $A_i$ occurs before $Y_i$. To compare these outcomes, we use the notation $Y_i(\tilde{a})$, which represents the outcome for unit $i$ under the treatment level $A_i = \tilde{a}$. To determine whether $Y_i(\tilde{a})$ quantitatively differs under two treatment levels on the difference scale, we would compute the contrast $Y_i(a^*) - Y_i(a)$. If $Y_i(a^*) - Y_i(a) \neq 0$, we would say there is a causal effect of $A$ on $Y$ for individual $i$. 
 
 Note that, for any given application of $A$ for unit $i$, we can only observe one level of treatment. Therefore, we refer to $Y_i(a^*) - Y_i(a) \neq 0$ as a counterfactual contrast, or equivalently, as a contrast of potential outcomes. Because an individual may only receive one of two treatments at any given time, individual causal effects cannot generally be observed. However, when certain assumptions are satisfied, we may compute average treatment effects by aggregating individual observations under different treatment conditions. For a binary treatment, the difference in the average of the potential outcomes under two different treatment levels for the population from which a sample is drawn may be expressed as the difference in mean outcomes: $\mathbb{E}[Y(1)] - \mathbb{E}[Y(0)]$ or equivalently as the average of the differences of the potential outcomes: $\mathbb{E}[Y(1) - Y(0)]$.
 
@@ -144,37 +143,36 @@ Note that we speak of an 'ideal' experiment because real-world experiments may f
 
 ### Schematic Workflow for Inferring Causal Effects from Real-World Data Before Stating Statistical Estimators and Performing Statistical Analysis
 
-In causal inference, we do not apply statistical models to data until after we have stated a causal question and considered whether and how the question may be identified from the data.
+In causal inference, we do not apply statistical models to data until after we have stated a causal question and considered whether and how the question may be identified from the data. We take the following steps *before* considering a statistical estimator or estimation:
 
 
-1. **State a well-defined intervention.**
-   Clearly define the treatment (or equivalently exposure) that states the hypothetical intervention to which all population members will be exposed. The intervention 'weight loss' is a vaguely stated intervention because there are many ways one can lose weight -- exercise, diet, depression, cancer, amputation, and others. The intervention 'weight loss by at least 30 minutes of vigorous exercise each data' is more clearly defined [@hernan2008aObservationalStudiesAnalysedLike]. 
+1. **State a well-defined treatment.**
+   Clearly define the treatment (or equivalently exposure) that states the hypothetical intervention to which all population members will be exposed. For example, the treatment 'weight loss' is a vaguely stated intervention because there are many ways one can lose weight -- exercise, diet, depression, cancer, amputation, and others [@hernan2024WHATIF]. The intervention 'weight loss by at least 30 minutes of vigorous exercise each data' is more clearly defined [@hernan2008aObservationalStudiesAnalysedLike]. 
 
 2. **State a well-defined outcome.**
-   Specify the outcome measure so that a causal contrast is interpretable. 'Well-being' is a vaguely stated outcome.  The outcome, 'Psychological distress measured one year after the intervention using the Kessler-6 distress scale [@kessler2002]' is more clearly defined. 
+   Specify the outcome measure so that a causal contrast is interpretable. For example, 'well-being' is arguably a vaguely stated outcome.  However, the outcome, 'psychological distress measured one year after the intervention using the Kessler-6 distress scale [@kessler2002]' is more clearly defined. 
 
 3. **Clarify the target population.**
-   Define the population to whom the results will generalise. The eligibility criteria for a study will define the source population from which units in the study are sampled. However, sampling from the source population may yield a study population that differs from the source population in variables that modify the effects of treatment [@dahabreh2019; @dahabreh2019generalizing; @stuart2018generalizability]. Investigators may also seek to generalise beyond the source population, which requires additional assumptions and may require additional knowledge [@deffner2022; @bareinboim2013general; @westreich2017transportability; @dahabreh2019; @bulbulia2024wierd]. 
+   Define the population to whom the results will generalise. The eligibility criteria for a study will define the source population from which units in the study are sampled. However, sampling from the source population may yield a study population that differs from the source population in variables that modify the effects of treatment [@dahabreh2019; @dahabreh2019generalizing; @stuart2018generalizability; @bulbulia2024wierd]. Investigators may also seek to generalise beyond the source population, which requires additional assumptions and may require additional knowledge [@deffner2022; @bareinboim2013general; @westreich2017transportability; @dahabreh2019; @pearl2022external]. 
 
 
 4. **Evaluate whether treatment groups, conditional on measured covariates, are exchangeable.**
-   The potential outcomes must be independent of treatment conditional on measured covariates [@neal2020introduction; @morgan2014; @angrist2009mostly; @hernan2024WHATIF].
-
+   The potential outcomes must be independent of treatments conditional on measured covariates [@neal2020introduction; @morgan2014; @angrist2009mostly; @hernan2024WHATIF].
 
 5. **Ensure treatments to be compared satisfy causal consistency.**
-   The versions of treatment over which a causal effect is estimated must be independent of the versions of the potential outcomes to be compared conditional on measured covariates [@vanderweele2013; @hernan2024WHATIF]. 
+   The versions of treatments over which a causal effect is estimated must be independent of the potential outcomes to be compared conditional on measured covariates [@vanderweele2013; @hernan2024WHATIF; @vanderweele2013]. 
 
 6. **Check if the positivity assumption is satisfied.**
    There must be a non-zero probability of receiving each treatment level at every level of covariate required to satisfy the conditional exchangeability assumption, and if there are many versions of treatment, to satisfy the causal consistency assumption [@westreich2010]. 
 
-7. **Ensure that the measures relate to the scientific questions at hand.** And in particular, evaluate structural features of measurement error bias [@hernan2024WHATIF; @bulbulia2024wierd].
+7. **Ensure that the measures relate to the scientific questions at hand.** 
+In particular, evaluate structural features of measurement error bias [@hernan2024WHATIF; @vanderweele2012MEASUREMENT; @bulbulia2024wierd].
 
 8. **Consider strategies to ensure the study group measured at the end of the study represents the target population.**
-   If the study population differs in the distribution of variables that modify the effect of a treatment on the outcome at both the beginning and end of treatment, the study will be biased when there is a treatment effect; as such, investigators must develop strategies to address attrition, non-response, and structural sources of bias from measurement error [@bulbulia2024wierd].
+   If the study population differs in the distribution of variables that modify the effect of a treatment on the outcome at both the beginning and end of treatment, the study will be biased when there is a treatment effect; as such, investigators must develop strategies to address attrition, non-response, and structural sources of bias from measurement error [@hernan2017SELECTIONWITHOUTCOLLIDER; @hernan2017per; @hernan2004STRUCTURAL; @bulbulia2024wierd].
 
 9. **Clearly communicate the reasoning, evidence, and decision-making that inform steps 1-8.**
-   Provide transparent and thorough documentation of the causal inference process. This includes detailing the assumptions, disagreements, and decisions [@ogburn2021].
-
+   Provide transparent and thorough documentation of the decisions in steps 1-8. This includes detailing investigators' causal assumptions and any disagreements about these assumptions [@ogburn2021].
 
 ### Conventions Used in This Article
 
@@ -194,7 +192,7 @@ Terminology
 Elements of Causal Graphs 
 :::
 
-Throughout, we will repeat our terminology and graphical conventions as they are used.  To begin, we define the following:
+Throughout, for clarity, we repeat our definitions and graphical conventions as they are used.  To begin, we define the following:
 
 - **Node**: or equivalently a 'variable,' denotes properties or characteristics of units within a population. In causal directed acyclic graphs, we draw nodes with respect to features in a *target population*, which is the population for whom we seek causal inferences [@suzuki2020]. A time-indexed node, $X_t$, allows us to index measurements within time intervals $t \in 1\dots T$, denoting relative chronology. If relative timing is not known, we may use $X_{\phi t}$. The directions of arrows on a causal directed acyclic graph imply causation, and causation implies temporal order.
 
@@ -213,10 +211,10 @@ The rules, presented in @tbl-terminologydirectedgraph, are as follows:
      \item  {\bf Collider rule} ($A \rightarrowNEW \boxed{C} \leftarrowNEW B$): $A$ and $B$ are independent until conditioning on $C$, which introduces dependence: ($A \cancel{\coprod} B \mid C$). 
  \end{enumerate}
 
-From these rules, Pearl derived a 'backdoor adjustment theorem', which provides an identification algorithm for causal identification based on the structural assumptions encoded in a causal directed acyclic graph [@pearl1995, @pearl2009a]: In a causal directed acyclic graph (DAG), a set of variables $L$ satisfies the backdoor adjustment theorem relative to the treatment $A$ and the outcome $Y$ if $L$ blocks every path between $A$ and $Y$ that contains an arrow pointing into $A$ (a backdoor path). Formally, $L$ must:
+From d-separation, Pearl derived a 'backdoor adjustment theorem', which provides a general identification algorithm given structural assumptions encoded in a causal directed acyclic graph [@pearl1995, @pearl2009a]: In a causal directed acyclic graph (causal DAG), a set of variables $L$ satisfies the backdoor adjustment theorem relative to the treatment $A$ and the outcome $Y$ if $L$ blocks every path between $A$ and $Y$ that contains an arrow pointing into $A$ (a backdoor path). Formally, $L$ must:
 
-1. Not be a descendant of $A$.
-2. Block all backdoor paths from $A$ to $Y$.
+1. not be a descendant of $A$;
+2. block all backdoor paths from $A$ to $Y$.
 
 If $L$ satisfies these conditions, the causal effect of $A$ on $Y$ is identified by conditioning on $\boxed{L}$[@pearl2009a].  In what follows, I will assume readers are familiar with causal directed acyclic graphs. Accessible introductions to causal directed acyclic graphs can be found in @pearl2009a; @barrett2021; @mcelreath2020; @neal2020introduction; @hernan2024WHATIF; @bulbulia2023. (For an introduction to Single World Intervention Graphs, used below, refer to @richardson2013; @richardson2013swigsprimer.) 
 
@@ -225,35 +223,35 @@ If $L$ satisfies these conditions, the causal effect of $A$ on $Y$ is identified
 ```{=latex}
 \terminologydirectedgraph
 ```
-Elements of Causal Graphs 
+Five elementary causal structures in a causal directed acyclic graph.
 :::
 
 
 {{< pagebreak >}}
 
-## Part 1: Interaction as 'Effect-Modification' {#id-sec-1}
+## Part 1: Interaction as 'Effect Modification' {#id-sec-1}
 
 We have said that in causal inference, we must explicitly define our causal question before applying statistical models to data. What question might the analysis of interaction answer?  In causal inference, we think of interaction in two ways:
 
-1. **Interaction as Effect-Modification from a Single Intervention**: We want to understand how an intervention varies in its effect across the strata of the target population in which we are interested. For example, we might ask: does the one-year effect of attending weekly religious service differ among people born in Australia compared with people born in Egypt? Note that here, we do not imagine intervening on birthplace.
+1. **Interaction as Effect Modification from a Single Intervention**: We want to understand how an intervention varies in its effect across the strata of the target population in which we are interested. For example, we might ask: does the one-year effect of attending weekly religious service differ among people born in Australia compared with people born in Egypt? Note that here, we do not imagine intervening on birthplace.
 
 2. **Interaction as Joint Intervention**: We want to understand whether the combined effects of two treatments administered together differ from the separate effect of each treatment acting alone. For example, we might ask: does the one-year effect of attending weekly religious service and the one-year effect of being at least one standard deviation above population average wealth differ from not attending any religious service and being at the population average in wealth?  Here there are two interventions that might act individually, separately, or in concert.
 
-[Part 1](#id-sec-1) considers interaction as effect-modification. Readers who do not wish to use the 'effect modification' may prefer the term 'moderation.' 
+[Part 1](#id-sec-1) considers interaction as effect modification. Readers who do not wish to use the 'effect modification' may prefer the term 'moderation.' 
 
 
-### Effect-Modification
+### Effect Modification
 
-First, we define the 'sharp-null hypothesis' as the supposition that there is no effect of the exposure on the outcome for any unit in the target population. Unless the sharp-null hypothesis is false, there may be effect modification (@bulbulia2024wierd). The variability of individual units cannot be directly evaluated: recall each unit may receive only one treatment. However, the variability within groups of units may be quantified and compared. For any study worth conducting, we cannot evaluate whether the sharp-null hypothesis is false (otherwise, why conduct the study?). Therefore, we must assume that treatment effects may be heterogeneous. We might seek to qualitatively evaluate such heterogeneity (refer to @grf2024; @vansteelandt2022a). Alternatively, we might seek to compare the effects of interventions between groups.
+First, we define the 'sharp-null hypothesis' as the hypothesis that there is no effect of the exposure on the outcome for any unit in the target population. Unless the sharp-null hypothesis is false, there may be effect modification (@bulbulia2024wierd). Clearly, the variability of causal effect modification cannot be assessed from descriptive measures of individuals in one's sample. Such heterogeneity must be modelled (refer to @grf2024; @vansteelandt2022a). Alternatively, we might seek to compare whether the effects of treatments vary by strata within the target population. For example we may ask whether effects vary by culture group membership, gender or another grouping variable. 
 
 ::: {#tbl-terminologyeffectmodification}
 ```{=latex}
 \terminologyeffectmodification
 ```
-Conventions for representing effect modification
+Graphical conventions we use for representing effect modification.
 :::
 
-@tbl-terminologyeffectmodification describes conventions to clarify how to ask a causal question of effect-modification. 
+@tbl-terminologyeffectmodification describes conventions to clarify how to ask a causal question of effect modification. 
 We assume no confounding of the treatment on the outcome and that $A$ has been randomised (i.e. $\mathcal{R} \rightarrowNEW A$). As such, we will not use causal directed acyclic graphs to evaluate a treatment effect. We will assume $\mathcal{R}  \to A \to Y$. 
 
 To sharpen focus on our interest in effect modification, we will not draw a causal arrow from the direct effect modifier $F$ to the outcome $Y$. This convention is specific to this article. (Refer to @hernan2024WHATIF, pp. 126-127, for a discussion of 'noncausal' arrows.)
@@ -265,26 +263,27 @@ To sharpen focus on our interest in effect modification, we will not draw a caus
 Effect Modification
 :::
 
-In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_1$, we represent that $F$ is a direct effect modifier for the effect of $A$ on $Y$. The open arrow indicates that we are not attributing causality to $F$. Because our estimand does not involve intervening on $Z$, there is no need to close its backdoor paths. Note that if $F$ were to affect $A$, we could still estimate the effect-modification of $A$ on $Y$ because $F$ has no causal interpretation. However, if $A$ were to cause $F$, and $F$ were to cause $Y$, then by the chain rule (recall @tbl-terminologygeneral $\mathcal{G}_4$), conditioning on $F$ would bias the effect estimate of $A$ on $Y$.
+In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_1$, we represent that $F$ is a direct effect modifier for the effect of $A$ on $Y$. The open arrow indicates that we are not attributing causality to $F$. Because our estimand does not involve intervening on $Z$, there is no need to close its backdoor paths. Note that if $F$ were to affect $A$, we could still estimate the effect modification of $A$ on $Y$ because $F$ has no causal interpretation. However, if $A$ were to cause $F$, and $F$ were to cause $Y$, then by the chain rule (recall @tbl-terminologygeneral $\mathcal{G}_4$), conditioning on $F$ would bias the effect estimate of $A$ on $Y$.
 
 In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_2$, we represent that $F$ is an unobserved direct effect modifier of $A$ to $Y$. When the distribution of direct effect modifiers $F$ differs between two populations and effect modification is non-linear, marginal treatment effects between populations will generally differ and will not easily transport from one population to another. The concept of an average treatment effect has no meaning without a population over which the effect marginalises. This point, although obvious, has profound implications when investigators seek to assess whether their research generalises; refer to @hernan2024WHATIF, @bulbulia2024wierd. For example, if the study population differs in the distribution of features that modify a treatment effect, and no correction is applied,  effect estimates will be biased for the target population in at least one measure of effect [@greenland2009commentary; @lash2020; @bulbulia2024wierd]
 
-We present two candidate effect modifiers in @tbl-terminologyeffectmodificationtypes $\mathcal{G}_3$. Notice that whether a variable is an effect modifier also depends on which other variables are included in the model. Here, $F$ is a direct effect modifier and $G$, a descendant of $F$, is an indirect effect modifier. Suppose we were interested in whether treatment effects vary (on the difference scale) within levels of $F$. For example, imagine $F$ is childhood deprivation, $G$ is educational achievement, $A$ is a government educational initiative, and $Y$ is recycling. If we were to condition on $F$, we would not observe effect modification by education $G$ for the effect of the government initiative $A$ on recycling behaviour $Y$: $\boxed{F}$ blocks the path $G \association \boxed{F} \association Y$.
+We present two candidate effect modifiers in @tbl-terminologyeffectmodificationtypes $\mathcal{G}_3$. Notice that whether a variable is an effect modifier also depends on which other variables are included in the model. Here, $F$ is a direct effect modifier and $G$, a descendant of $F$, is an indirect effect modifier. Suppose we were interested in whether treatment effects vary (on the difference scale) within levels of $F$. For example, let $F$ denote childhood deprivation, $G$ denote educational achievement, $A$ denote a government educational initiative, and $Y$ denote recycling. If we were to condition on $F$, we would not observe effect modification by education $G$ for the effect of the government initiative $A$ on recycling behaviour $Y$: $\boxed{F}$ blocks the path $G \association \boxed{F} \association Y$.
 
 We present the same causal structure in @tbl-terminologyeffectmodificationtypes $\mathcal{G}_4$. However, we do not condition on the direct effect modifier $F$, but rather condition only on $G$, the indirect effect modifier. In this scenario, we would find that the effectiveness of the government initiative $A$ on recycling behaviour $Y$ varies by educational achievement $G$. Thus, we would observe $G$ as an effect modifier because this path is open: $G \association F \association Y$.
 
 In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_5$, suppose we add another variable to our model, depression, denoted by $B$. We imagine $B$ to be a stable trait or that investigators measured childhood depression (that is, $B$ precedes $G$). Suppose we do not condition on the direct effect modifier $F$ (childhood deprivation), but we condition on educational attainment ($G$) and depression ($B$). In this graph, $G$ is a collider of $F$ and $B$. Thus, conditioning on $G$ (but not $F$) opens a path from $B \association G \association Z \association Y$. The investigators would find evidence for effect modification by depression on the effectiveness of the government intervention $A$ on recycling ($Y$). However, they should not interpret this result to mean that if levels of depression were to change within the population the treatment effect would change. $B$ is not causally related to $Y$ in this scenario. Here, association is not causation.
 
-In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_6$, we will not find evidence for effect modification for $B$ and $G$ because conditioning on $F$ blocks the flow of information that was open in $\mathcal{G}_4$ and $\mathcal{G}_5$. This again underscores the relativity of effect modification to (1) the structure of causality in the world and (2) a researcher's statistical modelling strategy.
+In @tbl-terminologyeffectmodificationtypes $\mathcal{G}_6$, we will not find evidence for effect modification for $B$ and $G$ because conditioning on $F$ blocks the flow of information that was open in $\mathcal{G}_4$ and $\mathcal{G}_5$. This again underscores the relativity of effect modification to (1) the structure of causality in the world and (2) an investigator's statistical modelling strategy.
 
-These examples reveal the power—and simplicity—of causal diagrams to 'transform the obvious'. Using causal directed acyclic graphs and Pearl's rules of d-separation, it is clear that the analysis of effect modification cannot be conducted without reference to an assumed causal order and an explicit statement about which variables within that order investigators have included in their statistical models [@vanderweele2012]. Investigators and policymakers might make incorrect decisions without understanding effect modification. For more on the topic of effect modification, refer to [@vanderweele2012; @vanderweele2007; @suzuki2013counterfactual].
+These examples reveal the power—and simplicity—of causal diagrams to 'transform the obvious'. Using causal directed acyclic graphs and Pearl's rules of d-separation, it is clear that the analysis of effect modification cannot be conducted without reference to an assumed causal order and an explicit statement about which variables within that order investigators have included in their statistical models [@vanderweele2012]. Investigators and policymakers may make incorrect policy decisions if they do not understand the relevance of effect modification to such parameters. It is important to remember that when evaluating evidence for effect modification, we are not assessing the effects of intervening on variables other than the treatment. Instead, we qualitatively evaluate whether treatment effects vary within subgroups. For more on effect modification, refer to @vanderweele2012; @vanderweele2007; @suzuki2013counterfactual.
 
 
-### Example Showing Scale Dependence of Effect-Modification
 
-Suppose we are interested in whether treatment varies across levels of another variable, an effect modifier. We next illustrate how causal inferences about the presence or absence of effect modification depend on the scale that is used to measure the contrast. We show that an effect modifier on the ratio scale may not be an effect modifier on the difference scale, and vice versa.
+### Example Showing Scale Dependence of Effect Modification
 
-Recall individual treatment effects are not observed. Assume a binary treatment is randomised, and we have $A = a \in \{0,1\}$. We are interested in comparing the magnitude of this treatment effect across two levels of $F = f \in \{0,1\}$. 
+Suppose investigators are interested in whether treatment varies across levels of another variable, an effect modifier. We next illustrate how causal inferences about the presence or absence of effect modification depend on the scale that is used to measure the contrast. We show that an effect modifier on the ratio scale may not be an effect modifier on the difference scale, and vice versa.
+
+Recall individual treatment effects are not observed. Assume a binary treatment is randomised, and we have $A = a \in \{0,1\}$. Investigators are interested in comparing the magnitude of this treatment effect across two levels of $F = f \in \{0,1\}$. 
 
 We define the average treatment effects for each group under each intervention as follows: 
 $$
@@ -348,7 +347,7 @@ $$
 \text{ATE}_{F = 1} = \mu_{11} - \mu_{01} = 20 - 15 = 5
 $$
 
-Both groups have the same treatment effect on the difference scale, $\text{ATE}_{F = 0} = \text{ATE}_{F = 1} = 5$. We conclude there is no evidence for effect modification on the difference scale.
+Both groups have the same treatment effect on the difference scale, $\text{ATE}_{F = 0} = \text{ATE}_{F = 1} = 5$. investigators conclude there is no evidence for effect modification on the difference scale.
 
 **Ratio Scale:**
 $$
@@ -358,9 +357,9 @@ $$
 \text{RR}_{F = 1} = \frac{\mu_{11}}{\mu_{01}} = \frac{20}{15} \approx 1.33
 $$
 
-The treatment effect on the ratio scale is different between the two groups, $\text{RR}_{F = 0} = 2 \neq \text{RR}_{F = 1} \approx 1.33$. Hence, we find evidence for effect modification on the ratio scale. 
+The treatment effect on the ratio scale is different between the two groups, $\text{RR}_{F = 0} = 2 \neq \text{RR}_{F = 1} \approx 1.33$. Hence, investigators find evidence for effect modification on the ratio scale. 
 
-The discrepancy in evidence for effect modification depending on the scale we choose arises because the two scales measure different aspects of the treatment effect: the absolute difference in outcomes versus the relative change in outcomes. Parallel considerations apply to the analysis of interaction, where we imagine a joint intervention. We next consider interaction as a joint intervention.
+The discrepancy in evidence for effect modification depending on the scale we choose arises because the two scales measure different aspects of the treatment effect: the absolute difference in outcomes versus the relative change in outcomes. Parallel considerations apply to the analysis of interaction, where we imagine a joint intervention. For this reason, it is important to state the causal effect scale of interest in advance of estimation [@bulbulia2023]. We next consider interaction as a joint intervention.
 
 ## Part 2: Interaction {#id-sec-2}
 
@@ -374,7 +373,7 @@ SWIGs employ Pearl's rules of d-separation but offer additional benefits by grap
 ```{=latex}
 \swigtable
 ```
-Single World Interventions Graphs ($\mathcal{G}_{3-4}$) present separate causal diagrams for each treatment to be contrasted. A Single World Intervention Template ($\mathcal{G}_{2}$) is a 'graph value function' that produces the individual counterfactual graphs [@richardson2013]. Contrastingly, causal directed acyclic graphs, such as $\mathcal{G}_1$, require positing interventional distributions. The formalism that underpins these interventional distributions is mathematically equivalent to that of the potential outcomes framework, assuming the errors of the underlying structural causal models that define the nodes on which interventions occur are independent [@richardson2013]. SWIGs not only allow us to evaluate identification when errors are not independent, but they also permit the comparison of distinct interventions to our causal diagram. This is particularly useful when considering more than one point intervention. An example of is provided in supplementary materials **S2**.
+Single World Interventions Graphs ($\mathcal{G}_{3-4}$) present separate causal diagrams for each treatment to be contrasted. A Single World Intervention Template ($\mathcal{G}_{2}$) is a 'graph value function' that produces the individual counterfactual graphs [@richardson2013]. On the other hand, causal directed acyclic graphs, such as $\mathcal{G}_1$, require positing interventional distributions. The formalism underpinning these interventional distributions is mathematically equivalent to formalism underpinning the potential outcomes framework, assuming the errors of the underlying structural causal models that define the nodes on which interventions occur are independent [@richardson2013]. Single World Intervention Graphs (SWIGs), however, permit the comparison of distinct interventions in our causal diagram without requiring that the non-parametric structural equations that correspond to nodes on a causal graph have independent error structures. This is useful when attempting to identify the causal effects of sequential treatments, refer to supplementary materials **S2**.
 :::
 
 #### Single World Intervention Graphs Work by Node-Splitting
@@ -386,7 +385,7 @@ Consider a template graph @tbl-swigtable $\mathcal{G}$. Applying node-splitting 
 1. **SWIG for $A$ = 0**: Denoted as $\mathcal{G}_{A=0}$, this graph shows the hypothetical scenario where $A$ is set to 0.
 2. **SWIG for $A$ = 1**: Denoted as $\mathcal{G}_{A=1}$, this graph shows the hypothetical scenario where $A$ is set to 1.
 
-In these graphs, the node corresponding to the outcome $A$ is split, relabelled with the random and fixed component, and then each node that follows is labelled with the fixed component until the next intervention. Here, $Y$ is the only variable to follow $A$ and it is relabelled either $Y(0)$ or $Y(1)$ corresponding to whether $A=1$ or $A=0$; hence $Y$ is relabelled as either $Y(0)$ or $Y(1)$. Note that we do not place both $Y(0)$ and $Y(1)$ on the same Single World Intervention Graph because the variables are not jointly observed. Hence, we evaluate $Y(0)\coprod A = 0| L$ and $Y(1)\coprod A = 1 | L$ separately.
+In these graphs, the node corresponding to the treatment $A$ is split, relabelled with the random and fixed component, and then each node that follows is labelled with the fixed component until the next intervention. Here, $Y(\tilde{a})$ is the only variable to follow $A$ and it is relabelled either $Y(0)$ or $Y(1)$ corresponding to whether $A=1$ or $A=0$; hence $Y(\tilde{a})$ is relabelled as either $Y(0)$ or $Y(1)$. Note that we do not place both $Y(0)$ and $Y(1)$ on the same Single World Intervention Graph because the variables are not jointly observed. Hence, we evaluate identification for $Y(0)\coprod A = 0| L$ and $Y(1)\coprod A = 1 | L$ separately.
 
 
 ### Interaction as a Joint Intervention
@@ -418,9 +417,9 @@ Consider the effect of beliefs in big Gods (exposure $A$) and a culture's monume
 We need to state a population and scale to assess the individual and combined effects of $A$ and $B$. The units in the study draw from this population—say they are the societies of primary urban genesis [@wheatley1971pivot]. We look for evidence of causal interaction on the difference scale. Evidence for interaction would be present if the following inequality were to hold. Where,
 
 - $\mathbb{E}[Y(1,1)]$: mean outcome for those jointly exposed to both treatments, big Gods and big architecture.
-- $\mathbb{E}[Y(1,0)]$: mean outcome for those exposed only to the treatment big Gods.
-- $\mathbb{E}[Y(0,1)]$: mean outcome for those exposed only to the treatment big architecture.
-- $\mathbb{E}[Y(0,0)]$: mean outcome for those exposed to neither treatment, big Gods nor big architecture.
+- $\mathbb{E}[Y(1,0)]$: mean outcome for those exposed only to the treatment of big Gods.
+- $\mathbb{E}[Y(0,1)]$: mean outcome for those exposed only to the treatment of big architecture.
+- $\mathbb{E}[Y(0,0)]$: mean outcome for those exposed to neither treatment of big Gods nor of big architecture.
 
 Suppose outcomes are well-defined. We say there is evidence for interaction on the additive scale if
 
@@ -440,11 +439,11 @@ A positive value would indicate evidence for additive interaction. A negative va
 
 As with effect modification, evidence for causal interaction may differ depending on the measurement scale one chooses to assess it [@vanderweele2014; @vanderweele2012]. Evidence for the strength of a causal effect estimate for interaction in the presence of effect modification will differ depending on whether the effect is measured on the ratio scale as opposed to the difference scale (see: @vanderweele2014, who recommends using the causal difference scale for most policy settings).
 
-Note that if $A$ and $B$ were to affect each other, we would need to collect time series data and estimate causal effects using causal mediation analysis. Indeed, if there has been a co-evolution of religious culture, political and religious theatres, and urban density—as archaeologists have long reported [@decoulanges1903; @wheatley1971pivot]—mediation analysis is better motivated. However, the demands for causal mediation analysis are more stringent than those of causal interaction analysis. We consider these next.
+Note that if $A$ and $B$ were to affect each other, we would need to collect time series data and estimate causal effects using causal mediation analysis. Indeed, if there has been a co-evolution of religious culture, political and religious theatres, and urban density—as archaeologists have long reported [@decoulanges1903; @wheatley1971pivot]—mediation analysis is better motivated. However, the demands for causal mediation analysis are more stringent than those of causal interaction analysis. We next consider these demands.
 
 ## Part 3: Causal Mediation Analysis {#id-sec-3}
 
-In 1992, Robins and Greenland demonstrated that decomposing the total effect into natural direct and indirect effects clarifies the objectives of causal mediation analysis [@robins1992]. This landmark paper has been to mediation analysis of what "On the Origin of Species" has been to evolutionary biology. However, mediation analysis in the human sciences is rife with confusion. The primary source of this confusion is applying statistical models to data without first defining the causal quantities of interest. Associations derived from mediation analysis do not necessarily imply causation and are typically uninterpretable. This section outlines how to formulate causal questions in mediation analysis.
+In 1992, Robins and Greenland clarified the objectives of interpretable causal mediation analysis: to decompose the total effect into natural direct and indirect effects within a set of hypothetical interventions, contrasting their counterfactual outcomes [@robins1992]. This landmark paper has been to mediation analysis of what 'On the Origin of Species' has been to evolutionary biology [@darwin1859origin]. However, mediation analysis in the human sciences remains rife with confusion. The primary source of this confusion is the application of statistical models to data without first defining the causal quantities of interest. Associations derived from mediation analysis do not necessarily imply causation and are typically uninterpretable. This section considers how to formulate causal questions in mediation analysis.
 
 ### Defining a Mediation Analysis Estimand
 
@@ -549,9 +548,9 @@ This requirement is expressed as: $M(a) \coprod A | Q$. After controlling for th
 
 This requirement is expressed as: $Y(a,m) \coprod M(a^*) | Z$. We must ensure that no variables confounding the relationship between political authority and social complexity in $Z$ are themselves influenced by the cultural beliefs in Big Gods ($A$). For example, when studying the effect of cultural beliefs in Big Gods ($A$, the exposure) on social complexity ($Y$, the outcome) as mediated by political authority (mediator), there can be no un-modelled factors, such as trade networks ($Z$), that influence both political authority and social complexity and are themselves affected by the belief in Big Gods. The relevant path in @tbl-medationassumptions $\mathcal{G}_1$ is shown 'confounder of path $M \to Y$.'
 
-Assumption 4, that there is no exposure-induced confounding in the mediator-outcome relationship, often poses a considerable obstacle for causal mediation analysis. When the exposure influences a confounder of the mediator and outcome, we face a dilemma. Without adjusting for this confounder, a backdoor path between the mediator and the outcome remains open. However, by adjusting for it, we partially obstruct the path between the exposure and the mediator, leading to bias. In this setting, we cannot recover the natural direct and indirect effects directly from any observational data and may need to settle for investigating controlled direct effects, which stipulate fixed values for the mediator, or consider estimating the jointly mediated effects of $Z$ and $M$ together, or evaluate an analogue to the natural direct effect by obtaining random draws from the paths for which the relevant paths are obscured [@vanderweele2015; @vanderweele2014effect; @vo2024recanting; @vanderweele2017mediation; @Diaz2023; @robins2010alternative].
+Satisfying assumption 4 imposes considerable demands on causal mediation analysis. When the exposure influences a confounder of the mediator and outcome, we face a dilemma. Without adjusting for this confounder, a backdoor path between the mediator and the outcome remains open. However, by adjusting for it, we partially obstruct the path between the exposure and the mediator, leading to bias. In this setting, we cannot recover the natural direct and indirect effects from any observational data and may need to settle for investigating controlled direct effects, which stipulate fixed values for the mediator, or consider estimating the jointly mediated effects of $Z$ and $M$ together, or evaluate an analogue of the natural direct effect by obtaining random draws from the distributions whose causal relationships remain obscured in the data [@vanderweele2015; @vanderweele2014effect; @vo2024recanting; @vanderweele2017mediation; @Diaz2023; @robins2010alternative].
 
-Notice again that assumptions for causal effect estimation are considerably stricter than has been appreciated in the structural equation modelling traditions. Natural direct effect estimates and natural indirect effect estimates require conceptualising a counterfactual that is never directly observed from the data, namely: $\textcolor{blue}{Y(1, M(0))}$. See: @vanderweele2015.
+Notice that even when assumptions 1-4 are satisfied, natural direct effect estimates and natural indirect effect estimates require conceptualising a counterfactual that is never directly observed on any individual, namely: $\textcolor{blue}{Y(1, M(0))}$: such effects are only identified in distribution (refer to @vanderweele2015).
 
 
 ### Controlled Direct Effects
@@ -564,17 +563,17 @@ In such a scenario, it would not be feasible to consistently decompose the total
 
 @tbl-medationassumptions $\mathcal{G}_2$ presents the weaker assumptions required to identify a controlled direct effect. We might examine the effect of the pandemic lockdown if we could intervene and set everyone's trust in government to, say, one standard deviation above the baseline, compared with fixing trust in government to the average level at baseline. We might use modified treatment policies (described below) that specify interventions as functions of the data. For instance, we might investigate interventions that 'shift only those whose mistrust of government was below the mean level of trust at baseline and compare these potential outcomes with those observed.' Asking and answering precisely formulated causal questions such as this might lead to clearer policy advice, especially in situations where policymakers can influence public attitudes towards the government; see: @williams2021; @díaz2021; @hoffman2022; @hoffman2023. 
 
-In any case, I hope this discussion of causal mediation analysis clarifies that it would be unwise to simply examine the coefficients obtained from structural equation models and interpret them as meaningful as in statistical mediation analysis. To answer any causal question, we must first state it, with respect to clearly defined counterfactual contrasts and a target population. Once we state our causal question, we find have no guarantees that these coefficients are interpretable [@vanderweele2015]. 
+In any case, I hope this discussion of causal mediation analysis clarifies that it would be unwise to simply examine the coefficients obtained from structural equation models and interpret them as meaningful as in statistical mediation analysis. To answer any causal question, we must first state it, with respect to clearly defined counterfactual contrasts and a target population. Once we state our causal question, we find have no guarantees that the coefficients from statistical models are straightforwardly interpretable [@vanderweele2015]. 
 
 For those interested in statistical estimators for causal mediation analysis, I recommend visiting the CMAverse website [https://bs1125.github.io/CMAverse/articles/overview.html](https://bs1125.github.io/CMAverse/articles/overview.html), accessed 12 December 2023. This excellent resource provides comprehensive documentation, software, and practical examples, including sensitivity analyses. Next, we will consider more complex scenarios that involve feedback between treatments and confounders across multiple time points, settings in which traditional statistical methods also fail to provide valid causal inferences.
 
 ## Part 4: Time-fixed and Time-Varying Sequential Treatments (Treatment Strategies, Modified Treatment Policies) {#id-sec-4}
 
-Our discussion of causal mediation analysis focused on how effects from two sequential exposures may combine to influence an outcome.
+Our discussion of causal mediation analysis focused on how effects from two sequential treatments -- the initial treatment and that of a mediator affected by the treatment  -- may combine to affect an outcome.
 
-This concept can be expanded to investigate the causal effects of multiple sequential exposures, referred to as 'treatment regimes', 'treatment strategies', or 'modified treatment policies'. Researchers often use longitudinal growth and multi-level models in many human sciences, where longitudinal data are collected. How should we interpret the coefficients of these models? 
+This concept can be expanded to investigate the causal effects of multiple sequential exposures, referred to as 'treatment regimes', 'treatment strategies', or 'modified treatment policies'. Researchers often use longitudinal growth and multi-level models in many human sciences, where longitudinal data are collected. How may we identify such effects? What do they mean? 
 
-As before, to answer a causal question, we must first clearly state it. This involves specifying the counterfactual contrast of interest, including the treatments to be compared, the scale on which the contrast will be computed, and the population for whom inferences are valid. Without this precision, our statistical models lack clear interpretations.
+As before, to answer a causal question, we must first clearly state it. This involves specifying the counterfactual contrast of interest, including the treatments to be compared, the scale on which the contrast will be computed, and the target population for whom inferences are valid. Without such clarity, our statistical models are often uninterpretable.
 
 ### Worked Example: Does Marriage Affect Happiness?
 
@@ -595,7 +594,7 @@ The table below reveals four treatment strategies and six causal contrasts that 
 | Gets married     | $Y(0,1)$           |
 
 
-: Table outlines four fixed treatment regimens and six causal contrasts in time-series data where exposure varies. These labels apply only to the two time points. {#tbl-regimens-marriage}
+: Table outlines four fixed treatment regimens and six causal contrasts in time-series data where exposure varies {#tbl-regimens-marriage}
 
 
 **Causal Contrasts:**
@@ -610,7 +609,7 @@ The table below reveals four treatment strategies and six causal contrasts that 
 | Divorced vs. Gets married           | $\mathbb{E}[Y(1,0) - Y(0,1)]$            |
 
 
-: Table outlines four fixed treatment regimens and six causal contrasts in time-series data where exposure varies. These labels apply only to the two time points. {#tbl-regimens-marriage-contrasts}
+: Table outlines four fixed treatment regimens and six causal contrasts in time-series data where exposure varies. {#tbl-regimens-marriage-contrasts}
 
 
 To answer our causal question, we need to:
@@ -623,7 +622,7 @@ To answer our causal question, we need to:
 ```{=latex}
 \swigtabledeveloped
 ```
-Single World Intervention Graph for sequential treatments.
+Single World Intervention Graph for Sequential Treatments.
 :::
 
 ### Time-Varying Confounding with Treatment-confounder Feedback
@@ -633,7 +632,7 @@ Single World Intervention Graph for sequential treatments.
 
 Consider the structure of confounding presented in @tbl-swigtabledeveloped $\mathcal{G}_1$. To close the backdoor path from $A_1$ to $Y$, we must condition on $L_0$. To close the backdoor path from $A_2$ to $Y$, we must condition on $L_2$. However, $L_2$ is a collider of treatment $A_1$ and unmeasured confounders, such that conditioning on $L_2$ opens a backdoor path between $A_1$ and $Y$. This path is highlighted in red: $A_1 \associationred L_2({\mathbf{\tilde{a_1}}}) \associationred U \associationred ({\mathbf{\tilde{a_1}, \tilde{a_2}}})$.
 
-If @tbl-swigtabledeveloped $\mathcal{G}_1$ faithfully represents causality, it might seem that we cannot obtain valid inferences for any of the six causal contrasts we have defined. Indeed, using standard methods, we could not obtain valid causal inferences. However, @robins1986 first described a consistent estimation function that can be constructed where there is time-varying confounding (refer to @robins2004effects, @hernan2004STRUCTURAL).
+If @tbl-swigtabledeveloped $\mathcal{G}_1$ faithfully represents causality, it might seem that we cannot obtain valid inferences for any of the six causal contrasts we have defined. Indeed, using standard methods, we could not obtain valid causal inferences. However, @robins1986 first described a consistent estimation function that can be constructed where there is time-varying confounding [@robins2008estimation; @hernan2004STRUCTURAL].
 
 @tbl-swigtabledeveloped $\mathcal{G}_3$ presents a Single World Intervention Template that clarifies how identification may be obtained in fixed treatment regimes where there is time-varying confounding as observed in @tbl-swigtabledeveloped $\mathcal{G}_1$. When constructing a Single World Intervention Graph (or Template), we obtain factorisations for counterfactual outcomes under a specific treatment regime by employing 'node-splitting,' such that all nodes following an intervention are relabelled as counterfactual states under the preceding intervention. After node-splitting, a fixed intervention is no longer a random variable. Thus, under fixed treatment regimes, the counterfactual states that follow an intervention are independent of the states that occur before node-splitting if there are no backdoor paths into the random partition of the node that has been split. 
 
@@ -641,19 +640,19 @@ If all backdoor paths are closed into the random partitions of the nodes on whic
 
 The Single World Intervention Template @tbl-swigtabledeveloped $\mathcal{G}_3$ makes it clear that sequential identification may be obtained. $A_1$ is d-separated from $Y$ by conditioning on $L_0$; $A_2$ is d-separated from $Y$ by conditioning on $L_2$. 
 
-Notice that we cannot estimate the combined effect of a treatment strategy over $A_1$ and $A_2$ by employing regression, multi-level regression, statistical structural equation models, or propensity score matching. However, special estimators may be constructed (refer to @robins1986; @robins2004effects; @vanderlaan2011; @diaz2021nonparametric). For recent reviews of special estimators refer to @hernan2024WHATIF; @chatton2020; @vanderlaan2018; @chatton2024causal).
+Notice that we cannot estimate the combined effect of a treatment strategy over $A_1$ and $A_2$ by employing regression, multi-level regression, statistical structural equation models, or propensity score matching. However, special estimators may be constructed (refer to @robins1986; @robins2008estimation; @vanderlaan2011; @diaz2021nonparametric). For recent reviews of special estimators refer to @hernan2024WHATIF; @chatton2020; @vanderlaan2018; @chatton2024causal).
 
 ### Time-Varying Confounding *without* Treatment-Confounder Feedback
 
 Consider how we may have time-varying confounding in the absence of treatment-confounder feedback. Suppose we are interested in computing a causal effect estimate for a two-treatment 'marriage' intervention on 'happiness'. We assume that all variables are well-defined, that 'marriage' can be intervened upon, that we have specified a target population, and that our questions are scientifically interesting. Here, we focus on the challenges in addressing certain causal questions with time-varying confounding without treatment confounder feedback. @tbl-swigtabledeveloped $\mathcal{G}_1$ presents such a structure of time-varying confounding.
 
-Let $U_{AL}$ denotes an over-confident personality, an unmeasured variable that is causally associated with decisions to marry early and with income. We do not suppose that $U_{AL}$ affects happiness. Taken in isolation, $U_{AL}$ is not a confounder.
+Let $U_{AL}$ denote an over-confident personality, an unmeasured variable that is causally associated with decisions to marry early and with income. We do not suppose that $U_{AL}$ affects happiness. Taken in isolation, $U_{AL}$ is not a confounder.
 
 Let $L_t$ denote income. Suppose that income affects whether one stays married. For example, suppose it takes wealth to divorce. We can sharpen focus on risks of time-varying confounding by assuming that income itself does not affect happiness. Even with this weaker assumption, we shall see a problem arises.
 
-$U_{AY}$ denotes a common cause of income, $L_2$, and of happiness at the end of the study, $Y$. For example, $U_{AY}$ might denote educational opportunities, which by supposition affects both income and happiness. @tbl-swigtabledeveloped $\mathcal{G}_2$ presents the confounding structure for this problem in its simplest form. To declutter, we remove the baseline measurement of $L_0$, which we assume to be measured.
+Let $U_{AY}$ denote a common cause of income, $L_2$, and of happiness at the end of the study, $Y$. An example of such a confounder might be educational opportunity, which by supposition affects both income and happiness. @tbl-swigtabledeveloped $\mathcal{G}_2$ presents the confounding structure for this problem in its simplest form. To declutter, we remove the baseline node, $L_0$, which we assume to be measured.
 
-Notice that in this example, there is no treatment-confounder feedback. We have not imagined that marriage affects wealth, or even that wealth affects happiness. To obtain valid causal inference for the effect of $A_2$ on $Y$, we must adjust for $L_2$ [otherwise: $A_t\associationred L_t \associationred U_{AL}\associationred Y(a)$]. However, $L_2$ is a collider of $U_{AL}$ and $U_{AY}$. In this setting, adjusting for $L_2$ opens the path:
+Notice that in this example there is no treatment-confounder feedback. We have not imagined that marriage affects wealth, or even that wealth affects happiness. Nevertheless, there is confounding. To obtain valid causal inference for the effect of $A_2$ on $Y$, we must adjust for $L_2$ [otherwise: $A_t\associationred L_t \associationred U_{AL}\associationred Y(a)$]. However, $L_2$ is a collider of $U_{AL}$ and $U_{AY}$. In this setting, adjusting for $L_2$ opens the path:
 
 
 $$
@@ -663,7 +662,7 @@ $$
 We have confounding without treatment-confounder feedback (refer to @hernan2024WHATIF)
 
 @tbl-swigtabledeveloped $\mathcal{G}_4$ clarifies that sequential exchangeability can be obtained in the fixed treatment regime. To estimate the effect of $A_2$ on $Y$, we must condition on $L_2$. When estimating the effect of $A_1$ on $Y$, all backdoor paths are closed because $L_2({\mathbf{\tilde{a_1}}})$ is a collider, and $A_0 \coprod Y({\mathbf{\tilde{a_1}, \tilde{a_2}}})$. Note that because a Singal World Intervention Template does not represent the joint distributions of more than one treatment, treatment sequence, or time-varying treatment, to evaluate the conditional independences we must specify the interventions of interest for $A_1$ and $A_2$. That is, we would need to evaluate at least two Single World Intervention Graphs that correspond to the treatment level we wish to contrast. 
-Note further that because there is time-varying confounding, we cannot use standard estimators such as multi-level regression or structural equation models. Estimation must occur stepwise (refer, for example to @diaz2021nonparametric, @williams2021.]
+Note further that because there is time-varying confounding, we cannot use standard estimators such as multi-level regressions or structural equation models. Estimation must occur stepwise (refer, for example to @diaz2021nonparametric, @williams2021.]
 
 <!-- 
 As an aside, note that we could substitute $U_{AL}$ with a variable $U_{AA}$ (not on any graph) -- that relates to decisions to marry at each time interval. Candidate confounders might be: 'prefers not being married', 'prefers marriage', 'prefers stability', or 'prefers change'. The structure of the problem would remain the same: there would be time-varying confounding without treatment-confounder feedback.  -->
@@ -676,9 +675,9 @@ Suppose we were interested in the population average effect of divorce on happin
 
 This question is easy to ask but deceptively difficult to answer. For example, we cannot fit an interaction of time $\times$ social status $\times$ marriage status because marital status might affect personal wealth. Yet even if marriage did not affect personal wealth, as in @tbl-swigtabledeveloped $\mathcal{G}_4$, regression would not produce valid estimates for the counterfactual question we asked.
 
-To sharpen focus, imagine that we obtained indicators of wealth at baseline.
+To sharpen focus, suppose that we have obtained indicators of wealth at baseline.
 
-Suppose we want to consider the following fixed treatment strategy:
+Suppose further that we want to consider the following fixed treatment strategy:
 
 $g^\phi(\cdot)$: remain married for at least two additional years:
 
@@ -705,9 +704,9 @@ $$
 
 Notice that for the treatment policy $\mathbf{g}^\lambda(\cdot)$, treatment is computed as a function of income at both the natural value of $A_t$ and of wealth $L_t$. Again, to declutter our graphs, we leave $L$ at baseline off the graph, noting that adjustment at baseline does not change the confounding structure.
 
-Template @tbl-swigtabledeveloped $\mathcal{G}_5$ presents this confounding structure. To convey the dependence of the fixed node on covariate history under treatment, we use @richardson2013's conventions and draw a dashed line ($\rightarrowdottedgreen$) to indicate paths from the variables on which the time-varying treatment regime depends to the deterministic portion of the intervention node. This strategy clarifies that setting the treatment level requires information about prior variables, including the 'natural value of the treatment' in the absence of any intervention [@young2014identification].
+Template @tbl-swigtabledeveloped $\mathcal{G}_5$ presents this confounding structure. To convey the dependence of the fixed node on covariate history under treatment, we use @richardson2013's conventions and draw a dashed line ($\rightarrowdottedgreen$) to indicate paths from the variables on which the time-varying treatment regime depends on the deterministic portion of the intervention node. This strategy clarifies that setting the treatment level requires information about prior variables, including the 'natural value of the treatment' in the absence of any intervention [@young2014identification].
 
-The reason for noting these dependencies on a Single World Intervention Graph (SWIG) is that such dependencies impose stronger identification conditions. At every time $t$, $A_t$ must be conditionally independent not only of the potential outcome at the end of the study but also of any future variable that might lead to a non-causal association between future treatments and the potential outcome at the end of the study. We clarify this additional requirement for *strong sequential exchangeability* in the next section.
+The reason for noting these dependencies on a Single World Intervention Graph (SWIG) is that such dependencies impose stronger identification assumptions. At every time $t$, $A_t$ must be conditionally independent not only of the potential outcome at the end of the study but also of any future variable that might lead to a non-causal association between future treatments and the potential outcome at the end of the study. We clarify this additional requirement for *strong sequential exchangeability* in the next section.
 
 #### Identification of Dynamic Time-Varying Treatment Strategies using an Extension of Robin's Dynamic G-formula
 
@@ -750,9 +749,7 @@ $$
 A_1 \associationred U_{AL} \associationred L_2(\mathbf{g}) \associationred A_2(\mathbf{g})
 $$
 
-Strong sequential exchangeability fails for $A_1$.
-
-We might consider lowering our sights and estimating a fixed or time-varying treatment strategy that can be identified.
+Strong sequential exchangeability fails for $A_1$. We might consider lowering our sights and estimating a fixed or time-varying treatment strategy that can be identified.
 
 Note that certain time-varying treatment strategies impose weaker assumptions than time-fixed strategies. For example, with a continuous intervention, we might consider intervening only if the observed treatment does not reach a specific threshold, such as:
 
@@ -774,7 +771,7 @@ $$
 
 Whereas $\mathbf{g}^{\lambda}$ sets everyone in the population to the same treatment level, $\mathbf{g}^{\phi}$ sets only those below a certain threshold to a fixed level but does not estimate treatment effects for those above [@hoffman2023]. We can also write stochastic treatment functions [@diaz2012population; @vanderweele2014a; @young2014identification; @diaz2021nonparametric], see supplementary materials **S4**.
 
-Of course, the details of every problem must be developed in relation to the scientific context and the practical questions that address gaps in present science. However, causal inference teaches us that the questions we ask—seemingly coherent and tractable questions such as whether marriage makes people happy—demand considerable scrutiny to become interpretable. When such questions are made interpretable, causal inference often reveals that answers may elude us, regardless of the quality and abundance of our data, or even if we randomise interventions. Modest treatment functions, however, might be more credible and useful for many scientific and practical questions. Such functions cannot be estimated using the models routinely taught in the human sciences, such as multi-level modelling and statistical structural equation modelling.
+Of course, the details of every problem must be developed in relation to the scientific context and the practical questions that address gaps in present science. However, causal inference teaches us that the questions we ask—seemingly coherent and tractable questions such as whether marriage makes people happy—demand considerable scrutiny to become interpretable. When such questions are made interpretable, causal inference often reveals that answers may elude us, regardless of the quality and abundance of our data, or even if we randomise interventions. Modest treatment functions, however, might be more credible and useful for many scientific and practical questions. Such functions often cannot be estimated using the models routinely taught in the human sciences, such as multi-level modelling and statistical structural equation modelling.
 
 ## Conclusions {#id-sec-5}
 
@@ -782,16 +779,12 @@ Philosophical interests in causality are ancient. Democritus once declared, "I w
 
 In 1986, Harvard statistician James Robins extended the potential outcomes framework to time-varying treatments, laying the foundation for powerful new longitudinal data science methods [@robins1986]. Judea Pearl introduced directed acyclic graphs, making identification problems transparent and accessible to non-specialists [@pearl1995]. Robins and Richardson extended Pearl's graphical models to evaluate counterfactual causal contrasts on graphs, building on Robins' earlier work. Concurrently, the causal revolution in economics opened new, fertile frontiers in causal data sciences. By the early 2000s, targeted learning frameworks were being developed [@vanderlaan2011], along with causal mediation analysis methods [@robins1992; @pearl2009a; @vanderweele2015; @vanderweele2014a; @Diaz2023; @rudolph2024mediation; @vansteelandt2012], and techniques for analysing time-varying treatments [@robins1986; @robins1999; @young2014identification; @richardson2013; @diaz2012population; @robins2008estimation; @shpitser2022multivariate; @richardson2023potential].
 
-Readers should note that the causal inference literature contains vigorous debates at the horizons of discovery. However, there is a shared consensus about the foundations of causal inference and a common conceptual and mathematical vocabulary within which to express disagreements and accumulate progress—a hallmark of a productive science.
+Readers should note that the causal inference literature contains vigorous debates at the horizons of discovery. However, there is a shared consensus about the foundations of causal inference and a common conceptual and mathematical vocabulary within which to express disagreements and accumulate progress—a hallmark of a productive science. Old debates resolve and new debates arise, the hallmark of a vibrant science.
 
-Despite the progress and momentum of the causal revolution in certain human sciences, many areas have yet to participate and benefit. The demands for researchers to acquire new skills, coupled with the intensive requirement for data collection, have significant implications for research design, funding, and the accepted pace of scientific publishing. To foster essential changes in causal inference education and practice, the human sciences need to shift from a predominantly output-focused, correlation-reporting culture to a slow, careful, creative culture that promotes retraining and funds time-series data collection. Such investments are worthwhile. Much as Darwin's theory transformed the biological sciences from speculative taxonomy, causal inference will transform the human sciences from butterfly collections of correlations to causal inferential sciences capable of addressing the causal questions that animate our curiosities.
+Despite the progress and momentum of the causal revolution in certain human sciences, many areas have yet to participate and benefit. The demands for researchers to acquire new skills, coupled with the intensive requirement for data collection, have significant implications for research design, funding, and the accepted pace of scientific publishing. To foster essential changes in causal inference education and practice, the human sciences need to shift from a predominantly output-focused, correlation-reporting culture to a slow, careful, creative culture that promotes retraining and funds time-series data collection. Such investments are worthwhile. Much as Darwin's theory transformed the biological sciences from speculative taxonomy, causal inference is slowly but steadily transforming the human sciences from butterfly collections of correlations to causal inferential sciences capable of addressing the causal questions that animate our curiosities.
 
 
 {{< pagebreak >}}
-## Funding
-
-This work is supported by a grant from the Templeton Religion Trust (TRT0418) and RSNZ Marsden 3721245, 20-UOA-123; RSNZ 19-UOO-090. I also received support from the Max Planck Institute for the Science of Human History. The Funders had no role in preparing the manuscript or deciding to publish it.
-
 
 ## Acknowledgements
 
@@ -799,12 +792,31 @@ I am grateful to Dr. Inkuk Kim for checking previous versions of this manuscript
 
 Any remaining errors are my own.
 
+
+## Conflict of Interest
+
+The author declares no conflicts of interest
+
+
+## Financial Support
+
+This work is supported by a grant from the Templeton Religion Trust (TRT0418) and RSNZ Marsden 3721245, 20-UOA-123; RSNZ 19-UOO-090. I also received support from the Max Planck Institute for the Science of Human History. The Funders had no role in preparing the manuscript or deciding to publish it.
+
+
+## Research Transparency and Reproducibility
+
+No data were used in this manuscript.
+
+
+
+
 {{< pagebreak >}}
 
 ## References
 
 ::: {#refs}
 :::
+
 
 
 
