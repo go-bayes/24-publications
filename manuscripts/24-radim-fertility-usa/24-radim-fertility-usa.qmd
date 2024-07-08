@@ -1,0 +1,1838 @@
+---
+title: "Causal Effect of Religious Service Attendance On Fertility in an American Sample"
+abstract: |
+ According to 
+   **KEYWORDS**: *Causal Inference*; *Longitudinal*; *Religion*; *Fertility*.
+author: 
+  - name: Radim
+    affiliation: XXXXX
+    orcid: 0000-0000-0000-0000
+  - name: John H Shaver
+    affiliation: Baylor University
+    orcid:  0000-0000-0000-0000
+  - name:  Pedro Antonio de la Rosa Fernández Pacheco
+    affiliation: Harvard University
+    orcid: 0000-0002-0912-7396
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+# link to data
+pull_mods <-  fs::path_expand(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-radim-usa/24-05-data_for_joe.csv"
+)
+
+# SET TO YOUR DIRECTORY FOR SAVING VARIABLES
+push_mods <-  fs::path_expand(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-radim-usa"
+)
+
+
+# use p_load to load / install the packages
+pacman::p_load(
+  skimr,
+  naniar,
+  WeightIt,
+  clarify,
+  MatchThem,
+  cobalt,
+  MatchIt,
+  kableExtra,
+  janitor,
+  SuperLearner,
+  ranger,
+  xgboost,
+  glmnet,
+  doParallel,
+  ggplot2,
+  here,
+  naniar,
+  gtsummary,
+  grf,
+  progressr,
+  tidyverse,
+  ggplot2,
+  parameters,
+  kableExtra,
+  tidyr,
+  stringr,
+  patchwork,
+  margot,
+  glue,
+  gtsummary
+)
+# update.packages()
+
+# import data
+dat_raw <- read.csv(pull_mods)
+
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+
+loadfonts(device = "all")
+
+
+## Read in data from analysis 
+# imports
+n_participants <- readRDS(here::here(push_mods, "n_participants"))
+n_total <-  margot::here_read("n_total")
+
+# propensity score graph 
+#love_plot_one <- margot::here_read("love_plot_one")
+
+# transition table
+transition_table <- margot::here_read("transition_table")
+
+# baseline table
+table_baseline <-margot::here_read("table_baseline")
+
+# exposure table
+table_exposures <-margot::here_read("table_exposures")
+
+# outcome table
+table_outcomes <-margot::here_read("table_outcomes")
+
+# density of the exposure histograms
+graph_density_of_exposure_up<-margot::here_read("graph_density_of_exposure_up")
+graph_density_of_exposure_mean<-margot::here_read("graph_density_of_exposure_mean")
+
+
+# read smoker result (not in a table)
+out_tab_contrast_t2_smoker_binary <- margot::here_read("out_tab_contrast_t2_smoker_binary")
+out_tab_contrast_t2_smoker_binary_1 <- margot::here_read("out_tab_contrast_t2_smoker_binary_1")
+
+tab_health<- margot::here_read("tab_health")
+tab_body<-margot::here_read("tab_body")
+tab_ego<- margot::here_read("tab_ego")
+tab_reflective<-  margot::here_read("tab_reflective")
+tab_social<-  margot::here_read("tab_social")
+
+# group tabs
+group_tab_health <- margot::here_read("group_tab_health")
+group_tab_body <- margot::here_read("group_tab_body")
+group_tab_ego <-margot::here_read("group_tab_ego")
+group_tab_reflective <- margot::here_read("group_tab_reflective")
+group_tab_social <- margot::here_read("group_tab_social")
+
+# check N
+
+N <- n_participants
+sub_title = "Forgiveness: only shift those below average to average, N = 34,749"
+
+
+# graph health
+plot_group_tab_health <-  margot::margot_plot(
+  group_tab_health,
+  type = "RD",
+  title = "Health Outcomes",
+  subtitle = sub_title,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+
+# graph body
+plot_group_tab_body <-  margot::margot_plot(
+  group_tab_body,
+  type = "RD",
+  title = "Embodied Well-Being",
+  subtitle = sub_title,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+#plot_group_tab_body
+
+#
+plot_group_tab_ego <-  margot::margot_plot(
+  group_tab_ego,
+  type = "RD",
+  title = "Ego-related Well-Being",
+  subtitle = sub_title,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+#plot_group_tab_ego
+
+# graph reflective
+plot_group_tab_reflective <-  margot::margot_plot(
+  group_tab_reflective,
+  type = "RD",
+  title = "Reflective Well-Being",
+  subtitle = sub_title,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+#plot_group_tab_reflective
+
+# graph social
+plot_group_tab_social <-  margot::margot_plot(
+  group_tab_social,
+  type = "RD",
+  title = "Social Well-Being",
+  subtitle = sub_title,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+
+#plot_group_tab_social
+
+# import to manuscript -------------------------------------------------------
+tab_health_1<- margot::here_read("tab_health_1")
+tab_body_1<-margot::here_read("tab_body_1")
+tab_ego_1<- margot::here_read("tab_ego")
+tab_reflective_1<-margot::here_read("tab_reflective_1")
+tab_social_1<-margot::here_read("tab_social_1")
+
+# individual models
+group_tab_health_1 <- margot::here_read("group_tab_health_1")
+group_tab_health_1 <- margot::here_read("group_tab_health_1")
+group_tab_body_1 <- margot::here_read("group_tab_body_1")
+group_tab_ego_1 <-margot::here_read("group_tab_ego_1")
+group_tab_reflective_1 <- margot::here_read("group_tab_reflective_1")
+group_tab_social_1 <- margot::here_read("group_tab_social_1")
+
+
+
+N <- n_participants
+sub_title_1 = "Forgiveness: shift exposure up by 1 point up to max 7, N = 34,749"
+
+# graph health
+plot_group_tab_health_1 <-  margot::margot_plot(
+  group_tab_health_1,
+  type = "RD",
+  title = "Health effects",
+  subtitle = sub_title_1,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+#plot_group_tab_health+ plot_group_tab_health_1
+#dev.off()
+# save graph
+# ggsave(
+#   plot_group_tab_health_1,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 12,
+#   height = 8,
+#   units = "in",
+#   filename = "plot_group_tab_health_1.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+# graph body
+plot_group_tab_body_1 <-  margot::margot_plot(
+  group_tab_body_1,
+  type = "RD",
+  title = "Body effects",
+  subtitle = sub_title_1,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+
+#plot_group_tab_body / plot_group_tab_body_1
+# save graph
+# ggsave(
+#   plot_group_tab_body_1,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 12,
+#   height = 8,
+#   units = "in",
+#   filename = "plot_group_tab_body_1.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+
+# plot_group_tab_body_1
+
+# graph ego
+plot_group_tab_ego_1 <-  margot::margot_plot(
+  group_tab_ego_1,
+  type = "RD",
+  title = "Ego effects",
+  subtitle = sub_title_1,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+# plot_group_tab_ego_1
+
+# graph reflective
+plot_group_tab_reflective_1 <-  margot::margot_plot(
+  group_tab_reflective_1,
+  type = "RD",
+  title = "Reflective effects",
+  subtitle = sub_title_1,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+#plot_group_tab_reflective_1
+#plot_group_tab_reflective / plot_group_tab_reflective_1
+
+# graph social
+plot_group_tab_social_1 <-  margot::margot_plot(
+  group_tab_social_1,
+  type = "RD",
+  title = "Social effects",
+  subtitle = sub_title_1,
+  estimate_scale = 1,
+  base_size = 14,
+  text_size = 4.0,
+  point_size = 1.5,
+  title_size = 14,
+  subtitle_size = 11,
+  legend_text_size = 8,
+  legend_title_size = 10,
+  x_offset = -.5,
+  x_lim_lo = -.5,
+  x_lim_hi =  .25
+)
+plot_group_tab_social_1
+
+
+# comparative intervention graphs -----------------------------------------
+
+# combo graphs
+#plot_group_tab_health
+plot_compare_health <- plot_group_tab_health / plot_group_tab_health_1 + 
+  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
+
+#plot_compare_health
+# ggsave(
+#   plot_compare_health,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 10,
+#   height = 12,
+#   units = "in",
+#   filename = "plot_compare_health.png",
+#   device = 'png',
+#   dpi = 600
+# )
+#dev.off()
+
+
+
+plot_compare_body <- plot_group_tab_body / plot_group_tab_body_1  +
+  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
+
+#plot_compare_body
+
+# ggsave(
+#   plot_compare_body,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 10,
+#   height = 12,
+#   units = "in",
+#   filename = "plot_compare_body.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+#dev.off()
+
+
+#plot_compare_ego
+plot_compare_ego <- plot_group_tab_ego / plot_group_tab_ego_1+ 
+  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
+# 
+# ggsave(
+#   plot_compare_ego,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 10,
+#   height = 12,
+#   units = "in",
+#   filename = "plot_compare_ego.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+#plot_compare_ego
+
+plot_compare_reflective <- plot_group_tab_reflective / plot_group_tab_reflective_1+ 
+  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
+#plot_compare_reflective
+# ggsave(
+#   plot_compare_reflective,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 10,
+#   height = 12,
+#   units = "in",
+#   filename = "plot_compare_reflective.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+
+plot_compare_social  <-plot_group_tab_social / plot_group_tab_social_1+ 
+  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
+#plot_compare_social
+#plot_compare_social
+
+# ggsave(
+#   plot_compare_social,
+#   path = here::here(here::here(push_mods, "figs")),
+#   width = 10,
+#   height = 12,
+#   units = "in",
+#   filename = "plot_compare_social.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 600
+# )
+```
+
+## Introduction
+
+Does forgiveness causally affect multidimensional well-being?
+
+Despite a wealth of associational studies, national-scale causal investigations are presently lacking. To quantitatively evaluate causality, we must compare outcomes under different interventions or "treatments." In observational studies, such comparisons are challenging because many variables might affect whether one receives treatment and how a subsequent outcome unfolds. A fundamental challenge in observational studies is to ensure *balance* between the confounders within the treatment to be compared [@shiba2021using]. We call the state of imbalance in the common causes of the treatment and outcomes *confounding*. We call a strategy for ensuring balance *confounding control.* With time-series data and sufficiently rich measures of confounding variables or their proxies, we may more reliably infer causality from associations in the data [@robins1986]. 
+
+Here, we estimate the causal effects of forgiveness interventions on multidimensional well-being indicators using comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study from 2018-2021. Our confounding control strategy adjusts for baseline measures of forgiveness and the outcomes under investigation.
+
+Forgiveness is a continuous variable, allowing for innumerable causal contrasts. Which to select? We first calculate expected population averages for each well-being outcome with two "modified treatment policies" [@haneuse2013estimation; @diaz2023lmtp; @díaz2021; @hoffman2023], which we contrast with expectations under no treatment. These interventions assess different practical interests. Our approach is not to test specific hypotheses but to accurately quantify effect magnitudes, offering our results as conversation-starters that may inform clinical and public decision-making [@hernan2024stating].
+
+
+## Method
+
+### Sample
+
+Data were collected by the New Zealand Attitudes and Values Study (NZAVS), an annual longitudinal national probability panel study of social attitudes, personality, ideology, and health outcomes in New Zealand started in 2009. Since its inception, The New Zealand Attitudes and Values Study has accumulated questionnaire responses from `r n_total` New Zealand residents. The measures that we use in the present study were introduced in the NZAVS 2018 wave (time 10). The study operates independently of political or corporate funding and is based in a university setting. Data summaries for our study sample on all measures used in this study are found in **Appendices B-D**.  For more details about the New Zealand Attitudes and Values Study see: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB).
+
+### Treatment: Forgiveness
+
+
+We assessed participants' forgiveness using reversed scores of the NZAVS "vengeful rumination scale." This scale contains three items, adapted from @caprara_indicators_1986 and @berry_forgivingness_2005, and developed for NZAVS: 
+
+(1) Sometimes I can't sleep because of thinking about past wrongs I have suffered; 
+(2) I can usually forgive and forget when someone does me wrong (reversed scored); 
+(3) I find myself regularly thinking about past times that I have been wronged. 
+
+Participants indicated their agreement with these items (1 = Strongly Disagree to 7 = Strongly Agree). 
+
+
+### Health Outcomes Measures
+
+#### Alcohol Frequency
+
+We measured participants' frequency of drinking alcohol using one item adapted from @Ministry_of_Health_2013. Participants were asked, "How often do you have a drink containing alcohol?" (1 = Never - I don't drink, 2 = Monthly or less, 3 = Up to 4 times a month, 4 = Up to 3 times a week, 5 = 4 or more times a week, 6 = Don't know).
+
+#### Alcohol Intensity
+
+We measured participants' intensity of drinking alcohol using one item adapted from @Ministry_of_Health_2013. Participants were asked, "How many drinks containing alcohol do you have on a typical day when drinking alcohol? (number of drinks on a typical day when drinking)"
+
+#### Body Mass Index
+
+We asked participants "What is your height? (metres)" and "What is your weight? (kg)". Based on participants indication of their height and weight we calculated the BMI by dividing the weight in kilograms by the square of the height in meters.
+
+
+#### Hours of Exercise
+
+We measured hours of exercise using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+#### Hours of Sleep
+
+"During the past month, on average, how many hours of *actual sleep* did you get per night".
+
+#### Short Form Health: "Your Health" 
+
+We selected the first item from the "Short-Form Subjective Health Scale (General Health Perception Subscale)," @instrument1992mos, scored ordinal (1-7)
+
+1. "In general, would you say your health is..."
+2. "I seem to get sick a little easier than other people." (reversed)
+3. "I expect my health to get worse." (reversed)
+
+
+#### Smoker
+
+We asked participants whether they are currently smoking or not (1 = Yes or 0 = No), using a single item ("Do you currently smoke?) from @muriwai_looking_2018.
+
+
+### Embodied Well-being Measures
+
+
+#### Body Satisfaction (1 = Very inaccurate to 7 = Very accurate)
+
+
+* "I am satisfied with the appearance, size and shape of my body"
+
+From @stronge2015facebook
+
+
+
+#### Fatigue (ordinal)
+
+* "During the last 30 days, how often did ... you feel exhausted?" 
+
+Ordinal responses: 0 = None of The Time, 1 = A little of The Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time.
+
+From @sibley2020
+
+#### Kessler 6 Anxiety and Kessler 6 Depression (ordinal)
+
+We measured psychological distress using the Kessler-6 scale (kessler2002?), which exhibits
+strong diagnostic concordance for moderate and severe psychological distress in large, cross-cultural samples [@kessler2002; @kessler2010?; @prochaska2012]. 
+
+
+Participants rated during the past 30 days, how often did...
+
+(1) "... you feel hopeless"; 
+(2) "...you feel so depressed that nothing could cheer you up"; 
+(3) "...you feel restless or fidgety"; 
+(4)"...you feel that everything was an effort"; 
+(5) "... you feel worthless"; 
+(6) "...you feel nervous?"
+
+Ordinal responses: 0 = None of The Time, 1 = A little of The Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time.
+
+A two-factor model fits this scale. We describe the decomposition as: 
+
+**Kesser-6-latent-anxiety**:  "… you feel restless or fidgety”; ” you feel nervous?” “… you feel that everything was
+an effort."
+
+**Kesser-6-latent-anxiety**:  “… you feel hopeless”; “… you feel so depressed that nothing
+could cheer you up”; “… you feel worthless.”
+
+
+#### Rumination (ordinal)
+
+
+* "During the last 30 days, how often did...you have negative thoughts that repeated over and over?" and indicated their frequency of rumination on an ordinal scale 
+
+From @nolen-hoeksema_effects_1993 
+
+Ordinal responses: 0 = None of The Time, 1 = A little of The Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time.
+
+
+#### Sexual Satisfaction (1 = Not satisfied to 7 = Very satisfied).
+
+"How satisfied are you with your sex life?" (developed for the NZAVS).
+
+
+### Ego-related Well-being Measures
+
+#### Emotional Regulation (Out of Control) (1 = Strongly Disagree to 7 = Strongly Agree).
+
+We measured participants' levels of emotional regulation using three items adapted from @gratz_multidimensional_2004 and @gross_individual_2003: 
+
+(1) "When I feel negative emotions, my emotions feel out of control.";
+(2) "When I feel negative emotions, I suppress or hide my emotions."; 
+(3) "When I feel negative emotions, I change the way I think to help me stay calm."
+
+
+Prior to analysis, we selected the first item from this scale.
+
+#### Perfectionism (1 = Strongly Disagree to 7 = Strongly Agree)
+
+We assessed participants' perfectionism using three items from @rice_short_2014.
+
+(1) Doing my best never seems to be enough; 
+(2) My performance rarely measures up to my standards; 
+(3) I am hardly ever satisfied with my performance. Participants indicated the extent to which they agree with these items 
+
+
+#### Permeability of the Self (1 = Strongly Disagree to 7 = Strongly Agree)
+
+"I believe I am capable, as an individual, of improving my status in society."
+
+From @tausch2015does.
+
+
+#### Power Dependence (1 = Strongly Disagree to 7 = Strongly Agree)
+
+Participants' Power dependence was measured using two items: 
+
+(1) I do not have enough power or control over important parts of my life; 
+(2) Other people have too much power or control over important parts of my life. 
+
+From @overall2016power.
+
+We used the first of these items. 
+
+#### Self Control (has) & Self Control (wish had more) (1 = Strongly Disagree to 7 = Strongly Agree).
+
+Participants were asked to indicate the extent to which they endorse the two items:
+
+1. "In general, I have a lot of self-control"
+2. "I wish I had more self-discipline" from @tangney_high_2004. 
+
+We assessed these dimensions separately.
+
+#### Self-Esteem (1 = Very inaccurate to 7 = Very accurate)
+
+Participants were instructed to circle the number that best represents how accurately each statement describes them. Participants responded to the items 
+
+1. "On the whole am satisfied with myself;"
+2. "Take a positive attitude toward myself;" 
+3. "Am inclined to feel that I am a failure." 
+
+Adapted from @Rosenberg1965.
+
+
+### Reflective Well-being Measures
+
+#### Gratitude (1 = Strongly Disagree to 7 = Strongly Agree)
+
+We assessed the extent to which participants have gratitude using three items from @mccullough_grateful_2002: 
+
+(1) "I have much in my life to be thankful for."; 
+(2) "When I look at the world, I don't see much to be grateful for."; (reversed)
+(3) "I am grateful to a wide variety of people."
+
+#### Life Satisfaction (1 = Strongly Disagree to 7 = Strongly Agree)
+
+1. "I am satisfied with my life"  
+2. "In most ways my life is close to ideal". 
+
+From the Satisfaction with Life Scale @diener1985a.
+
+
+#### Meaning of Life  (1 = Strongly Disagree to 7 = Strongly Agree)
+
+(1) "My life has a clear sense of purpose;"
+(2) "I have a good sense of what makes my life meaningful." 
+
+From @steger_meaning_2006
+
+We assessed these dimensions separately.
+
+#### Personal Well-being Relationships  (0 = completely dissatisfied to 10 = completely satisfied)
+
+Participants read an instruction ("Please rate your level of satisfaction with the following aspects of your life and New Zealand.") and responded to an item: 
+
+* "Your relationships"
+
+From the Australian Unity Wellbeing Index [@cummins_developing_2003]
+
+
+#### Personal Well-being Security  (0 = completely dissatisfied to 10 = completely satisfied)
+
+Participants read an instruction ("Please rate your level of satisfaction with the following aspects of your life and New Zealand.") and responded to an item: 
+
+* "Your future security" 
+
+From the Australian Unity Wellbeing Index [@cummins_developing_2003].
+
+
+#### Personal Well-being Standard Living  (0 = completely dissatisfied to 10 = completely satisfied)
+
+Participants read an instruction ("Please rate your level of satisfaction with the following aspects of your life and New Zealand.") and responded to an item: 
+
+
+* "Your standard of living" 
+
+From the Australian Unity Wellbeing Index [@cummins_developing_2003].
+
+
+#### Personal Well-being Your Health   (0 = completely dissatisfied to 10 = completely satisfied)
+
+Participants read an instruction ("Please rate your level of satisfaction with the following aspects of your life and New Zealand.") and responded to an item: 
+
+
+* "Your Health"
+
+From the Australian Unity Wellbeing Index [@cummins_developing_2003].
+
+
+### Social Well-being Outcomes Measures
+
+
+#### Sense of Neighbourhood Community  (1 = Strongly Disagree to 7 = Strongly Agree)
+
+
+* "I feel a sense of community with others in my local neighbourhood."
+
+Item from @sengupta2013
+
+
+#### Sense of Social Belonging  (1 = Very Inaccurate to 7  = Very Accurate)
+
+
+(1) "Know that people in my life accept and value me"; 
+(2) "Feel like an outsider" (reversed); 
+(3) "Know that people around me share my attitudes and beliefs". 
+
+Adapted from the Sense of Belonging Instrument [@hagerty1995]
+
+
+
+#### Social Support (1 = Strongly Disagree to 7 = Strongly Agree)
+
+(1) "There are people I can depend on to help me if I really need
+it;" 
+(2) "There is no one I can turn to for guidance in times of stress;"  (reversed)
+(3) "I know there are people I can turn to when I need help." 
+
+
+From @cutrona1987 and @williams2000cyberostracism 
+
+
+### Causal Interventions
+
+We define three modified treatment policies (refer to @haneuse2013estimation; @diaz2021nonparametric; @diaz2023lmtp). Let $A_t$ denote the treatment variable, representing an individual's observed level of forgiveness at time points $t \in \{0,1,2\}$, with $t=0$ as the baseline, $t=1$ as the treatment implementation, and $t=2$ as the end of the study. The function $\mathbf{g}(\cdot)$ represents a modified treatment policy.
+
+Interventions are conceptualised as potential modifications to the treatment levels from those originally observed. The notation $a_i$ indicates the treatment level assigned under the policy function $\mathbf{g}$. The symbol $\tau$ denotes the population average treatment effect (ATE), contrasting aggregate outcomes for the population under the interventions compared.
+
+1. **Therapeutic Intervention**: elevate the forgiveness levels of individuals below the population average to this average, while keeping others unchanged:
+   $$
+   a_i = \mathbf{g}^\lambda(A_i) = \begin{cases} 
+   \mu_A & \text{if } A_i < \mu_A \\ 
+   A_i & \text{otherwise} 
+   \end{cases}
+   $$
+   where $\mu_A$ is the population average of forgiveness, defined as $\mu_A = \frac{\sum_{i=1}^n A_i}{n}$.
+
+2. **General Intervention**: elevate everyone's forgiveness by one point on a 1-7 Likert scale, ensuring the scale maximum is not exceeded:
+   $$
+   a_i = \mathbf{g}^\phi(A_i) = \begin{cases} 
+   A_i + 1 & \text{if } A_i < 6 \\ 
+   7 & \text{otherwise} 
+   \end{cases}
+   $$
+
+3. **Status Quo — No Treatment**: Apply no intervention. Expected mean outcomes are estimated using each individual's observed level of forgiveness:
+   $$
+   a_i = \mathbf{g}(A_i) = A_i
+   $$
+
+
+#### Causal Contrasts
+
+These policy interventions allow us to calculate the following contrasts between population averages under different treatment policies:
+
+**Contrast A: Therapeutic Intervention vs. Status Quo**
+   $$
+   \tau^{\text{therapeutic}} = \mathbb{E}[Y(\mathbf{g}^\lambda) - Y(\mathbf{g})]
+   $$
+
+**Contrast B: General Intervention vs. Status Quo**
+   $$
+   \tau^{\text{general}} = \mathbb{E}[Y(\mathbf{g}^\phi) - Y(\mathbf{g})]
+   $$
+
+
+#### Assumptions for Causal Estimation
+
+To estimate causal effects reliably, our study must credibly meet three fundamental assumptions:
+
+1. **Causal Consistency**: we assume that the potential outcomes for a given individual under a particular treatment correspond to the observed outcomes when that treatment is actually administered. This assumes that potential outcomes are solely a function of the treatment and measured covariates, without interference by the mode of treatment administration (@vanderweele2009; @vanderweele2013).
+
+2. **Exchangeability**: we assume that, conditional on observed covariates, assignment to treatment group is independent of the potential outcomes; that is we assume no unmeasured confounding (@hernan2024WHATIF; @chatton2020).
+
+3. **Positivity**: we assume that within all covariate-defined strata necessary for achieving exchangeability, there is a non-zero probability of receiving each possible treatment level. The positivity assumption ensures that treatment effects are estimable across the spectrum of observed covariate combinations (@westreich2010).
+
+### Target Population
+
+The target population for this study comprises New Zealand residents as represented in the baseline wave of the New Zealand Attitudes and Values Study (NZAVS) during the years 2018-2019, weighted by New Zealand Census weights for age, gender, and ethnicity (refer to @sibley2021). The NZAVS is a national probability study designed to accurately reflect the broader New Zealand population. Despite its comprehensive scope, the NZAVS does have some limitations in its demographic representation. Notably, it tends to under-sample males and individuals of Asian descent while over-sampling females and Māori (the indigenous peoples of New Zealand). To address these disparities and enhance the accuracy of our findings, we apply New Zealand Census survey weights to the sample data. These weights adjust for variations in age, gender, and ethnicity to better approximate the national demographic composition [@sibley2021]. Survey weights were integrated into statistical models using the `weights` option in `lmtp` [@williams2021], following protocols stated in @bulbulia2024PRACTICAL.
+
+
+### Eligibility
+
+
+### Inclusion Criteria
+
+- Enrolled in the 2018 wave of the New Zealand Attitudes and Values Study (NZAVS time 10).
+- Missing covariate data at baseline was permitted, and the data was subjected to imputation methods to reduce bias. Only information obtained at baseline was used for such imputation (refer to @zhang2023shouldMultipleImputation).
+Participants may have been lost to follow-up at the end of the study NZAVS time 12 if they met eligibility criteria at NZAVS time 11 (the treatment wave). We adjusted for attrition and non-response using censoring weights, described below.
+
+### Exclusion Criteria
+
+- Did not answer the forgiveness question at New Zealand Attitudes and Values Study at time 10 (the baseline wave) and NZAVS time 11 (the treatment wave).
+
+
+A total of `r n_participants` individuals met these criteria and were included in the study.
+
+
+###  Causal Identification 
+
+::: {#tbl-02}
+```{=latex}
+\threevanderweeele
+```
+This table presents a causal diagram using @vanderweele2020's approach for confounding control in a three-wave panel design. By including baseline measures of all outcomes in every model, as well as including the baseline treatment, and a rich array of covariates, we assume may back door paths between the treatment and outcomes will be blocked. However, because confounding cannot be ensured, we also perform sensitivity analyses.
+:::
+
+
+To address confounding in our analysis, we implement @vanderweele2019's *modified disjunctive cause criterion* by following these steps:
+
+  1. **Identified all common causes** of both the treatment and outcomes to ensure a comprehensive approach to confounding control.
+  2. **Excluded instrumental variables** that affect the exposure but not the outcome. Instrumental variables do not contribute to controlling confounding and can reduce the efficiency of the estimates.
+  3. **Included proxies for unmeasured confounders** affecting both exposure and outcome. According to the principles of d-separation, using proxies allows us to control for their associated unmeasured confounders indirectly.
+  4. **Controlled for baseline exposure** and **baseline outcome**. Both are used as proxies for unmeasured common causes, enhancing the robustness of our causal estimates.
+
+@tbl-02 presents a causal diagram describing the general confounding control of @vanderweele2020. 
+
+
+[Appendix B](#appendix-demographics) details the covariates we included for confounding control. These methods adhere to the guidelines provided in [@bulbulia2024PRACTICAL] and were pre-specified in our study protocol [https://osf.io/ce4t9/](https://osf.io/ce4t9/).
+
+
+
+### Missing Data
+
+To address bias from missing responses and attrition, we implement the following strategies:
+
+**Baseline missingness**: we employed the `ppm` algorithm from the `mice` package in R [@vanbuuren2018] to impute missing baseline data. This method allowed us to reconstruct incomplete datasets by estimating a plausible value for missing observation. Because we could only pass one data set to the `lmtp`, we employed single imputation. 1.3% of covariate values were missing at baseline. Eligibility for the study required fully observed baseline treatment measures as well as treatment wave treatment measures. Again, we only used baseline data to impute baseline missingness (refer to @zhang2023shouldMultipleImputation).
+
+**Outcome missingness**: to address confounding and selection bias arising from missing responses and panel attrition, we applied censoring weights obtained using nonparametric machine learning ensembles afforded by the `lmtp` package (and its dependencies) in R [@williams2021]. 
+
+### Statistical Estimator
+
+We perform statistical estimation using Targeted Learning (TMLE) TMLE operates through a two-step process that involves modelling both the outcome and treatment (exposure). In implementing TMLE, we employ machine learning algorithms and five-fold cross-validation to flexibly model the relationship between treatments, covariates, and outcomes. Machine learning allows us to efficiently account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions [@van2014discussion; @vanderlaan2011; @vanderlaan2018]. The outcome of this step is a set of initial estimates for these relationships.
+
+The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate [@van2014discussion]. A central feature of TMLE is its double-robustness property. If either the treatment model or the outcome model is correctly specified, the TMLE estimator will consistently estimate the causal effect. Again we used five-fold cross-validation following the protocols stated in @bulbulia2024PRACTICAL. We perform estimation using the `lmtp` package [@williams2021]. We used the `superlearner` library for semi-parametric estimation with the predefined libraries `SL.ranger`, `SL.glmnet`, and `SL.xgboost` [@polley2023; @xgboost2023; @Ranger2017]. W**`SL.ranger`**: implements a random forest algorithm that handles non-linear relationships and complex patterns, improving model accuracy but potentially increasing variance. **`SL.glmnet`**: provides regularised linear models that help manage high dimensionality and collinearity, effectively reducing model variance and improving stability. **`SL.xgboost`**: uses gradient boosting to optimize performance and capture complex interactions, balancing the model’s ability to explore data complexities without overfitting [@polley2023]. The ensemble approach of `superlearner` optimally combines predictions from these models. Gaphs, tables and output reports were created using the `margot` package [@margot2024]. For further details of the targeted learning using `lmtp` see [@hoffman2022; @hoffman2023; @díaz2021].
+
+
+### P-Values
+
+We reiterate that our primary interest does not lie in testing specific hypotheses; thus, we do not report p-values or adjusted p-values. Instead, all causal contrasts are presented with point estimates alongside 95% confidence intervals. This approach aims to quantify the uncertainty associated with our estimates, conditioned on the available data, the statistical models employed, and the validity of our causal assumptions.
+
+### Sensitivity Analysis Using the E-value
+
+To assess the sensitivity of results to unmeasured confounding, we report VanderWeele and Ding's E-value in all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE]. To evaluate the strength of evidence, we use the bound of the E-value 95% confidence interval closest to 1. Although the E-value provides an approximate sensitivity analysis, its interpretation is straightforward. 
+
+
+### Scope of Interventions
+
+To illustrate the magnitude of the shift interventions we contrast, we provide histograms in @fig-hist that display the distribution of forgiveness during the treatment wave. @fig-hist *A*: clarifies the shift required for the *therapeutic intervention* in which all below average are shifted to average forgiveness. @fig-hist *B*: clarifies the shift required for the *general intervention* in which the entire population is nudged upward in forgiveness by one unit on a 1-7 Likert scale, up to the maximum value of seven.
+
+
+```{r}
+#| label: fig-hist
+#| fig-cap: "Histogram of shift interventions. (A) Orange describes those shifted in the thearapeutic intervention. All those responses in grey (four and above) remain unchanged. (B) Gold denotes those shifted up by less than one point in forgiveness, thus preserving the scale's maximum value. The control for each intervention is the status quo: no intervention."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+graph_density_of_exposure_up <- margot::here_read("graph_density_of_exposure_up")
+graph_density_of_exposure_mean<-margot::here_read("graph_density_of_exposure_mean")
+graph_density_of_exposure_mean/ graph_density_of_exposure_up + plot_annotation(tag_level = "A") + theme_classic()
+```
+{{< pagebreak >}}
+### Evidence for Change in the Treatment Variable
+
+@tbl-transition clarifies the change in the treatment variable from the baseline wave to the baseline + 1 wave across the sample.  Assessing change in a variable is essential for evaluating the positivity assumption and recovering evidence for the incident-exposure effect of the treatment variable [@vanderweele2020; @danaei2012; @hernan2024WHATIF].  
+
+```{r}
+#| label: tbl-transition
+#| tbl-cap: "This transition matrix captures stability and change in forgiveness between the baseline and treatment wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the state at baseline (From), and the columns correspond to the state at the treatment wave (To). **Diagonal entries** (in **bold**) signify the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** signify the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts in the sample from the baseline state to other states."
+#| eval: true
+#| echo: false
+
+transition_table <- margot::here_read("transition_table")
+
+transition_table$table
+```
+
+
+{{< pagebreak >}}
+
+
+## Results
+
+### Study 1: Health Outcomes
+
+
+#### Therapeutic Intervention
+
+
+@fig-1_1 *A* and @tbl-1_1. describe results of the therapeutic forgiveness intervention on health
+
+
+```{r}
+#| label: tbl-1_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting all those below average forgiveness to average on health outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_health |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_health, estimand = "ATE", causal_scale = "causal_difference")
+#margot_interpret_table(out_tab_contrast_t2_smoker_binary, estimand = "ATE", causal_scale = "risk_ratio" )
+```
+The Average Treatment Effect (ATE) measures the mean difference in outcomes between treatment and contrast groups within the target population.
+
+For 'Short form health, your health', the effect estimate on the causal_difference scale is 0.025 [0.0177, 0.0321]. The E-value for this estimate is 1.176, with a lower bound of 1.1445. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.1445 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Hours sleep', the effect estimate on the causal_difference scale is 0.012 [0.0033, 0.0197]. The E-value for this estimate is 1.1136, with a lower bound of 1.0578. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.0578 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+For 'Hours excercise', the effect estimate on the causal_difference scale is 0.002 [-0.0063, 0.0113]. The E-value for this estimate is 1.0501, with a lower bound of 1. The **evidence for causality is not reliable**.
+
+For 'BMI', the effect estimate on the causal_difference scale is 0 [-0.0044, 0.0043]. The E-value for this estimate is 1.0096, with a lower bound of 1. The **evidence for causality is not reliable**.
+
+For 'Alcohol frequency', the effect estimate on the causal_difference scale is -0.002 [-0.0083, 0.0036]. The E-value for this estimate is 1.049, with a lower bound of 1. The **evidence for causality is not reliable**.
+
+For 'Alcohol intensity', the effect estimate on the causal_difference scale is -0.009 [-0.0173, -4e-04]. The E-value for this estimate is 1.0981, with a lower bound of 1.0192. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.0192 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+Finally, for 'Smoker', the effect estimate on the risk_ratio scale is 0.985 [0.951, 1.019]. The E-value for this estimate is 1.14, with a lower bound of 1. The **evidence for causality is not reliable**.
+
+#### General Intervention
+
+@fig-1_1 *B* and @tbl-1_2 describe results for the therapeutic forgiveness interventions
+
+```{r}
+#| label: tbl-1_2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting everyone up by one point in forgiveness to the maximum of the range on health outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_health_1 |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_health_1, estimand = "ATE", causal_scale = "causal_difference")
+#margot_interpret_table(out_tab_contrast_t2_smoker_binary, estimand = "ATE", causal_scale = "risk_ratio" )
+
+```
+
+
+For 'Short form health, your health', the effect estimate on the causal_difference scale is 0.045 [0.035, 0.054]. The E-value for this estimate is 1.25, with a lower bound of 1.216. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.216 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Hours sleep', the effect estimate on the causal_difference scale is 0.019 [0.008, 0.029]. The E-value for this estimate is 1.151, with a lower bound of 1.088. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.088 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+For 'Hours excercise', the effect estimate on the causal_difference scale is 0.003 [-0.009, 0.015]. The E-value for this estimate is 1.055, with a lower bound of 1. The **evidence for causality is not reliable**.
+
+For 'Alcohol frequency', the effect estimate on the causal_difference scale is 0.002 [-0.007, 0.01]. The E-value for this estimate is 1.045, with a lower bound of 1. The **evidence for causality is not reliable**.
+
+For 'BMI', the effect estimate on the causal_difference scale is -0.002 [-0.007, 0.004]. The E-value for this estimate is 1.045, with a lower bound of 1. The **evidence for causality is not reliable**.
+
+For 'Alcohol intensity', the effect estimate on the causal_difference scale is -0.02 [-0.03, -0.009]. The E-value for this estimate is 1.155, with a lower bound of 1.106. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.106 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+Finally, for 'Smoker', the effect estimate on the risk_ratio scale is 0.985 [0.951, 1.019]. The E-value for this estimate is 1.14, with a lower bound of 1. The **evidence for causality is not reliable**.
+
+```{r}
+#| label: fig-1_1
+#| fig-cap: "This figure reports the results for both the (A) therapeutic (B) general forgiveness interventions on health outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+plot_compare_health
+```
+
+{{< pagebreak >}}
+
+### Study 2: Embodied Well-Being Outcomes
+
+
+#### Therapeutic Intervention
+
+@fig-2_1 *A* and @tbl-2_1 describe results for the therapeutic forgiveness interventions
+
+```{r}
+#| label: tbl-2_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting all those below average forgiveness to average on embodied well-being outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_body |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_body, estimand = "ATE", causal_scale = "causal_difference")
+```
+
+
+For 'Sexual satisfaction', the effect estimate on the causal_difference scale is 0.023 [0.016, 0.031]. The E-value for this estimate is 1.168, with a lower bound of 1.133. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.133 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Body satisfaction', the effect estimate on the causal_difference scale is 0.022 [0.014, 0.029]. The E-value for this estimate is 1.164, with a lower bound of 1.128. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.128 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Fatigue', the effect estimate on the causal_difference scale is -0.024 [-0.031, -0.016]. The E-value for this estimate is 1.172, with a lower bound of 1.138. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.138 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Kessler 6 anxiety', the effect estimate on the causal_difference scale is -0.038 [-0.046, -0.031]. The E-value for this estimate is 1.226, with a lower bound of 1.197. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.197 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Kessler 6 depression', the effect estimate on the causal_difference scale is -0.047 [-0.055, -0.039]. The E-value for this estimate is 1.257, with a lower bound of 1.23. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.23 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Rumination', the effect estimate on the causal_difference scale is -0.062 [-0.07, -0.053]. The E-value for this estimate is 1.306, with a lower bound of 1.281. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.281 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+#### General Intervention
+
+@fig-2_1 *B* and @tbl-2_2 describe results for the general forgiveness interventions
+
+```{r}
+#| label: tbl-2_2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting everyone up by one point in forgiveness (to the maximum of the range) on embodied well-being outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+tab_body_1 |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_body_1, estimand = "ATE", causal_scale = "causal_difference")
+
+```
+
+For 'Sexual satisfaction', the effect estimate on the causal_difference scale is 0.033 [0.022, 0.044]. The E-value for this estimate is 1.208, with a lower bound of 1.169. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.169 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Body satisfaction', the effect estimate on the causal_difference scale is 0.029 [0.019, 0.04]. The E-value for this estimate is 1.192, with a lower bound of 1.152. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.152 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Fatigue', the effect estimate on the causal_difference scale is -0.001 [-0.011, 0.01]. The E-value for this estimate is 1.031, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. The **evidence for causality is not reliable**.
+
+For 'Kessler 6 depression', the effect estimate on the causal_difference scale is -0.041 [-0.051, -0.031]. The E-value for this estimate is 1.237, with a lower bound of 1.201. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.201 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Kessler 6 anxiety', the effect estimate on the causal_difference scale is -0.06 [-0.07, -0.05]. The E-value for this estimate is 1.3, with a lower bound of 1.268. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.268 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Rumination', the effect estimate on the causal_difference scale is -0.077 [-0.087, -0.066]. The E-value for this estimate is 1.352, with a lower bound of 1.322. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.322 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+```{r}
+#| label: fig-2_1
+#| fig-cap: "This figure reports the results for both the (A) therapeutic (B) general forgiveness interventions on embodied well-being. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+plot_compare_body
+```
+
+{{< pagebreak >}}
+
+
+### Study 3: Ego-Related Well-Being Outcomes
+
+
+#### Therapeutic Intervention
+
+@fig-3_1 *A* and @tbl-3_1 describe results for the therapeutic forgiveness interventions on ego-related well-being.
+
+```{r}
+#| label: tbl-3_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting all those below average forgiveness to average on ego-related well-being outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_ego |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_ego, estimand = "ATE", causal_scale = "causal_difference")
+```
+
+For 'Self-esteem', the effect estimate on the causal_difference scale is 0.036 [0.029, 0.042]. The E-value for this estimate is 1.219, with a lower bound of 1.197. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.197 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Self-control wish more (reversed)', the effect estimate on the causal_difference scale is 0.018 [0.011, 0.025]. The E-value for this estimate is 1.146, with a lower bound of 1.106. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.106 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Self-control have', the effect estimate on the causal_difference scale is 0.016 [0.008, 0.023]. The E-value for this estimate is 1.137, with a lower bound of 1.094. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.094 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+For 'Permeability self', the effect estimate on the causal_difference scale is 0.013 [0.004, 0.021]. The E-value for this estimate is 1.122, with a lower bound of 1.074. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.074 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+For 'Perfectionism', the effect estimate on the causal_difference scale is -0.039 [-0.046, -0.032]. The E-value for this estimate is 1.23, with a lower bound of 1.208. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.208 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Power no control', the effect estimate on the causal_difference scale is -0.051 [-0.058, -0.043]. The E-value for this estimate is 1.271, with a lower bound of 1.244. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.244 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Emotional regulation (out of control)', the effect estimate on the causal_difference scale is -0.055 [-0.063, -0.047]. The E-value for this estimate is 1.284, with a lower bound of 1.258. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.258 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+#### General Intervention
+
+@fig-3_1 *B* and @tbl-3_2 describe results for the general forgiveness interventions on ego-related well-being
+
+```{r}
+#| label: tbl-3_2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting everyone up by one point in forgiveness (to the maximum of the range) on ego-related well-being outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+tab_ego_1 |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_ego_1, estimand = "ATE", causal_scale = "causal_difference")
+
+```
+For 'Self esteem', the effect estimate on the causal_difference scale is 0.036 [0.029, 0.042]. The E-value for this estimate is 1.219, with a lower bound of 1.197. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.197 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Self control wish more (reversed)', the effect estimate on the causal_difference scale is 0.018 [0.011, 0.025]. The E-value for this estimate is 1.146, with a lower bound of 1.106. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.106 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Self control have', the effect estimate on the causal_difference scale is 0.016 [0.008, 0.023]. The E-value for this estimate is 1.137, with a lower bound of 1.094. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.094 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+For 'Permeability self', the effect estimate on the causal_difference scale is 0.013 [0.004, 0.021]. The E-value for this estimate is 1.122, with a lower bound of 1.074. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.074 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+For 'Perfectionism', the effect estimate on the causal_difference scale is -0.039 [-0.046, -0.032]. The E-value for this estimate is 1.23, with a lower bound of 1.208. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.208 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Power no control', the effect estimate on the causal_difference scale is -0.051 [-0.058, -0.043]. The E-value for this estimate is 1.271, with a lower bound of 1.244. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.244 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Emotional regulation (out of control)', the effect estimate on the causal_difference scale is -0.055 [-0.063, -0.047]. The E-value for this estimate is 1.284, with a lower bound of 1.258. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.258 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+
+```{r}
+#| label: fig-3_1
+#| fig-cap: "This figure reports the results for both the (A) therapeutic (B) general forgiveness interventions on ego-related well-being. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+plot_compare_ego
+```
+
+{{< pagebreak >}}
+
+
+
+### Study 4: Reflective Well-Being Outcomes
+
+
+#### Therapeutic Intervention
+
+@fig-4_1 *A* and @tbl-4_1 describe results for the therapeutic forgiveness interventions on reflective well-being
+
+```{r}
+#| label: tbl-4_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting all those below average forgiveness to average on embodied well-being outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_reflective |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_reflective, estimand = "ATE", causal_scale = "causal_difference")
+```
+
+For 'Gratitude', the effect estimate on the causal_difference scale is 0.037 [0.03, 0.045]. The E-value for this estimate is 1.222, with a lower bound of 1.193. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.193 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Satisfaction with life', the effect estimate on the causal_difference scale is 0.035 [0.028, 0.042]. The E-value for this estimate is 1.215, with a lower bound of 1.185. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.185 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'PWB your relationships', the effect estimate on the causal_difference scale is 0.034 [0.026, 0.042]. The E-value for this estimate is 1.211, with a lower bound of 1.181. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.181 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Meaning: clear sense of purpose', the effect estimate on the causal_difference scale is 0.028 [0.021, 0.036]. The E-value for this estimate is 1.189, with a lower bound of 1.156. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.156 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Meaning: good sense of what makes my life meaningful', the effect estimate on the causal_difference scale is 0.024 [0.016, 0.033]. The E-value for this estimate is 1.172, with a lower bound of 1.138. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.138 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'PWB your health', the effect estimate on the causal_difference scale is 0.022 [0.015, 0.03]. The E-value for this estimate is 1.164, with a lower bound of 1.128. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.128 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'PWB your standard living', the effect estimate on the causal_difference scale is 0.019 [0.011, 0.027]. The E-value for this estimate is 1.151, with a lower bound of 1.112. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.112 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'PWB your future security', the effect estimate on the causal_difference scale is 0.016 [0.008, 0.024]. The E-value for this estimate is 1.137, with a lower bound of 1.094. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.094 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+
+#### General Intervention
+
+@fig-4_1 *B* and @tbl-4_2 describe results for the general forgiveness interventions
+
+```{r}
+#| label: tbl-4_2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting everyone up by one point in forgiveness (to the maximum of the range) on reflective well-being. The constrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+tab_reflective_1 |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_reflective_1, estimand = "ATE", causal_scale = "causal_difference")
+
+```
+For 'Gratitude', the effect estimate on the causal_difference scale is 0.089 [0.076, 0.102]. The E-value for this estimate is 1.387, with a lower bound of 1.347. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.347 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Satisfaction with life', the effect estimate on the causal_difference scale is 0.082 [0.072, 0.091]. The E-value for this estimate is 1.366, with a lower bound of 1.337. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.337 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Meaning: clear sense of purpose', the effect estimate on the causal_difference scale is 0.078 [0.068, 0.088]. The E-value for this estimate is 1.355, with a lower bound of 1.325. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.325 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Meaning: good sense of what makes my life meaningful', the effect estimate on the causal_difference scale is 0.061 [0.051, 0.072]. The E-value for this estimate is 1.303, with a lower bound of 1.271. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.271 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'PWB your relationships', the effect estimate on the causal_difference scale is 0.053 [0.043, 0.064]. The E-value for this estimate is 1.277, with a lower bound of 1.244. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.244 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'PWB your future security', the effect estimate on the causal_difference scale is 0.051 [0.041, 0.062]. The E-value for this estimate is 1.271, with a lower bound of 1.237. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.237 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'PWB your standard living', the effect estimate on the causal_difference scale is 0.049 [0.038, 0.059]. The E-value for this estimate is 1.264, with a lower bound of 1.23. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.23 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'PWB your health', the effect estimate on the causal_difference scale is 0.047 [0.033, 0.06]. The E-value for this estimate is 1.257, with a lower bound of 1.209. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.209 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+
+```{r}
+#| label: fig-4_1
+#| fig-cap: "This figure reports the results for both the (A) therapeutic (B) general forgiveness interventions on reflective well-being. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+plot_compare_reflective
+```
+
+{{< pagebreak >}}
+
+### Study 5: Social Well-Being Outcomes
+
+
+#### Therapeutic Intervention
+
+@fig-5_1 *B* and @tbl-5_1 describe results for the therapeutic forgiveness interventions on social well-being
+
+```{r}
+#| label: tbl-5_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting all those below average forgiveness to average on social well-being outcomes. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_social |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+#margot_interpret_table(tab_social, estimand = "ATE", causal_scale = "causal_difference")
+```
+
+For 'Social belonging', the effect estimate on the causal_difference scale is 0.038 [0.031, 0.045]. The E-value for this estimate is 1.226, with a lower bound of 1.197. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.197 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Social support', the effect estimate on the causal_difference scale is 0.036 [0.028, 0.043]. The E-value for this estimate is 1.219, with a lower bound of 1.189. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.189 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Neighbourhood community', the effect estimate on the causal_difference scale is 0.013 [0.005, 0.021]. The E-value for this estimate is 1.122, with a lower bound of 1.074. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.074 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality is weak**.
+
+#### General Intervention
+
+@fig-5_1 *B* and @tbl-5_2 describe results for the general forgiveness interventions on social well-being.
+
+```{r}
+#| label: tbl-5_2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects shifting everyone up by one point in forgiveness (to the maximum of the range) on social well-being. The contrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+tab_social_1 |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  arrange(desc(`E[Y(1)]-E[Y(0)]`)) |>
+  kable(format = "markdown") 
+
+# margot_interpret_table(tab_social_1, estimand = "ATE", causal_scale = "causal_difference")
+
+```
+
+For 'Neighbourhood community', the effect estimate on the causal_difference scale is 0.055 [0.045, 0.066]. The E-value for this estimate is 1.284, with a lower bound of 1.251. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.251 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Social belonging', the effect estimate on the causal_difference scale is 0.049 [0.04, 0.059]. The E-value for this estimate is 1.264, with a lower bound of 1.23. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.23 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
+
+For 'Social support', the effect estimate on the causal_difference scale is 0.042 [0.032, 0.052]. The E-value for this estimate is 1.24, with a lower bound of 1.205. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.205 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**
+
+
+
+```{r}
+#| label: fig-5_1
+#| fig-cap: "This figure reports the results for both the (A) therapeutic (B) general foregiveness interventions on social well-being. The constrast condition is the status quo (no shift). Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+plot_compare_social
+```
+
+{{< pagebreak >}}
+
+
+
+
+
+## Discussion 
+
+### Comments
+
+* Doubly robust semi-parametric machine learning, in our experience, tends to shrink effect estimates to zero. Although we cannot know the ground truth, the world operates in small effects.
+
+* Results transport to the New Zealand Population. With assumptions, they might transport to other populations, however we advise caution.
+
+
+### Observations and Recommendations
+
+
+
+* Although forgiveness is other-focussed, the strongest signals we detect here are for benefits to the self. 
+
+* It is not the work of psychological scientists and statisticians to offer advice. Rather, we hope to inform clinical and public decision-making with evidence.
+
+* Although summing over the population we find the strongest effects for the general intervention, an important unresolved question is for whom the effects we observe here operate most most strongly.
+
+* Another open question is how forgiveness might be enabled in people, a matter of future research. 
+
+
+
+
+{{< pagebreak >}}
+
+### Ethics
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+### Data Availability
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: [https://github.com/go-bayes/models/blob/main/scripts/24-rc-forgive/lmpt-ow-fl-forgiveness.R](https://github.com/go-bayes/models/blob/main/scripts/24-rc-forgive/lmpt-ow-fl-forgiveness.R). 
+
+
+### Acknowledgements
+
+*Authors to fill out*
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+### Author Statement
+
+*Authors to amend*
+
+CS led NZAVS data collection. TV conceived of the outcome-wide approach and three-wave panel design. RC conceived of this study with input from PF, EW, and JB. JB developed the modelling approach and did the data analysis. All authors contributed to the manuscript.
+
+
+{{< pagebreak >}}
+
+## Appendix A: Sample Characteristics {#appendix-measures}
+
+The following indicators were included in all models for confounding control. Note that baseline measurements of the outcome variables and the baseline exposure were also included in all models for confounding control. Responses to these indicators are reported in Appendix C and Appendix D.
+
+
+#### Age (waves: 1-15)
+
+We asked participants' ages in an open-ended question ("What is your age?" or "What is your date of birth?").
+
+
+
+#### Children Number (waves: 1-3, 4-15)
+
+We measured the number of children using one item from @Bulbulia_2015. We asked participants, "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15).
+
+<!-- Here, we used responses to create a binary indicator for parenthood: Parent Yes = 1/ No = 0.  -->
+
+<!-- #### Community: Sense of Community (Study 2 outcome) -->
+
+<!-- We measured a sense of community with a single item from @sengupta2013: "I feel a sense of community with others in my local neighbourhood." Participants answered on a scale of 1 (strongly disagree) to 7 (strongly agree). -->
+
+
+<!-- #### Community: Felt Belongingness  (Study 2 outcome) -->
+
+<!-- We assessed felt belongingness with three items adapted from the Sense of Belonging Instrument [@hagerty1995]: (1) "Know that people in my life accept and value me"; (2) "Feel like an outsider"; (3) "Know that people around me share my attitudes and beliefs". Participants responded on a scale from 1 (Very Inaccurate) to 7 (Very Accurate). The second item was reversely coded. -->
+
+<!-- #### Community: Social Support (Study 2 outcome) -->
+
+<!-- Participants perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated how much they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+#### Disability
+
+We assessed disability with a one-item indicator adapted from @verbrugge1997. It asks, "Do you have a health condition or disability that limits you and that has lasted for 6+ months?" (1 = Yes, 0 = No).
+
+
+#### Education Attainment (waves: 1, 4-15)
+
+We asked participants, "What is your highest level of qualification?". We coded participants' highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
+
+<!-- #### Employment (waves: 1-3, 4-11) -->
+
+<!-- We asked participants, "Are you currently employed? (This includes self-employed or casual work)". -->
+
+<!-- #### European (waves: 1-15) -->
+
+<!-- Participants were asked, "Which ethnic group do you belong to (NZ census question)?" or "Which ethnic group(s) do you belong to? (Open-ended)" (wave: 3). Europeans were coded as 1, whereas other ethnicities were coded as 0. -->
+
+#### Ethnicity
+
+Based on the New Zealand Census, we asked participants, "Which ethnic group(s) do you belong to?". The responses were: (1) New Zealand European; (2) Māori; (3) Samoan; (4) Cook Island Māori; (5) Tongan; (6) Niuean; (7) Chinese; (8) Indian; (9) Other such as DUTCH, JAPANESE, TOKELAUAN. Please state:. We coded their answers into four groups: Maori, Pacific, Asian, and Euro (except for Time 3, which used an open-ended measure).
+
+
+<!-- #### Fatigue -->
+
+<!-- We assessed subjective fatigue by asking participants, "During the last 30 days, how often did ... you feel exhausted?" Responses were collected on an ordinal scale (0 = None of The Time, 1 = A little of The Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time). -->
+
+
+#### Honesty-Humility-Modesty Facet (waves: 10-14)
+
+Participants indicated the extent to which they agree with the following four statements from @campbell2004 , and @sibley2011 (1 = Strongly Disagree to 7 = Strongly Agree)
+
+
+  i.  I want people to know that I am an important person of high status, (Waves: 1, 10-14)
+  ii. I am an ordinary person who is no better than others.
+  iii. I wouldn't want people to treat me as though I were superior to them.
+  iv. I think that I am entitled to more respect than the average person is.
+
+
+<!-- #### Has Siblings -->
+
+<!-- "Do you have siblings?" [@stronge2019onlychild] -->
+
+
+
+<!-- #### Hours of Exercise -->
+
+<!-- We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity"  -->
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+<!-- #### Hours Volunteering -->
+
+<!-- We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work." -->
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+#### Hours of Childcare
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+<!-- #### Hours of Exercise -->
+
+<!-- We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity"  -->
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+
+#### Hours of Housework
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+<!-- #### Hours of Sleep -->
+
+<!-- Participants were asked, "During the past month, on average, how many hours of *actual sleep* did you get per night?". -->
+
+
+#### Hours of Work
+
+We measured work hours using one item from @sibley2011: "Hours spent … working in paid employment."
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Income (waves: 1-3, 4-15)
+
+Participants were asked, "Please estimate your total household income (before tax) for the year XXXX". To stabilise this indicator, we first took the natural log of the response + 1, and then centred and standardised the log-transformed indicator.
+
+<!-- #### Job Security (waves: 1-3,4-7,9-15) -->
+
+<!-- Participants indicated their feeling of job security by answering "How secure do you feel in your current job?" on a scale from 1 (not secure) to 7 (very secure). -->
+
+
+<!-- #### Kessler-6: Psychological Distress  (waves: 2-3,4-15) -->
+
+<!-- We measured psychological distress using the Kessler-6 scale (kessler2002?), which exhibits -->
+<!-- strong diagnostic concordance for moderate and severe psychological distress in large, crosscultural -->
+<!-- samples (kessler2010?; prochaska2012?). Participants rated during the past 30 -->
+<!-- days, how often did… (1) “… you feel hopeless”; (2) “… you feel so depressed that nothing -->
+<!-- could cheer you up”; (3) “… you feel restless or fidgety”; (4)“… you feel that everything was -->
+<!-- an effort”; (5) “… you feel worthless”; (6) ” you feel nervous?” Ordinal response alternatives -->
+<!-- for the Kessler-6 are: “None of the time”; “A little of the time”; “Some of the time”; “Most of -->
+<!-- the time”; “All of the time.” -->
+
+
+#### Male Gender (waves: 1-15)
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male as 1, and gender diverse coded as 3 [@fraser_coding_2020]. (or 0.5 = neither female nor male)
+
+Here, we coded all those who responded as Male as 1, and those who did not as 0.
+
+
+#### Mini-IPIP 6 (waves: 1-3,4-15)
+
+We measured participants' personalities with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011], which consists of six dimensions and each dimension is measured with four items:
+
+1.  agreeableness,
+
+    i.  I sympathize with others' feelings.
+    ii. I am not interested in other people's problems. (r)
+    iii. I feel others' emotions.
+    iv. I am not really interested in others. (r)
+
+2.  conscientiousness,
+
+    i.  I get chores done right away.
+    ii. I like order.
+    iii. I make a mess of things. (r)
+    iv. I often forget to put things back in their proper place. (r)
+
+3.  extraversion,
+
+    i.  I am the life of the party.
+    ii. I don't talk a lot. (r)
+    iii. I keep in the background. (r)
+    iv. I talk to a lot of different people at parties.
+
+4.  honesty-humility,
+
+    i.  I feel entitled to more of everything. (r)
+    ii. I deserve more things in life. (r)
+    iii. I would like to be seen driving around in a very expensive car. (r)
+    iv. I would get a lot of pleasure from owning expensive luxury goods. (r)
+
+5.  neuroticism, and
+
+    i.  I have frequent mood swings.
+    ii. I am relaxed most of the time. (r)
+    iii. I get upset easily.
+    iv. I seldom feel blue. (r)
+
+6.  openness to experience
+
+    i.  I have a vivid imagination.
+    ii. I have difficulty understanding abstract ideas. (r)
+    iii. I do not have a good imagination. (r)
+    iv. I am not interested in abstract ideas. (r)
+
+Each dimension was assessed with four items and participants rated the accuracy of each item as it applies to them from 1 (Very Inaccurate) to 7 (Very Accurate). Items marked with (r) are reverse coded.
+
+
+#### NZ-Born (waves: 1-2,4-15)
+
+We asked participants, "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).
+
+
+#### NZ Deprivation Index
+
+We used the NZ Deprivation Index to assign each participant a score based on where they live [@atkinson2019]. This score combines data such as income, home ownership, employment, qualifications, family structure, housing, and access to transport and communication for an area into one deprivation score.
+
+
+#### NZSEI Occupational Prestige and Status 
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017a]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant an NZSEI-13 score based on their occupation.
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant an NZSEI-13 score based on their occupation.
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?". -->
+<!-- #### Parent (waves: 5-15) -->
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. --> 
+
+
+
+
+<!-- #### Opt-in -->
+
+<!-- The New Zealand Attitudes and Values Study allows opt-ins to the study. Because the opt-in population may differ from those sampled randomly from the New Zealand electoral roll; although the opt-in rate is low, we include an indicator (yes/no) for this variable. -->
+
+
+
+#### Partner (No/Yes)
+
+"What is your relationship status?" (e.g., single, married, de-facto, civil union, widowed, living together, etc.)
+
+
+#### Politically Conservative 
+
+We measured participants' political conservative orientation using a single item adapted from @jost_end_2006-1.
+
+"Please rate how politically liberal versus conservative you see yourself as being."
+
+(1 = Extremely Liberal to 7 = Extremely Conservative)
+
+
+####  Religion: Religious Identification
+
+If participants answered *yes* to "Do you identify with a religion and/or spiritual group? we asked"How important is your religion to how you see yourself?" (1 = Not important, 7 = Very important). Those participants who were not religious were imputed a score of "0".
+
+#### Religion: Spiritual Identification
+
+Spiritual identification was measured using one item ("I identify as a spiritual person.") from @postmes_single-item_2013. Participants indicated their agreement with this item (1 = Strongly Disagree to 7 = Strongly Agree).
+
+
+#### Religious Service Attendance
+
+If participants answered *yes* to "Do you identify with a religion and/or spiritual group?" we measured their frequency of church attendence using one item from @sibley2012: "how many times did you attend a church or place of worship in the last month?". Those participants who were not religious were imputed a score of "0". To avoid extreme values, those who indicated a frequency above eight were assigned a value of eight.
+
+#### Rural/Urban Codes
+
+Participants residence locations were coded according to a five-level ordinal categorisation ranging from "Urban" to Rural, see @sibley2021.
+
+<!-- #### Politically Right Wing  -->
+
+<!-- We measured participants' political right-wing orientation using a single item adapted from @jost_end_2006-1. -->
+
+<!-- "Please rate how politically left-wing versus right-wing you see yourself as being." -->
+
+<!-- (1 = Extremely left-wing to 7 = Extremely right-wing) -->
+
+
+<!-- #### Religion Affiliation -->
+
+<!-- Participants were asked to indicate their religion identification ("Do you identify with a religion and/or spiritual group?") on a binary response (1 = Yes, 0 = No). We then asked, "What religion or spiritual group?" These questions are used in the New Zealand Census -->
+
+
+<!-- #### Support -->
+
+<!-- Participants' perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated how much they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+#### Short-Form Health
+
+Participants' subjective health was measured using one item ("Do you have a health condition or disability that limits you, and that has lasted for 6+ months?"; 1 = Yes, 0 = No) adapted from @verbrugge1997.
+
+
+#### Sample Origin
+
+Wave enrolled in NZAVS, see @sibley2021.
+
+<!-- #### Socialising (time 10, time 11) -->
+
+<!-- As part of the time usage measures, participants were asked to state how many hour the spent in activities related to socialising with the following groups: -->
+
+<!--   - Hours spent … socialising with family -->
+<!--   - Hours spent … socialising with friends -->
+<!--   - Hours spent … socialising with community groups -->
+
+<!--   <!-- - Hours spent … socialising with religious groups -->
+
+
+#### Total Siblings
+
+Participants were asked the following questions related to sibling counts: 
+ 
+ - Were you the 1st born, 2nd born, or 3rd born, etc, child of your mother?
+ - Do you have siblings?
+ - How many older sisters do you have?
+ - How many younger sisters do you have?
+ - How many older brothers do you have?
+ - How many younger brothers do you have?
+
+A single score was obtained from sibling counts by summing responses to the "How many..." items. From these scores, an ordered factor was created ranging from 0 to 7, where participants with more than 7 siblings were grouped into the highest category. 
+
+
+<!-- #### Volunteers -->
+
+<!-- We asked participants,"Please estimate how many hours you spent doing each of the following things last week" and responded to an item ("voluntary/charitable work") from [@sibley2011]. -->
+
+
+{{< pagebreak >}}
+
+## Appendix B. Baseline Demographic Statistics {#appendix-demographics}
+
+
+```{r}
+#| label: tbl-table-demography
+#| tbl-cap: "Baseline demographic statistics"
+#| eval: true
+#| include: true
+#| echo: false
+
+table_baseline <- margot::here_read("table_baseline")
+table_baseline |>  kbl(format = "markdown")
+```
+
+
+@tbl-table-demography reports baseline sample characteristics. 
+
+{{< pagebreak >}}
+
+
+##  Appendix C: Treatment Statistics {#appendix-exposures}
+
+
+```{r}
+#| label: tbl-table-exposures-code
+#| tbl-cap: "Exposures at baseline and baseline + 1 (treatment) wave"
+#| eval: true
+#| include: true
+#| echo: false
+
+table_exposures <-margot::here_read("table_exposures")
+table_exposures |>  kbl(format = "markdown")
+```
+
+
+tbl-table-exposures-code presents baseline (NZAVS time 10) and exposure wave (NZAVS time 11) statistics for the exposure variable: forgiveness (range 1-7). All models adjusted for the pandemic alert level because the treatment wave (NZAVS time 11) occurred during New Zealand's COVID-19 pandemic. The pandemic is not a "confounder" because a confounder must be related both to the treatment and the outcome. At the end of the study, however, all participants had been exposed to the global pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. Because COVID may have changed the quality and accessibility of forgiveness, we included each participants lockdown condition as a covariate [@sibley2021]. To mitigate systematic biases arising from attrition and missingness, we employed inverse probability of censoring weights, which were computed non-parametrically within our statistical models using the `lmtp` package.
+
+
+
+<!-- ### Imbalance of Confounding Covariates Treatments  -->
+
+<!-- @fig-match_1 shows imbalance of covariates on the treatment at the treatment wave. The variable on which there is strongest imbalance is the baseline measure of religious service attendance. It is important to adjust for this measure both for confounding control and to better estimate an incident exposure effect for the religious service at the treatment wave (in contrast to merely estimating a prevalence effect). See @vanderweele2020. -->
+
+<!-- ```{r} -->
+<!-- #| label: fig-match_1 -->
+<!-- #| fig-cap: "This figure shows the imbalance in covariates on the treatment" -->
+<!-- #| eval: true -->
+<!-- #| include: true -->
+<!-- #| echo: false -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 10 -->
+
+<!-- love_plot_one <- margot::here_read("love_plot_one") -->
+<!-- love_plot_one -->
+<!-- ``` -->
+
+
+##  Appendix D: Baseline and End of Study Outcome Statistics {#appendix-outcomes}
+
+
+```{r}
+#| label: tbl-table-outcomes
+#| tbl-cap: "Outcomes at baseline and end-of-study"
+#| eval: true
+#| include: true
+#| echo: false
+table_outcomes <-margot::here_read("table_outcomes")
+table_outcomes |>  kbl(format = "markdown")
+```
+
+
+
+@tbl-table-outcomes presents baseline and end-of-study descriptive statistics for the outcome variables.  
+
+
+{{< pagebreak >}}
+
+
+
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
