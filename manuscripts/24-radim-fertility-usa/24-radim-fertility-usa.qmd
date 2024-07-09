@@ -61,17 +61,14 @@ csl: /Users/joseph/GIT/templates/csl/camb-a.csl
 #| eval: true
 
 # link to data
-pull_mods <-  fs::path_expand(
+pull_mods <- fs::path_expand(
   "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-radim-usa/24-05-data_for_joe.csv"
 )
 
 # set to your directory
-push_mods <-  fs::path_expand(
+push_mods <- fs::path_expand(
   "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-radim-usa"
 )
-
-#
-
 
 # use p_load to load / install the packages
 pacman::p_load(
@@ -109,7 +106,7 @@ pacman::p_load(
 # update.packages()
 
 # import data
-dat_raw <- read.csv(pull_mods)
+# dat_raw <- read.csv(pull_mods)
 
 # for latex graphs
 # for making graphs
@@ -119,399 +116,118 @@ library("extrafont")
 loadfonts(device = "all")
 
 
-## Read in data from analysis 
+## Read in data from analysis
 # imports
 n_participants <- readRDS(here::here(push_mods, "n_participants"))
-n_total <-  margot::here_read("n_total")
+n_total <- margot::here_read("n_total")
 
 # missing graph baseline
-here_save(missing_total, 'missing_total')
+missing_total <- here_read("missing_total")
 
-# propensity score graph 
+# propensity score graph
 love_plot_one <- margot::here_read("love_plot_one")
 
 # transition table
 transition_table <- margot::here_read("transition_table")
 
+
 # baseline table
-table_baseline <-margot::here_read("table_baseline")
+table_baseline <- margot::here_read("table_baseline")
 
 # exposure table
-table_exposures <-margot::here_read("table_exposures")
+table_exposures <- margot::here_read("table_exposures")
 
 # outcome table
-table_outcomes <-margot::here_read("table_outcomes")
+table_outcomes <- margot::here_read("table_outcomes")
 
 # density of the exposure histograms
-graph_density_of_exposure_up<-margot::here_read("graph_density_of_exposure_up")
-graph_density_of_exposure_mean<-margot::here_read("graph_density_of_exposure_mean")
-
+graph_density_of_exposure_up <- margot::here_read("graph_density_of_exposure_up")
+graph_density_of_exposure_mean <- margot::here_read("graph_density_of_exposure_mean")
 
 #  results
-out_tab_contrast_t2_smoker_binary <- margot::here_read("out_tab_contrast_t2_smoker_binary")
-out_tab_contrast_t2_smoker_binary_1 <- margot::here_read("out_tab_contrast_t2_smoker_binary_1")
-
-tab_health<- margot::here_read("tab_health")
-tab_body<-margot::here_read("tab_body")
-tab_ego<- margot::here_read("tab_ego")
-tab_reflective<-  margot::here_read("tab_reflective")
-tab_social<-  margot::here_read("tab_social")
+tab_contrast_t2_two_or_more_kids <- margot::here_read("tab_contrast_t2_two_or_more_kids")
 
 # contrasts for subgroups
 contrast_male_t2_two_or_more_kids <- margot::here_read("contrast_male_t2_two_or_more_kids")
 contrast_female_t2_two_or_more_kids <- margot::here_read("contrast_female_t2_two_or_more_kids")
 
+
 sub_group_compare <- margot::compute_difference(contrast_male_t2_two_or_more_kids, contrast_female_t2_two_or_more_kids, type = "RR")
+
+# compute the difference in means between the two groups
+result <- compute_rrr(contrast_male_t2_two_or_more_kids, contrast_female_t2_two_or_more_kids)
+
+# display the result
+print(result$results)
+print(result$interpretation)
+
+# Totals
+children_count_gain <- here_read("children_count_gain")
+children_count_loss <- here_read("children_count_loss")
+
+
+tab_contrast_t2_children_count <- here_read("tab_contrast_t2_children_count")
+tab_contrast_t2_children_count <- here_read("tab_contrast_t2_children_count")
+
+tab_contrast_t2_children_count_men <- margot::here_read("tab_contrast_t2_children_count_men")
+tab_contrast_t2_children_count_female <- margot::here_read("tab_contrast_t2_children_count_female")
+
+
+# Risk Ratio
+tab_contrast_female_t2_two_or_more_kids <- here_read("tab_contrast_female_t2_two_or_more_kids")
+tab_contrast_male_t2_two_or_more_kids <- here_read("tab_contrast_male_t2_two_or_more_kids")
+tab_contrast_t2_two_or_more_kids <- here_read("tab_contrast_t2_two_or_more_kids")
+
+df_bind_results <- rbind(tab_contrast_female_t2_two_or_more_kids, tab_contrast_male_t2_two_or_more_kids, tab_contrast_t2_two_or_more_kids)
+
+# table
+margot::margot_interpret_table(rbind_total, causal_scale = "causal_difference", estimand = "ATE", 
+order = "alphabetical")
+
+# plot
+
+margot::margot_plot(df_bind_results, 
+  title = "Causal Effect of Regular Religious Service on Fertility 7 Years Later", 
+  subtitle= "Outcome is Binary (Has Two Children Yes/No)", 
+  type = "RR",
+  order = "alphabetical",
+  x_lim_hi = 7,
+  x_lim_lo = -7, 
+  x_offset = -1.75,
+  estimate_scale  = 4)
+
+
+# total children
+rbind_total <- rbind(
+  tab_contrast_t2_children_count,
+  tab_contrast_t2_children_count_men,
+  tab_contrast_t2_children_count_female
+)
+
+plot_total <- margot::margot_plot(rbind_total, 
+              title = "Causal Effect of Regular Religious Service on Fertility 7 Years Later", 
+              subtitle= "Outcome is Continuous (Number of Children)", 
+              type = "RD",
+              order = "alphabetical",
+              x_lim_hi = 1,
+              x_lim_lo = -1, 
+              x_offset = -1,
+              estimate_scale  = 1)
+
+
+
+margot::margot_interpret_table(rbind_total, causal_scale = "causal_difference", estimand = "ATE", 
+order = "alphabetical")
 
 # sub_group_compare
 
 
 # check N
 N <- n_participants
-sub_title = "Forgiveness: only shift those below average to average, N = 34,749"
-
-
-# graph health
-plot_group_tab_health <-  margot::margot_plot(
-  group_tab_health,
-  type = "RD",
-  title = "Health Outcomes",
-  subtitle = sub_title,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-
-# graph body
-plot_group_tab_body <-  margot::margot_plot(
-  group_tab_body,
-  type = "RD",
-  title = "Embodied Well-Being",
-  subtitle = sub_title,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-#plot_group_tab_body
-
-#
-plot_group_tab_ego <-  margot::margot_plot(
-  group_tab_ego,
-  type = "RD",
-  title = "Ego-related Well-Being",
-  subtitle = sub_title,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-#plot_group_tab_ego
-
-# graph reflective
-plot_group_tab_reflective <-  margot::margot_plot(
-  group_tab_reflective,
-  type = "RD",
-  title = "Reflective Well-Being",
-  subtitle = sub_title,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-#plot_group_tab_reflective
-
-# graph social
-plot_group_tab_social <-  margot::margot_plot(
-  group_tab_social,
-  type = "RD",
-  title = "Social Well-Being",
-  subtitle = sub_title,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-
-#plot_group_tab_social
-
-# import to manuscript -------------------------------------------------------
-tab_health_1<- margot::here_read("tab_health_1")
-tab_body_1<-margot::here_read("tab_body_1")
-tab_ego_1<- margot::here_read("tab_ego")
-tab_reflective_1<-margot::here_read("tab_reflective_1")
-tab_social_1<-margot::here_read("tab_social_1")
-
-# individual models
-group_tab_health_1 <- margot::here_read("group_tab_health_1")
-group_tab_health_1 <- margot::here_read("group_tab_health_1")
-group_tab_body_1 <- margot::here_read("group_tab_body_1")
-group_tab_ego_1 <-margot::here_read("group_tab_ego_1")
-group_tab_reflective_1 <- margot::here_read("group_tab_reflective_1")
-group_tab_social_1 <- margot::here_read("group_tab_social_1")
+sub_title <- "Forgiveness: only shift those below average to average, N = 34,749"
 
 
 
-N <- n_participants
-sub_title_1 = "Forgiveness: shift exposure up by 1 point up to max 7, N = 34,749"
-
-# graph health
-plot_group_tab_health_1 <-  margot::margot_plot(
-  group_tab_health_1,
-  type = "RD",
-  title = "Health effects",
-  subtitle = sub_title_1,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-#plot_group_tab_health+ plot_group_tab_health_1
-#dev.off()
-# save graph
-# ggsave(
-#   plot_group_tab_health_1,
-#   path = here::here(here::here(push_mods, "figs")),
-#   width = 12,
-#   height = 8,
-#   units = "in",
-#   filename = "plot_group_tab_health_1.png",
-#   device = 'png',
-#   limitsize = FALSE,
-#   dpi = 600
-# )
-
-# graph body
-plot_group_tab_body_1 <-  margot::margot_plot(
-  group_tab_body_1,
-  type = "RD",
-  title = "Body effects",
-  subtitle = sub_title_1,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-
-#plot_group_tab_body / plot_group_tab_body_1
-# save graph
-# ggsave(
-#   plot_group_tab_body_1,
-#   path = here::here(here::here(push_mods, "figs")),
-#   width = 12,
-#   height = 8,
-#   units = "in",
-#   filename = "plot_group_tab_body_1.png",
-#   device = 'png',
-#   limitsize = FALSE,
-#   dpi = 600
-# )
-
-
-# plot_group_tab_body_1
-
-# graph ego
-plot_group_tab_ego_1 <-  margot::margot_plot(
-  group_tab_ego_1,
-  type = "RD",
-  title = "Ego effects",
-  subtitle = sub_title_1,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-# plot_group_tab_ego_1
-
-# graph reflective
-plot_group_tab_reflective_1 <-  margot::margot_plot(
-  group_tab_reflective_1,
-  type = "RD",
-  title = "Reflective effects",
-  subtitle = sub_title_1,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-#plot_group_tab_reflective_1
-#plot_group_tab_reflective / plot_group_tab_reflective_1
-
-# graph social
-plot_group_tab_social_1 <-  margot::margot_plot(
-  group_tab_social_1,
-  type = "RD",
-  title = "Social effects",
-  subtitle = sub_title_1,
-  estimate_scale = 1,
-  base_size = 14,
-  text_size = 4.0,
-  point_size = 1.5,
-  title_size = 14,
-  subtitle_size = 11,
-  legend_text_size = 8,
-  legend_title_size = 10,
-  x_offset = -.5,
-  x_lim_lo = -.5,
-  x_lim_hi =  .25
-)
-plot_group_tab_social_1
-
-
-# comparative intervention graphs -----------------------------------------
-
-# combo graphs
-#plot_group_tab_health
-plot_compare_health <- plot_group_tab_health / plot_group_tab_health_1 + 
-  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
-
-#plot_compare_health
-# ggsave(
-#   plot_compare_health,
-#   path = here::here(here::here(push_mods, "figs")),
-#   width = 10,
-#   height = 12,
-#   units = "in",
-#   filename = "plot_compare_health.png",
-#   device = 'png',
-#   dpi = 600
-# )
-#dev.off()
-
-
-
-plot_compare_body <- plot_group_tab_body / plot_group_tab_body_1  +
-  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
-
-#plot_compare_body
-
-# ggsave(
-#   plot_compare_body,
-#   path = here::here(here::here(push_mods, "figs")),
-#   width = 10,
-#   height = 12,
-#   units = "in",
-#   filename = "plot_compare_body.png",
-#   device = 'png',
-#   limitsize = FALSE,
-#   dpi = 600
-# )
-#dev.off()
-
-
-#plot_compare_ego
-plot_compare_ego <- plot_group_tab_ego / plot_group_tab_ego_1+ 
-  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
-# 
-# ggsave(
-#   plot_compare_ego,
-#   path = here::here(here::here(push_mods, "figs")),
-#   width = 10,
-#   height = 12,
-#   units = "in",
-#   filename = "plot_compare_ego.png",
-#   device = 'png',
-#   limitsize = FALSE,
-#   dpi = 600
-# )
-
-#plot_compare_ego
-
-plot_compare_reflective <- plot_group_tab_reflective / plot_group_tab_reflective_1+ 
-  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
-#plot_compare_reflective
-# ggsave(
-#   plot_compare_reflective,
-#   path = here::here(here::here(push_mods, "figs")),
-#   width = 10,
-#   height = 12,
-#   units = "in",
-#   filename = "plot_compare_reflective.png",
-#   device = 'png',
-#   limitsize = FALSE,
-#   dpi = 600
-# )
-
-plot_compare_social  <-plot_group_tab_social / plot_group_tab_social_1+ 
-  plot_annotation(title = "Shift Intervention Comparisons", tag_level = "A")
-#plot_compare_social
-#plot_compare_social
-
-# ggsave(
-#   plot_compare_social,
-#   path = here::here(here::here(push_mods, "figs")),
-#   width = 10,
-#   height = 12,
-#   units = "in",
-#   filename = "plot_compare_social.png",
-#   device = 'png',
-#   limitsize = FALSE,
-#   dpi = 600
-# )
 ```
 
 ## Introduction
