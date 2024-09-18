@@ -1,0 +1,1690 @@
+
+title: "Causal Effects of Political Conservativism on Environmental Attitudes"
+abstract: |
+   The question of whether political conservativism affects environmental attitudes is a topic of considerable interest and ongoing debates.  This question is difficult to address because political conservativism cannot be manipulated.  Moreover observational data, even when longitudinal, do not clarify causality. Here, we use a three-wave outcome-wide panel of 38,000 New Zealanders (2020-2023) to estimate the causal effects of political conservativism on a range of environmental attitudes and behaviours. Controlling for pre-existing differences in both in political conservativism and environmental attitudes, and demographic variables, we find that the effect of political conservativism reduces acceptance of beliefs in climate change, belief in human-caused climate change, and climate change concern, but it does not affect perceived environmental efficacy compared with observed attitudes.  We find that a two-point decrease in political conservatism only affects beliefs in the reality of climate change. Overall, the one-year effects of initiating change in political orientation are small. 
+   [AUTHOR ORDER TBA] 
+
+   **KEYWORDS**: *Causal Inference*; *Climate Change; *Conservativism*; *Cross-validation*; *Environmental*, *Longitudinal*; *Machine Learning*; *Political*; *Semi-parametric*
+author: 
+  - name: Inkuk E Kim
+    affiliation: Georgia State University, Matheny Center for the Study of Stress, Trauma, and Resilience
+    orcid: 0000-0003-3169-6576 
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland
+    orcid: 0000-0002-4064-8800
+ - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+keywords: [Use, use]
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+library(margot)
+library(boilerplate)
+library(glue)
+library(plotly)
+
+# set seed
+set.seed(123)
+# define names
+
+nice_exposure_name <- glue::glue("Political Conservativism")
+nice_outcome_names <- glue::glue("Climate Beliefs and Attitudes")
+
+treatment_gain <- glue::glue("What would be the average difference across the New Zealand population if everyone increased in their political conservativism by two points up to a maximum of 7 (ordinal scale 1-7)?") 
+
+treatment_loss <- glue::glue("What would be the average difference across the New Zealand population if everyone decreased in their political conservativism by two points down to a minimum of 1 (ordinal scale 1-7)?") 
+
+treatment_null <- glue::glue("What would be the average difference across the New Zealand population if everyone's political conservativism remained the same?") 
+
+gain_null <- glue::glue("gain two points in political conservativism vs. no change") 
+loss_null <- glue::glue("decrease two points in political conservativism vs. no change") 
+
+# path talks
+# path for talks
+push_talks <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/00-talks")
+path_plots_talks <- here::here("/Users/joseph/GIT/talks/24-causal-talks")
+
+here::here()
+# set data paths
+push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24_pols_enivron")
+push_mods_plots_multi <- fs::path_expand("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24_pols_enivron/plots_multi")
+
+# measures_path
+# measures path for boilerplates
+#measures_path_cursor <- here::here("models", "boilerplate", "data")
+#measure_data <- readRDS(here::here(measures_path_cursor, "merged_db.rds"))
+measures_path_rstudio <- here::here("boilerplate", "data")
+measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+
+
+
+
+# load libraries
+pacman::p_load(
+  boilerplate, clarify, cobalt, DiagrammeR, doParallel, fastDummies, fs,
+  ggbeeswarm, ggplot2, glmnet, grf, gt, gtsummary, here, janitor, kableExtra,
+  lmtp, margot, MatchIt, MatchThem, naniar, parameters, policytree, progressr,
+  ranger, skimr, SuperLearner, tidyverse, WeightIt, xgboost, EValue, data.table,
+  maq, purrr, patchwork, labelled, tidyr, crayon, plotly
+)
+
+# read data
+# plot_lmtp_gain_loss <- here_read_qs("plot_lmtp_gain_loss", push_mods)
+plot_lmtp_gain_null <- here_read_qs("plot_lmtp_gain_null", push_mods)
+plot_lmtp_loss_null <- here_read_qs("plot_lmtp_loss_null", push_mods)
+
+
+# nzavs qr code
+plot_nzavs_qr <- read_multiple_images(push_talks, pattern = "NZAVS-QR.png$")
+
+# timeline
+# talk_timeline_histogram <- margot::here_read_qs("timeline_histogram", push_talks)  # also timeline_histogram.png
+# talk_timeline_histogram
+
+timeline_histogram_png <- margot::read_multiple_images(push_talks, ".*timeline_histogram\\.png$")
+
+# propensity model
+propensity_model_and_plots <- margot::here_read_qs("propensity_model_and_plots", push_mods)
+
+# background plots
+# discontinuity_plot_mistrust_politicians_20240913_png <- margot::read_multiple_images(push_talks, ".*discontinuity_plot_mistrust_politicians_20240913\\.png$")
+# discontinuity_plot_mistrust_police_20240913_png <- margot::read_multiple_images(push_talks, ".*discontinuity_plot_mistrust_police_20240913\\.png$")
+# discontinuity_plot_mistrust_emphasis_on_science_20240913_png <- margot::read_multiple_images(push_talks, ".*discontinuity_plot_mistrust_emphasis_on_science_20240913\\.png$")
+# discontinuity_plot_mistrust_scientific_community_20240913_png <- margot::read_multiple_images(push_talks, ".*discontinuity_plot_mistrust_scientific_community_20240913\\.png$")
+# discontinuity_plot_mistrust_free_speech_20240913_png <- margot::read_multiple_images(push_talks, ".*discontinuity_plot_mistrust_free_speech_20240913\\.png$")
+# discontinuity_plot_mistrust_official_version_truth_20240913_png <- margot::read_multiple_images(push_talks, ".*discontinuity_plot_mistrust_official_version_truth_20240913\\.png$")
+
+##################################################################
+# exposure outcome prop
+Deny_Climate_Change_Concern_exposure <- here_read_qs( "ggeffects_plot_Deny_Climate_Change_Concern_by_wave_political_conservative", push_mods)
+Deny_Climate_Human_Cause_exposure <- here_read_qs( "ggeffects_plot_Deny_Climate_Human_Cause_by_wave_political_conservative", push_mods)
+Deny_Climate_Change_Real_exposure <- here_read_qs( "ggeffects_plot_Deny_Climate_Change_Real_by_wave_political_conservative", push_mods)
+Not_Satisfied_NZ_Environment_exposure <- here_read_qs( "ggeffects_plot_Not_Satisfied_NZ_Environment_by_wave_political_conservative", push_mods)
+Deny_Environmental_Efficacy_exposure <- here_read_qs( "ggeffects_plot_Deny_Environmental_Efficacy_by_wave_political_conservative", push_mods)
+
+
+
+
+plot_means_exposure_wave <- here_read_qs("ggeffects_plot_political_conservative_by_wave_nzsei13", push_mods)
+# plot_means_exposure_by_pols_wave <- here_read_qs("", push_mods)
+plot_means_exposure_by_edu_wave <- here_read_qs("ggeffects_plot_political_conservative_by_wave_education_level_coarsen", push_mods)
+plot_means_exposure_by_ethnic_cats_wave <- here_read_qs("ggeffects_plot_political_conservative_by_wave_ethnic_cats", push_mods)
+plot_means_exposure_by_nzsei_wave <- here_read_qs("ggeffects_plot_political_conservative_by_wave_nzsei13", push_mods)
+plot_means_exposure_by_rels_wave <- here_read_qs("ggeffects_plot_political_conservative_by_wave_religion_identification_level", push_mods)
+
+# varies by study 
+individual_exposure <- here_read_qs("individual_responses_plot_political_conservative", push_mods)
+# discontinuity_exposure <- here_read_qs("discontinuity_plot_political_conservative_20240918", push_mods) # too large, but use if needed
+discontinuity_exposure_png <- margot::read_multiple_images(push_mods, ".*discontinuity_plot_political_conservative_20240918\\.png$")
+histogram_exposure_by_wave <- here_read_qs("histogram_political_conservative_by_wave_20240918", push_mods)
+histogram_exposure <- here_read_qs("histogram_political_conservative_by_wave", push_mods)
+categorical_exposure <- here_read_qs("categorical_political_conservative", push_mods)
+# binary_exposure <- here_read_qs("binary_categorical_political_conservative", push_mods)
+shift_exposure_up <- here_read_qs("shift_political_conservative_up", push_mods)
+shift_exposure_down <- here_read_qs("shift_political_conservative_down", push_mods)
+boxplot_exposure <- here_read_qs("baseline_and_exposure_waves_boxplot_political_conservative", push_mods)
+boxplot_outcomes <- here_read_qs("boxplot_env_not_climate_chg_cause_env_not_climate_chg_concern_env_not_climate_chg_real_env_not_env_efficacy_env_not_sat_nz_environment", push_mods)
+
+# if needed
+n_observed_grf <- here_read("n_observed_grf")
+
+# lmtp shifts
+shift_up  <- here_read_qs("shift_political_conservative_up", push_mods)
+shift_down <- here_read_qs("shift_political_conservative_down", push_mods)
+
+#########################################################
+# invariant names by study
+propensity_model_and_plots <- here_read_qs("propensity_model_and_plots", push_mods)
+transition_matrix_cat <- margot::here_read("transition_matrix_cat")
+transition_matrix <- margot::here_read("transition_matrix")
+
+# grf results
+batch_multi_policy_combo <- margot::read_multiple_images(push_mods_plots_multi, ".*policy_combo_plot\\.png$")
+batch_multi_qini <- margot::read_multiple_images(push_mods_plots_multi, ".*qini_plot\\.png$")
+
+# read waves
+all_waves <- margot::here_read("all_waves")
+baseline_and_exposure_waves <- margot::here_read("baseline_and_exposure_waves")
+baseline_and_outcome_waves <- margot::here_read("baseline_and_outcome_waves")
+
+# end new material
+# variables
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_var <- margot::here_read("name_exposure") # single name
+outcome_vars <- margot::here_read("outcome_vars")
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_var <- margot::here_read("name_exposure") # single name
+outcome_vars <- margot::here_read("outcome_vars")
+
+all_outcomes <- outcome_vars
+
+# waves
+# save
+baseline_wave <- margot::here_read("baseline_wave")
+exposure_waves <- margot::here_read("exposure_waves")
+exposure_wave <- margot::here_read("exposure_waves")
+outcome_wave <- margot::here_read("outcome_wave")
+
+# get table/graphs
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+
+# n_total
+n_total <- here_read("n_total")
+
+# n_this study
+n_participants <- summary_tables$n_participants
+
+# marginal graph 
+multi_results_margot_plot_output <- here_read_qs("multi_results_margot_plot_output", push_mods)
+
+
+##  **`r nice_exposure_name`** Measure
+
+```{r}
+#| eval: false
+#| echo: false
+exposure_measure <- boilerplate_report_measures(
+  outcome_vars = exposure_var,
+  measure_data = measure_data
+)
+```
+
+
+# plots
+# # read plots binary rates
+# binary_plot_rates <- read_multiple_images(path_plots_binary, pattern = "rate_plot.png$")
+
+# # read plots binary qini
+# binary_plot_qini <- read_multiple_images(path_plots_binary, pattern = "qini_plot.png$")
+
+# # read plots binary combo policy
+# binary_plot_policy_combo <- read_multiple_images(path_plots_binary, pattern = "policy_combo_plot.png$")
+
+# # read plots only decision tree
+# binary_plot_decision_tree_visualisation <- read_multiple_images(path_plots_binary, pattern = "_decision_tree_visualisation.png$")
+
+# # read plots only plot plot tree
+# binary_plot_policy_tree_plot <- read_multiple_images(path_plots_binary, pattern = "policy_tree_plot.png$")
+
+#### multi arm results
+# multi_results <- margot::here_read_qs("multi_results", push_mods) # no longer used
+
+# qini plots
+multi_plot_qini <- read_multiple_images(push_mods_plots_multi, pattern = "qini_plot.png$")
+
+# combo plots
+multi_plot_policy_combo <- read_multiple_images(push_mods_plots_multi, pattern = "policy_combo_plot.png$")
+
+# read plots only decision tree
+multi_plot_decision_tree_visualisation <- read_multiple_images(push_mods_plots_multi, pattern = "_decision_tree_visualisation.png$")
+
+# read plots only plot plot tree
+multi_plot_policy_tree_plot <- read_multiple_images(push_mods_plots_multi, pattern = "policy_tree_plot.png$")
+
+# qini results
+multi_interpret_qini <- here_read_qs("multi_interpret_qini", push_mods)
+
+# conditional results
+group_maori_margot_plot_output <- here_read_qs("group_maori_margot_plot_output", push_mods)
+#group_pols_margot_plot_output <- here_read_qs("group_pols_margot_plot_output", push_mods)
+group_rels_margot_plot_output <- here_read_qs("group_rels_margot_plot_output", push_mods)
+group_nzsei_margot_plot_output <- here_read_qs("group_nzsei_margot_plot_output", push_mods)
+group_edu_margot_plot_output <- here_read_qs("group_edu_margot_plot_output", push_mods)
+
+# contrasts
+contrast_maori <- here_read_qs("contrast_maori", push_mods)
+contrast_pols <- here_read_qs("contrast_pols", push_mods)
+contrast_rels <- here_read_qs("contrast_pols", push_mods)
+contrast_nzsei <- here_read_qs("contrast_nzsei", push_mods)
+contrast_edu <- here_read_qs("contrast_edu", push_mods)
+
+
+# conditional graphs: multi
+# plot_multi_cate_compare_pols <- here_read_qs("plot_multi_cate_compare_pols", push_mods)
+plot_multi_cate_compare_maori <- here_read_qs("plot_multi_cate_compare_maori", push_mods)
+plot_multi_cate_compare_rels <- here_read_qs("plot_multi_cate_compare_rels", push_mods)
+plot_multi_cate_compare_nzsei <- here_read_qs("plot_multi_cate_compare_nzsei", push_mods)
+plot_multi_cate_compare_edu <- here_read_qs("plot_multi_cate_compare_edu", push_mods) 
+
+
+
+## correlation not causation
+# load required libraries
+library(ggplot2)
+library(ggokabeito)
+
+# reproducibility
+set.seed(123)
+
+# fake data
+n <- 100
+months <- seq(as.Date("2016-01-01"), as.Date("2024-04-01"), by = "month")
+temperature <- sin((1:n) * 2 * pi / 12) * 10 + 20 + rnorm(n, 0, 2)
+ice_cream_sales <- temperature * 100 + rnorm(n, 0, 200)
+shark_attacks <- temperature * 0.5 + rnorm(n, 0, 1)
+
+# create a data frame
+data <- data.frame(
+  date = months,
+  temperature = temperature,
+  ice_cream_sales = ice_cream_sales,
+  shark_attacks = shark_attacks
+)
+
+# plot
+p <- ggplot(data, aes(x = date)) +
+  geom_line(aes(y = ice_cream_sales, color = "Ice Cream Sales"), linewidth = 1) +
+  geom_line(aes(y = shark_attacks * 200, color = "Shark Attacks"), linewidth = 1) +
+  scale_y_continuous(
+    name = "Ice Cream Sales ($)",
+    sec.axis = sec_axis(~./200, name = "Number of Shark Attacks")
+  ) +
+  scale_color_okabe_ito() +
+  labs(
+    title = "Spurious Correlation: Ice Cream Sales vs Shark Attacks",
+    subtitle = "Intervening on Ice Cream Sales Would NOT Affect Shark Attacks",
+    x = "Date",
+    color = "Legend"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  )
+
+# text annotation explaining the correlation is not causation
+annotation <- "Spurious correlation:\nIce cream sales and shark attacks are both influenced by\nwarmer weather, but one does not cause the other"
+
+# add the annotation to the plot
+plot_correlation_not_causation <- p #+ 
+  # annotate(
+  #   "text", x = as.Date("2015-01-01"), y = max(data$ice_cream_sales),
+  #   label = annotation, hjust = 0, vjust = 1, size = 4, color = "darkgray"
+  # )
+
+## another graph
+set.seed(123)
+# generate data with a non-linear relationship
+n <- 100
+temperature <- seq(0, 40, length.out = n)
+ice_cream_sales <- 1000 + 20 * temperature + 5 * temperature^3 + rnorm(n, 0, 10000)
+
+# create a data frame
+data_new <- data.frame(
+  temperature = temperature,
+  ice_cream_sales = pmax(ice_cream_sales, 0)  # ensure non-negative sales
+)
+
+# create the plot
+plot_correlation_can_be_causation <- ggplot(data_new, aes(x = temperature, y = ice_cream_sales)) +
+  geom_point(color = "dodgerblue", alpha = 0.7) +
+  geom_smooth(method = "loess", color = "gold", fill = "pink") +
+  labs(
+    title = "When Correlation is Evidence for Causation: Temperature vs Ice Cream Sales",
+    subtitle = "Intervening on Temperature Would Affect Ice Cream Sales",
+    x = "Temperature (°C)",
+    y = "Ice Cream Sales ($)"
+  ) +
+  theme_classic() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  ) #+
+  # annotate(
+  #   "text", x = min(data$temperature), y = max(data$ice_cream_sales),
+  #   label = "As temperature increases, ice cream sales rise non-linearly.\nThis demonstrates a more realistic causal relationship.",
+  #   hjust = 0, vjust = 1, size = 3, color = "darkgray"
+  # )
+
+
+```
+
+
+## Introduction
+
+A central question in political psychology is whether political conservativism affects attitudes to the environment.
+
+Here, to obtain causal inferences from time-series data, we leverage comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study from `r all_waves` to quantify the effects of clearly defined interventions in `r nice_exposure_name`  across the population of New Zealandres. 
+
+We define a causal effect as a quantitative contrast between mean outcomes for a population from pre-specified interventions. 
+
+These outcomes are called “counterfactual” or “potential” outcomes, terms we use interchangeably [@rubin2005; @neyman1923; @robins1986; @pearl2009; @vanderlaan2018].[^theory] 
+
+A fundamental challenge in observational studies is to ensure *balance* between the variables in interventions or “treatments” to be compared that might affect both treatment and the potential outcomes under treatment [@shiba2021using]. We call the state of imbalance *confounding*, and the strategy for ensuring balance, *confounding control*. In this study, we express the interventions on `r nice_exposure_name`  as "modified treatment policies" [@haneuse2013estimation; @diaz2023lmtp; @díaz2021; @hoffman2023]. We obtain causal inferences by contrasting inferred population averages under different modified treatment policies.
+
+[^theory]: Philosophical disagreements about the meanings assigned to "potential" and "counterfactual" outcomes do not affect our use.
+
+We investigate two causal contrasts:
+
+1. `r treatment_gain`
+2. `r treatment_loss`
+
+
+This theoretical question simulates a hypothetical experiment with random assignment to `r gain_null`, and a second experiment in which `r gain_null` [@hernán2016].
+
+Note that our approach does not focus on testing specific hypotheses; instead, we aim to compute our pre-specified causal contrasts with high accuracy by combining appropriate time-series data and robust methods for causal inference [@hernan2024stating].
+
+## Method
+
+### Sample
+
+Data were collected by the New Zealand Attitudes and Values Study (NZAVS), an annual longitudinal national probability panel study of social attitudes, personality, ideology, and health outcomes in New Zealand. Chris G. Sibley started the New Zealand Attitudes and Values Study in 2009, which has grown to include a community of over fifty researchers. Since its inception, the New Zealand Attitudes and Values Study has accumulated questionnaire responses from `r n_total` New Zealand residents. The study operates independently of political or corporate funding and is based in a university setting. Data summaries for our study sample on all measures used in this study are found in **Appendices B-D**. For more details about the New Zealand Attitudes and Values Study see: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB).
+
+
+
+###  **`r nice_exposure_name`** Measure
+
+```{r}
+#| eval: false
+#| echo: false
+exposure_measure <- boilerplate::boilerplate_report_measures(
+  outcome_vars = exposure_var,
+  measure_data = measure_data
+)
+```
+
+
+### Measures of Prosociality
+
+**Study 1: Self-reported charity** 
+
+The New Zealand Attitudes and Values Study includes two self-reported measures of prosociality:
+
+- Volunteering:
+  *"Please estimate how many hours you spent doing each of the following things last week...Volunteer/charitable work."*
+  
+- Annual charitable financial donations:
+  *"How much money have you donated to charity in the last year?"*
+
+**Study 2: Help received from others in the last week: *time* **
+
+Participants were asked:
+
+*"Please estimate how much help you have received from the following sources in the last week."*
+
+- *Family...TIME (hours)*
+- *Friends...TIME (hours)*
+- *Community...TIME (hours)*
+
+Owing to the high variability of responses, we transformed responses into binary indicators: *0 = none/1 = any*.
+
+**Study 3: Help received from others in the last week: *money* **
+
+Similarly, participants were asked:
+
+*"Please estimate how much help you have received from the following sources in the last week."*
+
+- *Family...MONEY (dollars)*
+- *Friends...MONEY (dollars)*
+- *Community...MONEY (dollars)*
+
+These measures were also highly variable. Hence, we converted responses to binary indicators: *0 = none/1 = any*.
+
+Studies 2 and 3 aim to minimise self-presentation bias by using revealed measures of prosocial exposure. Our approach assumes that if religious institutions foster prosociality, the initiation of regular attendance—controlling for past religious service, past measures of the prosocial outcomes, and a rich array of demographic, personality, and health measures recorded at baseline—will increase exposure to prosocial behaviours. Notably, our revealed measures of prosociality rely on stated help received and are robust to self-presentation biases that might associate religious service attendance with indicators of prosociality in the absence of causation. Such an association could occur if initiation into treatment affected the subsequent error term of one or more of the outcomes we contrast. Note that we include baseline outcomes and treatments in all studies, which mitigates the threat of undirected correlated errors.
+
+We provide comprehensive details of all measures in **Appendix A**.
+
+### Causal Interventions
+
+We define three targeted causal contrasts (*causal estimands*) as interventions on prespecified modified treatment policies (refer to @haneuse2013estimation; @diaz2021nonparametric; @diaz2023lmtp). There are three measurement intervals $k = \{0,1,2\}$. Baseline indicators of the treatment obtained from $k = 0$ are included for confounding control. $A_1$ denotes the natural level of the treatment, measured at $k = 1$—monthly frequency of religious service. Outcome indicators are obtained from $k = 2$—the end of the study. $\mathbf{\tilde{g}}(A_i)$ denotes a modified treatment policy, where $A^+_1\mathbf{\tilde{g}}(A_i = a_1)$ is the level to which $A_i$ is set according to a policy function $\mathbf{\tilde{g}}$. Under modified treatment policies, the natural value of the treatment may be a confounder. However, because we estimate the causal effects of point interventions, there is no additional threat of confounding for modified treatment policies in this study.
+
+1. **Regular Religious Service Treatment**: Administer regular religious service attendance to everyone in the adult population. If an individual's religious service attendance is below four times per month, shift to four; otherwise, maintain their current attendance:
+
+$$
+\mathbf{g}^\lambda (A_i) = \begin{cases} 
+4 & \text{if } A_i < 4 \\ 
+A_i & \text{otherwise} 
+\end{cases}
+$$
+
+2. **Zero Religious Service Treatment**: Ensure no religious service attendance for everyone in the adult population of New Zealand. If an individual's religious service attendance is greater than zero, shift to zero; otherwise, make no change:
+
+$$
+\mathbf{g}^\phi (A_i) = \begin{cases} 
+0 & \text{if } A_i > 0 \\ 
+A_i & \text{otherwise} 
+\end{cases}
+$$
+
+3. **Status Quo—No Treatment**: Apply no treatment. Each expected mean outcome is calculated using each individual's natural (observed) value of religious service attendance:
+
+$$
+\mathbf{g}(A_i) = A_i
+$$
+
+### Causal Contrasts
+
+From these policies, we compute the following causal contrasts.
+
+**Target Contrast A: 'Regular vs. Zero'**: How do the prosocial effects of a society with regular religious service attendance differ from those of a society with zero religious service attendance?
+
+$$ 
+\text{Regular Religious Service vs. Zero Religious Service} = E[Y(\mathbf{g}^\lambda) - Y(\mathbf{g}^\phi)] 
+$$
+
+This contrast simulates a scientifically interesting hypothetical experiment where we could randomise individuals to either regular religious service or none, assessing the differences in prosociality outcomes measured one year after the intervention.
+
+**Target Contrast B: 'Regular vs. Status Quo'**: How does a society with regular religious service attendance compare to its status quo?
+
+$$ 
+\text{Regular Religious Service vs. No Treatment} = E[Y(\mathbf{g}^\lambda) - Y(\mathbf{g})] 
+$$
+
+This contrast reflects a policy-relevant hypothetical experiment examining the effect of transitioning to regular religious service if one does not already regularly attend, allowing us to quantitatively assess how much a society in which everyone attends would differ from a society in its current state.
+
+**Target Contrast C: 'Zero vs. Status Quo'**: What are the social consequences for society of zero religious service attendance compared to its status quo?
+
+$$ 
+\text{Zero Religious Service vs. No Treatment} = E[Y(\mathbf{g}^\phi) - Y(\mathbf{g})] 
+$$
+
+This contrast investigates the policy implications of eliminating religious services entirely, questioning whether such a shift would meaningfully affect average levels of charitable donations and volunteering.
+
+### Identification Assumptions
+
+To consistently estimate a causal effect, investigators must satisfy three assumptions:
+
+1. **Causal consistency:** Potential outcomes must correspond with observed outcomes under the treatments in the data. We assume potential outcomes do not depend on how the treatment was administered, conditional on measured covariates [@vanderweele2009; @vanderweele2013].
+
+2. **Conditional exchangeability:** Given observed covariates, we assume treatment assignment is independent of the potential outcomes to be contrasted. In other words, there is "no unmeasured confounding" [@hernan2024WHATIF; @chatton2020].
+
+3. **Positivity:** Every individual must have a non-zero chance of receiving the treatment, regardless of their covariate values [@westreich2010]. We evaluate this assumption in each study by examining changes in religious service attendance from baseline (NZAVS time 10) to the treatment wave (NZAVS time 11). For further discussion of these assumptions in the context of NZAVS studies, see [@bulbulia2023a].
+
+### Target Population
+
+The target population for this study comprises New Zealand residents as represented in the baseline wave of the New Zealand Attitudes and Values Study (NZAVS) during the years 2018-2019, weighted by New Zealand Census weights for age, gender, and ethnicity (refer to @sibley2021). The NZAVS is a national probability study designed to reflect the broader New Zealand population accurately. Despite its comprehensive scope, the NZAVS has some limitations in its demographic representation. Notably, it tends to under-sample males and individuals of Asian descent while over-sampling females and Māori (the indigenous peoples of New Zealand). To address these disparities and enhance the accuracy of our findings, we apply New Zealand Census survey weights to the sample data. These weights adjust for variations in age, gender, and ethnicity to better approximate the national demographic composition [@sibley2021]. Survey weights were integrated into statistical models using the `weights` option in `lmtp` [@williams2021], following protocols stated in [@bulbulia2024PRACTICAL].
+
+### Eligibility Criteria
+
+To be included in the analysis of this study, participants needed to meet the following eligibility criteria:
+
+#### Inclusion Criteria
+
+- Enrolled in the 2018 wave of the New Zealand Attitudes and Values Study (NZAVS time 10).
+- Missing covariate data at baseline was permitted, and the data was subjected to imputation methods to reduce bias. Only information obtained at baseline was used for such imputation (refer to [@zhang2023shouldMultipleImputation]).
+Participants may have been lost to follow-up at the end of the study (NZAVS time 12) if they met eligibility criteria at NZAVS time 11 (the treatment wave). We adjusted for attrition and non-response using censoring weights, described below.
+
+#### Exclusion Criteria
+
+- Did not answer the religious service attendance question at New Zealand Attitudes and Values Study at time 10 (the baseline wave) and NZAVS time 11 (the treatment wave).
+
+A total of `r n_participants` individuals met these criteria and were included in the study.
+
+### Causal Identification
+
+::: {#tbl-02}
+```{=latex}
+\lmtptablethree
+```
+This table presents three Single World Intervention Graphs (SWIGs), one for each treatment condition we compare, refer to [@richardson2013].
+:::
+
+@tbl-02 presents three Single World Intervention Graphs (SWIGs) that describe our identification strategy. We follow [@richardson2013]'s convention for explicitly representing a conditional treatment intervention using Single World Intervention Graphs (SWIGs) that distinguish between "the natural value of the treatment" and the conditional treatment intervention: $\mathbf{g}{A_1} \equiv A^+_1(\mathbf{g}))$ (refer to [@young2014identification]). For the modified treatment policies we consider here, causal effects for the policy intervention are identified if causal effects would be identified from a fixed intervention. We recommend expressing causal identification using SWIGs because they encompass causal DAGs yet are more precise and more general. Refer to [@richardson2023potential; @richardson2013; @robins2010alternative; @richardson2013swigsprimer; @shpitser2016causal; @richardson2023potential]. On modified treatment policies refer to [@diaz2012population; @richardson2013; @young2014identification; @diaz2021nonparametric].
+
+### Confounding Control
+
+To manage confounding in our analysis, we implement [@vanderweele2019]'s *modified disjunctive cause criterion* by following these steps:
+
+1. **Identified all common causes** of both the treatment and outcomes.
+2. **Excluded instrumental variables** that affect the exposure but not the outcome. Instrumental variables do not contribute to controlling confounding and can reduce the efficiency of the estimates.
+3. **Included proxies for unmeasured confounders** affecting both exposure and outcome. According to the principles of d-separation @pearl2009a, using proxies allows us to control for their associated unmeasured confounders indirectly.
+4. **Controlled for baseline exposure** and **baseline outcome**. Both are used as proxies for unmeasured common causes, enhancing the robustness of our causal estimates, refer to @vanderweele2020.
+
+[Appendix B](#appendix-demographics) details the covariates we included for confounding control. These methods adhere to the guidelines provided in [@bulbulia2024PRACTICAL] and were pre-specified in our study protocol [https://osf.io/ce4t9/](https://osf.io/ce4t9/).
+
+### Missing Data
+
+To mitigate bias from missing data, we implement the following strategies:
+
+**Baseline missingness**: we employed the `ppm` algorithm from the `mice` package in R [@vanbuuren2018] to impute missing baseline data. This method allowed us to reconstruct incomplete datasets by estimating a plausible value for missing observation. Because we could only pass one data set to the `lmtp`, we employed single imputation. < 2% of covariate values were missing at baseline. Eligibility for the study required fully observed baseline treatment measures as well as treatment wave treatment measures. Again, we only used baseline data to impute baseline missingness (refer to @zhang2023shouldMultipleImputation).
+
+**Outcome missingness**: to address confounding and selection bias arising from missing responses and panel attrition, we applied censoring weights obtained using nonparametric machine learning ensembles afforded by the `lmtp` package (and its dependencies) in R [@williams2021]. 
+### Statistical Estimator
+
+We perform statistical estimation using a semi-parametric Targeted Minimum Loss-based Estimation (TMLE) approach. TMLE is a robust method for estimating causal effects while providing valid statistical uncertainty measures [@van2014targeted; @van2012targeted].
+
+TMLE operates through a two-step process. Initially, TMLE models the relationship between treatments, covariates, and outcomes. In our implementation, we employ machine learning algorithms for this step, allowing us to flexibly model complex, high-dimensional covariate spaces without imposing restrictive model assumptions [@van2014discussion; @vanderlaan2011; @vanderlaan2018]. The outcome of this step is a set of initial estimates for these relationships.
+
+The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This iterative updating process adjusts the initial estimates towards the true causal effect, guided by the efficient influence function. The efficient influence function represents the most sensitive direction for perturbations in the observed data and ensures that the final TMLE estimate is as close as possible, given the measures and data, to the targeted causal effect while remaining robust to model misspecification in either the outcome or the treatment model [@van2014discussion].
+
+A central feature of TMLE is its double-robustness property. If either the treatment model or the outcome model is correctly specified, the TMLE estimator will consistently estimate the causal effect. It is important to note that these algorithms are effective only if our causal assumptions are correct. We used cross-validation to avoid overfitting, following the pre-stated protocols in [@bulbulia2024PRACTICAL]. The integration of TMLE and machine learning in our implementation reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details of the specific targeted learning strategy we favour, see [@hoffman2022; @hoffman2023; @díaz2021].
+
+We perform estimation using the `lmtp` package [@williams2021]. We used the `superlearner` library for semi-parametric estimation with the predefined libraries `SL.ranger`, `SL.glmnet`, and `SL.xgboost` [@polley2023; @xgboost2023; @Ranger2017]. We created graphs, tables, and output reports using the `margot` package [@margot2024].
+
+
+### Sensitivity Analysis Using the E-value
+
+To assess the sensitivity of results to unmeasured confounding, we report VanderWeele and Ding's "E-value" in all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE]. To evaluate the strength of evidence, we use the bound of the E-value 95% confidence interval closest to 1. This provides a clear metric for understanding the robustness of our findings in the presence of potential unmeasured confounding.
+
+### Scope of Interventions
+
+To illustrate the magnitude of the shift interventions we contrast, we provide histograms in @fig-hist, that display the distribution of treatments during the treatment wave. @fig-hist *A*: The intervention for regular religious service, represented in these histograms, affects a larger portion of the sample than the zero religious service intervention. @fig-hist *B*: presents the intervention for zero religious service. It involves shifting a smaller portion of the sample than the regular religious service intervention. Again, the comparative analysis of the 'Regular' versus 'Zero' interventions addresses the scientifically intriguing question: what is the effect difference in a scenario where religious service is universal versus completely absent? The intervention that increases attendance to regular service levels from the status quo allows us to consider the potential costs and benefits of widespread religious practice across society. The intervention that eliminates religious service allows us to consider the potential costs and benefits of the widespread loss of religious practice across society.
+
+```{r}
+#| label: fig-hist
+#| fig-cap: "This figure shows a histogram of responses to religious service frequency in the baseline + 1 wave. Responses above eight were assigned to eight, and values were rounded to the nearest whole number. The red dashed line shows the population average. (A) Responses in the gold bars are shifted to four on the Regular Religious Service intervention. All those responses in grey (four and above) remain unchanged. (B) On the zero-intervention, responses in the blue bars denote those shifted under the zero-intervention treatment."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+graph_density_of_exposure_both <- margot::here_read("graph_density_of_exposure_both")
+graph_density_of_exposure_both + theme_classic()
+```
+{{< pagebreak >}}
+
+### Evidence for Change in the Treatment Variable
+
+@tbl-transition clarifies the change in the treatment variable from the baseline wave to the baseline + 1 wave across the sample. Assessing change in a variable is essential for evaluating the positivity assumption and recovering evidence for the incident exposure effect of the treatment variable [@vanderweele2020; @danaei2012; @hernan2024WHATIF]. We find that state 4 (weekly attendance) and state 0 present the highest overall. However, movement between these states reveals they are not deterministic. States 1, 2, 3, and 5 exhibit more frequent jumps in and out of these states, suggesting lower stability and/or measurement error.
+
+```{r}
+#| label: tbl-transition
+#| tbl-cap: "This transition matrix captures stability and change in religious service between the baseline and treatment wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the state at baseline (From), and the columns correspond to the state at the treatment wave (To). **Diagonal entries** (in **bold**) signify the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** signify the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts in the sample from the baseline state to other states."
+#| eval: true
+#| echo: false
+
+transition_table <- margot::here_read("transition_table")
+
+transition_table$table
+```
+
+{{< pagebreak >}}
+
+
+## Results
+
+### Study 1: Causal Effects of Regular Church Attendance on Self-Reported Volunteering and Self-Reported Volunteering and Donations
+
+#### Regular Religious Service vs. Zero Treatment Contrast for Donations and Volunteering
+
+Results for the treatment contrasts between Regular Religious Service and Zero Religious Service, focusing on self-reported volunteering and charitable donations, are displayed in @fig-1_1 *A* and @tbl-1_1. These results are measured on the difference scale.
+
+
+
+```{r}
+#| label: tbl-1_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs. a universal loss of weekly religious service on reported charitable behaviours at the end of the study. Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_all_prosocial |>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+
+
+#(group_tab_all_prosocial, "causal_difference", "LMTP")
+
+# t2_charity_donate_z_gain<- here_read("t2_charity_donate_z_gain")
+# 
+# round( ( sd_donations * tab_all_prosocial[1,1]), 2)
+```
+
+For 'donations', the effect estimate is 0.132 [0.102, 0.161]. The E-value for this estimate is 1.507, with a lower bound of 1.426. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.426 to negate the observed effect. Weaker associations would not overturn it. We infer **evidence for causality**.  On the data scale, this intervention represents a difference of **NZD `r diff_charity` per adult per year** in charitable giving compared with the zero attendance intervention.
+
+
+The effect estimate for 'hours volunteer' is 0.123 [0.09, 0.156]. The E-value for this estimate is 1.482, with a lower bound of 1.389. We infer **evidence for causality**. On the data scale, this intervention represents a difference of **NZD `r diff_volunteer` minutes** per adult per week in volunteering compared with the zero attendance intervention.
+
+
+#### Regular Religious Service vs. Status Quo Treatment Contrast for Donations and Volunteering
+
+@fig-1_1 *B* and @tbl-1_2 present results for the treatment contrasts between Regular Religious Service and Status Quo, focusing on self-reported volunteering and charitable donations. These results are measured on the difference scale.
+
+
+```{r}
+#| label: tbl-1_2
+#| tbl-cap: "This table reports results of model estimates for the causal effects of a universal gain of weekly religious service vs. the status quo on reported charitable behaviours at the end of the study. Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+library(tidyverse)
+library(margot)
+
+tab_all_prosocial_null |>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+
+#margot::margot_interpret_table(group_tab_all_prosocial_null, "causal_difference", "lmtp")
+#round( ( sd_donations * tab_all_prosocial_null[1,1]), 2)
+```
+
+For 'donations', the effect estimate is 0.121 [0.102, 0.14]. The E-value for this estimate is 1.477, with a lower bound of 1.422. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.422 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**. On the data scale, this intervention represents an increase of **NZD `r charity_null` per adult per year** in expected charitable giving over the status quo.
+
+
+For 'hours volunteer', the effect estimate is 0.095 [0.066, 0.123]. The E-value for this estimate is 1.404, with a lower bound of 1.317. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.317 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.  On the data scale, this intervention represents an increase of **`r volunteer_null` minutes ** per adult per week in hours volunteering over the status quo.
+
+
+#### Zero Religious Service vs. The Status Quo Treatment Contrast for Donations and Volunteering
+
+@fig-1_1 *C* and @tbl-1_3 present results for the treatment contrasts between Zero Religious Service and Status Quo, focusing on self-reported volunteering and charitable donations. These results are measured on the difference scale.
+
+
+```{r}
+#| label: tbl-1_3
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal loss of weekly religious service vs. the status quo on reported charitable behaviours at the end of the study. Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+
+#margot::margot_interpret_table(group_tab_all_prosocial_null_zero, "causal_difference", "lmtp")
+tab_all_prosocial_null_zero |>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+```
+
+
+For 'donations', the effect estimate is -0.011 [-0.029, 0.008]. The E-value for this estimate is 1.111, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer that **the evidence for causality is not reliable**. On the data scale, this intervention represents a difference of NZD `r charity_null_zero` per adult per year in charitable giving compared to the status quo. Still, again, this effect is not reliable.
+
+
+The effect estimate for 'hours volunteer' is -0.028 [-0.042, -0.014]. The E-value for this estimate is 1.189, with a lower bound of 1.128. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.128 to negate the observed effect. Again, weaker confounding would not overturn it. We infer **evidence for causality**. **On the data scale, this intervention represents a difference of `r volunteer_null_zero` in volunteering minutes compared with the status quo.**
+
+
+```{r}
+#| label: fig-1_1
+#| fig-cap: "This figure graphs the results of model estimates for the causal effects of the three causal contrasts of interest on reported charitable behaviours at the study's end. The causal contrasts are: (A) Regular vs. Zero Religious Service, (B) Regular Religious Service vs. Status Quo, and (C) Zero  Religious Service vs. Status Quo. Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+# plot_group_tab_all_prosocial <- margot::margot_plot(
+#   group_tab_all_prosocial,
+#   type = "RD",
+#   title = title,
+#   subtitle = "Self-Reported Prosociality",
+#   estimate_scale = 3,
+#   base_size = 18,
+#   text_size = 4.5,
+#   point_size = 2,
+#   title_size = 16,
+#   subtitle_size = 14,
+#   legend_text_size = 10,
+#   legend_title_size = 10,
+#   x_offset = -.1,
+#   x_lim_lo = -.35,
+#   x_lim_hi =  .25
+# )
+# 
+# plot_group_tab_all_prosocial
+# study_1 <- here_read(study_1, "study_1")
+study_1
+```
+
+{{< pagebreak >}}
+
+### Study 2: Causal Effects of Regular Church Attendance on Support Received From Others -- Time
+
+#### Regular vs. Zero Causal Treatment Contrast for Time Received From Others
+
+
+@fig-study2 *A* and @tbl-study2A present results for the treatment contrasts between Regular Religious Service and Zero, focusing on voluntary help received from others during the past week (yes/no). These results are measured on the risk ratio scale.
+
+
+```{r}
+#| label: tbl-study2A
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs. a universal loss of weekly religious service on voluntary help received from others during the past week (yes/no) at the end of the study. Contrasts are expressed on the risk ratio scale."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_received_time |>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+
+#margot::margot_interpret_table(group_tab_received_time, causal_scale = "risk_ratio" , estimand = "lmtp")
+
+```
+
+For 'community gives time', the effect estimate is 1.378 [1.231, 1.541]. The E-value for this estimate is 2.1, with a lower bound of 1.764. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.764 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'friends give time', the effect estimate is 1.187 [1.108, 1.271]. The E-value for this estimate is 1.658, with a lower bound of 1.454. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.454 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'family gives time', the effect estimate is 0.95 [0.901, 1.003]. The E-value for this estimate is 1.288, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+
+#### Regular Religious Service vs. Status Quo Treatment Contrast for Time Received From Others
+
+@fig-study2*B* and @tbl-2-2 present results for the treatment contrasts between Regular Religious Service and Status Quo, focusing on voluntary help received from others during the past week (yes/no). These results are measured on the risk ratio scale.
+
+```{r}
+#| label: tbl-2-2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs. the status quo on voluntary help received from others during the past week (yes/no) at the end of the study. Contrasts are expressed on the risk ratio scale."
+#| eval: true
+#| include: true
+#| echo: false
+
+
+tab_received_time_null |>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+
+#margot::margot_interpret_table(group_tab_received_time_null, "risk_ratio", "lmtp")
+
+```
+
+
+
+For 'community gives time', the effect estimate is 1.289 [1.174, 1.415]. The E-value for this estimate is 1.899, with a lower bound of 1.626. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.626 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'friends give time', the effect estimate is 1.128 [1.061, 1.199]. The E-value for this estimate is 1.508, with a lower bound of 1.315. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.315 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'family gives time', the effect estimate is 0.958 [0.913, 1.006]. The E-value for this estimate is 1.258, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+
+
+#### Zero Religious Service vs. Status Quo Treatment Contrast for Time Received From Others
+
+@fig-study2 *C* and @tbl-2_3 present results for the treatment contrasts between Zero Religious Service and Status Quo, focusing on voluntary help received from others during the past week (yes/no). These results are measured on the risk ratio scale.
+
+
+```{r}
+#| label: tbl-2_3
+#| tbl-cap: "This table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs. the status quo on voluntary help received from others during the past week (yes/no) at the end of the study. Contrasts are expressed on the risk ratio scale."
+#| eval: true
+#| include: true
+#| echo: false
+
+tab_received_time_null_zero |>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+
+#margot::margot_interpret_table(group_tab_received_time_null_zero, "risk_ratio", "lmtp")
+
+```
+
+For 'family gives time', the effect estimate is 1.008 [0.991, 1.026]. The E-value for this estimate is 1.098, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+
+For 'friends give time', the effect estimate is 0.95 [0.928, 0.973]. The E-value for this estimate is 1.288, with a lower bound of 1.197. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.197 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'community gives time', the effect estimate is 0.936 [0.889, 0.985]. The E-value for this estimate is 1.339, with a lower bound of 1.14. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.14 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+```{r}
+#| label: fig-study2
+#| fig-cap: "This figure reports the results of model estimates for the three causal contrasts of interest on help received from others during the past week (yes/no). The causal contrasts are (A) Regular vs. Zero Religious Service, (B) Regular Religious Service vs. Status Quo, and (C) Zero  Religious Service vs. Status Quo. Contrasts are expressed on the risk ratio scale."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+study_2
+```
+
+
+{{< pagebreak >}}
+
+### Study 3: Causal Effects of Regular Church Attendance on Support Received From Others -- Money
+
+#### Regular vs. Zero Causal Contrast on Money Received From Others
+
+@fig-study_3 *A* and @tbl-3_1 present results for the treatment contrasts between Regular Religious Service and Zero, focusing on money received from others during the past week (yes/no). These results are measured on the risk ratio scale.
+
+
+```{r}
+#| label: tbl-3_1
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs. a universal loss of weekly religious service on financial help received from others during the past week (yes/no) at the end of the study. Contrasts are expressed on the risk ratio scale."
+#| eval: true
+#| include: true
+#| echo: false
+
+
+tab_all_received_money |>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+
+#margot::margot_interpret_table(group_tab_all_received_money, "risk_ratio", "lmtp")
+
+```
+
+
+For 'community gives money', the effect estimate is 1.376 [1.112, 1.703]. The E-value for this estimate is 2.095, with a lower bound of 1.465. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.465 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'family gives money', the effect estimate is 1.137 [1.028, 1.258]. The E-value for this estimate is 1.532, with a lower bound of 1.198. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.198 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'friends give money', the effect estimate is 1.137 [0.964, 1.342]. The E-value for this estimate is 1.532, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+
+
+#### Regular vs. Status Quo Causal Contrast on Money Received From Others
+
+@fig-study_3 *B* and @tbl-3_2 present results for the treatment contrasts between Regular Religious Service and Status Quo, focusing on money received from others during the past week (yes/no). These results are measured on the risk ratio scale.
+
+
+```{r}
+#| label: tbl-3_2
+#| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs. the status quo on financial help received from others during the past week (yes/no) at the end of the study. Contrasts are expressed on the risk ratio scale."
+#| eval: true
+#| include: true
+#| echo: false
+
+
+
+tab_all_received_money_null|>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+
+#margot::margot_interpret_table(group_tab_all_received_money_null, "risk_ratio", "lmtp")
+
+```
+
+For 'community gives money', the effect estimate is 1.254 [1.098, 1.432]. The E-value for this estimate is 1.818, with a lower bound of 1.426. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.426 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'family gives money', the effect estimate is 1.13 [1.037, 1.232]. The E-value for this estimate is 1.513, with a lower bound of 1.233. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.233 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+
+For 'friends give money', the effect estimate is 1.041 [0.951, 1.139]. The E-value for this estimate is 1.248, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+
+#### Zero vs. Status Quo Causal Contrast on Money Received From Others
+
+@fig-study_3 *C* and @tbl-3_3 present results for the treatment contrasts between Zero Religious Service and Status Quo, focusing on money received from others during the past week (yes/no). These results are measured on the risk ratio scale.
+
+
+
+```{r}
+#| label: tbl-3_3
+#| tbl-cap: "Table reports results of model estimates for the causal effects of a universal loss of weekly religious service vs. the status quo on financial help received from others during the past week (yes/no) at the end of study. Contrasts are expressed on the risk ratio scale."
+#| eval: true
+#| include: true
+#| echo: false
+
+
+tab_all_received_money_null_zero|>
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kbl(format = "markdown")
+
+#margot::margot_interpret_table(group_tab_all_received_money_null_zero, "risk_ratio", "lmtp")
+```
+
+
+For 'family gives money', the effect estimate on the risk ratio scale is 0.993 [0.953, 1.035]. The E-value for this estimate is 1.091, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+
+For 'friends give money', the effect estimate on the risk ratio scale is 0.915 [0.809, 1.036]. The E-value for this estimate is 1.412, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+
+For 'community gives money', the effect estimate on the risk ratio scale is 0.911 [0.796, 1.042]. The E-value for this estimate is 1.425, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+
+```{r}
+#| label: fig-study_3
+#| fig-cap: "This figure reports the results of model estimates for the three causal contrasts of interest on help received from others during the past week (yes/no). The causal contrasts are: (A) Regular vs. Zero Religious Service (B) Regular Religious Service vs. Status Quo; (C) Zero  Religious Service vs. Status Quo. Contrasts are expressed on the risk ratio scale."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+study_3
+```
+{{< pagebreak >}}
+### Additional Study: Comparison of Causal Inference Results with Cross-Sectional Regressions
+
+```{r}
+#| label: regressions
+#| eval: true
+#| include: false
+#| echo: false
+# regression 
+# b_church_on_hours_charity<-margot::here_read("b_church_on_hours_charity")
+# b_church_on_hours_charity
+# lm_coef_fit_church_on_charity_donate
+# verify
+
+# contrast for charity
+
+```
+
+To better evaluate the contributions of our methodology to current practice, we conducted a series of cross-sectional analyses using the baseline wave data. We quantified the statistical associations between religious service attendance and our focal prosocial outcomes. We included all regression covariates from the causal models (including sample weights) for each analysis, obviously omitting the outcome measured at baseline, i.e. the response variable.
+
+**Cross-sectional volunteering result**: the change in expected hours of volunteer work for a one-unit increase in religious service attendance is `r b_church_on_hours_charity`. Multiplying this by 4.2 gives a monthly estimate of `r regression_regular_church_volunteer_minutes` minutes. This result is `r percent_greater_regression_volunteer` percent greater than the effect estimated from the 'regular vs. zero' causal contrast, indicating an **overstatement in the cross-sectional regression model**.
+
+**Cross-sectional charitable donations result**: The coefficient for religious service on annual charitable donations suggests a change in expected donation amount per unit increase in attendance is `r b_church_on_charity_donate`. When adjusted to a monthly rate by multiplying by 4.2, this value equals NZ Dollars `r regression_regular_church_charity`. It is `r percent_greater_regression_donate` percent greater than our causal contrast estimate, again indicating an **overstatement in the cross-sectional regression model**.
+
+For Studies 2 and 3, which focus on community help received, we adjusted our analysis for the non-collapsibility of odds ratios by assuming a Poisson distribution for the outcome variables, obtaining a rate ratio that approximates a risk ratio [@huitfeldt2019collapsibility; @vanderweele2020]:
+
+**Cross-sectional community assistance received result: Time**: the exponentiated change in expectation for a one-unit change in religious service attendance is `r b_church_on_community_time_binary_exp_true` approximate risk rate ratio. The monthly rate ratio derived by multiplying this coefficient by 4.2 is `r community_time_risk_ratio`. This estimate is `r percent_greater_rr_community_time` percent greater than the 'regular vs. zero' causal estimate, pointing to an **overstatement in the cross-sectional regression model**.
+
+**Cross-sectional community assistance received result: Money**: similarly, the exponentiated change for money received yields an approximate risk ratio of `r b_church_on_community_money_binary_exp_true`. The monthly risk ratio, after adjustment, is `r community_money_risk_ratio`. This rate ratio is `r percent_greater_rr_community_money` percent greater than the causal estimate, again revealing an **overstatement in the cross-sectional regression model**.
+
+*These findings underscore that the results of cross-sectional regressions, although suggestive, can considerably diverge from those obtained from the causal analysis of panel data.*
+{{< pagebreak >}}
+
+### Economic Impact of Religious Service Attendance on Charitable Donations
+
+
+```{r}
+#| label: cashvalue
+#| eval: true
+#| include: false
+#| echo: false
+
+# avoid scientific notation
+options(scipen = 999)
+
+# # model estimates for charity under each intervention
+# average annual donations 
+
+# sample mean at end of study (won't be population mean)
+mean_donations <- margot::here_read("mean_donations")
+mean_volunteer <- margot::here_read("mean_volunteer")
+
+# import models
+# population mean
+t2_charity_donate_z_null <- here_read("t2_charity_donate_z_null")
+
+# all loss
+t2_charity_donate_z_zero <- here_read("t2_charity_donate_z_zero")
+
+# all gain
+t2_charity_donate_z_gain <- here_read("t2_charity_donate_z_gain")
+
+# calculate  population estimates for means of annual charitable donations using the models
+# note these correctly account for sample weights
+mean_donations_gain <-round( mean_donations  + ( t2_charity_donate_z_gain$theta * sd_donations ), 2)
+mean_donations_null <-round( mean_donations  + ( t2_charity_donate_z_null$theta * sd_donations ), 2)
+
+mean_donations_zero<- round( mean_donations  + ( t2_charity_donate_z_zero$theta * sd_donations ), 2)
+
+
+mean_volunteer_gain<- round( mean_volunteer  + ( t2_hours_charity_z_gain$theta * sd_volunteer ), 2)
+mean_volunteer_null<- round( mean_volunteer  + ( t2_hours_charity_z_null$theta * sd_volunteer ), 2)
+mean_volunteer_zero <- round( mean_volunteer  + ( t2_hours_charity_z_zero$theta * sd_volunteer ), 2)
+
+# sanity checks for differences 
+donations_lmtp_up = round( abs(mean_donations_null - mean_donations_gain), 2)
+donations_lmtp_down = round(mean_donations_null - mean_donations_zero, 2)
+
+volunteer_lmtp_up = round(abs(mean_volunteer_null - mean_volunteer_gain), 2)
+volunteer_lmtp_down = round((mean_volunteer_null - mean_volunteer_zero), 2)
+
+
+# verify
+contrast_char <- lmtp::lmtp_contrast(t2_charity_donate_z_gain , ref =  t2_charity_donate_z_zero, type = "additive")
+
+contrast_vol <- lmtp::lmtp_contrast(t2_hours_charity_z_gain , ref =  t2_hours_charity_z_zero, type = "additive")
+
+
+
+# verified: this is exactly correct
+#contrast_char$vals$theta * sd_donations
+
+# #number of people in NZ > 18 year olds in 2021/22
+nz_adult_population <- 3989000
+nz_20_over <- 3.8391
+#source; https://www.stats.govt.nz/information-releases/national-population-estimates-at-30-june-2021
+
+
+# annual charity estimate for the population = Status Quo
+factual_charity_estimate <- round( nz_adult_population * mean_donations_null, 2)
+
+mean_donations_null
+# counterfactual charity estimate if all were to attend religious service regularly
+counterfactual_factual_charity_estimate_up = round(nz_adult_population * mean_donations_gain, 2)
+
+factual_charity_estimate_pop = round(nz_adult_population * mean_donations_null, 2)
+
+
+# counterfactual charity estimate if all were to lose religious service regularly
+counterfactual_factual_charity_estimate_down = round(nz_adult_population * mean_donations_zero, 2)
+net_loss = round(counterfactual_factual_charity_estimate_down - factual_charity_estimate, 2)
+net_gain = round(counterfactual_factual_charity_estimate_up - factual_charity_estimate, 2)
+# net_loss
+# net_gain
+ 
+# compute differences at the national level: gain
+counterfactual_difference_charity_donate_up = round( counterfactual_factual_charity_estimate_up - factual_charity_estimate, 2)
+#counterfactual_difference_charity_donate_up
+
+# compute differences at the national level: loss
+counterfactual_difference_charity_donate_down =  round(factual_charity_estimate - counterfactual_factual_charity_estimate_down, 2)
+#counterfactual_difference_charity_donate_down
+
+# differences  - absolute scale
+#print(counterfactual_difference_charity_donate_up)
+#print(counterfactual_difference_charity_donate_down)
+# 
+# # ~ 2.5 billion NZD 
+# # 2503913110
+# 
+# nz annual budget in 2021
+
+nz_annual_budget = 14494000000 * 4 # treasury (https://www.treasury.govt.nz/publications/budgets/budget-2021)
+# 
+# # Intervention as a percentage of gov't annual budget 
+
+# percentage of gain/loss as a function of nz government annual budget
+per_gain <- round( counterfactual_difference_charity_donate_up/ nz_annual_budget, 3) * 100
+per_lost <- round( counterfactual_difference_charity_donate_down/ nz_annual_budget, 3) * 100
+
+# per_gain
+# per_lost
+# prop of values
+prop_loss_of_gain <- round( abs(net_loss/net_gain), 2)
+
+# make pretty numbers
+nz_adult_population <- prettyNum(nz_adult_population,big.mark=",")
+net_gain <- prettyNum(net_gain,big.mark=",")
+net_loss <- prettyNum(net_loss,big.mark=",")
+nz_annual_budget <-  prettyNum(nz_annual_budget,big.mark=",")
+factual_charity_estimate_pop <- prettyNum(factual_charity_estimate_pop,big.mark=",")
+factual_charity_estimate <- prettyNum(factual_charity_estimate,big.mark=",")
+
+
+```
+
+We leveraged results to estimate the approximate economic value of religious service attendance under different scenarios—'Regular Religious Service', 'Zero Religious Service', and the 'Status Quo', focusing on charitable donations.
+
+- **Regular Religious Service**: An increase in religious service attendance yields an individual average donation sum of **NZD `r mean_donations_gain`**.
+- **Zero Religious Service**: Reducing religious service attendance to zero yields an average donation sum of **NZD `r mean_donations_zero`**.
+- **Status Quo**: The expected individual average donation sum is currently **NZD `r mean_donations_null`**.
+
+With `r nz_adult_population` adult residents in New Zealand in 2021:[^pop]
+
+- Multiplying the adult population by the average donation sum gives a status quo national estimate for charitable giving of **NZD `r factual_charity_estimate_pop`**.
+- The net gain to charity from country-wide regular attendance at religious services, compared to the status quo, is **NZD `r net_gain`**.
+- Conversely, although the net cost to charity from a complete cessation of regular religious service attendance is **NZD `r net_loss`**, recall the confidence interval crosses zero, and this effect is not reliable.
+
+To provide context, consider these economic consequences against the New Zealand government’s annual budget in the year outcomes were measured (2021-2022) is **NZD `r nz_annual_budget`**.
+
+- **The expected gain from a nationwide adoption of regular religious service represents `r per_gain` percent of New Zealand's annual government budget 2021.**
+- We do not obtain a reliable effect from the loss intervention.
+
+[^pop]: [National Population Estimates at 30 June 2021](https://www.stats.govt.nz/information-releases/national-population-estimates-at-30-june-2021)
+[^source]: [Budget 2021](https://www.treasury.govt.nz/publications/budgets/budget-2021)
+
+Thus, focusing on the individual level and aggregating effects across the adult population, the counterfactual scenario in which all New Zealand adults regularly attend religious services projects a substantial increase in society-wide charitable support compared to the status quo, one year after the intervention.
+
+However, if New Zealand were to experience a complete cessation of religious service attendance, we do not find evidence that the landscape of charitable giving would change from its current state one year later.[^noteloss]
+
+[^noteloss]: We emphasise that failure to rule out an effect is not the same as ruling it out. The relatively low levels of religious service attendance in New Zealand mute differences in expected giving. In our view, some amount of charity is always better than none. We do not devalue any form of charitable giving. Furthermore, our population-wide estimates for the aggregated effects of *religious behaviour* do not clarify the effects of gaining or losing *religious institutions*; our analysis reflects the contributions made by those participating in religious institutions.
+
+## Discussion 
+
+### Considerations
+
+First, as stated above, our causal inferences turn on three assumptions, which are worth revisiting:
+
+(i). **Unmeasured confounding**: Although we employ robust methods for causal inference, our results depend on the effectiveness of our strategy to control for confounding. Our sensitivity analyses address the potential impacts of unmeasured confounders. Nevertheless, the presence and influence of such confounders are uncertain and unverifiable from our data.
+
+(ii). **Causal consistency**: The observed outcomes must correspond to the counterfactual treatments contrasted. Although "religious service attendance" may appear conditionally independent of the outcomes given baseline covariates, interpreting these interventions remains challenging. "Religious service attendance" varies widely, encompassing everything from informal gatherings at homes to formal services in cathedrals across New Zealand's religious diversity. This type of "treatment" does not mirror a straightforward medical intervention like a vaccine. The heterogeneity of "religious service" limits the clarity of our results, an issue no amount of data or analysis can resolve because "religious service" reflects a broad spectrum of community activities.
+
+(iii). **Positivity**: We have confirmed that religious service attendance varies within our sample and have used semi-parametric models with ensemble learning and cross-validation to prevent data over-extrapolation and model over-fitting. Conceptually, it is crucial for valid causal inference that every potential level of "treatment" to religious services is realistically possible (refer to the discussion in @vanderweele2017causaleffectsService). Although there are instances realised in our data of secular individuals initiating religious service and frequent attendees stopping (refer to @tbl-transition), it might stretch credulity too far to imagine that such changes are possible for everyone.
+
+Second, our study confronts the spectre of **measurement error**: Both direct and correlated measurement errors can introduce biases, either by implying effects where none exist or by attenuating true effects [@vanderweele2012MEASUREMENT]. Importantly, evaluating prosociality using multiple measures while also controlling for these measures and the treatment at baseline helps to mitigate measurement error concerns. Nevertheless, unknown combinations of measurement error might bias our results. The outcomes and estimates we report here are best considered approximations.
+
+Third, we do not examine **treatment effect heterogeneity**: Identifying which subgroups experience the strongest responses remains a task for future research. Such investigations are crucial for making informed policy decisions and tailoring advice relevant to those subgroups of the population who might benefit most. Perhaps the most obvious stratum is religious affiliates [@vanderweele2017causaleffectsService].
+
+Fourth, the **transportability of our findings remains unclear**: New Zealand is our target population. Our findings generalise to this population. However, the transportability of our findings to other settings—whether our results generalise beyond our targeted New Zealand population—remains an open question, a matter for future investigations.
+
+### Observations and Recommendations
+
+First, it is essential to notice that "Does religion cause prosociality?" lacks specificity. To refine this question, we must articulate clear causal contrasts and their scale, select specific measures of "prosociality," define our target population, gather appropriate time-series data, and, only after causal assumptions and identification criteria are satisfied and threats made explicit, calculate statistical estimates. Having obtained these estimates, which rely on assumptions, we must evaluate robustness using sensitivity analyses [@hernan2024WHATIF; @ogburn2021; @bulbulia2022; @linden2020EVALUE; @vanderweele2020].
+
+Here, we obtain statistical estimates for the causal effects of religious service on charity and volunteering by (1) stating contrasts for specific interventions that increase and decrease religious service attendance across the population; (2) balancing the interventions to be compared on baseline confounders measured one year before treatment (including baseline measures of the treatment and outcomes) using flexible doubly robust machine learning ensembles with cross-validation; and (3) evaluating contrasts in expected average outcomes under different treatments one year after treatment.
+
+In the scientifically interesting contrast condition, 'Regular vs Zero', we find considerable social benefits of regular religious attendance for charitable donations and volunteering. Moreover, we also find that regular religious service enacted in contemporary New Zealand would strongly enhance charity and volunteering above the status quo, a point that may inform discussions among critics of religion. Conversely, the overall social effects of altogether ceasing religious services are minimal compared with the status quo. Were New Zealand society to entirely forgo regular religious attendance, differences in charitable donations and volunteering one year later are unreliable. Although we did not investigate the long-term effects of the interventions considered here, this finding should alleviate some concerns among those wary of New Zealand's longstanding secular trend. Looking ahead, **we recommend that future research distinguish between models of treatment-gain and models of treatment-loss** (as exemplified by [@vantongeren2020]).
+
+Second, we caution that **classical measures of effect, such as Cohen's *D* or $R^2$, may present a misleading indication of practical significance.** Our study computed standardised differences in the continuous charity and volunteering outcomes. The contrast between regular religious service and no service yields an effect size of 0.132 [0.102, 0.161]. This effect would be categorised as a "small" effect by contemporary experimental conventions. Nonetheless, we project that the difference in annual charitable donations between the regular service condition and the status quo amounts to NZD `r mean_donations_gain` versus NZD `r mean_donations_null`. Not only is this effect practically significant at the individual level, but summed over the population, the difference amounts to 4% of New Zealand's Annual Government Budget (2021). **We recommend using causal inference to prioritise, evaluate, and communicate practical effect sizes. Conventional statistical measures should not be mistaken for metrics of practical significance.**
+
+Third, our novel measures of prosociality—**assistance and financial support received from one's community**—align with the expectations of self-reported data on charitable donations and volunteering. We detect marginal causal effects of religious service attendance on **measures of prosocial benefit and dependence**. Notice that just as our measures of prosocial actions (charity/volunteering) do not capture the targets of prosocial help, our measures of community help received (time/money) do not capture the specific sources of help beyond the categories of "community," "friends," and "family". Nevertheless, the evolutionary theories of religious prosociality that motivate this study are grounded on within-group cooperative benefits [@sosis2003cooperation; @johnson2015; @bulbulia2012spreading; @whitehouse2023; @schloss2011evolutionary]. This consistency between self-reported giving and help received aligns with public data in New Zealand;[^charities] where religious institutional charity accounts for 40% of the charitable sector (refer to [@McLeod2020, p.17], and also [@brooks2004faith; @woodyard2014doing; @monsma2007religion]). Additionally, religious institutions appear particularly efficient owing to low administrative costs and high volunteer engagement [@khanna1995charity; @bekkers2011literature; @McLeod2020, p.26]. We note that the community signals of religious giving are consistent with the theory that religion promotes altruism outside families, friendships, and even among strangers [@mccullough2020kindness]. **In contexts where investigators are concerned about self-presentation biases when surveying charitable donations and volunteering, we recommend piloting and deploying measures that capture community-received assistance.**
+
+[^charities]: [https://www.charities.govt.nz/view-data/](https://www.charities.govt.nz/view-data/)
+
+Fourth, our secondary analysis reveals that standard cross-sectional regressions overstate the causal effects estimates obtained from a conscientious application of causal methods to time-series data. Importantly, associational models might also *understate* true causal relationships, especially if adjustments involve mediators [@westreich2013; @mcelreath2020]. Despite their effectiveness and relevance, causal inference methods remain uncommon in many human sciences, including the psychological sciences, where traditional associational methods still dominate. Transitioning to causal data science might seem daunting. Yet, causation inherently unfolds in time, with causes preceding effects. Estimating average causal effects involves multi-stepped workflows and robust time-series data [@neal2020introduction; @bulbulia2023]. Although the need for researchers to develop new skills imposes considerable demands, it is encouraging that methods for causal inference have become standard in epidemiology [@lash2020] and are rapidly gaining traction in economics [@angrist2009mostly; @athey2019; @athey2021] and political science [@montgomery2018].
+
+Moreover, a global panel study suited for researching religion [@johnson2022global] offers exciting opportunities for psychological scientists to apply causal methods to those psychological questions at the heart of our discipline.
+
+Also encouraging, well-designed panel studies investigating the causal effects of religious service attendance on health that capitalise on the affordances of time-series data provide models for studies that may investigate the social consequences of religion (refer to [@chen2020religious, @pawlikowski2019religious, @vanderweelechurchmortality, @vanderweele2021effectsReligiousServiceMetanalysis, @kim2019mediators]). At present, then, the intellectual benefits of retooling would seem considerable (refer to [@major2023exploring]).
+
+Setting intellectual benefits aside, it is vital to remember that investigators should be able to evaluate the practical interest of their findings coherently. Such evaluation relies on quantifying the effects of interventions. However, associational methods cannot deliver this understanding where causal inferential workflows are absent because association is not guaranteed to be causation [@westreich2013]. What might be called a **practical significance gap** arises from associational models because we cannot interpret associations as causation unless we have obtained balance on the treatments to be compared, know that causes in our data precede effects in time, and ensure that identification conditions have been met. Notably, the **practical significance gap remains for associational methods even when they are applied to time-series data**, and even when the associational methods are sophisticated—as in the statistical structural equation and multilevel modelling traditions (refer to [@vanderweele2021can; @hazlett2022understanding]). Yet, because investigators typically seek both scientific knowledge and practical understanding, **we strongly recommend the broader adoption of causal inferential methods in the psychological sciences.**
+
+Fifth, and finally, we frame this study's contribution in light of future horizons. This study combined robust causal methods with national panel data to quantitatively investigate the social consequences of religious behaviour. Using both stated and revealed indicators, we provide evidence that religious service attendance causally affects charitable donations and volunteering. These findings offer insights into *how much* religious service affects charity and volunteering in New Zealand and possibly in similar cultures. We hope this research will serve as a guide for studies in other settings.
+
+However, even within New Zealand, much remains to be discovered. We have not attempted to elucidate heterogeneity in the treatment effects we observe. Nor have we investigated the pathways by which religious service attendance affects social behaviours. A substantial body of research has examined the psychological and cultural features through which religious behaviours affect individuals [@norenzayan2016; @shaver2020church; @watts2016; @mccullough2016christian; @konvalinka2011synchronized; @lang2015effects; @cristofori2016neural; @shaver2015evolution; @sosis2005does]. Yet obtaining a causal understanding presents conceptual, modelling, and data challenges [@robins1992; @vanderweele2015; @Diaz2023; @diaz2021nonparametric]. In the years ahead, **we recommend the wider development and application of causal inferential methods employing repeated measurements over more than three years to investigate variation, interaction, and causal mediation**.
+
+{{< pagebreak >}}
+
+### Ethics
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+### Data Availability
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: [https://github.com/go-bayes/models/blob/main/scripts/24-bulbulia-church-prosocial.R](https://github.com/go-bayes/models/blob/main/scripts/24-bulbulia-church-prosocial.R). 
+
+
+### Acknowledgements
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+### Author Statement
+
+JB conceived the study and approach. CS led NZAVS data collection. All authors contributed to the manuscript.
+
+
+{{< pagebreak >}}
+
+## Appendix A: Measures {#appendix-measures}
+
+#### Age (waves: 1-15)
+
+We asked participants' ages in an open-ended question ("What is your age?" or "What is your date of birth?").
+
+
+#### Born in New Zealand
+
+
+#### Charitable Donations  (Study 1 outcome)
+
+Using one item from @hoverd_religious_2010, we asked participants, "How much money have you donated to charity in the last year?". 
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+
+#### Charitable Volunteering  (Study 1 outcome)
+
+
+We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work."
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+#### Children Number (waves: 1-3, 4-15)
+
+We measured the number of children using one item from @Bulbulia_2015. We asked participants, "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15).
+
+<!-- Here, we used responses to create a binary indicator for parenthood: Parent Yes = 1/ No = 0.  -->
+
+
+
+<!-- #### Community: Sense of Community (Study 2 outcome) -->
+
+<!-- We measured a sense of community with a single item from @sengupta2013: "I feel a sense of community with others in my local neighbourhood." Participants answered on a scale of 1 (strongly disagree) to 7 (strongly agree). -->
+
+
+<!-- #### Community: Felt Belongingness  (Study 2 outcome) -->
+
+<!-- We assessed felt belongingness with three items adapted from the Sense of Belonging Instrument [@hagerty1995]: (1) "Know that people in my life accept and value me"; (2) "Feel like an outsider"; (3) "Know that people around me share my attitudes and beliefs". Participants responded on a scale from 1 (Very Inaccurate) to 7 (Very Accurate). The second item was reversely coded. -->
+
+<!-- #### Community: Social Support (Study 2 outcome) -->
+
+<!-- Participants perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated how much they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+#### Disability
+
+We assessed disability with a one-item indicator adapted from @verbrugge1997. It asks, "Do you have a health condition or disability that limits you and that has lasted for 6+ months?" (1 = Yes, 0 = No).
+
+
+#### Education Attainment (waves: 1, 4-15)
+
+We asked participants, "What is your highest level of qualification?". We coded participants' highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
+
+#### Employment (waves: 1-3, 4-11)
+
+We asked participants, "Are you currently employed? (This includes self-employed or casual work)".
+
+<!-- #### European (waves: 1-15) -->
+
+<!-- Participants were asked, "Which ethnic group do you belong to (NZ census question)?" or "Which ethnic group(s) do you belong to? (Open-ended)" (wave: 3). Europeans were coded as 1, whereas other ethnicities were coded as 0. -->
+
+#### Ethnicity
+
+Based on the New Zealand Census, we asked participants, "Which ethnic group(s) do you belong to?". The responses were: (1) New Zealand European; (2) Māori; (3) Samoan; (4) Cook Island Māori; (5) Tongan; (6) Niuean; (7) Chinese; (8) Indian; (9) Other such as DUTCH, JAPANESE, TOKELAUAN. Please state:. We coded their answers into four groups: Maori, Pacific, Asian, and Euro (except for Time 3, which used an open-ended measure).
+
+
+#### Fatigue
+
+We assessed subjective fatigue by asking participants, "During the last 30 days, how often did ... you feel exhausted?" Responses were collected on an ordinal scale (0 = None of The Time, 1 = A little of The Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time).
+
+
+#### Honesty-Humility-Modesty Facet (waves: 10-14)
+
+Participants indicated the extent to which they agree with the following four statements from @campbell2004 , and @sibley2011 (1 = Strongly Disagree to 7 = Strongly Agree)
+
+```
+i.  I want people to know that I am an important person of high status, (Waves: 1, 10-14)
+ii. I am an ordinary person who is no better than others.
+iii. I wouldn't want people to treat me as though I were superior to them.
+iv. I think that I am entitled to more respect than the average person is.
+```
+
+<!-- #### Has Siblings -->
+
+<!-- "Do you have siblings?" [@stronge2019onlychild] -->
+
+#### Hours of Childcare
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Housework
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+#### Hours of Exercise
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+<!-- #### Hours Volunteering -->
+
+<!-- We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work." -->
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+#### Hours of Childcare
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Exercise
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Housework
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Sleep
+
+Participants were asked, "During the past month, on average, how many hours of *actual sleep* did you get per night?".
+
+
+#### Hours of Work
+
+We measured work hours using one item from @sibley2011: "Hours spent … working in paid employment."
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Income (waves: 1-3, 4-15)
+
+Participants were asked, "Please estimate your total household income (before tax) for the year XXXX". To stabilise this indicator, we first took the natural log of the response + 1, and then centred and standardised the log-transformed indicator.
+
+<!-- #### Job Security (waves: 1-3,4-7,9-15) -->
+
+<!-- Participants indicated their feeling of job security by answering "How secure do you feel in your current job?" on a scale from 1 (not secure) to 7 (very secure). -->
+
+
+#### Kessler-6: Psychological Distress  (waves: 2-3,4-15)
+
+We measured psychological distress using the Kessler-6 scale (kessler2002?), which exhibits
+strong diagnostic concordance for moderate and severe psychological distress in large, crosscultural
+samples (kessler2010?; prochaska2012?). Participants rated during the past 30
+days, how often did… (1) “… you feel hopeless”; (2) “… you feel so depressed that nothing
+could cheer you up”; (3) “… you feel restless or fidgety”; (4)“… you feel that everything was
+an effort”; (5) “… you feel worthless”; (6) ” you feel nervous?” Ordinal response alternatives
+for the Kessler-6 are: “None of the time”; “A little of the time”; “Some of the time”; “Most of
+the time”; “All of the time.”
+
+
+#### Male Gender (waves: 1-15)
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male as 1, and gender diverse coded as 3 [@fraser_coding_2020]. (or 0.5 = neither female nor male)
+
+Here, we coded all those who responded as Male as 1, and those who did not as 0.
+
+
+#### Mini-IPIP 6 (waves: 1-3,4-15)
+
+We measured participants' personalities with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011], which consists of six dimensions and each dimension is measured with four items:
+
+1.  agreeableness,
+
+    i.  I sympathize with others' feelings.
+    ii. I am not interested in other people's problems. (r)
+    iii. I feel others' emotions.
+    iv. I am not really interested in others. (r)
+
+2.  conscientiousness,
+
+    i.  I get chores done right away.
+    ii. I like order.
+    iii. I make a mess of things. (r)
+    iv. I often forget to put things back in their proper place. (r)
+
+3.  extraversion,
+
+    i.  I am the life of the party.
+    ii. I don't talk a lot. (r)
+    iii. I keep in the background. (r)
+    iv. I talk to a lot of different people at parties.
+
+4.  honesty-humility,
+
+    i.  I feel entitled to more of everything. (r)
+    ii. I deserve more things in life. (r)
+    iii. I would like to be seen driving around in a very expensive car. (r)
+    iv. I would get a lot of pleasure from owning expensive luxury goods. (r)
+
+5.  neuroticism, and
+
+    i.  I have frequent mood swings.
+    ii. I am relaxed most of the time. (r)
+    iii. I get upset easily.
+    iv. I seldom feel blue. (r)
+
+6.  openness to experience
+
+    i.  I have a vivid imagination.
+    ii. I have difficulty understanding abstract ideas. (r)
+    iii. I do not have a good imagination. (r)
+    iv. I am not interested in abstract ideas. (r)
+
+Each dimension was assessed with four items and participants rated the accuracy of each item as it applies to them from 1 (Very Inaccurate) to 7 (Very Accurate). Items marked with (r) are reverse coded.
+
+
+#### NZ-Born (waves: 1-2,4-15)
+
+We asked participants, "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).
+
+
+#### NZ Deprivation Index (waves: 1-15)
+
+We used the NZ Deprivation Index to assign each participant a score based on where they live [@atkinson2019]. This score combines data such as income, home ownership, employment, qualifications, family structure, housing, and access to transport and communication for an area into one deprivation score.
+
+
+#### NZSEI Occupational Prestige and Status (waves: 8-15)
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017a]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant an NZSEI-13 score based on their occupation.
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant an NZSEI-13 score based on their occupation.
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?". -->
+<!-- #### Parent (waves: 5-15) -->
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. --> 
+
+
+
+
+#### Opt-in
+
+The New Zealand Attitudes and Values Study allows opt-ins to the study. Because the opt-in population may differ from those sampled randomly from the New Zealand electoral roll; although the opt-in rate is low, we include an indicator (yes/no) for this variable.
+
+
+
+#### Partner (No/Yes)
+
+"What is your relationship status?" (e.g., single, married, de-facto, civil union, widowed, living together, etc.)
+
+
+#### Politically Conservative 
+
+We measured participants' political conservative orientation using a single item adapted from @jost_end_2006-1.
+
+"Please rate how politically liberal versus conservative you see yourself as being."
+
+(1 = Extremely Liberal to 7 = Extremely Conservative)
+
+
+##### Religious Service Attendance
+
+If participants answered *yes* to "Do you identify with a religion and/or spiritual group?" we measured their frequency of church attendence using one item from @sibley2012: "how many times did you attend a church or place of worship in the last month?". Those participants who were not religious were imputed a score of "0".
+
+#### Rural/Urban Codes
+
+Participants residence locations were coded according to a five-level ordinal categorisation ranging from "Urban" to Rural, see @sibley2021.
+
+<!-- #### Politically Right Wing  -->
+
+<!-- We measured participants' political right-wing orientation using a single item adapted from @jost_end_2006-1. -->
+
+<!-- "Please rate how politically left-wing versus right-wing you see yourself as being." -->
+
+<!-- (1 = Extremely left-wing to 7 = Extremely right-wing) -->
+
+
+<!-- #### Religion Affiliation -->
+
+<!-- Participants were asked to indicate their religion identification ("Do you identify with a religion and/or spiritual group?") on a binary response (1 = Yes, 0 = No). We then asked, "What religion or spiritual group?" These questions are used in the New Zealand Census -->
+
+
+<!-- #### Support -->
+
+<!-- Participants' perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated how much they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+#### Short-Form Health
+
+Participants' subjective health was measured using one item ("Do you have a health condition or disability that limits you, and that has lasted for 6+ months?"; 1 = Yes, 0 = No) adapted from @verbrugge1997.
+
+
+#### Sample Origin
+
+Wave enrolled in NZAVS, see @sibley2021.
+
+<!-- #### Socialising (time 10, time 11) -->
+
+<!-- As part of the time usage measures, participants were asked to state how many hour the spent in activities related to socialising with the following groups: -->
+
+<!--   - Hours spent … socialising with family -->
+<!--   - Hours spent … socialising with friends -->
+<!--   - Hours spent … socialising with community groups -->
+
+<!--   <!-- - Hours spent … socialising with religious groups -->
+
+
+#### Support received: money (waves 10-12) (Study 4 outcomes)
+
+The NZAVS has a 'revealed' measure of received help and support measured in hours of support in the previous week. The items are: 
+
+
+*Please estimate how much help you have received from the following sources in the last week?*
+
+- *family...MONEY (hours)*
+- *friends...MONEY (hours)*
+- *members of my community...MONEY (hours)*
+
+
+Because this measure is highly variable, we convert responses to binary indicators: *0 = none/1 any*
+
+
+#### Support received: time (waves 10-13) (Study 3 outcomes)
+
+*Please estimate how much help you have received from the following sources in the last week.*
+
+- *family...TIME (hours)*
+- *friends...TIME (hours)*
+- *members of my community...TIME (hours)*
+
+Because this measure is highly variable, we convert responses to binary indicators: *0 = none/1 any*
+  
+
+#### Total Siblings
+
+Participants were asked the following questions related to sibling counts: 
+ 
+ - Were you the 1st born, 2nd born, or 3rd born, etc, child of your mother?
+ - Do you have siblings?
+ - How many older sisters do you have?
+ - How many younger sisters do you have?
+ - How many older brothers do you have?
+ - How many younger brothers do you have?
+
+A single score was obtained from sibling counts by summing responses to the "How many..." items. From these scores, an ordered factor was created ranging from 0 to 7, where participants with more than 7 siblings were grouped into the highest category. 
+
+
+<!-- #### Volunteers -->
+
+<!-- We asked participants,"Please estimate how many hours you spent doing each of the following things last week" and responded to an item ("voluntary/charitable work") from [@sibley2011]. -->
+
+
+{{< pagebreak >}}
+
+## Appendix B. Baseline Demographic Statistics {#appendix-demographics}
+
+
+```{r}
+#| label: tbl-table-demography
+#| tbl-cap: "Baseline demographic statistics"
+#| eval: true
+#| include: true
+#| echo: false
+
+table_baseline <- margot::here_read("table_baseline")
+table_baseline |>  kbl(format = "markdown")
+```
+
+
+@tbl-table-demography baseline demographic statistics for couples who met inclusion criteria.
+
+{{< pagebreak >}}
+
+
+##  Appendix C: Treatment Statistics {#appendix-exposures}
+
+
+```{r}
+#| label: tbl-table-exposures-code
+#| tbl-cap: "Exposures at baseline and baseline + 1 (treatment) wave"
+#| eval: true
+#| include: true
+#| echo: false
+
+table_exposures <-margot::here_read("table_exposures")
+table_exposures |>  kbl(format = "markdown")
+```
+
+
+
+tbl-table-exposures-code presents baseline (NZAVS time 10) and exposure wave (NZAVS time 11) statistics for the exposure variable: religious service attendance (range 0-8). Responses coded as eight or above were coded as "8". This decision to avoid spare treatments was based on theoretical grounds, namely, that daily exposure would be similar in its effects to more than daily exposure. We note that causal contrasts were obtained for projects with either no attendance or four or more visits per month. Hence this simplification of the measure is unlikely to affect theoretical and practical inferences. All models adjusted for the pandemic alert level because the treatment wave (NZAVS time 11) occurred during New Zealand's COVID-19 pandemic. The pandemic is not a "confounder" because a confounder must be related to the treatment and the outcome. At the end of the study, all participants had been exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. Because COVID affected the ability or willingness of individuals to attend religious service, we included the lockdown condition as a covariate [@sibley2021]. To better enable conditional independence within levels of the treatment variable, we conditioned on the lead value of COVID-alert level at baseline. To mitigate systematic biases arising from attrition and missingness, the `lmtp` package uses inverse probability of censoring weights, which were used when estimating the causal effects of the exposure on the outcome. 
+
+
+
+### Binary Transition Table for The Treatment
+
+```{r}
+#| label: tbl-transition-tablegain
+#| tbl-cap: "Transition table for stability and change in regular religious service (4x per month) between baseline and treatment wave."
+#| eval: true
+#| include: true
+#| echo: false
+
+transition_table_binary_gain <-margot::here_read("transition_table_binary_gain")
+
+transition_table_binary_gain$table
+```
+
+@tbl-transition-tablegain presents a transition matrix to evaluate treatment shifts between baseline and treatment wave. Here, we focus on the shift from/to monthly attendance at four or more visits per month. Entries along the diagonal (in bold) indicate the number of individuals who **stayed** in their initial state. By contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off diagonal). Thus the cell located at the intersection of row $i$ and column $j$, where $i \neq j$, gives us the counts of individuals moving from state $i$ to state $j$.
+
+
+
+
+
+```{r}
+#| label: tbl-transition-tableloss
+#| tbl-cap:  "Transition table for stability and change in zero religious service (0 x per month) between baseline and treatment wave."
+#| eval: true
+#| include: true
+#| echo: false
+
+transition_table_binary_zero <-margot::here_read("transition_table_binary_zero")
+transition_table_binary_zero$table
+```
+
+@tbl-transition-tableloss presents a transition matrix to evaluate treatment shifts between baseline and treatment wave. Here, we focus on the shift from/to zero religious service attendance. Again, entries along the diagonal (in bold) indicate the number of individuals who **stayed** in their initial state. By contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off diagonal). Thus the cell located at the intersection of row $i$ and column $j$, where $i \neq j$, gives us the counts of individuals moving from state $i$ to state $j$.
+
+
+### Imbalance of Confounding Covariates Treatments 
+
+@fig-match_1 shows imbalance of covariates on the treatment at the treatment wave. The variable on which there is strongest imbalance is the baseline measure of religious service attendance. It is important to adjust for this measure both for confounding control and to better estimate an incident exposure effect for the religious service at the treatment wave (in contrast to merely estimating a prevalence effect). See @vanderweele2020.
+
+```{r}
+#| label: fig-match_1
+#| fig-cap: "This figure shows the imbalance in covariates on the treatment"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+
+love_plot_one <- margot::here_read("love_plot_one")
+love_plot_one
+```
+
+
+##  Appendix D: Baseline and End of Study Outcome Statistics {#appendix-outcomes}
+
+
+```{r}
+#| label: tbl-table-outcomes
+#| tbl-cap: "Outcomes at baseline and end-of-study"
+#| eval: true
+#| include: true
+#| echo: false
+table_outcomes <-margot::here_read("table_outcomes")
+table_outcomes |>  kbl(format = "markdown")
+```
+
+
+
+@tbl-table-outcomes presents baseline and end-of-study descriptive statistics for the outcome variables.  
+
+
+{{< pagebreak >}}
+
+
+
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
