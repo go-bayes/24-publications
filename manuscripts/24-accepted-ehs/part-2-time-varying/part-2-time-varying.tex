@@ -180,6 +180,7 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
+
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -197,6 +198,7 @@
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
 
+
 \title{Methods in Causal Inference Part 2: Interaction, Mediation, and
 Time-Varying Treatments}
 
@@ -211,7 +213,7 @@ Time-Varying Treatments}
       
 
 
-\date{2024-06-19}
+\date{2024-10-01}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -228,12 +230,13 @@ regressions and statistical structural equation models, cannot typically
 recover the causal quantities we seek. By properly framing and
 addressing causal questions of interaction, mediation, and time-varying
 treatments, we can expose the limitations of popular methods and guide
-researchers to a clearer understanding of the phenomena that animate our
-interests.
+researchers to a clearer understanding of the causal questions that
+animate our interests.
 
 \textbf{KEYWORDS}: \emph{DAGs}; \emph{Mediation}; \emph{Moderation};
 \emph{SWIGs}; \emph{Time-varying Treatments}
 \end{abstract}
+
 
 \subsection{Introduction}\label{id-introduction}
 
@@ -266,13 +269,23 @@ Across many human sciences, we apply statistical models to data and
 report `moderation', `interaction', `mediation', and `longitudinal
 growth'. How are we to interpret the results of these models? It is
 often unclear. The confidence with which investigators report findings
-does not make interpretation any clearer. The problem is that
-investigators are typically interested in causal questions. However,
-lacking the associations we obtain from our statistical models may
-hallucinate true causal association and their signs
-(\citeproc{ref-westreich2013}{Westreich \& Greenland, 2013}). As such,
-it is often unclear whether the associations we obtain from our
-statistical models are evidence for association, much less causation.
+does not make interpretation any clearer.
+
+Answering a causal question requires a careful workflow that begins by
+defining the causal quantities and the target population of interest. We
+specify a causal quantity, or estimand, as the contrast between
+counterfactual outcomes under two (or more) clearly defined
+interventions. Mathematical proofs establish that we can consistently
+estimate the size of this counterfactual difference using data, provided
+certain assumptions are met (discussed below). The subsequent steps in a
+causal inferential workflow involve assessing the credibility of these
+necessary assumptions, constructing appropriate estimators, and
+obtaining relevant data. Only after these steps should statistical
+analysis be attempted. Without adhering to a causal inferential
+workflow, the associations derived from statistical models will reflect
+true causal relationships only by chance, regardless of the
+sophistication of our statistical methods
+(\citeproc{ref-westreich2013}{Westreich \& Greenland, 2013}).
 
 There is good news. Progress in the health sciences, computer science,
 and economics has led to a common vocabulary and robust workflows that
@@ -286,7 +299,7 @@ causal questions using observational data. The consensus that has
 emerged in causal inference over the past several decades is, in my
 view, as transformative for the human sciences as the theory of
 glaciation was for geology, or as Darwin's theory of evolution was for
-biology. By reformulating questions of interaction, mediation, and
+biology. By refreaming questions of interaction, mediation, and
 time-varying treatments as causal questions, I aim to clarify the
 framework's interest, relevance, and power.
 
@@ -301,7 +314,7 @@ causal inference, from stating causal questions to communicating results
 \citeproc{ref-grf2024}{Tibshirani et al., 2024};
 \citeproc{ref-vanderweele2015}{VanderWeele, 2015}).
 
-Here, my ambition is modest.
+Here, my ambition is focussed.
 
 \hyperref[id-sec-1]{Part 1} considers how to ask causal questions when
 our interest is in comparing effect magnitudes between groups (effect
@@ -380,8 +393,8 @@ may not be satisfied in observational or `real world' data:
 Note that we speak of an `ideal' experiment because real-world
 experiments may fail these assumptions
 (\citeproc{ref-bulbulia_2024_experiments}{Bulbulia, 2024c};
-\citeproc{ref-hernan2017per}{Hernán et al., 2017}). Our interest here is
-restricted to observational or `real world' data.
+\citeproc{ref-hernan2017per}{Hernán \& Robins, 2017}). Our interest here
+is restricted to observational or `real world' data.
 
 \subsubsection{Schematic Workflow for Inferring Causal Effects from
 Real-World Data Before Stating Statistical Estimators and Performing
@@ -472,7 +485,7 @@ steps \emph{before} considering a statistical estimator or estimation:
   (\citeproc{ref-bulbulia2024wierd}{Bulbulia, 2024b};
   \citeproc{ref-hernan2004STRUCTURAL}{Hernán et al., 2004};
   \citeproc{ref-hernan2017SELECTIONWITHOUTCOLLIDER}{Hernán, 2017};
-  \citeproc{ref-hernan2017per}{Hernán et al., 2017}).
+  \citeproc{ref-hernan2017per}{Hernán \& Robins, 2017}).
 \item
   \textbf{Clearly communicate the reasoning, evidence, and
   decision-making that inform steps 1-8.} Provide transparent and
@@ -785,7 +798,7 @@ understand the relevance of effect modification to such parameters. It
 is important to remember that when evaluating evidence for effect
 modification, we are not assessing the effects of intervening on
 variables other than the treatment. Instead, we qualitatively evaluate
-whether treatment effects vary within subgroups. For more on effect
+whether treatment effects vary across subgroups. For more on effect
 modification, refer to VanderWeele
 (\citeproc{ref-vanderweele2012}{2012}); VanderWeele \& Robins
 (\citeproc{ref-vanderweele2007}{2007}); Suzuki et al.
@@ -834,11 +847,11 @@ is:
 \]
 
 We say there is effect modification on the difference scale if: \[
-\text{ATE}_{Z = 1} \neq \text{ATE}_{Z = 0} \implies \mu_{11} - \mu_{01} \neq \mu_{10} - \mu_{00}
+\text{ATE}{F = 1} \neq \text{ATE}{F = 0} \implies \mu_{11} - \mu_{01} \neq \mu_{10} - \mu_{00}
 \]
 
 We say there is effect modification on the ratio scale if: \[
-\text{RR}_{Z = 1} \neq \text{RR}_{Z = 0} \implies \frac{\mu_{11}}{\mu_{01}} \neq \frac{\mu_{10}}{\mu_{00}}
+\text{RR}{F = 1} \neq \text{RR}{F = 0} \implies \frac{\mu_{11}}{\mu_{01}} \neq \frac{\mu_{10}}{\mu_{00}}
 \]
 
 We have stated each causal question in relation to well-defined causal
@@ -1036,8 +1049,6 @@ respect to the outcome \(Y\).
 
 \centering{
 
-\captionsetup{labelsep=none}
-
 \interactionpuzzle
 
 }
@@ -1046,80 +1057,86 @@ respect to the outcome \(Y\).
 
 \subsubsection{Example}\label{example}
 
-Consider the effect of beliefs in big Gods (exposure \(A\)) and a
+Consider the effect of beliefs in big gods (exposure \(A\)) and a
 culture's monumental architecture (exposure \(B\)) on social complexity
 (outcome \(Y\)). Both interventions have equal status; we are not
 investigating effect modification of one by the other. The interventions
-must be well-defined. We must state, understand, and obtain measures for
-the quantities `big Gods', `monumental architecture', and `social
-complexity' measured at a clearly stated time interval after the
-interventions are first observed.
+must be well-defined, with clear measures for `big gods', `monumental
+architecture', and `social complexity' at specified time intervals after
+the interventions are first observed.
 
-We need to state a population and scale to assess the individual and
-combined effects of \(A\) and \(B\). The units in the study draw from
-this population---say they are the societies of primary urban genesis
+We need to define the population of interest and choose the appropriate
+scale to assess the individual and combined effects of \(A\) and \(B\).
+Suppose our population consists of societies of primary urban genesis
 (\citeproc{ref-wheatley1971pivot}{Wheatley, 1971}). We look for evidence
-of causal interaction on the difference scale. Evidence for interaction
-would be present if the following inequality were to hold. Where,
+of causal interaction on the additive (difference) scale. Evidence for
+interaction is present if the following inequality holds:
 
 \begin{itemize}
 \tightlist
 \item
-  \(\mathbb{E}[Y(1,1)]\): mean outcome for those jointly exposed to both
-  treatments, big Gods and big architecture.
+  \(\mathbb{E}[Y(1,1)]:\) Mean outcome for those jointly exposed to both
+  treatments.
 \item
-  \(\mathbb{E}[Y(1,0)]\): mean outcome for those exposed only to the
-  treatment of big Gods.
+  \(\mathbb{E}[Y(1,0)]:\) Mean outcome for those exposed only to big
+  gods.
 \item
-  \(\mathbb{E}[Y(0,1)]\): mean outcome for those exposed only to the
-  treatment of big architecture.
+  \(\mathbb{E}[Y(0,1)]:\) Mean outcome for those exposed only to
+  monumental architecture.
 \item
-  \(\mathbb{E}[Y(0,0)]\): mean outcome for those exposed to neither
-  treatment of big Gods nor of big architecture.
+  \(\mathbb{E}[Y(0,0)]:\) Mean outcome for those exposed to neither
+  treatment.
 \end{itemize}
 
-Suppose outcomes are well-defined. We say there is evidence for
-interaction on the additive scale if
+Evidence for interaction on the additive scale exists if:
 
 \[
-\bigg(\underbrace{\mathbb{E}[Y(1,1)]}_{\text{joint exposure}} - \underbrace{\mathbb{E}[Y(0,0)]}_{\text{neither exposed}}\bigg) - \bigg[ \bigg(\underbrace{\mathbb{E}[Y(1,0)]}_{\text{only A exposed}} - \underbrace{\mathbb{E}[Y(0,0)]}_{\text{neither exposed}}\bigg) + \bigg(\underbrace{\mathbb{E}[Y(0,1)]}_{\text{only B exposed}} - \underbrace{\mathbb{E}[Y(0,0)]}_{\text{neither exposed}} \bigg)\bigg] \neq 0 
+\left( \mathbb{E}[Y(1,1)] - \mathbb{E}[Y(0,0)] \right) - \left[ \left( \mathbb{E}[Y(1,0)] - \mathbb{E}[Y(0,0)] \right) + \left( \mathbb{E}[Y(0,1)] - \mathbb{E}[Y(0,0)] \right) \right] \neq 0
 \]
 
-This equation simplifies to
+Simplifying:
 
-\[ 
-\underbrace{\mathbb{E}[Y(1,1)]}_{\text{joint exposure}} - \underbrace{\mathbb{E}[Y(1,0)]}_{\text{only A exposed}} - \underbrace{\mathbb{E}[Y(0,1)]}_{\text{only B exposed}} + \underbrace{\mathbb{E}[Y(0,0)]}_{\text{neither exposed}} \neq 0 
+\[
+\mathbb{E}[Y(1,1)] - \mathbb{E}[Y(1,0)] - \mathbb{E}[Y(0,1)] + \mathbb{E}[Y(0,0)] \neq 0
 \]
 
-A positive value would indicate evidence for additive interaction. A
-negative value would indicate evidence for sub-additive interaction. A
-value near zero would imply no reliable evidence for interaction.
+A positive value indicates a synergistic (super-additive) interaction,
+while a negative value indicates a sub-additive interaction. A value
+close to zero suggests no interaction on the additive scale.
 
-Table~\ref{tbl-interactionpuzzle} presents each counterfactual
-intervention. We can read from the graphs that identification in each
-\(\mathcal{G}_{\Tilde{a}, \Tilde{b}}\) requires conditioning on all
-confounders of \(A\), \(L_A\), and all confounders of \(B\), \(L_B\).
+To identify these causal effects, we need to adjust for all confounders
+of the relationships between \(A\), \(B\), and \(Y\). This includes any
+variables that influence:
+
+\begin{itemize}
+\tightlist
+\item
+  Both \(A\) and \(Y\),
+\item
+  Both \(B\) and \(Y\),
+\item
+  Both \(A\) and \(B\),
+\item
+  Or all three variables simultaneously.
+\end{itemize}
 
 As with effect modification, evidence for causal interaction may differ
-depending on the measurement scale one chooses to assess it
+depending on the measurement scale used
 (\citeproc{ref-vanderweele2012}{VanderWeele, 2012};
-\citeproc{ref-vanderweele2014}{VanderWeele \& Knol, 2014}). Evidence for
-the strength of a causal effect estimate for interaction in the presence
-of effect modification will differ depending on whether the effect is
-measured on the ratio scale as opposed to the difference scale (see:
-VanderWeele \& Knol (\citeproc{ref-vanderweele2014}{2014}), who
-recommends using the causal difference scale for most policy settings).
+\citeproc{ref-vanderweele2014}{VanderWeele \& Knol, 2014}). For most
+policy settings, the additive scale is recommended because it directly
+relates to differences in outcome levels, which are often more
+actionable.
 
-Note that if \(A\) and \(B\) were to affect each other, we would need to
-collect time series data and estimate causal effects using causal
-mediation analysis. Indeed, if there has been a co-evolution of
-religious culture, political and religious theatres, and urban
-density---as archaeologists have long reported
-(\citeproc{ref-decoulanges1903}{De Coulanges, 1903};
-\citeproc{ref-wheatley1971pivot}{Wheatley, 1971})---mediation analysis
-is better motivated. However, the demands for causal mediation analysis
-are more stringent than those of causal interaction analysis. We next
-consider these demands.
+Note that if \(A\) and \(B\) potentially influence each other over time,
+we would need to collect longitudinal data and estimate causal effects
+using mediation analysis. Indeed, if there has been a co-evolution of
+religious culture, monumental architecture, and social complexity---as
+archaeologists have long reported (\citeproc{ref-decoulanges1903}{De
+Coulanges, 1903}; \citeproc{ref-wheatley1971pivot}{Wheatley,
+1971})---mediation analysis may be more appropriate. However, the
+requirements for causal mediation analysis are more stringent than those
+for causal interaction analysis, which we will consider next.
 
 \subsection{Part 3: Causal Mediation Analysis}\label{id-sec-3}
 
@@ -1275,7 +1292,7 @@ required for inferring natural direct and indirect effects. This
 template highlights that, when estimating natural mediated effects, we
 only intervene on the treatment. Therefore, we must infer the mediated
 effect of the treatment under the condition that the mediator is set to
-zero.
+the level it would naturally take under the control condition.
 
 Additionally, Table~\ref{tbl-medationassumptions} \(\mathcal{G}_1\) also
 clarifies the assumptions needed for inferring controlled direct
@@ -1283,7 +1300,7 @@ effects, where the mediator is fixed to a level specified by the
 investigators. In this scenario, we obtain causal contrasts by fixing
 variables to specific states.
 
-Consider the hypothesis that cultural beliefs in `big Gods' influence
+Consider the hypothesis that cultural beliefs in `Big Gods' influence
 social complexity, with political authority mediating. Assuming we have
 well-defined interventions and outcomes, what requirements are necessary
 to decompose this causal effect into natural direct and indirect
@@ -1291,8 +1308,8 @@ effects?
 
 \begin{table}
 
-\caption{\label{tbl-medationassumptions}Assumptions of Causal Mediation
-Analysis}
+\caption{\label{tbl-medationassumptions}\textbf{Assumptions of Causal
+Mediation Analysis}}
 
 \centering{
 
@@ -1304,174 +1321,186 @@ Analysis}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
-\tightlist
 \item
-  \textbf{No unmeasured exposure-outcome confounder}
+  \textbf{No Unmeasured Exposure-Outcome Confounder}
+
+  This requirement is expressed as: \[
+  Y(a, m) \coprod A \mid L
+  \] After accounting for the covariates in set \(L\), there must be no
+  unmeasured confounders influencing cultural beliefs in Big Gods
+  (\(A\)) and social complexity (\(Y\)). For example, if our study
+  examines the causal effect of cultural beliefs in Big Gods on social
+  complexity, and the covariates in \(L\) include factors such as
+  geographic location and historical context, we need to ensure that
+  these covariates effectively block any confounding paths between \(A\)
+  and \(Y\). The relevant path in Table~\ref{tbl-medationassumptions}
+  \(\mathcal{G}_1\) is the confounder of the path \(A \rightarrow Y\).
+\item
+  \textbf{No Unmeasured Mediator-Outcome Confounder}
+
+  This requirement is expressed as: \[
+  Y(a, m) \coprod M \mid Z
+  \] After controlling for the covariate set \(Z\), we must ensure that
+  no other unmeasured confounders affect political authority (\(M\)) and
+  social complexity (\(Y\)). For instance, if trade networks affect both
+  political authority and social complexity, we must account for trade
+  networks to block the path linking our mediator and outcome. The
+  relevant path in Table~\ref{tbl-medationassumptions} \(\mathcal{G}_1\)
+  is the confounder of the path \(M \rightarrow Y\).
+\item
+  \textbf{No Unmeasured Exposure-Mediator Confounder}
+
+  This requirement is expressed as: \[
+  M(a) \coprod A \mid Q
+  \] After controlling for the covariate set \(Q\), we must ensure that
+  no additional unmeasured confounders affect cultural beliefs in Big
+  Gods (\(A\)) and political authority (\(M\)). For example, the
+  capability to construct large ritual theatres may influence both the
+  belief in Big Gods and the level of political authority. If we have
+  indicators for this technology measured before the emergence of Big
+  Gods (these indicators being \(Q\)), we must assume that accounting
+  for \(Q\) closes the backdoor path between the exposure and the
+  mediator. The relevant path in Table~\ref{tbl-medationassumptions}
+  \(\mathcal{G}_1\) is the confounder of the path \(A \rightarrow M\).
+\item
+  \textbf{No Mediator-Outcome Confounder Affected by the Exposure}
+
+  This assumption requires that there are no unmeasured confounders of
+  the mediator-outcome relationship that are themselves affected by the
+  exposure \(A\). Such confounders cannot be adjusted for without
+  introducing bias.
+
+  \textbf{Clarification:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    There must be no variables \(Z\) that both affect \(M\) and \(Y\),
+    are affected by \(A\), and are not appropriately controlled for.
+  \item
+    This assumption cannot be easily expressed using independence
+    notation but is crucial for the identification of natural direct and
+    indirect effects.
+  \end{itemize}
+
+  The relevant path in Table~\ref{tbl-medationassumptions}
+  \(\mathcal{G}_1\) involves confounders of the \(M \rightarrow Y\) path
+  that are influenced by \(A\).
 \end{enumerate}
 
-This requirement is expressed as \(Y(a,m) \coprod A | L\). After
-accounting for the covariates in set \(L\), there must be no unmeasured
-confounders influencing cultural beliefs in Big Gods (\(A\)) and social
-complexity (\(Y\)). For example, if our study examines the causal effect
-of cultural beliefs in Big Gods (the exposure) on social complexity (the
-outcome), and the covariates in \(L\) include factors such as geographic
-location and historical context, we need to ensure that these covariates
-effectively block any confounding paths between \(A\) and \(Y\). The
-relevant path in Table~\ref{tbl-medationassumptions} \(\mathcal{G}_1\)
-is shown `confounder of path \(A \to Y\).'
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{1}
-\tightlist
-\item
-  \textbf{No unmeasured mediator-outcome confounder}
-\end{enumerate}
-
-This requirement is expressed as \(Y(a,m) \coprod M | Z\). After
-controlling for the covariate set \(Z\), we must ensure that no other
-unmeasured confounders affect political authority (\(M\)) and social
-complexity (\(Y\)). For instance, if trade networks affect political
-authority and social complexity, we must account for trade networks to
-block the path linking our mediator and outcome. Furthermore, we must
-assume the absence of any other confounders for the mediator-outcome
-path. The relevant path in Table~\ref{tbl-medationassumptions}
-\(\mathcal{G}_1\) is shown `confounder \(M \to Y\).'
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
-\item
-  \textbf{No unmeasured exposure-mediator confounder}
-\end{enumerate}
-
-This requirement is expressed as: \(M(a) \coprod A | Q\). After
-controlling for the covariate set \(Q\), we must ensure that no
-additional unmeasured confounders affect cultural beliefs in Big Gods
-(\(A\)) and political authority (\(M\)). For example, the capability to
-construct large ritual theatres may influence the belief in Big Gods and
-the level of political authority. If we have indicators for this
-technology measured before the emergence of Big Gods (these indicators
-being \(Q\)), we must assume that accounting for \(Q\) closes the
-backdoor path between the exposure and the mediator. The relevant path
-in Table~\ref{tbl-medationassumptions} \(\mathcal{G}_1\) is shown
-`confounder of path \(A \to M\).'
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{3}
-\tightlist
-\item
-  \textbf{No mediator-outcome confounder affected by the exposure}
-\end{enumerate}
-
-This requirement is expressed as: \(Y(a,m) \coprod M(a^*) | Z\). We must
-ensure that no variables confounding the relationship between political
-authority and social complexity in \(Z\) are themselves influenced by
-the cultural beliefs in Big Gods (\(A\)). For example, when studying the
-effect of cultural beliefs in Big Gods (\(A\), the exposure) on social
-complexity (\(Y\), the outcome) as mediated by political authority
-(mediator), there can be no un-modelled factors, such as trade networks
-(\(Z\)), that influence both political authority and social complexity
-and are themselves affected by the belief in Big Gods. The relevant path
-in Table~\ref{tbl-medationassumptions} \(\mathcal{G}_1\) is shown
-`confounder of path \(M \to Y\).'
-
-Satisfying assumption 4 imposes considerable demands on causal mediation
+Satisfying Assumption 4 imposes considerable demands on causal mediation
 analysis. When the exposure influences a confounder of the mediator and
-outcome, we face a dilemma. Without adjusting for this confounder, a
-backdoor path between the mediator and the outcome remains open.
-However, by adjusting for it, we partially obstruct the path between the
-exposure and the mediator, leading to bias. In this setting, we cannot
-recover the natural direct and indirect effects from any observational
-data and may need to settle for investigating controlled direct effects,
-which stipulate fixed values for the mediator, or consider estimating
-the jointly mediated effects of \(Z\) and \(M\) together, or evaluate an
-analogue of the natural direct effect by obtaining random draws from the
-distributions whose causal relationships remain obscured in the data
-(\citeproc{ref-Diaz2023}{Dı́az et al., 2023};
+the outcome, we face a dilemma. Without adjusting for this confounder, a
+backdoor path between the mediator and the outcome remains open,
+introducing bias. However, adjusting for it can block part of the effect
+of the exposure on the mediator, also leading to bias. In this setting,
+we cannot recover the natural direct and indirect effects from
+observational data. We may need to settle for investigating controlled
+direct effects, estimate jointly mediated effects of \(Z\) and \(M\)
+together, or consider alternative methods as suggested by VanderWeele
+and others (\citeproc{ref-Diaz2023}{Dı́az et al., 2023};
 \citeproc{ref-robins2010alternative}{Robins \& Richardson, 2010};
 \citeproc{ref-vanderweele2014effect}{VanderWeele et al., 2014};
 \citeproc{ref-vanderweele2015}{VanderWeele, 2015};
 \citeproc{ref-vanderweele2017mediation}{VanderWeele \& Tchetgen
 Tchetgen, 2017}; \citeproc{ref-vo2024recanting}{Vo et al., 2024}).
 
-Notice that even when assumptions 1-4 are satisfied, natural direct
+Notice that even when Assumptions 1--4 are satisfied, natural direct
 effect estimates and natural indirect effect estimates require
-conceptualising a counterfactual that is never directly observed on any
-individual, namely: \(\textcolor{blue}{Y(1, M(0))}\): such effects are
-only identified in distribution (refer to VanderWeele
-(\citeproc{ref-vanderweele2015}{2015})).
+conceptualizing a counterfactual that is never directly observed on any
+individual, namely: \[
+Y\big(1, M(0)\big)
+\] Such effects are only identified in distribution (refer to
+VanderWeele (\citeproc{ref-vanderweele2015}{2015})).
 
 \subsubsection{Controlled Direct
 Effects}\label{controlled-direct-effects}
 
 Consider another identification challenge, as described in template
 Table~\ref{tbl-medationassumptions} \(\mathcal{G}_1\). Suppose we aim to
-understand the effect of a stringent pandemic lockdown, \(A\), on
-psychological distress, \(Y\), focusing on trust in government, \(M\),
+understand the effect of a stringent pandemic lockdown (\(A\)) on
+psychological distress (\(Y\)), focusing on trust in government (\(M\))
 as a mediator. Further, suppose that pandemic lockdowns may plausibly
 influence attitudes towards the government through pathways that also
 affect psychological distress. For instance, people might trust the
-government more when it provides income relief payments, which may also
-reduce psychological distress.
+government more when it provides income relief payments (\(Z\)), which
+may also reduce psychological distress.
 
-Under the rules of d-separation, conditioning on income relief payments,
-denoted as \(Z\), would attenuate the natural value of the mediator,
-trust in the government, under exposure to the lockdowns. This blocking
-of the exposure's effect is represented by the causal path
-\(A \to \boxed{Z} \rightarrowdotted Y\). Additionally, the causal path
-\(A \to \boxed{Z} \rightarrowdotted M\) partially blocks the exposure's
-effect on the mediator. However, if we do not condition on \(Z\), the
-path from trust in government, \(M\), to psychological distress, \(Y\),
-would be confounded by the common cause \(Z\), hence:
-\(Y \leftarrowred Z \rightarrowred M\).
+Under the rules of d-separation, conditioning on income relief payments
+(\(Z\)) could block necessary causal paths:
 
-In such a scenario, it would not be feasible to consistently decompose
-the total effect of the exposure (pandemic lockdowns) on the outcome
+\begin{itemize}
+\item
+  \textbf{If we adjust for \(Z\):}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    We might block part of the effect of \(A\) on \(M\) and \(Y\) that
+    operates through \(Z\), potentially biasing the estimation of the
+    natural indirect effect.
+  \item
+    The paths \(A \rightarrow Z \rightarrow M\) and
+    \(A \rightarrow Z \rightarrow Y\) are blocked.
+  \end{itemize}
+\item
+  \textbf{If we do not adjust for \(Z\):}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(Z\) acts as an unmeasured confounder of the \(M \rightarrow Y\)
+    relationship since \(Z\) influences both \(M\) and \(Y\).
+  \item
+    The path \(M \leftarrowred Z \rightarrowred Y\) remains open,
+    introducing bias.
+  \end{itemize}
+\end{itemize}
+
+In such a scenario, it is not feasible to consistently decompose the
+total effect of the exposure (pandemic lockdowns) on the outcome
 (psychological distress) into natural indirect and direct effects.
-However, if all other assumptions were to hold, we might obtain an
-unbiased estimate for the controlled direct effect of pandemic lockdowns
-on psychological distress as a fixed level of government trust.
+However, if all other assumptions hold, we might obtain an unbiased
+estimate for the controlled direct effect of pandemic lockdowns on
+psychological distress at a fixed level of government trust.
 
 Table~\ref{tbl-medationassumptions} \(\mathcal{G}_2\) presents the
 weaker assumptions required to identify a controlled direct effect. We
 might examine the effect of the pandemic lockdown if we could intervene
 and set everyone's trust in government to, say, one standard deviation
 above the baseline, compared with fixing trust in government to the
-average level at baseline. We might use modified treatment policies
-(described below) that specify interventions as functions of the data.
-For instance, we might investigate interventions that `shift only those
-whose mistrust of government was below the mean level of trust at
-baseline and compare these potential outcomes with those observed.'
-Asking and answering precisely formulated causal questions such as this
-might lead to clearer policy advice, especially in situations where
-policymakers can influence public attitudes towards the government; see:
-Williams \& Díaz (\citeproc{ref-williams2021}{2021}); Díaz et al.
-(\citeproc{ref-duxedaz2021}{2021}); Hoffman et al.
-(\citeproc{ref-hoffman2022}{2022}); Hoffman et al.
-(\citeproc{ref-hoffman2023}{2023}).
+average level at baseline. We might use modified treatment policies that
+specify interventions as functions of the data. For instance, we might
+investigate interventions that `shift' only those whose mistrust of
+government was below the mean level of trust at baseline and compare
+these potential outcomes with those observed. Asking and answering
+precisely formulated causal questions such as this might lead to clearer
+policy advice, especially in situations where policymakers can influence
+public attitudes towards the government; see
+(\citeproc{ref-duxedaz2021}{Díaz et al., 2021};
+\citeproc{ref-hoffman2022}{Hoffman et al., 2022},
+\citeproc{ref-hoffman2023}{2023}; \citeproc{ref-williams2021}{Williams
+\& Díaz, 2021}).
 
 In any case, I hope this discussion of causal mediation analysis
 clarifies that it would be unwise to simply examine the coefficients
 obtained from structural equation models and interpret them as
-meaningful as in statistical mediation analysis. To answer any causal
-question, we must first state it, with respect to clearly defined
+meaningful in statistical mediation analysis. To answer any causal
+question, we must first state it with respect to clearly defined
 counterfactual contrasts and a target population. Once we state our
-causal question, we find have no guarantees that the coefficients from
-statistical models are straightforwardly interpretable
+causal question, we find we have no guarantees that the coefficients
+from statistical models are straightforwardly interpretable
 (\citeproc{ref-vanderweele2015}{VanderWeele, 2015}).
 
 For those interested in statistical estimators for causal mediation
 analysis, I recommend visiting the CMAverse website
 \url{https://bs1125.github.io/CMAverse/articles/overview.html}, accessed
-12 December 2023. This excellent resource provides comprehensive
+12 October 2023. This excellent resource provides comprehensive
 documentation, software, and practical examples, including sensitivity
 analyses. Next, we will consider more complex scenarios that involve
-feedback between treatments and confounders across multiple time points,
-settings in which traditional statistical methods also fail to provide
-valid causal inferences.
+feedback between treatments and confounders across multiple time
+points---settings in which traditional statistical methods also fail to
+provide valid causal inferences.
 
 \subsection{Part 4: Time-fixed and Time-Varying Sequential Treatments
 (Treatment Strategies, Modified Treatment Policies)}\label{id-sec-4}
@@ -1748,10 +1777,6 @@ Díaz (\citeproc{ref-williams2021}{2021}).{]}
 Treatment
 Policies)}\label{confounding-under-dynamic-treatment-strategies-modified-treatment-policies}
 
-In a dynamic treatment strategy, or `modified treatment policy,' the
-value at which a treatment is fixed is a function of events leading up
-to it.
-
 Suppose we were interested in the population average effect of divorce
 on happiness if divorce was only permitted for those with incomes.
 
@@ -1762,13 +1787,11 @@ wealth. Yet even if marriage did not affect personal wealth, as in
 Table~\ref{tbl-swigtabledeveloped} \(\mathcal{G}_4\), regression would
 not produce valid estimates for the counterfactual question we asked.
 
-To sharpen focus, suppose that we have obtained indicators of wealth at
-baseline.
-
 Suppose further that we want to consider the following fixed treatment
-strategy:
+strategy. Define the treatment policy as follows:
 
-\(g^\phi(\cdot)\): remain married for at least two additional years:
+\(g^\phi(\cdot)\): remain married for at least two additional years
+beyone baseline:
 
 \[
 A_t^{+}(\mathbf{g}^\phi) = \mathbf{g}^\phi (A_{t}) = \begin{cases} 
@@ -1778,16 +1801,16 @@ A_t^{+}(\mathbf{g}^\phi) = \mathbf{g}^\phi (A_{t}) = \begin{cases}
 \]
 
 This regime is identified. The setting is identical to
-Table~\ref{tbl-swigtabledeveloped} \(\mathcal{G}_3\) however with no
-unmeasured variables and no arrow from \(A_1\) to \(L_2\).
+Table~\ref{tbl-swigtabledeveloped} \(\mathcal{G}_3\) with no unmeasured
+variables and no arrow from \(A_1\) to \(L_2\).
 
 However, every causal contrast requires a comparison of at least two
 interventions.
 
-We next consider the treatment policy \(g^{\lambda}(\cdot)\), divorce
-only if one's personal wealth is at least 50\% greater than average and
-one would have divorced in the absence of intervention; otherwise,
-enforce marriage:
+Next, define the treatment policy \(g^{\lambda}(\cdot)\) as divorce only
+if one's personal wealth is at least 50\% greater than average and one
+would have divorced in the absence of intervention; otherwise, enforce
+marriage:
 
 \[
 A_t^{+}(\mathbf{g}^{\lambda}) = \mathbf{g}^{\lambda}(A_{t}) = \begin{cases} 
@@ -1874,7 +1897,7 @@ Where:
 \item
   \textbf{\(\bar{\mathbb{A}}_{t-1}(\mathbf{a}^*)\)}: denotes the set of
   past treatment variables up to time \(t-1\) under the intervention
-  \(\mathbf{a}^*\).
+  \(\mathbf{a}^*\). :
 \end{enumerate}
 
 Applying Richardson \& Robins (\citeproc{ref-richardson2013}{2013a})'s
@@ -1970,10 +1993,10 @@ provided a general account of causality by referencing counterfactuals:
 would have existed'' (\citeproc{ref-hume1902}{Hume, 1902}). However, it
 was not until Jerzy Neyman's master's thesis that a quantitative
 analysis of causality was formalised
-(\citeproc{ref-neyman1923}{Splawa-Neyman, 1990}). Remarkably, Neyman's
-work went largely unnoticed until the 1970s, when Harvard statistician
-Donald Rubin formalised what became known as the `Rubin Causal Model'
-(also the Rubin-Neyman Causal Model)
+(\citeproc{ref-neyman1923}{Splawa-Neyman, 1990 (orig. 1923)}).
+Remarkably, Neyman's work went largely unnoticed until the 1970s, when
+Harvard statistician Donald Rubin formalised what became known as the
+`Rubin Causal Model' (also the Rubin-Neyman Causal Model)
 (\citeproc{ref-holland1986}{Holland, 1986};
 \citeproc{ref-rubin1976}{Rubin, 1976}).
 
@@ -2079,15 +2102,17 @@ acyclic graphs}. \url{https://CRAN.R-project.org/package=ggdag}
 \bibitem[\citeproctext]{ref-bulbulia2023}
 Bulbulia, J. A. (2024a). Methods in causal inference part 1: Causal
 diagrams and confounding. \emph{Evolutionary Human Sciences}, \emph{6}.
+\url{https://osf.io/b23k7}
 
 \bibitem[\citeproctext]{ref-bulbulia2024wierd}
 Bulbulia, J. A. (2024b). Methods in causal inference part 3: Measurement
 error and external validity threats. \emph{Evolutionary Human Sciences},
-\emph{6}.
+\emph{6}. \url{https://osf.io/preprints/psyarxiv/kj7rv}
 
 \bibitem[\citeproctext]{ref-bulbulia_2024_experiments}
 Bulbulia, J. A. (2024c). Methods in causal inference part 4: Confounding
 in experiments. \emph{Evolutionary Human Sciences}, \emph{6}.
+\url{https://osf.io/preprints/psyarxiv/6rnj5}
 
 \bibitem[\citeproctext]{ref-bulbulia2023a}
 Bulbulia, J. A., Afzali, M. U., Yogeeswaran, K., \& Sibley, C. G.
@@ -2196,7 +2221,7 @@ approach to selection bias. \emph{Epidemiology}, \emph{15}(5), 615--625.
 \url{https://www.jstor.org/stable/20485961}
 
 \bibitem[\citeproctext]{ref-hernan2017per}
-Hernán, M. A., Robins, J. M., et al. (2017). Per-protocol analyses of
+Hernán, M. A., \& Robins, J. M. (2017). Per-protocol analyses of
 pragmatic trials. \emph{N Engl J Med}, \emph{377}(14), 1391--1398.
 
 \bibitem[\citeproctext]{ref-hoffman2023}
@@ -2347,12 +2372,12 @@ analyses. \emph{Epidemiology}, \emph{32}(5), e20--e22.
 Shpitser, I., Richardson, T. S., \& Robins, J. M. (2022). Multivariate
 counterfactual systems and causal graphical models. In
 \emph{Probabilistic and causal inference: The works of {J}udea {P}earl}
-(pp. 813--852).
+(pp. 813--852). Association for Computing Machinery (ACM).
 
 \bibitem[\citeproctext]{ref-neyman1923}
-Splawa-Neyman. (1990). On the application of probability theory to
-agricultural experiments. Essay on principles. Section 9. \emph{English
-Translation with Discussion, Statistical Science}, 463--480.
+Splawa-Neyman, J. (1990 (orig. 1923)). On the application of probability
+theory to agricultural experiments. Essay on principles. Section 9.
+(1923). \emph{Statistical Science}, \emph{5}(4), 465--472.
 
 \bibitem[\citeproctext]{ref-steen2017}
 Steen, J., Loeys, T., Moerkerke, B., \& Vansteelandt, S. (2017).
@@ -2497,6 +2522,7 @@ the natural value of treatment using observational data.
 \emph{Epidemiologic Methods}, \emph{3}(1), 1--19.
 
 \end{CSLReferences}
+
 
 
 
