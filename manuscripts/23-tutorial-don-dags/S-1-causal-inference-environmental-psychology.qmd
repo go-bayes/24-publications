@@ -1,0 +1,686 @@
+---
+title: "Supplement: Causal Inference in Environmental Psychology"
+abstract: |
+authors: 
+  - name: Joseph A Bulbulia
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    affiliation: 
+      name: Victoria University of Wellington, New Zealand, School of Psychology, Centre for Applied Cross-Cultural Research
+      department: Psychology/Centre for Applied Cross-Cultural Research
+      city: Wellington
+      country: New Zealand
+      url: www.wgtn.ac.nz/cacr
+  - name: Donald W Hine
+    orcid: 0000-0002-3905-7026
+    email: donald.hine@canterbury.ac.nz
+    affiliation: 
+      name: University of Canterbury, School of Psychology, Speech and Hearing
+      city: Canterbury
+      country: New Zealand
+      url: https://profiles.canterbury.ac.nz/Don-Hine
+keywords:
+  - DAGS
+  - Causal Inference
+  - Confounding
+  - Environmental
+  - Psychology
+  - Panel
+format:
+  pdf:
+    sanitize: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [singlecolumn]
+    lof: false
+    lot: false
+    number-sections: false
+    number-depth: 4
+    highlight-style: github
+    geometry:
+      - top=30mm
+      - left=20mm
+      - heightrounded
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: ./camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: false
+#  fig-pos: 'htb'
+#   html:
+#    html-math-method: katex
+
+# Include in YAML for Latex
+# sanitize: true
+# keep-tex: true
+# include-in-header:
+#       - text: |
+#           \usepackage{cancel}
+
+
+# for making graphs
+library("tinytex")
+library(extrafont)
+loadfonts(device = "all")
+
+
+# libraries for jb (when internet is not accessible)
+# read libraries
+source("/Users/joseph/GIT/templates/functions/libs2.R")
+
+# read functions
+source("/Users/joseph/GIT/templates/functions/funs.R")
+
+# read data/ set to path in your computer
+pull_path <-
+  fs::path_expand(
+    "/Users/joseph/v-project\ Dropbox/data/current/nzavs_13_arrow"
+  )
+
+# for saving models. # set path fo your computer
+push_mods <-
+  fs::path_expand(
+    "/Users/joseph/v-project\ Dropbox/data/nzvs_mods/00drafts/23-causal-dags"
+  )
+
+
+# keywords: potential outcomes, DAGs, causal inference, evolution, religion, measurement, tutorial
+# 10.31234/osf.io/b23k7
+
+```
+
+## Appendix A: Glossary {#appendix-a}
+
+
+This appendix provides a glossary of common terminology in causal inference.
+
+**Acyclic**: a causal diagram cannot contain feedback loops. More precisely, no variable can be an ancestor or descendant of itself. If variables are repeatedly measured here, it is vital to index nodes by the relative timing of the nodes.
+
+**Adjustment set**: a collection of variables we must either condition upon or deliberately avoid conditioning upon to obtain a consistent
+causal estimate for the effect of interest [@pearl2009].
+
+**Ancestor (parent)**: a node with a direct or indirect influence on others, positioned upstream in the causal chain.
+
+**Arrow**: denotes a causal relationship linking nodes.
+
+**Backdoor path**: a "backdoor path" between a treatment variable, $A$, and an outcome variable, $Y$, is a sequence of links in a causal diagram that starts with an arrow into $A$ and reaches $Y$ through common causes, introducing potential confounding bias such that statistical association does not reflect causality. To estimate the causal effect of $A$ on $Y$ without bias, these paths must be blocked by adjusting for confounders. The backdoor criterion guides the selection of variables for adjustment to ensure unbiased causal inference.
+
+**Conditioning**: explicitly accounting for a variable in our statistical analysis to address the identification problem. In causal diagrams, we usually represent conditioning by drawing a box around a node of the conditioned variable, for example, $\boxed{L_{0}}\to A_{1} \to L_{2}$. We do not box exposures and outcomes because we assume they are included in a model by default. Depending on the setting, we may condition by regression stratification, inverse probability of treatment weighting, g-methods, doubly robust
+machine learning algorithms, or other methods. We do not cover such methods in this tutorial; however, see @hernan2023.
+
+**Counterfactual**: a hypothetical outcome that would have occurred for the same individuals under a different treatment condition than the one they experienced.
+
+**Direct effect**: the portion of the total effect of a treatment on an outcome that is not mediated by other variables within the causal pathway.
+
+**Collider**: a variable in a causal diagram at which two incoming paths meet head-to-head. For example, if $A \rightarrowred \boxed{L} \leftarrowred Y$, then $L$ is a collider. If we do not condition on a collider (or its descendants), the path between $A$ and $Y$ remains closed. Conditioning on a collider (or its descendants) will induce an association between $A$ and $Y$.
+
+**Confounder**: a member of an adjustment set. Notice a variable is a "confounder" in relation to a specific adjustment set. "Confounder" is a
+relative concept [@lash2020].
+
+**d-separation**: in a causal diagram, a path is "blocked" or "d-separated" if a node along it interrupts causation. Two variables are
+d-separated if all paths connecting them are blocked, making them conditionally independent. Conversely, unblocked paths result in
+"d-connected" variables, implying potential dependence [@pearl1995].
+
+**Descendant (child)**: a node directly or indirectly influenced by upstream nodes (parents).
+
+**Effect-modifier**: a variable is an effect-modifier, or "effect-measure modifie" if its presence changes the magnitude or direction of the effect of an exposure or treatment on an outcome across the levels or values of this variable. In other words, the effect of the exposure is different at different levels of the effect modifier. 
+
+**External validity**: the extent to which causal inferences can be generalised to other populations, settings, or times, also called "Target Validity."
+
+**Identification problem**: the challenge of estimating the causal effect of a variable by adjusting for measured variables on units
+in a study. Causal diagrams were developed to address the identification problem by application of the rules of d-separation to a causal diagram.
+
+**Indirect effect (mediated effect)**: The portion of the total effect transmitted through a mediator variable.
+
+**Internal validity**: the degree to which the design and conduct have prevented bias, ensuring that the causal relationship observed can be confidently attributed to the treatment and not to other factors.
+
+**Instrumental variable**: an ancestor of the exposure but not of the outcome. An instrumental variable affects the outcome only through its effect on the exposure and not otherwise. Whereas conditioning on a variable causally associated with the outcome rather than with the exposure will generally increase modelling precision, we should refrain from conditioning on instrumental variables [@cinelli2022].  Second, when an instrumental variable is the descendant of an unmeasured confounder, we should generally condition the instrumental variable to provide a partial adjustment for a confounder.
+
+**Mediator**: a variable that transmits the effect of the treatment variable on the outcome variable, part of the causal pathway between treatment and outcome.
+
+**Modified Disjunctive Cause Criterion**: @vanderweele2019 recommends obtaining a maximally efficient adjustment, which he calls a "confounder set." A member of this set is any set of variables that can reduce or remove structural sources of bias. The strategy is as follows:
+
+a.  Control for any variable that causes the exposure, the outcome, or
+    both.
+b.  Control for any proxy for an unmeasured variable that is a shared
+    cause of the exposure and outcome.
+c.  Define an instrumental variable as a variable associated with the
+    exposure but does not influence the outcome independently, except
+    through the exposure. Exclude any instrumental variable that is not
+    a proxy for an unmeasured confounder from the confounder set
+    [@vanderweele2019].
+
+Note that the concept of a "confounder set"  is broader than that of an
+"adjustment set"  Every adjustment set is a member of a confounder set.
+Hence, the Modified Disjunctive Cause Criterion will eliminate bias when
+the data permit. However, a confounder set includes variables that 
+reduce bias in cases where confounding cannot be eliminated.
+
+**Node**: characteristic or features of units in a population (a variable) represented on a causal diagram. In a causal diagram, nodes are drawn with reference to variable distributions for the target population.
+
+**Randomisation**: the process of randomly assigning subjects to different treatments or control groups to eliminate selection bias in experimental studies.
+
+**Reverse causation**: $\atoyassert$, but in reality $\ytoa$
+
+**Statistical model:** a mathematical representation of the relationships between variables in which we quantify covariances and
+their corresponding uncertainties in the data. Statistical models typically correspond to multiple causal structures [@pearl2018;
+@vanderweele2022b; @hernan2023]. That is, the causes of such covariances cannot be identified without assumptions.
+
+**Structural model:** defines assumptions about causal relationships. Causal diagrams graphically encode these assumptions [@hernan2023],
+leaving out the assumption about whether the exposure and outcome are causally associated. We can only
+compute causal effects outside of randomised experiments with structural models. A structural model is needed to interpret the statistical findings in causal terms.
+Structural assumptions should be developed in consultation with experts. The role of structural assumptions when interpreting statistical results needs to be better understood across many human sciences and forms the motivation for my work here.
+
+**Time-varying confounding:** occurs when a confounder that changes over time acts as a mediator or collider in the causal pathway between
+exposure and outcome. Controlling for such a confounder can introduce bias. Not controlling for it can retain bias.
+
+{{< pagebreak >}}
+
+
+## Appendix B: Causal Consistency in observational settings {#appendix-b}
+
+In observational research, there are typically multiple versions of the treatment. The theory of causal inference under multiple versions of treatment proves we can consistently estimate causal effects where the different versions of treatment are conditionally independent of the outcomes [@vanderweele2009, @vanderweele2009; @vanderweele2013; @vanderweele2018] 
+
+Let $\coprod$ denote independence.
+Where there are $K$ different versions of treatment $A$ and no confounding for $K$'s effect on $Y$ given measured confounders $L$ such that
+
+$$
+Y(k) \coprod K | L
+$$
+
+Then it can be proved that causal consistency follows. According to the theory of causal inference under multiple versions of treatment, the measured variable $A$ functions as a "coarsened indicator" for estimating the causal effect of the multiple versions of treatment $K$ on $Y(k)$ [@vanderweele2009; @vanderweele2013; @vanderweele2018].  
+
+In the context of green spaces, let $A$ represent the general action of moving closer to any green space and $K$ represent the different versions of this treatment. For instance, $K$ could denote moving closer to different green spaces such as parks, forests, community gardens, or green spaces with varying amenities and features.
+
+Here, the conditional independence implies that, given measured confounders $L$ (e.g. socioeconomic status, age, personal values), the type of green space one moves closer to ($K$) is independent of the outcomes $Y(k)$ (e.g. mental well-being under the $K$ conditions). In other words, the version of green space one chooses to live near does not affect the $K$ potential outcomes, provided the confounders $L$ are appropriately controlled for in our statistical models.
+
+Put simply, strategies for confounding control and consistently estimating causal effects when multiple treatment versions converge. However, the quantities we estimate under multiple treatment versions might need clearer interpretations.  For example, we cannot readily determine which of the many treatment versions is most causally efficacious and which lack any causal effect or are harmful.  
+
+{{< pagebreak >}}
+
+### Appendix C Simulation of Cross-Sectional Data to Compute the Average Treatment Effect When Conditioning on a Mediator {#appendix-c}
+
+This appendix outlines a simulation designed to demonstrate the potential pitfalls of conditioning on a mediator in cross-sectional analyses. The simulation examines the scenario where the effect of access to green space ($A$) on happiness ($Y$) is fully mediated by exercise ($L$). This setup aims to illustrate how incorrect assumptions about the role of a variable (mediator vs. confounder) can lead to misleading estimates of the Average Treatment Effect (ATE).
+
+#### Methodology
+
+**Data Generation**: we simulate a dataset for 1,000 individuals, where access to green space ($A$) influences exercise ($L$), which in turn affects happiness ($Y$$). The simulation is based on predefined parameters that establish $L$ as a mediator between $A$ and $Y$.
+
+**Parameter Definitions**:
+
+   - The probability of access to green space ($A$) is set at 0.5.
+   - The effect of $A$ on $L$ (exercise) is given by $\beta = 2$.
+   - The effect of $L$ on $Y$ (happiness) is given by $\delta = 1.5$.
+   - Standard deviations for $L$ and $Y$ are set at 1 and 1.5, respectively.
+
+
+**Model 1** (Correct Assumption): fits a linear regression model assuming $L$ as a mediator, including both $A$ and $L$ as regressors on $Y$. This model aligns with the data-generating process, and, by the rules of d-separation, induces mediator bias for the $A\to Y$ path.
+  
+**Model 2** (Incorrect Assumption): fits a linear regression model including only $A$ as a regressor on $Y$, omitting the mediator $L$. This model assesses the direct effect of A on Y without accounting for mediation.
+
+**Analysis**: We compares the estimated effects of $A$ on $Y$ under each model specification.
+
+
+
+```{r}
+#| label: simulation_cross_sectional
+#| tbl-cap: "Code for a simulation of a data generating process in which the effect of exercise (L) fully mediates the effect of greenspace (A) on happiness (Y)."
+#| out-width: 80%
+#| echo: true
+#| eval: false
+
+# load libraries
+!require(kableExtra)){install.packages("kableExtra")} # tables
+if(!require(gtsummary)){install.packages("gtsummary")} # tables
+
+# simulation seed
+set.seed(123) #  reproducibility
+
+# define the parameters 
+n = 1000 # Number of observations
+p = 0.5  # Probability of A = 1 (access to greenspace)
+alpha = 0 # Intercept for L (exercise)
+beta = 2  # Effect of A on L 
+gamma = 1 # Intercept for Y 
+delta = 1.5 # Effect of L on Y
+sigma_L = 1 # Standard deviation of L
+sigma_Y = 1.5 # Standard deviation of Y
+
+# simulate the data: fully mediated effect by L
+A = rbinom(n, 1, p) # binary exposure variable
+L = alpha + beta*A + rnorm(n, 0, sigma_L) # mediator L affect by A
+Y = gamma + delta*L + rnorm(n, 0, sigma_Y) # Y affected only by L,
+
+# make the data frame
+data = data.frame(A = A, L = L, Y = Y)
+
+# fit regression in which we control for L, a mediator
+# (cross-sectional data is consistent with this model)
+fit_1 <- lm( Y ~ A + L, data = data)
+
+# fit regression in which L is assumed to be a mediator, not a confounder.
+# (cross-sectional data is also consistent with this model)
+fit_2 <- lm( Y ~ A, data = data)
+
+# create gtsummary tables for each regression model
+table1 <- gtsummary::tbl_regression(fit_1)
+table2 <- gtsummary::tbl_regression(fit_2)
+
+# merge the tables for comparison
+table_comparison <- gtsummary::tbl_merge(
+  list(table1, table2),
+  tab_spanner = c("Model: Exercise assumed confounder", 
+                  "Model: Exercise assumed to be a mediator")
+)
+# make latex table (for publication)
+markdown_table_0 <- as_kable_extra(table_comparison, 
+                                   format = "latex", 
+                                   booktabs = TRUE)
+# print latex table (note, you might prefer "markdown" or another format)                                
+markdown_table_0
+```
+
+The following code is designed to estimate the Average Treatment Effect (ATE) using the `clarify` package in R, which is referenced here as [@greifer2023]. The procedure involves two steps: simulating coefficient distributions for regression models and then calculating the ATE based on these simulations. This process is applied to two distinct models to demonstrate the effects of including versus excluding a mediator variable in the analysis.
+
+
+### Steps to Estimate the ATE
+
+1. **Load the `clarify` Package**: this package provides functions to simulate regression coefficients and compute average marginal effects (AME), robustly facilitating the estimation of ATE.
+
+2. **Set seed**: `set.seed(123)` ensures that the results of the simulations are reproducible, allowing for consistent outcomes across different code runs.
+
+3. **Simulate the data distribution**:
+   
+   `sim_coefs_fit_1` and `sim_coefs_fit_2` are generated using the `sim` function from the `clarify` package, applied to two fitted models (`fit_1` and `fit_2`). These functions simulate the distribution of coefficients based on the specified models, capturing the uncertainty around the estimated parameters.
+
+4. **Calculate ATE**:
+  
+  For both models, the `sim_ame` function calculates the ATE as the marginal risk difference (RD) when the treatment variable (`A`) is present (`A == 1`). This function uses the simulated coefficients to estimate the treatment effect across the simulated distributions, providing a comprehensive view of the ATE under each model.
+  
+  To streamline the output, the function is set to verbose mode off (`verbose = FALSE`).
+
+5. **Results**:
+  
+  Summaries of these estimates (`summary_sim_est_fit_1` and `summary_sim_est_fit_2`) are obtained, providing detailed statistics including the estimated ATE and its 95% confidence intervals (CI).
+
+6. **Presentation: report ATE and CIs**:
+   
+   Using the `glue` package, the ATE and its 95% CIs for both models are formatted into a string for easy reporting. This step transforms the statistical output into a more interpretable form, highlighting the estimated treatment effect and its precision.
+
+
+```{r}
+#| label: ate-sim-crosstwo
+#| tbl-cap: "Code for calculating the average treatment effect as contrasts between simulated outcomes for the entire population."
+#| echo: true
+#| eval: false
+
+# use `clarify` package to obtain ATE
+if(!require(clarify)){install.packages("clarify")} # clarify package
+# simulate fit 1 ATE
+set.seed(123)
+sim_coefs_fit_1 <- sim(fit_1)
+sim_coefs_fit_2 <- sim(fit_2)
+
+# marginal risk difference ATE, simulation-based: model 1 (L is a confounder)
+sim_est_fit_1 <-
+  sim_ame(
+    sim_coefs_fit_1,
+    var = "A",
+    subset = A == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# marginal risk difference ATE, simulation-based: model 2 (L is a mediator)
+sim_est_fit_2 <-
+  sim_ame(
+    sim_coefs_fit_2,
+    var = "A",
+    subset = A == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# obtain summaries
+summary_sim_est_fit_1 <- summary(sim_est_fit_1, null = c(`RD` = 0))
+summary_sim_est_fit_2 <- summary(sim_est_fit_2, null = c(`RD` = 0))
+
+# reporting 
+# ate for fit 1, with 95% CI
+ATE_fit_1 <- glue::glue(
+  "ATE =
+                        {round(summary_sim_est_fit_1[3, 1], 2)},
+                        CI = [{round(summary_sim_est_fit_1[3, 2], 2)},
+                        {round(summary_sim_est_fit_1[3, 3], 2)}]"
+)
+# ate for fit 2, with 95% CI
+ATE_fit_2 <-
+  glue::glue(
+    "ATE = {round(summary_sim_est_fit_2[3, 1], 2)},
+                        CI = [{round(summary_sim_est_fit_2[3, 2], 2)},
+                        {round(summary_sim_est_fit_2[3, 3], 2)}]"
+  )
+```
+
+
+
+### Upshot of the Simulation and Analysis
+
+- **Model 1 (L as a Confounder)**: this analysis assumes that `L` is a confounder in the relationship between the treatment (`A`) and the outcome (`Y`), and thus, it includes `L` in the model. The ATE estimated here reflects the effect of `A` while controlling for `L`.
+
+- **Model 2 (L as a Mediator)**: in contrast, this analysis considers `L` to be a mediator, and the model either includes `L` explicitly in its estimation process or excludes it to examine the direct effect of `A` on `Y`. The approach to mediation analysis here is crucial as it influences the interpretation of the ATE.
+
+By comparing the ATEs from both models, researchers can understand the effect of mediation (or the lack thereof) on the estimated treatment effect. This comparison sheds light on how assumptions about variable roles (confounder vs. mediator) can significantly alter causal inferences drawn from cross-sectional data.
+
+**Wherever it is uncertain whether a variable is a confounder or a mediator, we suggest creating two causal diagrams and reporting both analyses.**
+
+{{< pagebreak >}}
+
+## Appendix D: Simulation of Different Confounding Control Strategies {#appendix-d}
+
+This appendix outlines the methodology and results of a data simulation designed to compare different strategies for controlling confounding in the context of environmental psychology research. Specifically, the simulation examines the effect of access to open green spaces (treatment, $A_1$) on happiness (outcome, $Y_2$) while addressing the challenge of unmeasured confounding. The simulation incorporates baseline measures of exposure and outcome ($A_0$, $Y_0$), baseline confounders ($L_0$), and an unmeasured confounder ($U$) to evaluate the effectiveness of different analytical approaches.
+
+###  Methodology
+
+1.**Load Libraries `kableExtra`, `gtsummary`, and `grf`.**
+
+1. **Target**: we simulate data for 10,000 individuals, including baseline exposure to green spaces ($A_0$), baseline happiness ($Y_0$), baseline confounders ($L_0$), and an unmeasured confounder ($U$). The simulation uses a logistic model for treatment assignment and a linear model for the continuous outcome, incorporating interactions to assess how baseline characteristics modify the treatment effect.
+
+2. **Set seed and simulate the data distribution**:
+  
+  Treatment assignment coefficients: $\beta_{A0} = 0.25$, $\beta_{Y0} = 0.3$, $\beta_{L0} = 0.2$, and $\beta_{U} = 0.1$.
+  Outcome model coefficients: $\delta_{A1} = 0.3$, $\delta_{Y0} = 0.9$, $\delta_{A0} = 0.1$, $\delta_{L0} = 0.3$, with an interaction effect ($\theta_{A0Y0L0} = 0.5$) indicating the combined influence of baseline exposure, outcome, and confounders on the follow-up outcome.
+
+3. **Model comparison**:
+   - **No control model**: estimates the effect of $A_1$ on $Y_2$ without controlling for any confounders.
+   - **Standard covariate control model**: controls for baseline confounders ($L_0$) alongside treatment ($A_1$).
+   - **Baseline exposure and outcome model**: extends the standard model by including baseline treatment and outcome ($A_0$, $Y_0$) and their interaction with $L_0$.
+
+4. **Results**: each model's effectiveness in estimating the true treatment effect is assessed by comparing regression outputs. The simulation evaluates how well each model addresses the bias introduced by unmeasured confounding and the role of baseline characteristics in modifying treatment effects.
+
+5. **Presentation**: the results are synthesised in a comparative table, formatted using the `kableExtra` {@zhu2021KableExtra] and `gtsummary` packages [@gtsummary2021], highlighting the estimated treatment effects and their statistical significance across models.
+
+Overall, we use the simulation to illustrate the importance of incorporating baseline characteristics and their interactions to mitigate the influence of unmeasured confounding. 
+
+Here is the simulation/model code:
+
+```{r}
+#| label: fig-codelg-appendix
+#| echo: true
+#| eval: true
+library(kableExtra)
+if(!require(kableExtra)){install.packages("kableExtra")} # causal forest
+if(!require(gtsummary)){install.packages("gtsummary")} # causal forest
+if(!require(grf)){install.packages("grf")} # causal forest
+
+# r_texmf()eproducibility
+set.seed(123) 
+
+# set number of observations
+n <- 10000 
+
+# baseline covariates
+U <- rnorm(n) # Unmeasured confounder
+A_0 <- rbinom(n, 1, prob = plogis(U)) # Baseline exposure
+Y_0 <- rnorm(n, mean = U, sd = 1) # Baseline outcome
+L_0 <- rnorm(n, mean = U, sd = 1) # Baseline confounders
+
+# coefficients for treatment assignment
+beta_A0 = 0.25
+beta_Y0 = 0.3
+beta_L0 = 0.2
+beta_U = 0.1
+
+# simulate treatment assignment
+A_1 <- rbinom(n, 1, prob = plogis(-0.5 + 
+                                    beta_A0 * A_0 +
+                                    beta_Y0 * Y_0 + 
+                                    beta_L0 * L_0 + 
+                                    beta_U * U))
+# coefficients for continuous outcome
+delta_A1 = 0.3
+delta_Y0 = 0.9
+delta_A0 = 0.1
+delta_L0 = 0.3
+theta_A0Y0L0 = 0.5 # Interaction effect between A_1 and L_0
+delta_U = 0.05
+# simulate continuous outcome including interaction
+Y_2 <- rnorm(n,
+             mean = 0 +
+               delta_A1 * A_1 + 
+               delta_Y0 * Y_0 + 
+               delta_A0 * A_0 + 
+               delta_L0 * L_0 + 
+               theta_A0Y0L0 * Y_0 * 
+               A_0 * L_0 + 
+               delta_U * U,
+             sd = .5)
+# assemble data frame
+data <- data.frame(Y_2, A_0, A_1, L_0, Y_0, U)
+
+# model: no control
+fit_no_control <- lm(Y_2 ~ A_1, data = data)
+
+# model: standard covariate control
+fit_standard <- lm(Y_2 ~ A_1 + L_0, data = data)
+
+# model: interaction with baseline confounders, and baseline outcome and exposure
+fit_interaction  <- lm(Y_2 ~ A_1 * (L_0 + A_0 + Y_0), data = data)
+
+# create gtsummary tables for each regression model
+tbl_fit_no_control<- tbl_regression(fit_no_control)  
+tbl_fit_standard <- tbl_regression(fit_standard)
+tbl_fit_interaction <- tbl_regression(fit_interaction)
+
+# get only the treatment variable
+tbl_list_modified <- lapply(list(
+  tbl_fit_no_control,
+  tbl_fit_standard,
+  tbl_fit_interaction),
+function(tbl) {
+  tbl %>%
+    modify_table_body(~ .x %>% dplyr::filter(variable == "A_1"))
+})
+# merge tables
+table_comparison <- tbl_merge(
+  tbls = tbl_list_modified,
+  tab_spanner = c(
+    "No Control",
+    "Standard",
+    "Interaction")
+) |>
+  modify_table_styling(
+    column = c(p.value_1, p.value_2, p.value_3),
+    hide = TRUE
+  )
+# latex table for publication
+markdown_table <-
+  as_kable_extra(table_comparison, format = "latex", booktabs = TRUE) |>
+  kable_styling(latex_options = "scale_down")
+print(markdown_table)
+```
+
+Next, in the following code, we calculate the Average Treatment Effect (ATE) using simulation-based approaches for two distinct models: one with standard covariate control and another incorporating interaction. This approach leverages the `clarify` package in R, which facilitates the simulation and interpretation of estimated coefficients from linear models to derive ATEs under different modelling assumptions [@greifer2023].
+
+First, we use the `sim` function from the `clarify` package to generate simulated coefficient distributions for the standard model (`fit_standard`) and the interaction model (`fit_interaction`). This step is crucial for capturing the uncertainty in our estimates arising from sampling variability.
+
+Next, we employ each model's `sim_ame` function to compute the average marginal effects (AME), focusing on the treatment variable (`A_1`). The calculation is done under the assumption that all individuals are treated (i.e., `A_1 == 1`), and we specify the contrast type as "RD" (Risk Difference) to directly obtain the ATE (Average Treatment Effect). The `sim_ame` function simulates the treatment effect across the distribution of simulated coefficients, providing a robust estimate of the ATE and its variability.
+
+The summaries of these simulations (`summary_sim_est_fit_std` and `summary_sim_est_fit_int`) are then extracted to provide concise estimates of the ATE along with 95% confidence intervals (CIs) for both the standard and interaction models. This step is essential for understanding the magnitude and precision of the treatment effects estimated by the models.
+
+Finally, we use the `glue` package to format these estimates into a human-readable form, presenting the ATE and its corresponding 95% CIs for each model. This presentation facilitates clear communication of the estimated treatment effects, allowing for direct comparison between the models and highlighting the effect of including baseline characteristics and their interactions on estimating the ATE [@hester2022GLUE].
+
+This simulation-based approach to estimating the ATE underscores the importance of considering model complexity and the roles of confounders and mediators in causal inference analyses. By comparing the ATE estimates from different models, we can assess the sensitivity of our causal conclusions to various assumptions and modelling strategies.
+
+```{r}
+#| label: lst-atesimppendix
+#| lst-cap: "Code."
+#| out-width: 100%
+#| tbl-cap: "Code for calculating the average treatment effect."
+#| echo: true
+#| eval: true
+
+
+# use `clarify` package to obtain ATE
+if(!require(clarify)){install.packages("clarify")} # clarify package
+
+# simulate fit 1 ATE
+set.seed(123)
+sim_coefs_fit_no_control<- sim(fit_no_control)  
+sim_coefs_fit_std <- sim(fit_standard)
+sim_coefs_fit_int <- sim(fit_interaction)
+
+# marginal risk difference ATE, no controls
+sim_est_fit_no_control <-
+  sim_ame(
+    sim_coefs_fit_no_control,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# marginal risk difference ATE, simulation-based: model 1 (L is a confounder)
+sim_est_fit_std <-
+  sim_ame(
+    sim_coefs_fit_std,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# marginal risk difference ATE, simulation-based: model 2 (L is a mediator)
+sim_est_fit_int <-
+  sim_ame(
+    sim_coefs_fit_int,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# obtain summaries
+summary_sim_coefs_fit_no_control <-
+  summary(sim_est_fit_no_control, null = c(`RD` = 0))
+summary_sim_est_fit_std <-
+  summary(sim_est_fit_std, null = c(`RD` = 0))
+summary_sim_est_fit_int <-
+  summary(sim_est_fit_int, null = c(`RD` = 0))
+
+# get coefficients for reporting
+# ate for fit 1, with 95% CI
+ATE_fit_no_control  <- glue::glue(
+  "ATE = {round(summary_sim_coefs_fit_no_control[3, 1], 2)}, 
+  CI = [{round(summary_sim_coefs_fit_no_control[3, 2], 2)},
+  {round(summary_sim_coefs_fit_no_control[3, 3], 2)}]"
+)
+# ate for fit 2, with 95% CI
+ATE_fit_std <- glue::glue(
+  "ATE = {round(summary_sim_est_fit_std[3, 1], 2)}, 
+  CI = [{round(summary_sim_est_fit_std[3, 2], 2)},
+  {round(summary_sim_est_fit_std[3, 3], 2)}]"
+)
+# ate for fit 3, with 95% CI
+ATE_fit_int <-
+  glue::glue(
+    "ATE = {round(summary_sim_est_fit_int[3, 1], 2)},
+    CI = [{round(summary_sim_est_fit_int[3, 2], 2)},
+    {round(summary_sim_est_fit_int[3, 3], 2)}]"
+  )
+# coefs they used in the manuscript
+```
+
+
+Using the `clarify` package, we infer the ATE for the standard model is `r ATE_fit_std`.
+
+Using the `clarify` package, we infer the ATE for the model that conditions on the baseline exposure and baseline outcome to be:  `r ATE_fit_int`, which is close to the values supplied to the data-generating mechanism. 
+
+**Take-home message:** 
+
+The baseline exposure and baseline outcome are often the most important variables to include for confounding control. The baseline exposure also allows us to estimate an incident-exposure effect. For this reason, we should endeavour to obtain at least three waves of data such that these variables and other baseline confounders are included at time 0, the exposure is included at time 1, and the outcome is included at time 2. 
+
+{{< pagebreak >}}
+
+
+## Appendix E: Non-parametric Estimation of Average Treatment Effects Using Causal Forests {#appendix-causal-forests}
+
+This appendix provides a practical example of estimating average treatment effects (ATE) using a non-parametric approach, specifically applying causal forests. Unlike traditional regression models, causal forests allow for estimating treatment effects without imposing strict assumptions about the form of the relationship between treatment, covariates, and outcomes. This flexibility makes them particularly useful for analysing complex datasets where the treatment effect may vary across observations.
+
+#### Causal Forest Model Implementation
+
+1. **Libraries**: the implementation begins with loading the necessary R libraries: `grf` for estimating conditional and average treatment effects using causal forests and `glue` for formatting the results for reporting.
+
+2. 1. **Data generation**: the code assumes the presence of a data frame `data` generated from the previous code snippet containing the variables:
+   - `A_1`: Treatment indicator.
+   - `L_0`: A covariate.
+   - `Y_2`: Outcome of interest.
+   - `A_0` and `Y_0`: Baseline exposure and outcome, respectively. 
+   
+   Treatment (`W`) and outcome (`Y`) vectors are extracted from `data` alongside a matrix `X` that includes covariates and baseline characteristics.
+
+3. **Causal Forest model**: a causal forest model is fitted using the `causal_forest` function from the `grf` package [@grf2024]. This function takes the covariate matrix `X`, the outcome vector `Y`, and the treatment vector `W` as inputs, and it returns a model object that can be used for further analysis.
+
+4. **Average Treatment Effect estimation**: the `average_treatment_effect` function computes the ATE from the fitted causal forest model. This step is crucial as it quantifies the overall effect of the treatment across the population, adjusting for covariates included in the model.
+
+5. **Reporting**: The estimated ATE and its standard error (se) are extracted and formatted for reporting using the `glue` package [@hester2022GLUE]. This facilitates clear communication of the results, showing the estimated effect size and its uncertainty.
+
+#### Key Takeaways
+
+First, causal forests offer a robust way to estimate treatment effects without making parametric solid assumptions. This approach is particularly advantageous in settings where the treatment effect may vary with covariates or across different subpopulations. 
+
+Second, the model estimates the ATE as the difference in expected outcomes between treated and untreated units, averaged across the population. This estimate reflects the overall effect of the treatment, accounting for the distribution of covariates in the sample. 
+
+Third, we find that the estimated ATE by the causal forest model converges to the actual value used in the data-generating process (assumed to be 0.3). This demonstrates the effectiveness of causal forests in uncovering the true treatment effect from complex data.
+
+This example underscores the utility of semi-parametric and non-parametric methods, such as causal forests, in causal inference analyses.
+
+```{r}
+#| label: causal_forest
+#| echo: true
+
+# load causal forest library 
+library(grf) # estimate conditional and average treatment effects
+library(glue) # reporting 
+
+#  'data' is our data frame with columns 'A_1' for treatment, 'L_0' for a covariate, and 'Y_2' for the outcome
+#  we also have the baseline exposure 'A_0' and 'Y_0'
+#  ensure W (treatment) and Y (outcome) are vectors
+W <- as.matrix(data$A_1)  # Treatment
+Y <- as.matrix(data$Y_2)  # Outcome
+X <- as.matrix(data[, c("L_0", "A_0", "Y_0")])
+
+# fit causal forest model 
+fit_causal_forest <- causal_forest(X, Y, W)
+
+# estimate the average treatment effect (ATE)
+ate <- average_treatment_effect(fit_causal_forest)
+
+# make data frame for reporting using "glue' 
+ate<- data.frame(ate)
+
+# obtain ate for report
+ATE_fit_causal_forest <-
+  glue::glue(
+    "ATE = {round(ate[1, 1], 2)}, se = {round(ate[2, 1], 2)}"
+  )
+```
+
+Causal forest estimates the average treatment effect as `r ATE_fit_causal_forest`. This approach converges to the true value supplied to the generating mechanism of 0.3
+
+
+
+
+
