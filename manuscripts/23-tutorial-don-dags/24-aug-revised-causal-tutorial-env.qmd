@@ -1,12 +1,12 @@
 ---
-title: "Causal Inference in Environmental Psychology"
+title: "An Invitation to Causal Inference in Environmental Psychology"
 abstract: |
  This chapter introduces causal inference within environmental psychology, underscoring its fundamental differences from traditional statistical analysis. The content is organised into four main sections:  
- (1) A non-technical introduction that outlines how causal inference focuses on specific causal questions by defining a pre-specified counterfactual contrast between different treatment conditions experienced by a population. Importantly, for any individual, only one potential outcome is observed, and thus causal effects can only be estimated under specific assumptions for a given population.  
- (2) A tutorial on causal Directed Acyclic Graphs (DAGs), providing tools to approach causal identification problems by making causal assumptions explicit on a graph.  
- (3) Practical examples that apply causal DAGs to common observational scenarios, demonstrating their utility.
+ (1) A non-technical introduction that outlines how causal inference focuses on specific causal questions by defining a pre-specified counterfactual contrast between different treatment conditions, as experienced by an entire population. Importantly, for any individual in this population, at most only one potential outcome may be observed. Thus, causal effects can only be estimated using assumptions.  
+ (2) A tutorial on causal Directed Acyclic Graphs (DAGs), providing tools to approach causal identification problems by making causal assumptions explicit on a graph. Here we discover a secondary utility: causal DAGs clarify how commonly employed statistical modelling traditions may introduce biases.   
+ (3) Practical examples that apply causal DAGs to common scenarios in observational environmental psychology, demonstrating their utility.
  (4) Guidelines for building causal inference workflows within environmental psychology.
- Our main objective is to help environmental psychologists build robust workflows that systematically address causal questions. We advocate for the practice of constructing multiple causal diagrams and conducting corresponding analyses when causal assumptions are unclear or contested. This structured approach not only makes the underlying assumptions more transparent but also improves the capacity to draw meaningful causal inferences—particularly in a field where causal effects are often central, yet data ambiguity and limitations of standard statistical methods can obscure the identification of those effects.
+ Our main objective in this chapter to guide environmental psychologists the robust causal workflows that have empowered a generation of economitricians and epidimiologists to systematically address causal questions, but which remain scarce in the the psychological sciences.
 authors: 
   - name: Joseph A Bulbulia
     orcid: 0000-0002-5861-2056
@@ -30,8 +30,8 @@ keywords:
   - Causal Inference
   - Confounding
   - Environmental
+  - Longitudinal
   - Psychology
-  - Panel
 format:
   pdf:
     sanitize: true
@@ -114,90 +114,123 @@ push_mods <-
 
 ## Introduction
 
-Psychological scientists often state, "correlation does not imply causation." By "correlation," we refer to the statistical measure of linear association between variables. Most statistical techniques, from t-tests to structural equation models, aim to estimate associations from data. However, measuring associations is not the same as understanding causation.
+## Introduction
 
-What is causation? Our focus is on causal effect estimation, a concept central to data science and distinct from other aspects of causality, such as mechanisms or sufficient causes. David Hume offers the following perspective in his *Enquiries Concerning Human Understanding* (1751):
+Psychological scientists are taught that "correlation does not imply causation." By "correlation," we refer to statistical measures of association between variables. Most statistical techniques—from t-tests to structural equation models—aim to estimate associations from data. Although we know that measuring associations does not imply causation, in observational settings we often persist in reporting statistical associations as if they are meaningful, and perhaps even as tentative evidence for causation. The purpose of this chapter is to clarify why such reporting is confused and misleading, and to guide you toward better practices.
+
+What do we mean by "causation"? Causation has been a topic of extensive interest and debate in philosophy [@lewis1973]. In this chapter, however, we narrow our focus to the estimation of causal effects within data science. In causal-effect estimation, or causal inference, investigators seek to quantify the difference that interventions would make to a population of interest on well-defined outcomes. This requires comparing at least two states of the world: one where the population experiences a treatment and another where they do not, or experience a different level of treatment. While the concept of causation in causal inference is more narrowly defined than causation itself, it draws intellectual inspiration from David Hume, who, in his *Enquiries Concerning Human Understanding* (1751), characterizes the cause-effect relationship as follows:
 
 > "If the first object had not been, the second never would have existed" [@hume1902] (emphasis added).
 
-Hume’s definition turns on *counterfactual thinking* — specifically, the comparison of two mutually exclusive states of the world, one in which an event occurs and one in which it does not. This focus on contrasts is crucial for causal effect estimation. Although causation can be examined from various perspectives (such as understanding mechanisms or describing sufficient causes), the focus in contemporary causal data science, also known as 'causal inference', is on contrasting the effect of two or more interventions -- called 'treatments', or 'exposures' -- on an outcome or set of outcomes were everyone in a given population exposed to each.
+Hume’s definition relies on *counterfactual thinking*—specifically, the comparison of two mutually exclusive states of the world: one where an event occurs and one where it does not. For Hume, assessing causation requires not just observing events as they happen but also considering how the world might have differed had those events not occurred. Such comparisons, where we consider scenarios in which treatments did not take place, are known as "counterfactual contrasts," and these contrasts are fundamental to causal-effect estimation.
 
-Although stastically evaluation associations from the data is essential for estimating average treatment effects in populations, causation cannot be derived from association alone. Rather, a careful workflow must be following in which the causal effects of interest are stated and the assumptions required to identify them in data must be stated and evaluated.  By the end of this chapter, readers will understand why common techniques such as linear regression, correlation, and Structural Equation Modelling are often too hastily applied to the analysis of data if our interst is in inferring magnitudes of causal effect. 
+While causation can be explored from various perspectives—such as uncovering mechanisms or describing sufficient causes—the central focus of contemporary causal data science, or causal inference, is on contrasting the effects of different interventions (referred to as "treatments" or "exposures") on an outcome (or set of outcomes) for a given population under varying levels of the treatment.
 
-[**Part 1**](#section-part1) introduces the counterfactual framework of causal inference, focusing on the [**three fundamental assumptions**](#sec-three-fundamental-assumptions) necessary for estimating average causal effects. We build intuition for these concepts by considering randomised controlled trials, where the assumptions are met through enforced randomisation [@westreich2012berkson; @hernan2017per; @westreich2015; @robins2008estimation].
+Although statistically evaluating associations from data is essential for estimating average treatment effects, causation cannot be derived from the study of associations alone. A careful and systematic workflow is required. By the end of this chapter, you will understand why, without such a workflow, common analytic techniques—such as linear regression, correlation, and structural equation modeling—lack causal interpretations and may mislead investigators.
 
-[**Part 2**](#section-part2) introduces causal Directed Acyclic Graphs (DAGs), which provide a powerful tool for visualising and addressing the assumption of conditional exchangeability (also known as the "no unmeasured confounders" assumption). Here, we introduce the *rules of d-separation*, which allow investigators to identify sets of variables to adjust for confounding. Although most psychological scientists are aware that regression adjustment is a common method for controlling confounding, they may not be familiar with the formal criteria for selecting appropriate adjustment variables. We review Judea Pearl's rules of *d-separation*, which offer offer a systematic method for assessing whether the causal assumption of "no unmeasured confounding" can be satisfied with data. Pearl's rules of d-separation also reveal that common practicies of confounding control in regression analysis, as well as common methods of applying structural equation models to data, lead to biased causal effect estimates.  Because Pearl's methods are anchored in proofs, we can be confident of these biases. An on-line suppliment also validates presents over adjustment biases using simulations. 
+[**Part 1**](#section-part1) introduces the counterfactual framework of causal inference, focusing on the [**three fundamental assumptions**](#sec-three-fundamental-assumptions) necessary for estimating average causal effects. We build intuition for these concepts by considering randomized controlled trials, where these assumptions are met through enforced randomization [@westreich2012berkson; @hernan2017per; @westreich2015; @robins2008estimation].
 
-[**Part 3**](#section-part3) provides seven practical examples in which causal diagrams address real-world causal questions. These examples clarify three key objectives: (1) how to construct causal diagrams that accurately represent the hypothesised relationships between variables; (2) how to identify and evaluate the assumptions required to estimate causal effects from observational data, ensuring that these assumptions align with the underlying causal structure; and (3) how to use DAGs to guide the estimation of causal effects, from identifying the necessary adjustment sets to applying appropriate statistical methods for valid causal inference. These examples serve as a practical guide for researchers to translate causal questions into analysable causal identification models.
+[**Part 2**](#section-part2) introduces causal Directed Acyclic Graphs (DAGs), powerful tools for visualizing and addressing the assumption of conditional exchangeability (also known as the "no unmeasured confounders" assumption). We discuss the *rules of d-separation*, which allow investigators to identify appropriate variables to adjust for confounding. While most psychological scientists are aware that regression adjustment is commonly used to control confounding, they may not be familiar with the formal criteria for selecting proper adjustment variables.
 
-[**Part 4**](#section-part4) offers practical guidelines for environmental psychologists aiming to infer causal effects from observational data. Given that assumptions about causal relationships are often uncertain or subject to debate, we recommend reporting multiple causal diagrams and corresponding analysis strategies to capture different plausible causal pathways. This approach enables transparency.
+[**Part 3**](#section-part3) provides seven practical examples where causal diagrams address real-world causal questions. These examples clarify three key objectives: (1) constructing causal diagrams that accurately represent hypothesized relationships between variables; (2) identifying and evaluating the assumptions required to estimate causal effects from observational data, ensuring they align with the underlying causal structure; and (3) using DAGs to guide the estimation of causal effects, from identifying necessary adjustment sets to applying appropriate statistical methods for valid inference. These examples serve as practical guides for translating causal questions into analyzable causal identification models.
 
-We conclude by suggesting further readings and resources.
+[**Part 4**](#section-part4) offers practical guidelines for environmental psychologists aiming to infer causal effects from observational data. Given that assumptions about causal relationships are often uncertain or subject to debate, we recommend reporting multiple causal diagrams and corresponding analysis strategies to capture different plausible pathways. This approach enhances transparency in how causal relationships are inferred.
+
+We conclude by suggesting further readings and resources for those interested in learning more about causal inference.
 
 ## Part 1: An Overview of the Counterfactual Framework for Causal Inference {#section-part1}
 
 ## The Fundamental Problem of Causal Inference: Counterfactual Comparisons in Environmental Psychology
 
-Imagine you're faced with a significant life decision: enrolling in a graduate program in environmental psychology in New Zealand or accepting a job offer from a leading renewable energy company. This choice will shape your future, influencing your lifestyle, income, and social network. Which option is best for you?
+Imagine you are faced with a significant life decision: enrolling in a graduate program in environmental psychology in New Zealand or accepting a job offer from a leading renewable energy company. This choice will shape your future, influencing your lifestyle, income, and social network. Which option is best for you?
 
-The challenge is that once you choose one path, you can't observe how your life would have unfolded on the other. If you go to graduate school, you'll experience that outcome, but the outcome of taking the job remains unknown—and vice versa. This is the fundamental problem of causal inference: we cannot observe both potential outcomes to quantify the causal effect of our decision. The path not taken remains an unobservable "what if?"—a counterfactual we can never measure. This problem arises whenever we want to evaluate the difference between two interventions in the world. Inevitably, the *full data* required to compute this contrast are missing.
+The challenge is that, once you choose one path, you cannot observe how your life would have unfolded on the other. If you go to graduate school, you will experience that outcome, but the outcome of taking the job remains unknown—and vice versa. This is the *fundamental problem of causal inference*: we can never observe both potential outcomes for the same individual, so the path not taken remains an unobservable "what if?"—a counterfactual that cannot be measured [@holland1986]. 
 
-Counterfactual comparisons are at the heart of causal inference. They involve contrasting what actually happened with what would have happened under a different scenario. In environmental psychology quantitatively computing such counterfactual contrasts is essential for understanding the expected effects of psychological and behavioural interventions.
+Counterfactual comparisons lie at the heart of causal inference, as they involve contrasting what actually happened with what would have happened under a different scenario. In environmental psychology, computing counterfactual contrasts is essential for understanding the effects of psychological and behavioural interventions on well-defined outcomes. However, the *full data* required to make such contrasts are inevitably partially missing [@edwards2015; @westreich2013].
 
-### Causal Inference in Experiments: A Problem of Missing Counterfactuals
+### Causal Inference in Experiments: We Problem of Missing Counterfactuals
 
-Consider a question relevant to environmental psychologists: What is the causal effect of access to green spaces on subjective happiness? Let happiness be denoted by $Y$, where $Y_i$ is the happiness of individual $i$.
+Consider a question relevant to environmental psychologists: What is the causal effect of access to green spaces on subjective happiness? Denote happiness by $Y$, where $Y_i$ represents the happiness of individual $i$.
 
-Suppose "ample access to green space" is a binary variable: $A = 1$ for "ample access" and $A = 0$ for "lack of ample access." These conditions are mutually exclusive. While simplifying treatment to a binary variable, the concepts apply to more complex or continuous treatments. Estimating causal effects always requires a contrast between well-defined treatment conditions. Importantly, defining clear causal questions is essential but often neglected in psychological science outside experimental work.
+Suppose "ample access to green space" is represented as a binary variable: $A = 1$ for "ample access" and $A = 0$ for "lack of ample access." These conditions are mutually exclusive. While we simplify the treatment to a binary variable, the concepts apply to more complex or continuous treatments. Estimating causal effects always requires a contrast between well-defined treatment conditions. Importantly, defining clear causal questions is essential but often neglected in psychological science outside experimental work.
 
-Our core aim is to contrast potential outcomes under different treatment conditions. Here, we contrast the happiness of individuals with access to green space ($A = 1$) against those without ($A = 0$). The target population for this contrast should be explicit—for example, all New Zealand residents in 2024.
+Imagine our aim is to compare potential outcomes under different treatment conditions. Specifically, we contrast the happiness of individuals with access to green space ($A = 1$) against those without ($A = 0$). The target population for this contrast should be explicit—for example, all New Zealand residents in 2024.
 
-A clear causal question, framed as a counterfactual contrast -- also known as a "causal estimand," might be:
+A clear causal question, framed as a counterfactual contrast—also known as a "causal estimand"—might be:
 
-*"Among New Zealand residents, does access to abundant green space increase self-perceived happiness compared to environments without such spaces?"*
+> *"Among New Zealand residents, does access to abundant green space increase self-perceived happiness compared to environments without such spaces?"*
 
-Now, imagine (hypothetically and ethically) that we could randomize individuals to high or low green space access. Even in this ideal experimental setup, causal inference faces a key challenge: missing data for potential outcomes. For each person, only one potential outcome is observed, depending on the treatment they receive. The outcome they would have experienced under the alternative treatment is unobserved—the counterfactual. This missingness is the fundamental problem of causal inference.
+Now, imagine — hypothetically and ethically— that we could randomise individuals to high or low green space access. Even in this ideal experimental setup, causal inference faces a considerable challenge: missing data for potential outcomes. For each person, only one potential outcome is observed, depending on the treatment they receive. The outcome they would have experienced under the alternative treatment is unobserved—the counterfactual. Such missingness is the fundamental problem of causal inference, raised to the level of treatment groups. only observe $Y_i(1)$ for individuals with $A_i = 1$ and $Y_i(0)$ for individuals with $A_i = 0$. The other potential outcome for each individual remains unobserved.  However, although this missingness in the "full data" poses a challenge at the individual level, we can estimate the average treatment effect within the sampled population without needing to observe all individual-level treatment effects. 
 
-To formalism, the Average Treatment Effect (ATE) compares the potential outcomes across treatment groups:
+How do experiments overcome the fundamental problem of causal inference to obtain causal effect estimates?Experiments do not solve the fundamental problem of causal inference but rather shift causal questions from individual causal effects to average causal effects in a population. Understanding causal inference in experiments illustrates how three core assumptions essential for estimating causal effects are resolved when we shift the question from individuals to populations. These are the (1) Conditional Exchangeability Assumptions (2) The Causal Consistency Assumptions; (3) The Positivity Assumption. We next consider each in turn.
 
+#### Assumption 1: Conditional Exchangeability
+
+We define 
+
+In the first instance, randomisation allows us to identify average treatment effects by ruling out any inherent differences in the groups that would make them to respond differently, on average, to the treatments we seek to contrast. First, we define the expected value of a treatment as the sum of individual potential outcomes for individuals within a specified population:
+
+$$
+\mathbb{E}[Y(a)] \equiv \frac{1}{n} \sum_{i=1}^n Y_i(a)
+$$
+
+
+We next define the average treatement effect (ATE) as a contrast between the averages of the potential outcomes in each treatment condition.
 $$
 \text{ATE} = \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)]
 $$
 
-However, at any one time, we can only observe $Y_i(1)$ for individuals with $A_i = 1$ and $Y_i(0)$ for individuals with $A_i = 0$. The other potential outcome for each individual remains unobserved. Again, causal inference relies on counterfactual comparisons—asking "what would have happened" if conditions were different. These counterfactual outcomes are fundamentally unobservable; for any individual, we cannot observe both potential outcomes simultaneously. Thus, even in well-designed experiments, we confront the challenge of missing data on potential outcomes.
+Suppose that the individuals in a sample are representative of the population of interest - the target population. In this setting, randomisation ensures there is no common cause of the treatment and the potential outcomes that would be observed under treatment. That is, if treatment assignment is determined by chance, any difference in the average response witin a treatment groups is best explained by the treatment itself. 
 
-### How Experiments Address Confounding Through Randomisation
-
-How do experiments estimate average treatment effects despite this challenge? Experiments help estimate causal effects by addressing the issue of "confounding." However, confounding is only one of three key assumptions required for causal inference, alongside causal consistency and positivity. Let us focus first on confounding. 
-
-Confounding occurs when a variable influences both the treatment and the outcome, potentially creating a spurious association -- that is, a statistical correlation between two variables that exists regardless of whether we intervene on them. Consider that the sale of ice cream is positively correlated with shark attacks.  However, ice cream does not cause shark attacks. Rather, warm weather is a common cause of people eating ice cream and swimming in the ocean.  Similarly, if we are interested in the causal effect of access to greenspace on happiness,  we must be mindful that factors such as income could affect both access to green spaces and happiness. If higher income leads to both better access to green spaces and higher happiness levels, we might mistakenly attribute the increase in happiness to green space access when it's actually an effect of  income.
-
-Randomisation in an experiment helps balance confounders across treatment groups. By randomly assigning individuals to treatment conditions -- regardless of their income -- we could ensure (with sufficiently large numbers) that income would be equally distributed between groups. Such balance allows us to attribute differences in outcomes to the treatment itself rather than to common causes of the treatment and the outcome. This is because the treatment is random -- it is caused by chance. 
-
-Mathematically, we express the principle of "no unmeasured confounding" as:
+Mathematically, we express the absence of a common cause of treatment assignment and the potential outcomes under treatment:
 
 $$
 Y(a) \coprod A
 $$
 
-This notation means that the potential outcomes $Y(a)$ are independent of ($\coprod$) the treatment assignment $A$. Randomisation achieves shuch independence, allowing us to estimate causal effects.
+This notation means that the potential outcomes $Y(a)$ are independent of ($\coprod$) the treatment assignment $A$. Importantly, the observed outcomes need not be independent of treatment. We do not require $Y|A$ Indeed, we should expect such differences except when there is no treatment effect. Randomisation achieves unconditional independence independence, allowing us to estimate causal effects.
 
-### The Three Fundamental Assumptions of Causal Inference
+Importantly, we can relax the requirement for unconditional independence and allow randomization to occur conditional on certain measurable features of the sampled population. For example, suppose we randomize treatment within different age cohorts such that older individuals have a greater probability of receiving the treatment than younger individuals. Assume that the treatment effect is constant across all ages. In this scenario, we would expect to see higher average treatment effects in older cohorts simply because a larger proportion of older individuals receive the treatment.
 
-Understanding causal inference in experiments highlights three core assumptions essential for estimating causal effects:
+We can illustrate this with a simple numerical example.
 
-1. **Conditional Exchangeability**
-2. **Causal Consistency**
-3. **Positivity**
+Suppose a population of  200 individuals divided into two age cohorts: **Younger Cohort:** 100 individuals;**Older Cohort:** 100 individuals. Suppose in the **Younger Cohort** there is a 30% chance of receiving treatment, thus Treated: 30 individuals Untreated: 70 individuals. Suppose further in the **Older Cohort:** there is a 70% chance of receiving treatment. Treated: 70 individuals; Untreated: 30 individuals. Furhther suppose the treatment increases happiness by **10 points** on a standardised scale, and baseline happiness for all individuals is **50 points**.
 
-#### Assumption 1: Conditional Exchangeability
+Now, let's calculate the average happiness scores for each cohort.
 
-We have been using the symbol $A$ to represent intervetions or treatments and $Y$ to represent outcomes. We have used the symbol $Y(a)$ to denote the potential (or counterfactual) outcome if $A$ were set to $A = a$.  We next introduce the symbol $L$ to denoted measured variables that might be common causes of the treatment ($A$) and of the treament effect ($Y(a)$).  We write that the potential or counterfactual outcome $Y(a)$ is independent of $A$, conditional on $A$ as follows: 
+1. **Younger Cohort:**
+
+   - **Treated Individuals:**
+     - Happiness Score: $50 \, (\text{baseline}) + 10 \, (\text{treatment effect}) = 60$
+     - Total Happiness: $30 \, (\text{individuals}) \times 60 = 1,800$
+   - **Untreated Individuals:**
+     - Happiness Score: $50 \, (\text{baseline})$
+     - Total Happiness: $70 \, (\text{individuals}) \times 50 = 3,500$
+   - **Average Happiness:**
+     - $\frac{1,800 + 3,500}{100} = \frac{5,300}{100} = 53$
+
+2. **Older Cohort:**
+
+   - **Treated Individuals:**
+     - Happiness Score: $50 + 10 = 60$
+     - Total Happiness: $70 \times 60 = 4,200$
+   - **Untreated Individuals:**
+     - Happiness Score: $50$
+     - Total Happiness: $30 \times 50 = 1,500$
+   - **Average Happiness:**
+     - $\frac{4,200 + 1,500}{100} = \frac{5,700}{100} = 57$
+
+Our finding is that: **Younger Cohort Average Happiness:** = 53, and **Older Cohort Average Happiness:** 57
+Even though the treatment effect is constant (10 points) for both cohorts, the **older cohort shows a higher average happiness score**. This arises from the higher proportion of treated individuals in the older cohort (70%) compared to the younger cohort (30%). The increased average treatment effect in the older cohort arises from the conditional randomisation based on age, not from a difference in the treatment's efficacy.
+
+This example demonstrates that when randomisation occurs conditional on a measurable feature such as age, and the treatment effect is constant, differences in treatment probabilities across groups can lead to variations in observed average treatment effects. However, if adjust for this difference in the probability of receiving treatment, or simply compare treatment effects with the different age strata, the illusion of a different treatment group disappears. 
+
+ We next introduce the symbol $L$ to denoted measured variables that might be common causes of the treatment ($A$) and of the treament effect ($Y(a)$).  We write that the potential or counterfactual outcome $Y(a)$ is independent of $A$, conditional on $A$ as follows: 
 $$
 Y(a) \coprod A \mid L
 $$
 
-This assumption means that, within levels of $L$, the treatment assignment *is as good as random.* In experiments, randomisation ensures unconditional exchangeability ($Y(a) \coprod  A$). However to compute causal effects from data in which the treatments are not randomised, we must believe that within levels of measured covariates $L$, the treatment is as good as random. Practically this involves measuring all common causes of $A$ and $Y$.
+This assumption means that, within levels of $L$, the treatment assignment *is as good as random.* In experiments, randomisation ensures unconditional exchangeability ($Y(a) \coprod  A$). However to compute causal effects from data in which the treatments are not randomised, we must believe that within levels of measured covariates $L$, the treatment *is as good as random*. Practically this involves measuring all common causes of $A$ and $Y$.
 
 ##### Challenges in Observational Settings
 
@@ -221,7 +254,7 @@ Note that in causal inference, we compare potential outcomes under at least two 
 
 ##### Challenges in Observational Settings
 
-Similarly, in observational environmental psychology, the treatments of interest may not be standardised. For green space access, we might worry about variability in the green spaces we have measured: not all green spaces are equal—differences in size, quality, and amenities can affect outcomes. Moreover, there is likely considerable variability in exposure levels, the amount of time that individuals spend in green spaces can vary widely. These variations can violate causal consistency because the "treatment" isn't the same across individuals on which treatments are to be compared. Supplemental materials S-1B addresses the causal consistency assumption in detail. 
+Similarly, in observational environmental psychology, the treatments of interest may not be standardised. For green space access, we might worry about variability in the green spaces we have measured: not all green spaces are equal—differences in size, quality, and amenities can affect outcomes. Moreover, there is likely considerable variability in exposure levels, the amount of time that individuals spend in green spaces can vary widely. These variations can violate causal consistency because the "treatment" isn't the same across individuals on which treatments are to be compared. Supplemental materials S-Appendix-B addresses the causal consistency assumption in detail. 
 
 #### Assumption 3: Positivity
 
@@ -235,7 +268,7 @@ This assumption ensures that we have data to compare treatment effects across al
 
 ##### Challenges in Observational Settings
 
-In practice, some individuals may have zero probability of receiving certain treatments. For example:
+In practice, some individuals may have zero probability of receiving certain treatments. Consider:
 
 - **Geographic constraints**: some regions may lack green spaces entirely.
 - **Economic barriers**: low-income individuals may have no access to areas with ample green spaces.
@@ -245,17 +278,9 @@ Violating the positivity assumption means we cannot estimate the causal effect f
 
 ### Summary
 
-In environmental psychology, understanding causal effects requires careful consideration of counterfactual comparisons—the unobserved potential outcomes. Even in experiments, we face the fundamental problem of causal inference: we cannot observe both potential outcomes for the same individual. Experiments address this through randomization, aiming to balance confounders across treatment groups.
+Causal modelling differs from traditional statistical modelling. Although statistical models aim to describe associations within observed data, they often do not distinguish between correlation and causation, leading to potentially misleading conclusions when inferring causal relationships. Causal inference requires statistical inference; however, statistics comes near the end of a workflow that begins by stating a causal quantity with reference to contrasts that would be obtained if we had the full data for the population of interest treated at different levels of the intervention [@ogburn2021]. We then seek to understand how these contrasts may be estimated from the data we have.
 
-We rely on three basic assumptions:
-
-1. **Conditional exchangeability**: no unmeasured confounders.
-2. **Causal consistency**: treatments are well-defined and consistently applied.
-3. **Positivity**: all individuals have a non-zero probability of receiving each treatment.
-
-In observational studies, these assumptions are harder to satisfy than in randomised controlled experiments. Confounding variables may bias our estimates, treatments may vary in ways we can't control, and some individuals may never be able to receive certain treatments. Understanding and addressing these challenges is crucial for making valid causal inferences from data.
-
-In the remainder of this chapter, we will focus on the "no unmeasured confounder" assumption, using causal directed acyclic graphs to demonstrate how common practices in statistical modelling, such as regression adjustment and structural equation modelling, fail to address this assumption, and indeed may make matters worse by introducing bias through inappropriate adjustment for colliders or mediators, distorting causal pathways, and potentially masking true relationships or creating spurious associations that do not represent causal effects.
+Common practices in statistical modelling, such as regression adjustment and structural equation modelling, frequently fall short in estimating causal effects because they do not account for the causal structure between variables. Including all available covariates in a regression model without understanding their causal roles can introduce bias. In the next section, we introduce causal directed acyclic graphs (causal DAGs), which are intuitive graphical tools that allow us to inspect graphs to evaluate the complex conditional dependencies that must be understood to evaluate the "no unmeasured confounders" assumption. Causal DAGs also demonstrate how common practices in statistical modelling such as over-adjustment in regression and mediation analysis in structural equation modelling may inadvertently introduce bias through inappropriate adjustment for variables. Such over-adjustment can distort causal pathways, potentially mask true relationships, or leading to associations that do not represent causal effects. In causal inference, such associations are aptly called "spurious.' By making the causal structure explicit and carefully considering which variables to adjust for, causal DAGs may help environmental psycholosts to better estimate causal effects in environmental psychology.
 
 ## Part 2: An Introduction to Causal Diagrams {#section-part2}
 
