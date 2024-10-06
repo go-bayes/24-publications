@@ -1,12 +1,12 @@
 ---
 title: "An Invitation to Causal Inference in Environmental Psychology"
 abstract: |
- This chapter introduces causal inference within environmental psychology, underscoring its fundamental differences from traditional statistical analysis. The content is organised into four main sections:  
- (1) A non-technical introduction that outlines how causal inference focuses on specific causal questions by defining a pre-specified counterfactual contrast between different treatment conditions, as experienced by an entire population. Importantly, for any individual in this population, at most only one potential outcome may be observed. Thus, causal effects can only be estimated using assumptions.  
- (2) A tutorial on causal Directed Acyclic Graphs (DAGs), providing tools to approach causal identification problems by making causal assumptions explicit on a graph. Here we discover a secondary utility: causal DAGs clarify how commonly employed statistical modelling traditions may introduce biases.   
- (3) Practical examples that apply causal DAGs to common scenarios in observational environmental psychology, demonstrating their utility.
- (4) Guidelines for building causal inference workflows within environmental psychology.
- Our main objective in this chapter to guide environmental psychologists the robust causal workflows that have empowered a generation of economitricians and epidimiologists to systematically address causal questions, but which remain scarce in the the psychological sciences.
+  This chapter introduces causal inference within environmental psychology, underscoring its fundamental differences from traditional statistical analysis. The content is organised into four main sections:
+  1. **Non-technical introduction**: this section explains how causal inference focuses on answering specific causal questions by defining a pre-specified counterfactual contrast between treatment conditions, as experienced by an entire population. Crucially, for each individual in the population, only one potential outcome is observed. Therefore, causal effects must be estimated using assumptions.
+  2. **Causal Directed Acyclic Graphs (DAGs) tutorial**: we provide tools to approach causal identification by explicitly stating causal assumptions on a graph. Causal DAGs also have a secondary utility: they illustrate how traditional statistical modelling approaches can introduce biases.
+  3. **Practical examples**: we apply causal DAGs to common scenarios in observational environmental psychology, demonstrating their practical utility.
+  4. **Guidelines for building causal workflows**: we provide guidelines on establishing causal inference workflows tailored for environmental psychology.
+  The main aim of this chapter is to guide environmental psychologists in adopting the robust causal workflows that have enabled econometricians and epidemiologists to systematically address causal questions, but which remain scarce in psychological science.
 authors: 
   - name: Joseph A Bulbulia
     orcid: 0000-0002-5861-2056
@@ -112,29 +112,26 @@ push_mods <-
 
 ```
 
-## Introduction
+Psychological scientists are taught that "correlation does not imply causation." By "correlation," we refer to statistical measures of association between variables. Most statistical techniques—from t-tests to structural equation models—estimate associations from data. Although we know that measuring associations does not imply causation, in observational settings we often persist in reporting statistical associations as if they are meaningful and, perhaps even as tentative evidence for causation. The purpose of this chapter is to clarify why such reporting is confused and misleading, and to guide you toward better practices.
 
-## Introduction
-
-Psychological scientists are taught that "correlation does not imply causation." By "correlation," we refer to statistical measures of association between variables. Most statistical techniques—from t-tests to structural equation models—aim to estimate associations from data. Although we know that measuring associations does not imply causation, in observational settings we often persist in reporting statistical associations as if they are meaningful, and perhaps even as tentative evidence for causation. The purpose of this chapter is to clarify why such reporting is confused and misleading, and to guide you toward better practices.
-
-What do we mean by "causation"? Causation has been a topic of extensive interest and debate in philosophy [@lewis1973]. In this chapter, however, we narrow our focus to the estimation of causal effects within data science. In causal-effect estimation, or causal inference, investigators seek to quantify the difference that interventions would make to a population of interest on well-defined outcomes. This requires comparing at least two states of the world: one where the population experiences a treatment and another where they do not, or experience a different level of treatment. While the concept of causation in causal inference is more narrowly defined than causation itself, it draws intellectual inspiration from David Hume, who, in his *Enquiries Concerning Human Understanding* (1751), characterizes the cause-effect relationship as follows:
+What do we mean by "causation"? Causation has been a topic of extensive interest and debate in philosophy [@lewis1973]. Here, we narrow our focus. We consider the assumptions under which it is possible to estimate causal effects from data and how to estimate them. In causal-effect estimation, or 'causal inference,' investigators seek to quantify the average differences across a specified population or sub-population (the "target population") that interventions would produce on well-defined outcomes. This requires comparing at least two states of the world: one where the population experiences a treatment and another where they do not, or experience a different level of treatment. While the concept of causation in causal inference is more narrowly defined than causation itself, it draws intellectual inspiration from David Hume, who, in his Enquiries Concerning Human Understanding (1751), characterises the cause-effect relationship as follows:
 
 > "If the first object had not been, the second never would have existed" [@hume1902] (emphasis added).
 
-Hume’s definition relies on *counterfactual thinking*—specifically, the comparison of two mutually exclusive states of the world: one where an event occurs and one where it does not. For Hume, assessing causation requires not just observing events as they happen but also considering how the world might have differed had those events not occurred. Such comparisons, where we consider scenarios in which treatments did not take place, are known as "counterfactual contrasts," and these contrasts are fundamental to causal-effect estimation.
+This conceptualisation aligns closely with the counterfactual approach in causal inference, which considers what would have happened to an outcome in both the presence and the absence of a treatment.
 
-While causation can be explored from various perspectives—such as uncovering mechanisms or describing sufficient causes—the central focus of contemporary causal data science, or causal inference, is on contrasting the effects of different interventions (referred to as "treatments" or "exposures") on an outcome (or set of outcomes) for a given population under varying levels of the treatment.
+Hume's definition relies on counterfactual thinking—specifically, the comparison of two mutually exclusive states of the world: one where an event occurs and one where it does not. For Hume, assessing causation requires not just observing events as they happen but also considering how the world might have differed had those events not occurred. Such comparisons, where we consider scenarios in which treatments did not take place, are known as "counterfactual contrasts;" such contrasts are fundamental to causal-effect estimation. In modern causal inference, these contrasts are formalised within the potential outcomes framework, which estimates the average difference in outcomes between treated and control conditions.
 
-Although statistically evaluating associations from data is essential for estimating average treatment effects, causation cannot be derived from the study of associations alone. A careful and systematic workflow is required. By the end of this chapter, you will understand why, without such a workflow, common analytic techniques—such as linear regression, correlation, and structural equation modeling—lack causal interpretations and may mislead investigators.
+Importantly, although statistically evaluating associations from data is essential for estimating average treatment effects, causation estimation cannot be derived from the study of associations alone. A careful and systematic workflow is required. By the end of this chapter, you will understand why, without such a workflow, common analytic techniques—such as linear regression, correlation, and structural equation modelling—lack causal interpretations and may mislead investigators.
 
-[**Part 1**](#section-part1) introduces the counterfactual framework of causal inference, focusing on the [**three fundamental assumptions**](#sec-three-fundamental-assumptions) necessary for estimating average causal effects. We build intuition for these concepts by considering randomized controlled trials, where these assumptions are met through enforced randomization [@westreich2012berkson; @hernan2017per; @westreich2015; @robins2008estimation].
+[**Part 1**](#section-part1) introduces the counterfactual framework of causal inference, focusing on the three fundamental assumptions necessary for estimating average causal effects. We build intuition for these concepts by considering randomised controlled trials, where these assumptions are met through enforced randomisation [@westreich2012berkson; @hernan2017per; @westreich2015; @robins2008estimation].
 
-[**Part 2**](#section-part2) introduces causal Directed Acyclic Graphs (DAGs), powerful tools for visualizing and addressing the assumption of conditional exchangeability (also known as the "no unmeasured confounders" assumption). We discuss the *rules of d-separation*, which allow investigators to identify appropriate variables to adjust for confounding. While most psychological scientists are aware that regression adjustment is commonly used to control confounding, they may not be familiar with the formal criteria for selecting proper adjustment variables.
+[**Part 2**](#section-part2) introduces causal Directed Acyclic Graphs (DAGs), powerful tools for visualising and addressing the assumption of conditional exchangeability (also known as the "no unmeasured confounders" assumption). We discuss the rules of d-separation, which allow investigators to identify appropriate variables to adjust for confounding. While most psychological scientists are aware that regression adjustment is commonly used to control confounding, they may not be fully aware of the formal criteria required to select appropriate adjustment variables. However, understanding the formal criteria is essential because over-adjustment may introduce bias or reduce statistical power, leading to misleading conclusions.
 
-[**Part 3**](#section-part3) provides seven practical examples where causal diagrams address real-world causal questions. These examples clarify three key objectives: (1) constructing causal diagrams that accurately represent hypothesized relationships between variables; (2) identifying and evaluating the assumptions required to estimate causal effects from observational data, ensuring they align with the underlying causal structure; and (3) using DAGs to guide the estimation of causal effects, from identifying necessary adjustment sets to applying appropriate statistical methods for valid inference. These examples serve as practical guides for translating causal questions into analyzable causal identification models.
 
-[**Part 4**](#section-part4) offers practical guidelines for environmental psychologists aiming to infer causal effects from observational data. Given that assumptions about causal relationships are often uncertain or subject to debate, we recommend reporting multiple causal diagrams and corresponding analysis strategies to capture different plausible pathways. This approach enhances transparency in how causal relationships are inferred.
+[**Part 3**](#section-part3) provides seven practical examples where causal diagrams address real-world causal questions. These examples clarify three key objectives: (1) constructing causal diagrams that accurately represent hypothesised relationships between variables; (2) identifying and evaluating the assumptions required to estimate causal effects from observational data, ensuring they align with the underlying causal structure; and (3) using DAGs to guide the estimation of causal effects, from identifying necessary adjustment sets to applying appropriate statistical methods for valid inference. These examples serve as practical guides for translating causal questions into analysable causal identification models, clarifying the assumptions needed to estimate causal relationships from data.
+
+[**Part 4**](#section-part4) ooffers practical guidelines for environmental psychologists aiming to infer causal effects from observational data. Given that assumptions about causal relationships are often uncertain or subject to debate, we recommend reporting multiple causal diagrams and corresponding analysis strategies to capture different plausible pathways. This approach enhances transparency in how causal relationships are inferred.
 
 We conclude by suggesting further readings and resources for those interested in learning more about causal inference.
 
@@ -142,11 +139,13 @@ We conclude by suggesting further readings and resources for those interested in
 
 ## The Fundamental Problem of Causal Inference: Counterfactual Comparisons in Environmental Psychology
 
-Imagine you are faced with a significant life decision: enrolling in a graduate program in environmental psychology in New Zealand or accepting a job offer from a leading renewable energy company. This choice will shape your future, influencing your lifestyle, income, and social network. Which option is best for you?
+Imagine you are faced with a significant life decision: enrolling in a graduate programme in environmental psychology in New Zealand or accepting a job offer from a leading renewable energy company. This choice will shape your future, influencing your lifestyle, income, and social network. Which option is best for you?
 
-The challenge is that, once you choose one path, you cannot observe how your life would have unfolded on the other. If you go to graduate school, you will experience that outcome, but the outcome of taking the job remains unknown—and vice versa. This is the *fundamental problem of causal inference*: we can never observe both potential outcomes for the same individual, so the path not taken remains an unobservable "what if?"—a counterfactual that cannot be measured [@holland1986]. 
+The challenge is that, once you choose one path, you cannot observe how your life would have unfolded on the other. If you go to graduate school, you will experience that outcome, but the outcome of taking the job remains unknown—and vice versa. This is **the fundamental problem of causal inference**: we can never observe both potential outcomes for the same individual, so the path not taken remains an unobservable "what if?" — a counterfactual that cannot be measured [@holland1986].
 
-Counterfactual comparisons lie at the heart of causal inference, as they involve contrasting what actually happened with what would have happened under a different scenario. In environmental psychology, computing counterfactual contrasts is essential for understanding the effects of psychological and behavioural interventions on well-defined outcomes. However, the *full data* required to make such contrasts are inevitably partially missing [@edwards2015; @westreich2013].
+Again, counterfactual comparisons lie at the heart of causal inference, as they involve contrasting what actually happened with what would have happened under a different scenario. In environmental psychology, computing counterfactual contrasts is essential for understanding the effects of psychological and behavioural interventions on well-defined outcomes. However, the full data required to make such contrasts are inevitably partially missing [@edwards2015; @westreich2013].
+
+Causal Inference in E
 
 ### Causal Inference in Experiments: We Problem of Missing Counterfactuals
 
@@ -160,13 +159,14 @@ A clear causal question, framed as a counterfactual contrast—also known as a "
 
 > *"Among New Zealand residents, does access to abundant green space increase self-perceived happiness compared to environments without such spaces?"*
 
-Now, imagine — hypothetically and ethically— that we could randomise individuals to high or low green space access. Even in this ideal experimental setup, causal inference faces a considerable challenge: missing data for potential outcomes. For each person, only one potential outcome is observed, depending on the treatment they receive. The outcome they would have experienced under the alternative treatment is unobserved—the counterfactual. Such missingness is the fundamental problem of causal inference, raised to the level of treatment groups. only observe $Y_i(1)$ for individuals with $A_i = 1$ and $Y_i(0)$ for individuals with $A_i = 0$. The other potential outcome for each individual remains unobserved.  However, although this missingness in the "full data" poses a challenge at the individual level, we can estimate the average treatment effect within the sampled population without needing to observe all individual-level treatment effects. 
+Now, imagine—hypothetically and ethically—that we could randomise individuals to high or low green space access. Even in this ideal experimental setup, causal inference faces a considerable challenge: missing data for potential outcomes. For each person, only one potential outcome is observed, depending on the treatment they receive. The outcome they would have experienced under the alternative treatment is unobserved—the counterfactual. Such missingness is the fundamental problem of causal inference, raised to the level of treatment groups. We only observe $Y_i(1)$ for individuals with $A_i = 1$ and $Y_i(0)$ for individuals with $A_i = 0$. The other potential outcome for each individual remains unobserved. However, although this missingness in the "full data" poses a challenge at the individual level, we can estimate the average treatment effect within the sampled population without needing to observe all individual-level treatment effects.
 
-Although individual causal effects are generally elusive, we can recover causal effect estimates by changing our causal question. For example, although randomised controlled experiments do not solve the fundamental problem of causal inference at the level of individuals, however randomised controlled experiments may obtain consistent causal effect estimates for average treatment effects at the level of populations. Randomised experiments solve the missing data problem at the heart of causal inference by satisifying three fundamental assumptions required for obtaining average treatment effects. These are the (1) Conditional Exchangeability Assumptions (2) The Causal Consistency Assumptions; (3) The Positivity Assumption. We call an "observational study" one in which the data have not been obtained by randomised treatment assignment and controlled administration of treatment. We then consider how when observational studies satisfy the three fundamental assumptions of causal inference investigators may obtain consistent causal effect estimates for average treatment effects.
+Although individual causal effects are generally elusive, we can recover causal effect estimates by changing our causal question. For example, although randomised controlled experiments do not solve the fundamental problem of causal inference at the level of individuals, they may obtain consistent causal effect estimates for average treatment effects at the level of populations. Randomised experiments solve the missing data problem at the heart of causal inference by satisfying three fundamental assumptions required for obtaining average treatment effects. These are the (1) Conditional Exchangeability Assumption, (2) The Causal Consistency Assumption, and (3) The Positivity Assumption. We call an "observational study" one in which the data have not been obtained by randomised treatment assignment and controlled administration of treatment. We then consider how, when observational studies satisfy the three fundamental assumptions of causal inference, investigators may obtain consistent causal effect estimates for average treatment effects.
 
 #### Assumption 1: Conditional Exchangeability
 
-First, we define the expected value of a treatment $A=a$ as the sum of individual counterfactual (or equivalently) "potential" outcomes for individuals within a specified population.
+First, we define the expected value of a treatment $A=a$ as the sum of individual counterfactual (or equivalently) "potential" outcomes for individuals within a specified population:
+
 
 $$
 \mathbb{E}[Y(a)] \equiv \frac{1}{n} \sum_{i=1}^n Y_i(a)
@@ -174,12 +174,14 @@ $$
 
 Note that in causal inference, we assume these potential outcomes to be real, even if determined stochastically.
 
-We next define the average treatement effect (ATE) as a contrast between the averages of the potential outcomes in each treatment condition.
+We next define the average treatment effect (ATE) as a contrast between the averages of the potential outcomes in each treatment condition:
+
+
 $$
 \text{ATE} = \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)]
 $$
 
-Suppose that the individuals in a sample are representative of the population of interest - the target population. In this setting, randomisation ensures there is no common cause of the treatment and the potential outcomes that would be observed under treatment. That is, if treatment assignment is determined by chance, any difference in the average response witin a treatment groups is best explained by the treatment itself. 
+Suppose that the individuals in a sample are representative of the population of interest—the target population. In this setting, randomisation ensures there is no common cause of the treatment and the potential outcomes that would be observed under treatment. That is, if treatment assignment is determined by chance, any difference in the average response within treatment groups is best explained by the treatment itself.
 
 Mathematically, we express the absence of a common cause of treatment assignment and the potential outcomes under treatment:
 
@@ -187,59 +189,21 @@ $$
 Y(a) \coprod A
 $$
 
-This notation means that the potential outcomes $Y(a)$ are independent of ($\coprod$) the treatment assignment $A$. Importantly, the observed outcomes need not be independent of treatment. We do not require $Y|A$ Indeed, we should expect such differences except when there is no treatment effect. Randomisation achieves unconditional independence independence, allowing us to estimate causal effects.
+This notation means that the potential outcomes $Y(a)$ are independent of ($\coprod$) the treatment assignment $A$. Importantly, the observed outcomes need not be independent of treatment. We do not require $Y|A$. Indeed, we should expect such differences except when there is no treatment effect. Randomisation achieves unconditional independence, allowing us to estimate causal effects.
 
-Importantly, we can relax the requirement for unconditional independence and allow randomization to occur conditional on certain measurable features of the sampled population. For example, suppose we randomize treatment within different age cohorts such that older individuals have a greater probability of receiving the treatment than younger individuals. Assume that the treatment effect is constant across all ages. In this scenario, we would expect to see higher average treatment effects in older cohorts simply because a larger proportion of older individuals receive the treatment.
+Importantly, we can relax the requirement for unconditional independence and allow randomisation to occur conditional on certain measurable features of the sampled population. For example, suppose we randomise treatment within different age cohorts such that older individuals have a greater probability of receiving the treatment than younger individuals. Assume that the treatment effect is constant across all ages. In this scenario, we would expect to see higher average treatment effects in older cohorts simply because a larger proportion of older individuals receive the treatment.
 
-We can illustrate this with a simple numerical example.
+When randomisation occurs conditional on a measurable feature such as age, and the treatment effect is constant, differences in treatment probabilities across groups can lead to variations in observed average treatment effects. However, if we adjust for this difference in the probability of receiving treatment, or simply compare treatment effects within the different age strata, the bias from differential treatment group assignment disappears.
 
-Suppose a population of  200 individuals divided into two age cohorts: **Younger Cohort:** 100 individuals;**Older Cohort:** 100 individuals. Suppose in the **Younger Cohort** there is a 30% chance of receiving treatment, thus Treated: 30 individuals Untreated: 70 individuals. Suppose further in the **Older Cohort:** there is a 70% chance of receiving treatment. Treated: 70 individuals; Untreated: 30 individuals. Furhther suppose the treatment increases happiness by **10 points** on a standardised scale, and baseline happiness for all individuals is **50 points**.
+We next introduce the symbol $L$ to denote measured variables that might be common causes of the treatment ($A$) and of the treatment effect ($Y(a)$). We write that the potential or counterfactual outcome $Y(a)$ is independent of $A$, conditional on $L$ as follows:
 
-Now, let's calculate the average happiness scores for each cohort.
-
-1. **Younger Cohort:**
-
-   - **Treated Individuals:**
-     - Happiness Score: $50 \, (\text{baseline}) + 10 \, (\text{treatment effect}) = 60$
-     - Total Happiness: $30 \, (\text{individuals}) \times 60 = 1,800$
-   - **Untreated Individuals:**
-     - Happiness Score: $50 \, (\text{baseline})$
-     - Total Happiness: $70 \, (\text{individuals}) \times 50 = 3,500$
-   - **Average Happiness:**
-     - $\frac{1,800 + 3,500}{100} = \frac{5,300}{100} = 53$
-
-2. **Older Cohort:**
-
-   - **Treated Individuals:**
-     - Happiness Score: $50 + 10 = 60$
-     - Total Happiness: $70 \times 60 = 4,200$
-   - **Untreated Individuals:**
-     - Happiness Score: $50$
-     - Total Happiness: $30 \times 50 = 1,500$
-   - **Average Happiness:**
-     - $\frac{4,200 + 1,500}{100} = \frac{5,700}{100} = 57$
-
-Our finding is that: **Younger Cohort Average Happiness:** = 53, and **Older Cohort Average Happiness:** 57
-Even though the treatment effect is constant (10 points) for both cohorts, the **older cohort shows a higher average happiness score**. This arises from the higher proportion of treated individuals in the older cohort (70%) compared to the younger cohort (30%). The increased average treatment effect in the older cohort arises from the conditional randomisation based on age, not from a difference in the treatment's efficacy.
-
-This example demonstrates that when randomisation occurs conditional on a measurable feature such as age, and the treatment effect is constant, differences in treatment probabilities across groups can lead to variations in observed average treatment effects. However, if adjust for this difference in the probability of receiving treatment, or simply compare treatment effects with the different age strata, the illusion of a different treatment group disappears. 
-
- We next introduce the symbol $L$ to denoted measured variables that might be common causes of the treatment ($A$) and of the treament effect ($Y(a)$).  We write that the potential or counterfactual outcome $Y(a)$ is independent of $A$, conditional on $A$ as follows: 
-$$
-Y(a) \coprod A \mid L
-$$
-
-This assumption means that, within levels of $L$, the treatment assignment *is as good as random.* In experiments, randomisation ensures unconditional exchangeability ($Y(a) \coprod  A$). However to compute causal effects from data in which the treatments are not randomised, we must believe that within levels of measured covariates $L$, the treatment *is as good as random*. Practically this involves measuring all common causes of $A$ and $Y$.
+This assumption means that, within levels of $L$, the treatment assignment is as good as random. In experiments, randomisation ensures unconditional exchangeability ($Y(a) \coprod  A$). However, to compute causal effects from data in which the treatments are not randomised, we must believe that within levels of measured covariates $L$, the treatment is as good as random. Practically, this involves measuring all common causes of $A$ and $Y$.
 
 ##### Challenges in Observational Settings
 
-In observational studies, achieving conditional exchangeability is challenging because treatment assignment is not controlled. Individuals with access to green spaces may differ from those without in various ways. We have noted that income might be a common cause of both access to greenspace and happiness. However there are other common causes such as:
+In observational studies, achieving conditional exchangeability is challenging because treatment assignment is not controlled. Individuals with access to green spaces may differ from those without in various ways. We have noted that income might be a common cause of both access to green space and happiness. However, there are other common causes, such as age, health status, and past happiness. Different age groups may have varying access to green spaces and different happiness baselines. Healthier individuals might choose to live near green spaces and also report higher happiness. Furthermore, happiness might cause people to seek green spaces, and happiness in one's past might be a cause of happiness in one's future.
 
-- **Age**: different age groups may have varying access to green spaces and different happiness baselines.
-- **Health status**: healthier individuals might choose to live near green spaces and also report higher happiness.
-- **Past happiness**: happiness might cause people to seek green spaces, and happiness in one's past might be a cause of happiness in one's future.
-
-Merely observing statistical associations between access to greenspace and happiness does not itself resolve the causal question of whether intervening on access across a population would affect happiness levels, and if so, in which direction and by how much. 
+Merely observing statistical associations between access to green space and happiness does not itself resolve the causal question of whether intervening on access across a population would affect happiness levels, and if so, in which direction and by how much.
 
 #### Assumption 2: Causal Consistency
 
@@ -249,37 +213,33 @@ $$
 Y_i = Y_i(a) \quad \text{if } A_i = a
 $$
 
-Note that in causal inference, we compare potential outcomes under at least two different treatments, say, $Y(a = 1)$ and $Y(a = 0)$ (in causal inference we use a lower case variable to note that the random variable $A$ is fixed to a certain level ($A = a$)). To compute causal contrasts the counterfactual or potential outcomes under treatment must be observable. The causal consistency assumption allows investigators to link counterfactual or potential outcomes to observed outcomes. It might seem obvious that if one receives a treatment, we can say that the observation of the outcome following treatment is no longer counterfactual -- it is actual. However, for the causal consistency assumption to hold across a population, we must assume that the treatments are well-defined and consistently administered. Thus the causal consistency assumption is a two-edged sword. On the one hand, we may use it -- if other assumptions are satisfied -- to compute causal contrasts. Simply put, causal consistency puts the factual into counterfactual. This is good. In *controlled* experiments we may take causal consistency for granted. The investigators administer consistent treatments. However, in observational settings no such control is ensured. For example, one reason it has been difficult to investigate the causal effects of weight loss from massive observational medical datasets is that there are many ways to lose weight -- eating less and healthfully and exercising causes people to lose weight. However, one may also lose weight from smoking, psychological distress, stomach stapling, amputation, cancer, and famine. The mechanisms of the latter forms of weight loss are unhealthy. Thus stating a causal contrast, for example, as the expected difference in all-cause mortality after five successive years of weight loss is an invitation for confusion. The treatments that lead to weight loss in medical data are not comparable across all cases. 
+Note that in causal inference, we compare potential outcomes under at least two different treatments, say, $Y(a = 1)$ and $Y(a = 0)$ (in causal inference, we use a lowercase variable to note that the random variable $A$ is fixed to a certain level ($A = a$)). To compute causal contrasts, the counterfactual or potential outcomes under treatment must be observable. The causal consistency assumption allows investigators to link counterfactual or potential outcomes to observed outcomes. It might seem obvious that if one receives a treatment, we can say that the observation of the outcome following treatment is no longer counterfactual—it is actual. However, for the causal consistency assumption to hold across a population, we must assume that the treatments are well-defined and consistently administered. Thus, the causal consistency assumption is a two-edged sword. On the one hand, we may use it—if other assumptions are satisfied—to compute causal contrasts. Simply put, causal consistency puts the factual into counterfactual. This is good. In controlled experiments, we may take causal consistency for granted. The investigators administer consistent treatments. However, in observational settings, no such control is ensured. For example, one reason it has been difficult to investigate the causal effects of weight loss from massive observational medical datasets is that there are many ways to lose weight—eating less and healthfully and exercising causes people to lose weight. However, one may also lose weight from smoking, psychological distress, stomach stapling, amputation, cancer, and famine. The mechanisms of the latter forms of weight loss are unhealthy. Thus, stating a causal contrast, for example, as the expected difference in all-cause mortality after five successive years of weight loss, is an invitation for confusion. The treatments that lead to weight loss in medical data are not comparable across all cases (refer to @vanderweele2013, @bulbulia2023).
 
 ##### Challenges in Observational Settings
 
-Similarly, in observational environmental psychology, the treatments of interest may not be standardised. For green space access, we might worry about variability in the green spaces we have measured: not all green spaces are equal—differences in size, quality, and amenities can affect outcomes. Moreover, there is likely considerable variability in exposure levels, the amount of time that individuals spend in green spaces can vary widely. These variations can violate causal consistency because the "treatment" isn't the same across individuals on which treatments are to be compared. Supplemental materials S-Appendix-B addresses the causal consistency assumption in detail. 
+Similarly, in observational environmental psychology, the treatments of interest may not be standardised. For green space access, we might worry about variability in the green spaces we have measured: not all green spaces are equal—differences in size, quality, and amenities can affect outcomes. Moreover, there is likely considerable variability in exposure levels; the amount of time that individuals spend in green spaces can vary widely. These variations can violate causal consistency because the "treatment" is not the same across individuals on which treatments are to be compared. Supplemental materials S-Appendix-B address the causal consistency assumption in detail.
 
 #### Assumption 3: Positivity
 
 Positivity requires that every individual has a non-zero probability of receiving each level of the treatment, given their covariates $L$:
 
 $$
+
 P(A = a \mid L = l) > 0 \quad \text{for all } a, l
+
 $$
 
 This assumption ensures that we have data to compare treatment effects across all levels of $L$. For example, suppose we are interested in the causal effects of vasectomy on happiness.  It would not make sense to include biological females in this study because biological females cannot have vasectomies [@westreich2010; @hernan2023].
 
 ##### Challenges in Observational Settings
 
-In practice, some individuals may have zero probability of receiving certain treatments. Consider:
-
-- **Geographic constraints**: some regions may lack green spaces entirely.
-- **Economic barriers**: low-income individuals may have no access to areas with ample green spaces.
-- **Policy restrictions**: zoning laws may prevent certain individuals from accessing specific environments.
-
-Violating the positivity assumption means we cannot estimate the causal effect for those individuals because we lack data on both treatment conditions for them.
+In practice, some individuals may have zero probability of receiving certain treatments. For example, some regions may lack green spaces entirely due to geographic constraints. Economic barriers may mean that low-income individuals do not have access to areas with ample green spaces. Policy restrictions, such as zoning laws, may also prevent individuals from accessing specific environments.
 
 ### Summary
 
 Causal modelling differs from traditional statistical modelling. Although statistical models aim to describe associations within observed data, they often do not distinguish between correlation and causation, leading to potentially misleading conclusions when inferring causal relationships. Causal inference requires statistical inference; however, statistics comes near the end of a workflow that begins by stating a causal quantity with reference to contrasts that would be obtained if we had the full data for the population of interest treated at different levels of the intervention [@ogburn2021]. We then seek to understand how these contrasts may be estimated from the data we have.
 
-Common practices in statistical modelling, such as regression adjustment and structural equation modelling, frequently fall short in estimating causal effects because they do not account for the causal structure between variables. Including all available covariates in a regression model without understanding their causal roles can introduce bias. In the next section, we introduce causal directed acyclic graphs (causal DAGs), which are intuitive graphical tools that allow us to inspect graphs to evaluate the complex conditional dependencies that must be understood to evaluate the "no unmeasured confounders" assumption. Causal DAGs also demonstrate how common practices in statistical modelling such as over-adjustment in regression and mediation analysis in structural equation modelling may inadvertently introduce bias through inappropriate adjustment for variables. Such over-adjustment can distort causal pathways, potentially mask true relationships, or leading to associations that do not represent causal effects. In causal inference, such associations are aptly called "spurious.' By making the causal structure explicit and carefully considering which variables to adjust for, causal DAGs may help environmental psycholosts to better estimate causal effects in environmental psychology.
+Common practices in statistical modelling, such as regression adjustment and structural equation modelling, frequently fall short in estimating causal effects because they do not account for the causal structure between variables. Including all available covariates in a regression model without understanding their causal roles can introduce bias. In the next section, we introduce causal directed acyclic graphs (causal DAGs), which are intuitive graphical tools that allow us to inspect graphs to evaluate the complex conditional dependencies that must be understood to evaluate the "no unmeasured confounders" assumption. Causal DAGs also demonstrate how common practices in statistical modelling such as over-adjustment in regression and mediation analysis in structural equation modelling may inadvertently introduce bias through inappropriate adjustment for variables. Such over-adjustment can distort causal pathways, potentially mask true relationships, or lead to associations that do not represent causal effects. In causal inference, such associations are aptly called "spurious." By making the causal structure explicit and carefully considering which variables to adjust for, causal DAGs may help environmental psychologists better estimate causal effects in environmental psychology.
 
 ## Part 2: An Introduction to Causal Diagrams {#section-part2}
 
@@ -287,49 +247,62 @@ We now introduce causal directed acyclic graphs (causal DAGs), beginning with es
 
 ### Elements of Causal Diagrams
 
-Causal diagrams distil causal relationships within a system into visual representations. At their core, these diagrams consist of:
+Causal diagrams, or causal DAGs, help us visually represent and understand the causal relationships within a system. They are powerful tools for identifying which variables must be adjusted to accurately estimate causal effects and to ensure valid causal inference.
 
 #### 1. **Nodes**
 
-Nodes represent variables or events in a causal framework. Each node stands for an element that either influences or is influenced within the system. Nodes encapsulate the components of our causal inquiry relevant for evaluating the conditional exchangeability assumption. The relevant nodes are treatments, outcomes, measured confounders and unmeasured confounders.
+Nodes represent variables or events in a causal framework. Each node stands for an element that either influences or is influenced within the system. We adopt the following terminology and conventions:
 
-#### 2. **Arrows/Edges**
+- **Treatment ($A$)**: an intervention or exposure, such as giving people access to green space.
+- **Outcome ($Y$)**: the variable of interest affected by the treatment, such as subjective well-being.
+- **Measured Confounders ($L$)**: variables that may influence both the treatment and outcome, such as age, gender, or income.
+- **Measured Descendants of Confounders Not Affected By Treatment or Outcome: ($L^\prime$)**: we shall see that by conditioning on measured descendants of confounders not affected by the treatment, we may adjust for the effects of confounders. That is, descendants of confounders function as surrogates for the confounders.
+- **Unmeasured Confounders ($U$)**: Variables not directly observed but potentially influence the treatment and outcome, leading to association in the absence of causation - what we call "spurious" associations.
 
-Arrows indicate the direction and presence of causal relationships between nodes. Directed edges trace the assumed flow of causal influence from a "parent" (originating variable) to a "child" (receiving variable). These arrows define the causal architecture, illustrating how we assume one variable causally affects another. Importantly, arrows represent causal relationships regardless of whether the influence is linear or non-linear. The reason is that the purpose of a causal DAG is to evaluate whether and how consistent causal effect estimates can be obtained from data. Please do not draw arrows into arrows! An arrow should start at a parent node and terminate at a child node. 
+#### 2. **Arrows (also called Edges)**
+
+Arrows indicate the direction and presence of causal relationships between nodes. They represent the assumed flow of causal influence from a "parent" (originating variable) to a "child" (receiving variable). For instance, an arrow from $A \rightarrowY$ suggests that $A$ causally influences $Y$.
+
+The goal of a causal DAG is to determine whether consistent causal effect estimates can be obtained from data by inspecting the relationships within the diagram.
+
 
 #### 3. **Conditioning**
 
-We must decide which variables to adjust for to estimate causal effects without confounding -- that is, to satisfy the conditional exchangeability assumption of causal inference -- conditional on measured covariates, the treatments to be compared are "as good as random". We denote variables that we "control for," "condition on," or "adjust for" by enclosing them in a box.
+Recall that $Y(a) \coprod A \mid L$ is the conditional exchangeability assumption -- or the assumption of "no-unmeasured confounders". To infer causal effects we must ensure that conditional on $L$, treatment assignment is "as good as random." That is, given $L$, the assignment to treatment is essentially random, and any observed association between $A$ and $Y$ can be interpreted causally.
+
+We denote variables that we "control for," "condition on," or "adjust for" by enclosing them in a box: $\boxed{L}$.
+
 
 ### The Rules of d-separation
 
-Judea Pearl introduced the concept of 'd-separation' to analyse relationships within causal diagrams [@pearl1995]. These rules help us identify confounders and develop strategies for valid causal inference from statistical associations. The "d" stands for "directional." Pearl's "back-door path criterion" is a complete algorithm for identifying causal effects from data [@pearl2009a]. We describe Pearl's algorithm and proof in detail elsewhere [@bulbulia2023]. In For the present purposes, it will be sufficient to summarise Pearl's work. 
-
-**Basic Concepts**
-
-#### Dependence
-
-Denoted as $A \cancel\coprod B$, indicating that the probability distributions of $A$ and $B$ are interrelated. Knowledge about one variable provides insights into the other, suggesting a potential causal or associational link.
-
-#### Independence
-
-Denoted as $A \coprod B$, signifying that $A$ and $B$ are independent. Information about one variable reveals nothing about the other, indicating no direct causal or associational connection.
+We next introduce the rules of d-separation, which help us identify confounders and develop strategies for valid causal inference from statistical associations [@pearl1995; @abadie2023should]. 
 
 #### Blocked Paths and d-Separation
 
-A path is "blocked" when a node on it prevents causal influence from passing between variables. D-separation occurs when all paths between two variables are blocked ($A \coprod B$), indicating no direct statistical association between them. This is crucial for enabling unbiased causal inference.
+A path is "blocked" when a node on it prevents causal influence from passing between variables. We say that there is d-separation between two variables $A$ and $B$ when all paths between them are blocked, which we denote as $A \coprod B$. D-separation implies that there is no direct statistical association between these variables, given the conditioning set. D-separation helps us identify which variables need to be controlled to ensure valid causal inference.
 
 #### Open Paths
 
-An "open" path exists if at least one route between variables remains unblocked, allowing the transmission of association—even without direct causation ($A \cancel\coprod B$).
+An path is "open" if at least one route between variables remains unblocked, allowing the transmission of association—even without direct causation ($A \cancel\coprod B$). Open paths imply that there is still potential for information, influence, or confounding to flow between $A$ and $B$, which can introduce bias into causal estimates if left uncontrolled.
+
+#### Pearl's Backdoor Path Criterion
+
+Pearl's backdoor path criterion is a rule used to identify which variables must be controlled to obtain an unbiased estimate of the causal effect of one variable on another. A set of variables $Z$ satisfies the backdoor criterion for estimating the causal effect of $A$ on $B$ if:
+
+(1) No variable in $Z$ is a descendant of $A$.
+(2) $Z$ blocks every backdoor path between $A$ and $B$.
+
+A backdoor path is any path between $A$ and $B$ that starts with an arrow pointing into $A$, and ends with an arrow pointing out of $B$ (here we ignore the direction of the arrows). These paths allow for bias such that the statistical association between $A$ and $B$ does not reflect a causal association. By blocking all backdoor paths, conditioning on $\boxed{Z}$ removes spurious associations between $A$ and $B$, allowing for an unbiased estimate of the causal effect.
 
 ### The Five Elementary Graphical Structures of Causality and Five Rules for Confounding Control {#sec-five-elementary}
 
-To uncover causal insights from statistical relationships, we must understand five basic graphical structures. We next examine these structures, remembering that balancing confounders across treatments requires ensuring statistical independence between potential outcomes and treatment ($A \coprod Y(a) \mid L$) within groups defined by measured covariates $L$.  Because we can nearly always assume that there are unmeasured confounders $U$, it is always advisable to perform sensitivity analyses. 
+To uncover causal insights from statistical relationships, we must understand five basic graphical structures and the corresponding rules for confounding control. These structures help identify how variables in a system are connected, and how to use those connections to avoid bias when estimating causal effects. Remember that balancing confounders across treatments requires ensuring statistical independence between potential outcomes and treatment within groups defined by measured covariates $L$,  ($A \coprod Y(a) \mid L$). 
+
+<!-- Because we can nearly always assume that there are unmeasured confounders $U$, it is always advisable to perform sensitivity analyses. -->
 
 #### Absence of Causality: Two Variables with No Arrows
 
-When no arrows connect $A$ and $B$, we assume they do not share a causal relationship and are statistically independent. Graphically, we represent this relationship as:
+When no arrows connect $A$ and $B$, we assume they do not share a causal relationship and are statistically independent. This means that knowing something about $A$ does not give us any information about $B$ and vice versa. Graphically, we represent this relationship as:
 
 $$
 \xorxALARGE
@@ -345,78 +318,80 @@ $$
 
 #### **Rule 1: Ensure That the Treatment Precedes the Outcome** {#sec-four-rules}
 
-Causality follows the arrow of time; an outcome occurs after the intervention that causes it. If the timing of events in your data is unknown, you cannot ensure that the treatment precedes the outcome.
+Causality follows the arrow of time; an outcome occurs after the intervention that causes it. Therefore, the treatment ($A$) must occur before the outcome ($B$) in order to claim causality. This reveals the importance of temporal precedence in causal inference. Where the relative timing of events is unknown -- as it often is in observational data -- we cannot ensure that the treatment precedes the outcome unless we make additional assumptions. Such assumptions may be implausible or untestable. Where this is the case, we cannot rule out the possibility that the outcome precedes the treatment. 
 
 ##### Motivating Example
 
-Suppose we find an association between conservation behaviours and happiness. We might infer that conservation behaviours cause happiness. However, the association might be entirely because happy people are more likely to engage in conservation behaviours. With only cross-sectional data, we cannot rule out this alternative explanation.
+Suppose we find an association between conservation behaviours and happiness. We might infer that conservation behaviours cause happiness. However, it is also possible that happy people are simply more likely to engage in conservation behaviours. If we do not have longitudinal data that shows treatment preceding the outcome, we cannot rule out this alternative explanation.
 
 #### Causal Structure 2: The Fork Structure—Common Cause Scenario
 
-The fork structure, indicated by $A \rightarrow B$ and $A \rightarrow C$, denotes that $A$ is a common cause influencing both $B$ and $C$. Graphically:
+The fork structure occurs when a variable $A$ influences both $B$ and $C$ ($A \rightarrow B$ and $A \rightarrow C$). This makes $A$ a common cause of $B$ and $C$. Graphically:
+
 
 $$
 \forkLARGE
 $$
 
-Pearl proved that when we condition on the common cause $A$ (indicated by $\boxed{A}$), $B$ and $C$ become conditionally independent [@pearl2009a]. By adjusting for the common cause, any non-causal association between $B$ and $C$ is effectively blocked at node $A$.
+#### Rule 2: Condition on the Common Cause to Block Confounding
+To estimate the causal effect between $B$ and $C$, we need to adjust for the common cause $A$ (indicated by $\boxed{A}$). This adjustment blocks the confounding path and removes any non-causal association between $B$ and $C$.
 
 ##### Motivating Example
 
-Suppose observations reveal that areas with higher rates of bicycle commuting also have lower levels of psychological distress. Does bicycle commuting directly reduce distress? Not necessarily. A common environmental factor might influence both. Consider sunshine hours as the common cause:
+Suppose data reveals that areas with higher rates of bicycle commuting also have lower levels of psychological distress. Does bicycle commuting directly reduce distress? Not necessarily. Sunshine hours ($A$) could be a common cause:
 
-- Sunshine ($A$) encourages bicycle use ($B$).
-- Sunshine ($A$) contributes to lower psychological distress ($C$).
+- Sunshine ($A$) encourages bicycle commuting ($B$).
+- Sunshine ($A$) reduces psychological distress ($C$).
 
-By accounting for the common cause (sunshine hours) and comparing days with similar sunshine levels, the apparent link between bicycle commuting and distress disappears. By "spurious association" we mean that the two variables are not causally linked such that intervening on one would result in a change in the other corresponding to the magnitude of the statistical association in the target population. Adjusting for the fork’s common cause eliminates the spurious association.
+By adjusting for sunshine ($\boxed{A}$), the apparent link between bicycle commuting ($B$) and psychological distress ($C$) disappears. This is an example of a spurious association -- one that that does not arise from a direct causal relationship between $B$ and $C$ but rather from their common cause, $A
 
-#### **Rule 2: The Fork Rule**
-
-If interested in the causal effect of $B \to C$, condition on $\boxed{A}$.
 
 #### Causal Structure 3: The Chain Structure—A Mediator
 
-The chain structure ($A \rightarrow B \rightarrow C$) illustrates a setting where $A$ causes $B$, and $B$ subsequently causes $C$. Conditioning on the intermediary variable $B$ (denoted $\boxed{B}$) interrupts the causal pathway, rendering $A$ and $C$ conditionally independent. Graphically:
+The chain structure ($A \rightarrow B \rightarrow C$) illustrates a scenario where $A$ affects $B$, and $B$ in turn affects $C$. In this case, $B$ acts as a mediator in the relationship between $A$ and $C$. Graphically:
 
 $$
 \chainLARGE
 $$
 
+#### Rule 3: Avoid Conditioning on the Mediator for Total Effect
+
+If we are interested in estimating the total causal effect of $A$ on $C$, we should not condition on the mediator $B$. Conditioning on $B$ would **block** the path from $A$ to $C$, making $A$ and $C$ appear independent, even though there is a causal relationship. 
+
+Many psychological scientists are taught to adjust for a rich array of confounders without attending to hazards of over-adjustment. Consider the following example of how over-adjustment can distort causal pathways, potentially masking true relationships.
+
+
 ##### Motivating Example
 
-Suppose we assess the effect of green space renovation in urban areas ($A$) on local community engagement ($B$), which then reduces neighbourhood crime rates ($C$). Renovating green spaces boosts community engagement, leading to decreased crime rates.
+Suppose we examine whether renovating green spaces ($A$) in urban areas reduces crime rates ($C$). The renovation improves community engagement ($B$), which then reduces crime. If we adjust for community engagement, it might look like the green space renovation has no effect on crime, when in fact it does, but indirectly through community engagement.
 
-Controlling for the mediator, community engagement, might hide the broader effect of green space renovation. If the primary path from renovation to crime reduction is via enhanced engagement, adjusting for engagement could misleadingly suggest that renovation doesn't influence crime rates. The takeaway: avoid conditioning on a mediator when examining environmental changes' effects on social outcomes.
-
-##### **Rule 3: The Chain Rule**
-
-If investigating the *total* causal effect of $A \to C$, *avoid* conditioning on the mediator $B$.
-
-**Important note:** Assessing causal mediation requires further assumptions, which we won't discuss here [@vanderweele2015; @bulbulia2024swigstime].
+In some cases, we may want to distinguish between direct and indirect effects, as is done in causal mediation analysis. However, performing causal mediation analysis requires making additional assumptions about the relationships among variables and about unmeasured confounding. These assumptions are often difficult to verify, and they go beyond the scope of our current discussion [refer to @vanderweele2015; @bulbulia2024swigstime].
 
 #### Causal Structure 4: The Collider Structure—A Common Effect
 
-The collider ($A \to C$, $B \to C$) features two factors independently causing a common effect. Initially, $A$ and $B$ lack association. Conditioning on the collider $C$ (or its descendant) introduces a spurious association between $A$ and $B$. Graphically:
+The collider structure ($A \to C$, $B \to C$) occurs when two variables $A$ and $B$ independently cause a common effect $C$. Initially, $A$ and $B$ are independent. However, conditioning on the collider $C$ introduces a spurious association between $A$ and $B$. Graphically:
 
 $$
 \immoralityLARGE
 $$
 
+This gives us two rules: 
+
+#### Rule 4: Do Not Condition on a Collider
+When assessing the causal effect of $A$ on $B$, avoid conditioning on a collider ($C$) or its descendants, as it may introduce a misleading association between $A$ and $B$.
+
+
+#### Rule 5: Do Not Condition on Descendants of Colliders
+
+Conditioning on a descendant is akin to conditioning on its parent. A descendant is a *proxy* for its parent. Avoid conditioning on descendants when conditioning on the parent would induce misleading associations -- for example when the descendant is a collider
+
+
 ##### Motivating Example
 
-Are we interested in whether access to green spaces ($A$) causes people to become happier ($B$)? Suppose we control for health ($C$), a common effect of both $A$ and $B$. Conditioning on $C$ opens a non-causal path between $A$ and $B$:
+Suppose we want to assess if access to green spaces ($A$) makes people happier ($B$). If we condition on health status ($C$), which is affected by both $A$ and $B$, we may introduce a spurious association between $A$ and $B$. This is because conditioning on $C$ creates an artificial link between $A$ and $B$, even if no direct causal relationship exists. Specifically, among unhealthy individuals (low $C$), those with high green space access ($A$) may appear less happy ($B$). When we stratify by $C$, a negative association emerges, even if $A$ and $B$ are not causally linked. Likewise, among healthy individuals (high $C$), those with low green space access ($A$) may be happier ($B$). Stratifying by $C$ would suggest a negative association between green space access and happiness in the absence of any causal relationship.
 
-1. Among unhealthy individuals (low $C$), those with high green space access ($A$) may appear less happy ($B$). When we stratify by $C$, a negative association emerges, even if $A$ and $B$ aren't causally linked.
+This example again illustrates the risks of **over-conditioning** bias. By ensuring that confounders precede both the treatment and the outcome, we can often avoid collider bias -- often, but not always. Below we consider how adjusting for pre-treatment confounders may induce collider bias. Elsewhere, we consider how conditioning on post-treatment proxies for pre-treatment confounders ($\L^prime$) may be sensible strategy for confounding control (refer to @bulbulia2023). For now, we simply note that collider bias is a type of over-conditioning bias, one whose threat to valid causal inference can be understood by referring to elementary relationships assumed in a causal DAG. 
 
-2. Among healthy individuals (high $C$), those with low green space access ($A$) may be happier ($B$). Again, stratifying by $C$ shows a negative association.
-
-Controlling for health introduces a spurious negative association between green space access and happiness. This arises from conditioning on a collider. Without controlling for health—and assuming no other confounding paths—the misleading association wouldn't be present.
-
-This example illustrates the risk of confounding analysis by conditioning on an outcome influenced by both variables of interest.
-
-#### **Rule 4: The Collider Rule**
-
-When assessing the causal effect of $A \to B$, do not condition on a collider ($C$) or its descendants. Doing so may introduce an association that appears causal but is not.
 
 #### Building Complex Causal Relationships from Basic Structures
 
@@ -424,25 +399,11 @@ All forms of confounding bias stem from combinations of the basic causal structu
 
 Causation implies statistical association. Therefore, causal inheritance implies *statistical dependence by inheritance*. This property makes descendants act as stand-ins or proxies for their parents.
 
-##### Motivating Example
 
-Reconsider whether access to urban green spaces ($A$) affects wealth ($B$). Imagine they don't, but both independently contribute to well-being ($C$). Suppose only those high in well-being respond to our survey. By effectively conditioning on a stratum ($D$), a descendant of the collider well-being, we may inadvertently induce an association between green space access and socioeconomic status—inferring that those with access to green space tend to have lower income.
-
-$$
-\immoralityChildA
-$$
-
-Colliders and their descendants can set subtle "traps" that induce spurious associations.
-
-However, as we'll see in the next section, conditioning on proxies of unmeasured confounders opens possibilities for confounding control beyond our measured variables. We can sometimes leverage proxies to reduce bias in our causal inferences.
-
-##### **Rule 5: The Proxy Rule**
-
-Conditioning on a descendant is akin to conditioning on its parent. A descendant is a *proxy* for its parent. Avoid conditioning on descendants when conditioning on the parent would induce misleading associations.
 
 #### Role of assumptions
 
-Causal diagrams bring structure to complex environmental psychology systems. They promote critical thinking about relationships, improving study design and the chances of isolating true causal effects. However, they cannot avoid assumptions. Observational data alone cannot prove causation; many diagrams can be consistent with the data. The power of causal diagrams lies in helping investigators understand how their assumptions interact with the data. We should create causal diagrams in collaboration with subject area experts because every path except the $A \to Y$ path is assumed. When experts disagree, we should propose multiple causal diagrams to reflect differing assumptions and report the outcomes of their corresponding confounding control strategies.
+Causal diagrams provide a framework for structuring assumptions about causal relationships. They cannot prove causation on their own, as multiple diagrams may be consistent with the data. The strength of causal diagrams lies in helping researchers understand the implications of their assumptions. Therefore, causal diagrams should be created in collaboration with domain experts, and when experts disagree, multiple causal diagrams should be proposed to reflect differing assumptions.
 
 ### How to Create Causal Diagrams to Address Identification Problems
 
