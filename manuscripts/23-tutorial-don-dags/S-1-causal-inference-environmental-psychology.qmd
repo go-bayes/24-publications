@@ -391,6 +391,7 @@ By comparing the ATEs from both models, researchers can understand the effect of
 
 {{< pagebreak >}}
 
+
 ## Appendix D: Simulation of Different Confounding Control Strategies {#appendix-d}
 
 This appendix outlines the methodology and results of a data simulation designed to compare different strategies for controlling confounding in the context of environmental psychology research. Specifically, the simulation examines the effect of access to open green spaces (treatment, $A_1$) on happiness (outcome, $Y_2$) while addressing the challenge of unmeasured confounding. The simulation incorporates baseline measures of exposure and outcome ($A_0$, $Y_0$), baseline confounders ($L_0$), and an unmeasured confounder ($U$) to evaluate the effectiveness of different analytical approaches.
@@ -684,3 +685,206 @@ Causal forest estimates the average treatment effect as `r ATE_fit_causal_forest
 
 
 
+## Extra: 
+
+
+In this section, we simulate a dataset to demonstrate the benefits of incorporating both baseline exposure and baseline outcomes into analysing the effect of access to open green spaces on happiness. This approach allows us to control for initial levels of exposure and outcomes, offering a clearer understanding of the causal relationship. [Appendix D](#appendix-d-simulation-of-different-confounding-control-strategies) provides the code. [Appendix E](#appendix-e-non-parametric-estimation-of-average-treatment-effects-using-causal-forests) provides an example of a non-parametric estimator for the causal effect.  As mentioned before, by conditioning on baseline levels of access to green spaces and baseline mental health, researchers can more accurately estimate the *incident effect* of changes in green space access on changes in mental health. @tbl-lg offers an example of how we may use multiple causal diagrams to clarify the problem and our confounding control strategy. 
+
+
+::: {#tbl-lg}
+
+```{=latex}
+\examplelongitudinal
+```
+This table is adapted from [@bulbulia2023]
+:::
+
+
+Our analysis assessed the average treatment effect (ATE) of access to green spaces on happiness across three distinct models: uncontrolled, standard controlled, and interaction controlled. These models were constructed using a hypothetical cohort of 10,000 individuals, incorporating baseline exposure to green spaces ($A_0$), baseline happiness ($Y_0$), baseline confounders ($L_0$), and an unmeasured confounder ($U$). The detailed simulation process and model construction are given in [Appendix D](#appendix-simulate-longitudinal-ate).
+
+
+
+```{r}
+#| label: codelg
+#| echo: false
+#| eval: true
+# load libaries 
+library(kableExtra)
+if(!require(kableExtra)){install.packages("kableExtra")} # causal forest
+if(!require(gtsummary)){install.packages("gtsummary")} # causal forest
+if(!require(grf)){install.packages("grf")} # causal forest
+
+# r_texmf()eproducibility
+set.seed(123) 
+
+# set number of observations
+n <- 10000 
+
+# baseline covariates
+U <- rnorm(n) # Unmeasured confounder
+A_0 <- rbinom(n, 1, prob = plogis(U)) # Baseline exposure
+Y_0 <- rnorm(n, mean = U, sd = 1) # Baseline outcome
+L_0 <- rnorm(n, mean = U, sd = 1) # Baseline confounders
+
+# coefficients for treatment assignment
+beta_A0 = 0.25
+beta_Y0 = 0.3
+beta_L0 = 0.2
+beta_U = 0.1
+
+# simulate treatment assignment
+A_1 <- rbinom(n, 1, prob = plogis(-0.5 + 
+                                    beta_A0 * A_0 +
+                                    beta_Y0 * Y_0 + 
+                                    beta_L0 * L_0 + 
+                                    beta_U * U))
+
+# coefficients for continuous outcome
+delta_A1 = 0.3
+delta_Y0 = 0.9
+delta_A0 = 0.1
+delta_L0 = 0.3
+theta_A0Y0L0 = 0.5 # Interaction effect between A_1 and L_0
+delta_U = 0.05
+
+# simulate continuous outcome, including interaction
+Y_2 <- rnorm(n,
+             mean = 0 +
+               delta_A1 * A_1 + 
+               delta_Y0 * Y_0 + 
+               delta_A0 * A_0 + 
+               delta_L0 * L_0 + 
+               theta_A0Y0L0 * Y_0 * 
+               A_0 * L_0 + 
+               delta_U * U,
+             sd = .5)
+
+# assemble data frame
+data <- data.frame(Y_2, A_0, A_1, L_0, Y_0, U)
+
+# model: no control
+fit_no_control <- lm(Y_2 ~ A_1, data = data)
+
+# model: standard covariate control
+fit_standard <- lm(Y_2 ~ A_1 + L_0, data = data)
+
+# model: interaction
+fit_interaction  <- lm(Y_2 ~ A_1 + L_0 + A_0 + Y_0 + A_0:L_0:Y_0, data = data)
+
+# create gtsummary tables for each regression model
+tbl_fit_no_control<- tbl_regression(fit_no_control)  
+tbl_fit_standard <- tbl_regression(fit_standard)
+tbl_fit_interaction <- tbl_regression(fit_interaction)
+
+# get only the treatment variable
+tbl_list_modified <- lapply(list(
+  tbl_fit_no_control,
+  tbl_fit_standard,
+  tbl_fit_interaction),
+function(tbl) {
+  tbl %>%
+    modify_table_body(~ .x %>% dplyr::filter(variable == "A_1"))
+})
+
+# merge tables
+table_comparison <- tbl_merge(
+  tbls = tbl_list_modified,
+  tab_spanner = c(
+    "No Control",
+    "Standard",
+    "Interaction")
+) |>
+  modify_table_styling(
+    column = c(p.value_1, p.value_2, p.value_3),
+    hide = TRUE
+  )
+
+#create latex table for publication
+markdown_table <-
+  as_kable_extra(table_comparison, format = "latex", booktabs = TRUE) |>
+  kable_styling(latex_options = "scale_down")
+  
+# print it
+#markdown_table
+```
+```{r}
+#| label: ate-sim-long
+#| tbl-cap: "Code for calculating the average treatment effect."
+#| echo: false
+#| eval: true
+
+# use `clarify` package to obtain ATE
+if(!require(clarify)){install.packages("clarify")} # clarify package
+
+# simulate fit 1 ATE
+set.seed(123)
+sim_coefs_fit_no_control<- sim(fit_no_control)  
+sim_coefs_fit_std <- sim(fit_standard)
+sim_coefs_fit_int <- sim(fit_interaction)
+
+# marginal risk difference ATE, no controls
+sim_est_fit_no_control <-
+  sim_ame(
+    sim_coefs_fit_no_control,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# marginal risk difference ATE, simulation-based: model 1 (L is a confounder)
+sim_est_fit_std <-
+  sim_ame(
+    sim_coefs_fit_std,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# marginal risk difference ATE, simulation-based: model 2 (L is a mediator)
+sim_est_fit_int <-
+  sim_ame(
+    sim_coefs_fit_int,
+    var = "A_1",
+    subset = A_1 == 1,
+    contrast = "RD",
+    verbose = FALSE
+  )
+# obtain summaries
+summary_sim_coefs_fit_no_control <-
+  summary(sim_est_fit_no_control, null = c(`RD` = 0))
+summary_sim_est_fit_std <-
+  summary(sim_est_fit_std, null = c(`RD` = 0))
+summary_sim_est_fit_int <-
+  summary(sim_est_fit_int, null = c(`RD` = 0))
+
+# get coefficients for reporting
+# ate for fit 1, with 95% CI
+ATE_fit_no_control  <- glue::glue(
+  "ATE = {round(summary_sim_coefs_fit_no_control[3, 1], 2)}, 
+  CI = [{round(summary_sim_coefs_fit_no_control[3, 2], 2)},
+  {round(summary_sim_coefs_fit_no_control[3, 3], 2)}]"
+)
+# ate for fit 2, with 95% CI
+ATE_fit_std <- glue::glue(
+  "ATE = {round(summary_sim_est_fit_std[3, 1], 2)}, 
+  CI = [{round(summary_sim_est_fit_std[3, 2], 2)},
+  {round(summary_sim_est_fit_std[3, 3], 2)}]"
+)
+# ate for fit 3, with 95% CI
+ATE_fit_int <-
+  glue::glue(
+    "ATE = {round(summary_sim_est_fit_int[3, 1], 2)},
+    CI = [{round(summary_sim_est_fit_int[3, 2], 2)},
+    {round(summary_sim_est_fit_int[3, 3], 2)}]"
+  )
+# coefs
+# ATE_fit_no_control
+# ATE_fit_std
+# ATE_fit_int
+```
+
+The ATE estimates from these models provide critical insights into the effects of green space exposure on individual happiness while accounting for various confounding factors. The model without control variables estimated `r ATE_fit_no_control`, significantly overestimating the treatment effect. Incorporating standard covariate control reduced this estimate to `r ATE_fit_std`, aligning more closely with the expected effect but still overestimating. Most notably, the model that included interactions among baseline exposure, outcome, and confounders yielded `r ATE_fit_int`, approximating the true effect of 0.3. This finding underscores the importance of including baseline values of the exposure and outcome wherever these data are available. 
+
+### Recommendations for Conducting and Reporting Causal Analyses with Longitudinal Data
+
+Longitudinal data offer strong advantages for causal inference by enabling researchers to establish the relative timing of confounders, treatments, and outcomes. The temporal sequence of events is crucial for establishing causality because causality occurs in time. The following recommendations aim to guide researchers in leveraging longitudinal data effectively to conduct and report causal analyses:
