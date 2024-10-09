@@ -111,7 +111,7 @@ push_mods <-
 
 ```
 
-Psychological scientists are taught that "correlation does not imply causation." By "correlation," we refer to statistical measures of association between variables. Most statistical techniques —- from t-tests to structural equation models -- estimate associations from data. Although we know that measuring associations does not imply causation, in observational settings, we often persist in reporting statistical associations as if they are meaningful and, perhaps, even as tentative evidence for causation. The purpose of this chapter is to clarify why such reporting is confused and misleading, and to guide you toward better practices.
+Psychological scientists are taught that "correlation does not imply causation." By "correlation," we refer to statistical measures of association between variables. Most statistical techniques —from t-tests to structural equation models- estimate associations from data. Although we know that measuring associations does not imply causation, in observational settings, we often persist in reporting statistical associations as if they are meaningful and, perhaps, even as tentative evidence for causation. The purpose of this chapter is to clarify why such reporting is confused and misleading, and to guide you toward better practices.
 
 What do we mean by "causation?" Causation has been a topic of extensive interest and debate in philosophy [@lewis1973]. Here, we narrow our focus. We consider the assumptions under which it is possible to estimate causal effects from data and how to estimate them. In causal-effect estimation, or "causal inference," investigators seek to quantify the average differences across a specified population or sub-population (the "target population") that interventions would produce on well-defined outcomes. This requires comparing at least two states of the world: one where the population experiences a treatment and another where they do not or experience a different level of treatment. While the concept of causation in causal inference is more narrowly defined than causation itself, it draws intellectual inspiration from David Hume, who, in his *Enquiries Concerning Human Understanding* (1751), characterises the cause-effect relationship as follows:
 
@@ -194,7 +194,7 @@ $$
 Y(a) \coprod A
 $$
 
-This notation means that the potential outcomes $Y(a)$ are independent of ($\coprod$) the treatment assignment $A$. Importantly, the observed outcomes need not be independent of treatment. Note that we do not require that exposure is independent of the actual outcomes under exposure -- $Y|A$ --, which would be equivalent to requiring there can be no causal effects for treatment! Randomisation achieves unconditional independence, allowing us to estimate average causal effects because treatments remain independent of potential outcomes under treatment. Put differently, randomisation ensures that average treatment differences (or equivalently, differences in treatment averages) are the result of the treatments themselves rather than the effects of another variable. 
+This notation means that the potential outcomes $Y(a)$ are independent of ($\coprod$) the treatment assignment $A$. Importantly, the observed outcomes need not be independent of treatment. Note that we do not require that exposure is independent of the actual outcomes under exposure ($Y|A$), which would be equivalent to requiring there can be no causal effects for treatment! Randomisation achieves unconditional independence, allowing us to estimate average causal effects because treatments remain independent of potential outcomes under treatment. Put differently, randomisation ensures that average treatment differences (or equivalently, differences in treatment averages) are the result of the treatments themselves rather than the effects of another variable. 
 
 Importantly, we can relax the requirement for unconditional independence and allow randomisation to occur conditional on certain measurable features of the sampled population. For example, suppose we randomise treatment within different age cohorts such that older individuals have a greater probability of receiving the treatment than younger individuals. Assume that the treatment effect is constant across all ages. In this scenario, we would expect to see higher average treatment effects in older cohorts simply because a larger proportion of older individuals receive the treatment.
 
@@ -242,11 +242,13 @@ In practice, some individuals may have zero probability of receiving certain tre
 
 ### Summary
 
-Causal inference requires statistical inference; however, statistics comes near the end of a workflow that begins by stating a causal quantity with reference to contrasts that would be obtained if we had the full data for the population of interest treated at different levels of the intervention [@ogburn2021]. We then seek to understand how these contrasts may be estimated from the data we have. 
+Causal inference fundamentally relies on statistical inference; however, statistics is only a part of a larger workflow that begins with defining a causal quantity. This involves specifying contrasts that would be observed if we had complete data for the population of interest, treated at different levels of the intervention [@ogburn2021]. The next step is to determine how these contrasts can be estimated from the available data.
 
-Standard practices in statistical modelling, such as regression adjustment and structural equation modelling, frequently fall short in estimating causal effects because our models do not attempt to state well defined treatments to be compared, and do not appropriately account for the causal structures that may bias treatment-outcome associations in the data.
+Standard statistical practices, such as regression adjustment and structural equation modelling, often fail to accurately estimate causal effects. This is largely because these models typically do not explicitly define the treatments being compared, nor do they properly account for the causal structures that can bias treatment-outcome associations.
 
-In the next section, we introduce causal directed acyclic graphs (causal DAGs) -- intuitive graphical tools that allow investigators to evaluate the complex conditional dependencies required to assess the conditional exchangeability assumption of "no unmeasured confounders" by inspecting relationships on a graph according to a simple algorithm know as the rules of d-separation [@pearl1995; @pearl2009a]. We shall discover a second use: Causal DAGs demonstrate how common practices in statistical modelling such as over-adjustment in regression and mediation analysis in structural equation modelling, may inadvertently introduce bias through inappropriate variable adjustment. Such over-adjustment can distort and mask true causal associations. In causal inference, we call non-causal associations "spurious" because the association lacks any coherent interpretation. It is unclear how to interpret a non-causal association because it may indicate no causal association, a causal association with a different magnitude, or a causal association in the opposite direction. By making the causal structure explicit and by carefully considering which variables to adjust for, causal DAGs may help environmental psychologists better estimate causal effects in environmental psychology.
+In the following section, we introduce causal directed acyclic graphs (causal DAGs) -- intuitive graphical tools that help researchers evaluate the complex conditional dependencies needed to satisfy the "no unmeasured confounders" assumption. This is done by inspecting relationships in a graph using a straightforward algorithm known as the rules of d-separation [@pearl1995; @pearl2009a]. Causal DAGs also reveal how standard practices in statistical modelling, such as over-adjustment in regression or mediation analysis in structural equation modelling, may inadvertently introduce bias through inappropriate variable adjustment. Such over-adjustment can obscure or distort true causal relationships.
+
+In causal inference, non-causal associations are termed "spurious" because they lack coherent interpretation. It is often unclear how to interpret such associations, as they might imply no causal effect, a causal effect of a different magnitude, or even a causal effect in the opposite direction. By explicitly representing the causal structure and carefully selecting which variables to adjust for, causal DAGs can help environmental psychologists more effectively estimate causal effects within their research.
 
 ## Part 2: An Introduction to Causal Diagrams {#section-part2}
 
@@ -255,8 +257,7 @@ We introduce causal DAGs by defining essential terminology. Refer to [**Appendix
 
 ### Elements of Causal Diagrams
 
-
-A causal directed acyclic graph is a diagram that clarifies whether and how the assumption of conditional exchangeability (no unmeasured confounders) may be satisfied from data. A causal DAG is constructed with the aim of evaluating this assumption for a specific treatment variable (or set of treatment variables) and a specific outcome (or set of outcomes). When there are multiple treatments, the assumptions required for causal identification become increasingly complex. Here, we restrict our focus to the setting in which there is one treatment variable. The difficulty of ensuring identification for multiple treatments will become evident from this restricted setting.
+A causal directed acyclic graph (DAG) is a diagram that clarifies whether and how the assumption of conditional exchangeability (no unmeasured confounders) may be satisfied from data. A causal DAG is constructed with the aim of evaluating this assumption for a specific treatment variable (or set of treatment variables) and a specific outcome (or set of outcomes). When there are multiple treatments, the assumptions required for causal identification become increasingly complex. Here, we restrict our focus to the setting in which there is one treatment variable. The difficulty of ensuring identification for multiple treatments will become evident from this restricted setting.
 
 It is important to note at the outset that in a causal DAG, we do not attempt to represent all causal relationships within a system, but only those that are relevant to the causal question of interest. This requires a conceptual shift from the use of graphs in the structural equation modelling (SEM) tradition, where the goal is to represent a system of statistical relationships obtained from data. Instead, causal DAGs focus on the minimal set of relationships necessary to address the causal question and assess whether pre-specified causal contrasts can be identified from data.
 
@@ -265,7 +266,7 @@ It is important to note at the outset that in a causal DAG, we do not attempt to
 
 Nodes represent variables — or states of the world relevant to our research question. 
 
-#### 2. **Arrows (Edges)**
+#### 2. **Arrows (also known as Edges)**
 
 Arrows indicate the direction and presence of causal relationships between nodes. They represent the assumed flow of causal influence from a “parent” (originating variable) to a “child” (receiving variable). For example, an arrow from $A \rightarrow Y$ suggests that $A$ causally influences $Y$.
 
@@ -277,35 +278,47 @@ Recall that $Y(a) \coprod A \mid L$ is the conditional exchangeability assumptio
 
 We denote variables that we "control for," "condition on," or "adjust for" by enclosing them in a box: $\boxed{L}$.
 
+### d-Separation
 
-### The Rules of d-Separation
+In causal diagrams, d-separation is a graphical criterion used to determine whether a set of variables is independent of another set, given a third set, based on the structure of the graph. A path between two variables is considered blocked or d-separated if, given the variables we condition on, the path does not transmit any association between the variables. If all paths between two variables are blocked, the variables are d-separated and are conditionally independent. Conversely, if any path is unblocked (d-connected), the variables may be dependent [@pearl1995; @pearl2009a]. Note that the “d” in d-separation stands for "directional."
 
-In causal diagrams, d-separation is a graphical criterion used to determine whether a set of variables is independent of another set, given a third set, based on the structure of the graph. A path between two variables is considered blocked or d-separated if, given the variables we condition on, the path does not transmit any association between the variables. If all paths between two variables are blocked, the variables are d-separated and are conditionally independent. Conversely, if any path is unblocked (d-connected), the variables may be dependent [@pearl1995; @pearl2009a]. Note that the "d" in d-separation stands for "directional."
+The rules of d-separation may be briefly stated as follows:
 
-We next introduce the rules of d-separation, which help us identify confounders and develop strategies for valid causal inference from statistical associations [@pearl1995; @pearl2009a]. 
+#### 1.	Fork (Common Cause):
+Diagram: $B \leftarrow \boxed{A} \rightarrow C$
 
-#### Blocked Paths and d-Separation
+Implication: conditioning on the common cause  $A$  blocks the association between  $B$  and  $C$ . Therefore,  $B$  and  $C$  are independent given  $A$ :
+ 
+ $$
+ B \coprod C \mid A
+ $$ 
 
-A path is "blocked" when a node on it prevents causal influence from passing between variables. We say that two variables $A$ and $B$ are d-separated when all paths between them are blocked, which we denote as $A \coprod B$. D-separation implies that there is no statistical association between these variables, given the conditioning set. It helps us identify which variables need to be controlled to ensure valid causal inference.
+#### 2.	Chain (Mediator):
+Diagram: $A \rightarrow \boxed{B} \rightarrow C$
 
-#### Open Paths
+Implication: conditioning on the mediator  $B$  blocks the association between  $A$  and  $C$ . Thus,  $A$ and  $C$  are independent given  $B$ :
+ $$
+ A \coprod C \mid B
+ $$
 
-An path is "open" if at least one route between variables remains unblocked, allowing the transmission of association—even without direct causation ($A \cancel\coprod B$). Open paths imply that there is still potential for information, influence, or confounding to flow between $A$ and $B$, which can introduce bias into causal estimates if left uncontrolled.
+#### 3.	Collider (Common Effect):
 
-#### Pearl's Backdoor Path Criterion
+Diagram: $A \rightarrow \boxed{C} \leftarrow B$
 
-Pearl's backdoor path criterion is a rule used to identify which variables must be controlled to obtain an unbiased estimate of the causal effect of one variable on another. A set of variables $A$ satisfies the backdoor criterion for estimating the causal effect of $B$ on $C$ if:
+Implication: conditioning on the common effect  $C$  (or any of its descendants) opens the path between  $A$  and  $B$ , introducing dependence. Hence,  $A$  and  $B$  are dependent given $C$:
 
-(1) No variable in $A$ is a descendant of $B$.
-(2) $A$ blocks every backdoor path between $B$ and $C$.
+$$
+A \cancel \coprod B \mid C
+$$
 
-A backdoor path is any path between $B$ and $C$ that starts with an arrow pointing into $B$, and ends with an arrow pointing out of $C$ (here we ignore the direction of the arrows). These paths allow for bias such that the statistical association between $B$ and $C$ does not reflect a causal association. By blocking all backdoor paths, conditioning on $\boxed{A}$ removes spurious associations between $B$ and $C$, allowing for an unbiased estimate of the causal effect.
+We can restate the rules d-separation as follows:
 
-### The Five Elementary Graphical Structures of Causality and Five Rules for Confounding Control {#sec-five-elementary}
+1.	**Colliders block paths when unconditioned:** an open path (with no variables conditioned on) is blocked if it contains a collider— a node where two arrows converge. If $A \rightarrow \boxed{C} \leftarrow B$, then $A$ and $B$ are blocked from being associated with each other when $C$ is not conditioned upon.
+2.	**Conditioning on a collider opens a path:** conditioning on a collider opens a previously blocked path, potentially introducing an association between variables that are not causally related. If $A \rightarrow \boxed{C} \leftarrow B$, conditioning on $C$ allows information to flow between $A$ and $B$, leading to a possible association in the absence of a direct causal association.
+3.	**Conditioning on a descendant of a collider also opens the path:** conditioning on a descendant of a collider has a similar effect. If $A \rightarrow \boxed{C} \leftarrow B$, and $C \to D$ then conditioning on $C^{\prime}$ is akin to conditioning on $C$, the path $A \rightarrow C \rightarrow \boxed{C^\prime} \leftarrow B$ becomes unblocked. Thus, conditioning on $C^\prime$ opens an association between $A$ and $B$.
+4.	**Conditioning on non-collider nodes blocks the path:** if a path does not contain a collider, conditioning on any variable along that path blocks it. For instance, in the diagram $A \rightarrow \boxed{B} \rightarrow C$ conditioning on $B$ blocks the path from $A$ to $C$, rendering $A$ and $C$ conditionally independent given $B$ [@pearl2009a; @hernan2024WHATIF, p. 78].
 
-To uncover causal insights from statistical relationships, we must understand five basic graphical structures and the corresponding rules for confounding control.  These structures help identify how variables in a system are connected and how to use those connections to avoid bias when estimating causal effects. Remember that balancing confounders across treatments requires ensuring statistical independence between potential outcomes and treatment within groups defined by measured covariates.
-
-<!-- Because we can nearly always assume that there are unmeasured confounders $U$, it is always advisable to perform sensitivity analyses. -->
+Pearl proved these the rules of d-separation in the 1990s, demonstrating that we may use causal directed acyclic graphs to evaluate the conditions under which consistent causal effect estimate are possible from data [@pearl1995; @pearl2009a]. Note again that the structures in a graph must be assumed and cannot generally be verified by the data alone.
 
 #### Absence of Causality: Two Variables with No Arrows
 
@@ -315,6 +328,8 @@ $$
 \xorxALARGE
 $$
 
+That is, as two nodes without any linking arrow.
+
 #### Causal Structure 1: Direct Causation Between Two Variables
 
 A causal arrow ($A \to B$) signifies that changes in $A$ directly cause changes in $B$, creating statistical dependence between them. This direct causal link is graphically depicted as:
@@ -322,6 +337,8 @@ A causal arrow ($A \to B$) signifies that changes in $A$ directly cause changes 
 $$
 \xtoxALARGE
 $$
+
+That is, as two nodes linked by an arrow.
 
 #### **Rule 1: Ensure That the Treatment Precedes the Outcome** {#sec-four-rules}
 
@@ -341,10 +358,10 @@ $$
 \forkLARGE
 $$
 
-#### Rule 2: Condition on the Common Cause to Block Confounding
+#### Rule 2: Condition on the Common Cause to Block Confounding of The Treatment/Outcome Association
 To estimate the causal effect between $B$ and $C$, we need to adjust for the common cause $A$ (indicated by $\boxed{A}$). This adjustment blocks the confounding path and removes any non-causal association between $B$ and $C$.
 
-##### Motivating Example
+##### Fork Structure: Motivating Example
 
 Suppose data reveals that areas with higher rates of bicycle commuting also have lower levels of psychological distress. Does bicycle commuting directly reduce distress? Not necessarily. Sunshine hours ($A$) could be a common cause:
 
@@ -354,7 +371,7 @@ Suppose data reveals that areas with higher rates of bicycle commuting also have
 By adjusting for sunshine ($\boxed{A}$), the apparent link between bicycle commuting ($B$) and psychological distress ($C$) disappears. This is an example of a spurious association -- one that that does not arise from a direct causal relationship between $B$ and $C$ but rather from their common cause, $A$
 
 
-#### Causal Structure 3: The Chain Structure—A Mediator
+#### Causal Structure 3: The Chain Structure (Mediators)
 
 The chain structure ($A \rightarrow B \rightarrow C$) illustrates a scenario where $A$ affects $B$, and $B$ in turn affects $C$. In this case, $B$ acts as a mediator in the relationship between $A$ and $C$. Graphically:
 
@@ -362,20 +379,22 @@ $$
 \chainLARGE
 $$
 
-#### Rule 3: Avoid Conditioning on the Mediator for Total Effect
+#### Rule 3: Avoid Conditioning on the Mediator for Total Effect of the Treatment and Outcome
 
 If we are interested in estimating the total causal effect of $A$ on $C$, we should not condition on the mediator $B$. Conditioning on $B$ would **block** the path from $A$ to $C$, making $A$ and $C$ appear independent, even though there is a causal relationship. 
 
 Many psychological scientists are taught to adjust for a rich array of confounders without attending to hazards of over-adjustment. Consider the following example of how over-adjustment can distort causal pathways, potentially masking true relationships.
 
 
-##### Motivating Example
+##### Conditioning on a Mediator: Motivating Example
 
-Suppose we examine whether renovating green spaces ($A$) in urban areas reduces crime rates ($C$). The renovation improves community engagement ($B$), which then reduces crime. If we adjust for community engagement, it might look like the green space renovation has no effect on crime, when in fact it does, but indirectly through community engagement. This example illustrates the risks of **over-conditioning bias.**  Let us denote the relative timing of events using subscripts. Here, we assume that $A_1 \to B_2 \to C_3$. It is clear from the rules of d-separation that $A_{1} \rightarrow \boxed{B_2} \rightarrow C_{3}$ (conditioning on $B_2$) blocks the path from $A_1$ to $C_3$.  However, what if $B_0 \to A_1$ and $B_0 \to C_3$. The rules of d-separation tell us that to obtain an unbiased causal effect estimate of $A_1 \to C_3$ we must condition on $B_0$.  With cross-sectional data we cannot typically ensure the relative timing of confounders, treatments, and outcomes.  For this reason, we should collect time-series data to ensure that the relative timing of events assumed in our model is appropriate. 
+Suppose we examine whether renovating green spaces ($A$) in urban areas reduces crime rates ($C$). The renovation improves community engagement ($B$), which then reduces crime. If we adjust for community engagement, it might look like the green space renovation has no effect on crime, when in fact it does, but indirectly through community engagement. This example illustrates the risks of **over-conditioning bias.** Over-conditioning bias occurs when adjusting for variables that either lie on the causal path between treatment and outcome or act as mediators or colliders. Such adjustment can distort the causal relationships, potentially blocking the effect of interest or introducing spurious associations.
+
+Let us denote the relative timing of events using subscripts. Here, we assume that $A_1 \to B_2 \to C_3$. It is clear from the rules of d-separation that $A_{1} \rightarrow \boxed{B_2} \rightarrow C_{3}$ (conditioning on $B_2$) blocks the path from $A_1$ to $C_3$.  However, what if $B_0 \to A_1$ and $B_0 \to C_3$. The rules of d-separation tell us that to obtain an unbiased causal effect estimate of $A_1 \to C_3$ we must condition on $B_0$.  With cross-sectional data we cannot typically ensure the relative timing of confounders, treatments, and outcomes.  For this reason, we should collect time-series data to ensure that the relative timing of events assumed in our model is appropriate. 
 
 In some cases, investigators may want to distinguish between direct and indirect effects, as is done in causal mediation analysis. However, performing causal mediation analysis requires making additional assumptions about the relationships among variables and about unmeasured confounding. These assumptions are often difficult to verify. Causal mediation analysis goes beyond the scope of our current discussion, however interested readers may refer to @vanderweele2015; @bulbulia2024swigstime.
 
-#### Causal Structure 4: The Collider Structure—A Common Effect
+#### Causal Structure 4: The Collider Structure: Conditioning on the Common Effect of a Treatment and Outcome.
 
 The collider structure ($A \to C$, $B \to C$) occurs when two variables $A$ and $B$ independently cause a common effect $C$. Initially, $A$ and $B$ are independent. However, conditioning on the collider $C$ introduces a non-causal or "spurious" association between $A$ and $B$. Graphically:
 
@@ -385,28 +404,38 @@ $$
 
 This gives us two rules: 
 
-#### Rule 4: Do Not Condition on a Collider
+#### Rule 4: Do Not Condition on a Collider of the Treatment and Outcome
+
 When assessing the causal effect of $A$ on $B$, avoid conditioning on a collider ($C$) or its descendants, as it may introduce a misleading association between $A$ and $B$.
 
 
-#### Rule 5: Do Not Condition on Descendants of Colliders
+#### Rule 5: Do Not Condition on Descendants of Colliders of the Treatment and Outcome
 
-Because causation induces association, conditioning on a descendant is akin to conditioning on its parent. As such a descendant functions as a *proxy* for its parent. We should thus avoid conditioning on a descendant of a collider (or mediator).
+Causal relationships induce associations. Conditioning on a descendant of a collider is similar to conditioning on its parent, as the descendant serves as a proxy for its parent. Therefore, we should avoid conditioning on a descendant of a collider (or mediator).
+
+#### Conditioning on a Collider: Motivating Example
+
+Consider a scenario where we want to determine whether access to green spaces ($A$) makes people happier ($B$). If we condition on health status ($C$), which is influenced by both $A$ and $B$, we may introduce a spurious association between $A$ and $B$. This occurs because conditioning on $C$ creates an artificial link between $A$ and $B$, even if no direct causal relationship exists between them.
+
+For instance, among individuals with poor health (low $C$), those with greater access to green spaces ($A$) may appear less happy ($B$). When we stratify by $C$, a negative association between green space access and happiness might emerge, even if $A$ and $B$ are not causally related. Similarly, among healthy individuals (high $C$), those with less access to green spaces ($A$) may seem happier ($B$), again suggesting a negative association upon stratifying by $C$.
+
+This example demonstrates the risks of over-conditioning bias. By ensuring that confounders precede both the treatment and the outcome, we can often avoid collider bias, though not always. In our upcoming discussion of M-bias, we will explore how adjusting for pre-treatment confounders may sometimes induce collider bias. Additionally, we will discuss when conditioning on post-treatment proxies for pre-treatment confounders ($L^\prime$) may be a practical strategy for confounding control.
+
+For now, it is essential to recognise that collider bias is a form of over-conditioning bias. Its threat to valid causal inference can be understood by examining the basic relationships in a causal Directed Acyclic Graph (DAG). Over-conditioning bias has not been fully appreciated in traditional structural equation modelling approaches. Pearl’s rules of d-separation show that when two arrows converge on the same node, their parent nodes may become spuriously associated. To estimate any causal path, it must remain unblocked by other nodes and free from unmeasured common causes.
 
 
-##### Motivating Example
+### Complex Causal Relationships Are Composed of Five Elementary Structures Whose Features We Assume
 
-Suppose we want to assess if access to green spaces ($A$) makes people happier ($B$). If we condition on health status ($C$), which is affected by both $A$ and $B$, we may introduce a spurious association between $A$ and $B$. This is because conditioning on $C$ creates an artificial link between $A$ and $B$, even if no direct causal relationship exists. Specifically, among unhealthy individuals (low $C$), those with high green space access ($A$) may appear less happy ($B$). When we stratify by $C$, a negative association emerges, even if $A$ and $B$ are not causally linked. Likewise, among healthy individuals (high $C$), those with low green space access ($A$) may be happier ($B$). Stratifying by $C$ would suggest a negative association between green space access and happiness in the absence of any causal relationship.
-
-This example again illustrates the risks of **over-conditioning bias.** By ensuring that confounders precede both the treatment and the outcome, we can often avoid collider bias -- often, but not always. Below we consider how adjusting for pre-treatment confounders may induce collider bias. Elsewhere, we consider how conditioning on post-treatment proxies for pre-treatment confounders ($\L^prime$) may be sensible strategy for confounding control (refer to @bulbulia2023). For now, we simply note that collider bias is a type of over-conditioning bias, one whose threat to valid causal inference can be understood by referring to elementary relationships assumed in a causal DAG. 
-
-
-### Complex Causal Relationships Are Composed of Basic Structures That We Assume
 
 All forms of confounding bias stem from combinations of the basic causal structures outlined above (absence of cause, causality, forks, chains, and colliders). Understanding these elements allows us to identify potential confounders based on the assumptions encoded in a causal diagram.
 
-Causal directed acyclic graphs (DAGs) provide a framework for structuring assumptions about causal relationships. They cannot prove causation on their own, as multiple diagrams may be consistent with the data. The strength of causal DAGs lies in helping researchers understand the implications of their assumptions. Therefore, causal DAGs should be created in collaboration with domain experts, and when experts disagree, multiple causal diagrams should be proposed to reflect differing assumptions.
+There are three further observations readers should note. 
 
+First, causal directed acyclic graphs (DAGs) provide a framework for structuring assumptions about causal relationships. They cannot prove causation on their own, as multiple causal diagrams are typically consistent with the data. The strength of causal DAGs lies in helping researchers understand the implications of their assumptions. Therefore, causal DAGs should be created in collaboration with domain experts, and when experts disagree, multiple causal diagrams should be proposed to reflect differing assumptions.
+
+Second, causal inference relies on the assumption that the treatment precedes the outcome in time. Cross-sectional data, that is, data in which information is collected at a single point in time, typically lacks the temporal resolution that investigators require to establish temporal ordering. In the next section we consider problems that temporal ambiguity bring beyond the obvious problem of reverse causality (it is the outcome that causes the treatment).
+
+Third, longitudinal data, which follow the same subjects over multiple time points, allows for a clear temporal ordering of events, however longitudinal data are insufficient to establish causality. Of course, by tracking when a treatment occurs relative to the outcome, longitudinal data enables researchers to establish the sequence necessary to support causal claims. Therefore, in studies aiming to make causal inferences, longitudinal data should always be sought to confirm that the confounders precede the treatment, and the treatment precedes the outcome. Yet although longitudinal data are desirable they are not a panacea. We have seen that to obtain a causal effect estimate requires a workflow that begins by stating a clearly defined causal question, with reference to a counterfactual contrast between clearly specified treatments applied to a target population. We must then ensure that all assumptions required for causal inference are satisfied, most especially that treatment effects may be identified from data. Only after we have stated our causal question and checked that our data support the causal assumptions required to identify our targetted causal estimand may we proceed to statistical analysis.
 
 ## Part 3. How to Use Causal Diagrams for Causal Identification Tasks- Worked Examples {#section-part3}
 
@@ -469,7 +498,7 @@ By adhering to this sequence, we can mitigate the risk of collider stratificatio
 For example, if doctor visits were encoded in our data, and doctor visits were an effect of poor health, conditioning on doctor visits would function similarly to conditioning on poor health in the previous example, introducing collider confounding. 
 
 
-### 5. M-bias: Conditioning on Pre-Exposure Collider
+### 5. M-bias: Conditioning on Pre-Exposure Collider {#section-mbias}
 
 There are only five elementary structures of causality. Every confounding scenario can be developed from these five elementary structures. We next consider how we may combine these elementary causal relationships in causal diagrams to create effective strategies for confounding control. 
 
@@ -482,7 +511,7 @@ How shall we respond to this problem? The solution is straightforward. If $L$ is
 
 [^3]: Note that when we draw a chronologically ordered path from left to right, the M shape for which "M-bias" takes its name changes to an E shape. We shall avoid proliferating jargon and retain the term "M bias."
 
-### 6. Conditioning on a Descendent May Sometimes Reduce Confounding
+### 6. Conditioning on a Descendent May Sometimes Reduce Confounding {#section-conditioning-on-descendents}
 
  In @tbl-04 Row 6, we encounter a causal diagram in which an unmeasured confounder opens a back-door path that links the treatment and outcome.  Here, we consider how we may use the rules of d-separation to obtain unexpected strategies for confounding control. 
  
@@ -640,21 +669,21 @@ By following these recommendations, you will more effectively navigate the inher
 
 ### On the Differences Between Methods for Causal Inference And The Statistical Modelling Tradition 
 
-In traditional statistical methods such as regression analysis and structural equation modelling (SEM), the focus often lies in estimating associations among variables, sometimes treating all variables symmetrically within the model. However, causal inference shifts the focus to estimating pre-specified causal contrasts, defined explicitly in terms of interventions and outcomes measured on a target population. This approach takes us beyond measuring associations in the data to understanding the effects of hypothetical or actual interventions.
+In traditional statistical methods such as regression analysis and structural equation modelling (SEM), the focus often lies in estimating associations among variables, sometimes treating all variables symmetrically within the model. However, causal inference shifts the focus to estimating pre-specified causal contrasts, defined explicitly in terms of interventions and outcomes measured on a target population. This approach takes us beyond measuring associations in the data to understanding the effects of hypothetical and actual interventions. 
 
-Central to this shift is the recognition of nuisance variables—variables that are not of direct interest but must be accounted for to obtain valid causal effect estimates. In causal inference, nuisance parameters often include confounders that need to be adjusted to block non-causal associations between a treatment of interest and the outcomes of interest. However, the coefficients associated with these nuisance variables generally lack a causal interpretation. For example, consider a causal pathway where $L \to A \to Y$, and we are interested in estimating the effect of $A$ on $Y$ while controlling for $L$. Although controlling for $L$ is necessary to obtain an unbiased estimate of the causal effect of $A$ on $Y$, the coefficient of $L$ in the model does not have a straightforward causal interpretation and reporting it may be misleading, especially if $A$ mediates the effect of $L$ on $Y$.
+Here, we have focussed the place of counterfactual contrasts between  well-defined outcomes experienced by a target population under different levels of treatment.  It is important to emphasise that the other variables in a model are typically treated as nuisance variables—variables that are not of direct interest, but must be accounted for to obtain valid causal effect estimates. In causal inference, nuisance parameters often include confounders that need to be adjusted to block non-causal associations between a treatment of interest and the outcomes of interest. However, the coefficients associated with these nuisance variables generally lack a causal interpretation. For example, consider a causal pathway where $L \to A \to Y$, and we are interested in estimating the effect of $A$ on $Y$ while controlling for $L$. Although controlling for $L$ is necessary to obtain an unbiased estimate of the causal effect of $A$ on $Y$, the coefficient of $L$ in the model does not have a straightforward causal interpretation and reporting it may be misleading, especially if $A$ mediates the effect of $L$ on $Y$.
 
 By concentrating on pre-specified causal contrasts and appropriately handling nuisance parameters, causal inference methods enable clarity for pre-specified causal contrasts of interest. This approach departs from traditional statistical methods by emphasising the estimation of specific causal effects rather than modelling the entire system of associations. It acknowledges that not all parameters in a model can simultaneously be of equal interest; some parameters primarily serve to adjust for confounding or other biases and should not be interpreted causally.
 
-Understanding and properly addressing nuisance parameters are critical steps in a causal inference workflow. The observation that nuisance parameters typically lack causal interpretation suggests that the standard practice of reporting all model coefficients may be unwise or even misleading (see @westreich2013; @mcelreath2020; @bulbulia2023). When multiple treatments are of interest, it is essential to ensure that the identification assumptions required for each causal effect are satisfied—a task that can be more challenging than it appears (see @vanderweele2015; @hernan2008aObservationalStudiesAnalysedLike; @robins1986; @robins1992; @robins2008estimation; @bulbulia2024swigstime).
+Understanding and properly addressing nuisance parameters are critical steps in a causal inference workflow. The observation that nuisance parameters typically lack causal interpretation suggests that the standard practice of reporting all model coefficients may be unwise or even misleading (see @westreich2013; @mcelreath2020; @bulbulia2023; @Lonati_Lalive_Efferson_2024). When multiple treatments are of interest, it is essential to ensure that the identification assumptions required for each causal effect are satisfied—a task that can be more challenging than it appears (see @vanderweele2015; @hernan2008aObservationalStudiesAnalysedLike; @robins1986; @robins1992; @robins2008estimation; @bulbulia2024swigstime).
 
-Our questions are nearly always causal. We want to know what would happen, on average, if we were to intervene in the world. In the observational psychological sciences, obtaining such understanding requires a paradigm shift from traditional statistical modelling. These paradigm shifts have become established in economics, computer science, and epidemiology, and they are making strong inroads in political science. However, in observational psychological sciences, including environmental psychology, methods for causal inference remain rare. We hope this chapter inspires readers to begin developing robust causal workflows capable of addressing their causal questions and those that have long animated the field's scientific interests but which have yet to be coherently addressed. 
+Our questions are nearly always causal. We want to know what would happen, on average, if we were to intervene in the world. In the observational psychological sciences, obtaining such understanding requires a paradigm shift from traditional statistical modelling. Such a paradigm shift has become established in economics, computer science, and epidemiology, and they are making strong inroads in political science. However, in observational psychological sciences, including environmental psychology, methods for causal inference remain rare. We hope this chapter inspires readers to begin developing robust causal workflows capable of addressing their causal questions and those that have long animated the field's scientific interests but which have yet to be coherently addressed. 
 
 
 
 ## Where to Go Next?
 
-There are many good resources available for learning causal directed acyclic graphs [@rohrer2018; @hernan2024WHATIF; @cinelli2022; @barrett2021; @mcelreath2020; @greenland1999; @suzuki2020; @pearl2009a; @major2023exploring; @greenland1999; @morgan2014].  For those just getting started on causal diagrams, we recommend Miguel Hernan's free course here: [https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions, accessed 10 June 2024](https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions). For those seeking a slightly more technical but still accessible introduction to causal inference and causal DAGs, we recommend Brady Neal's introduction to causal inference course and textbook, both freely available here [https://www.bradyneal.com/causal-inference-course, accessed 10 June 2024](https://www.bradyneal.com/causal-inference-course). For those interested in causal inference in experiments refer to @hernan2017per, @montgomery2018; @bulbulia_2024_experiments. For those interested in causal mediation analysis and time-varying treatments refer to @robins1986; @robins1992; @robins2008estimation; @vanderlaanRobins2003CensoringLongitudinal; @diaz2021nonparametric; @williams2021; @hoffman2023;@bulbulia2024swigstime. Moreover, the fifth segment of Miguel Hernan's free online course covers time-varying treatments:  [https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions, accessed 10 June 2024](https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions). On the pitfalls of traditional path modelling refer to @rohrer2022PATH. We have set aside complications arising from measurement error. For more on this topic see @hernan2009MEASUREMENT; @hernan2024WHATIF; @bulbulia2024wierd; @vanderweele2022; @vanderweele2022a.
+There are many good resources available for learning causal directed acyclic graphs [@rohrer2018; @greenland1999; @glymour2008causal; @hernan2024WHATIF; @cinelli2022; @barrett2021; @mcelreath2020; @greenland1999; @suzuki2020; @pearl2009a; @pearl_greenland_2007; @major2023exploring; @greenland1999; @morgan2014].  For those just getting started on causal diagrams, we recommend Miguel Hernan's free course here: [https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions, accessed 10 June 2024](https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions). For those seeking a slightly more technical but still accessible introduction to causal inference and causal DAGs, we recommend Brady Neal's introduction to causal inference course and textbook, both freely available here [https://www.bradyneal.com/causal-inference-course, accessed 10 June 2024](https://www.bradyneal.com/causal-inference-course). For those interested in causal inference in experiments refer to @hernan2017per, @montgomery2018; @bulbulia_2024_experiments. For those interested in causal mediation analysis and time-varying treatments refer to @robins1986; @robins1992; @robins2008estimation; @vanderlaanRobins2003CensoringLongitudinal; @diaz2021nonparametric; @williams2021; @hoffman2023;@bulbulia2024swigstime. Moreover, the fifth segment of Miguel Hernan's free online course covers time-varying treatments:  [https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions, accessed 10 June 2024](https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions). On the pitfalls of traditional path modelling refer to @rohrer2022PATH. We have set aside complications arising from measurement error. For more on this topic see @hernan2009MEASUREMENT; @hernan2024WHATIF; @bulbulia2024wierd; @vanderweele2022; @vanderweele2022a.
 
 
 {{< pagebreak >}}
