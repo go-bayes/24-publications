@@ -1,9 +1,15 @@
 ---
-title: "Causal Effects of Religious Service Attendance on Charity and Volunteering Using Novel Measures From A National Longitudinal Panel"
+title: "Causal Effects of Religious Service Attendance on Prosocial Behaviour: Evidence from a Longitudinal Study in New Zealand."
 abstract: |
-   Investigations into the causal effects of religion on prosociality must be precise. Researchers must articulate a specific causal contrast for a religious feature, select appropriate prosociality measures, define the target population, gather time-series data, and conduct statistical and sensitivity analyses only after meeting identification assumptions. We clarify causal effects for three hypothetical interventions of religious service attendance (increase, decrease, maintain) across eight prosociality indicators in a longitudinal sample of 33,198 New Zealanders (2018 to 2021). **Study 1** examines the effects of religious service on self-reported charitable contributions and volunteerism. **Studies 2 and 3** investigate the effects on receiving personal and financial assistance from family, friends, and community, using measures designed to minimise self-reporting bias. Across all studies, inferred causal effects are substantially less pronounced than observed cross-sectional associations, highlighting the potential for cross-sectional data to mislead. Nonetheless, regular attendance across the population would increase charitable donations by 4% of the New Zealand Government's annual spending compared with current attendance levels. This research underscores the essential role of precise causal questions in studying cultural practices and provides a rigorous workflow for addressing them.
 
-   **KEYWORDS**: *Causal Inference*; *Charity*; *Church*; *Cooperation*; *Cross-validation*; *Longitudinal*; *Machine Learning*; *Religion*; *Semi-parametric*; *SWIGs*; *Targeted Learning*; *TMLE*; *Volunteering*.
+  We investigate the causal effects of religious service attendance on prosocial behaviours, using longitudinal data from a nationally representative sample of 33,198 New Zealanders collected between 2018 and 2021. Our study departs from traditional approaches in three ways: (1) we utilise longitudinal data rather than relying exclusively on cross-sectional data; (2) we supplement self-reported measures of giving with measures of help received; and (3) our statistical models are designed to address causal questions rather than merely describe change over time. We model causal contrasts for three types of hypothetical interventions — increasing, decreasing, or maintaining religious service attendance — and assess their effects on eight distinct prosocial domains.
+  
+  Study 1 focuses on self-reported charitable donations and volunteering. Studies 2 and 3 examine receiving help—both personal and financial—from family, friends, and the wider community, which are novel measures of prosociality not previously used in this context. Across all analyses, we find that the causal effects of religious attendance are notably smaller than cross-sectional associations typically suggest. However, a modest increase in regular attendance would nevertheless result in charitable donations equivalent to approximately 4% of the New Zealand Government’s annual spending, revealing a significant public benefit.
+  
+  Overall, these findings underscore the importance of precise causal analyses for clarifying the social functions of religious participation in a manner relevant to inform public policy. By employing robust causal inference techniques, our research advances a methodological framework for studying cultural practices and their social consequences.
+
+  **KEYWORDS**: *Causal Inference*; *Charity*; *Church*; *Cooperation*; *Cross-validation*; *Longitudinal*; *Machine Learning*; *Religion*; *Semi-parametric*; *SWIGs*; *Targeted Learning*; *TMLE*; *Volunteering*.
+  
 author: 
   - name: Joseph A. Bulbulia
     affiliation: Victoria University of Wellington, New Zealand
@@ -72,7 +78,8 @@ csl: /Users/joseph/GIT/templates/csl/camb-a.csl
 #     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
 #   )
 # 
-
+print(sessionInfo())
+print(search())
 
 push_mods <-  fs::path_expand(
   "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/nzvs_mods/24/church-prosocial-v7"
@@ -120,8 +127,8 @@ n_participants<- prettyNum(n_participants,big.mark=",")
 n_total<- prettyNum(n_total,big.mark=",")
 
 
-
-#conflicts_prefer(stats::filter)
+library(margot)
+conflicted::conflicts_prefer(dplyr::filter)
 
 # propensity score graph 
 love_plot_one <- margot::here_read("love_plot_one")
@@ -153,6 +160,7 @@ fit_church_on_charity_donate<-margot::here_read('fit_church_on_charity_donate')
 # fit_church_on_community_money_binary<- margot::here_read('fit_church_on_community_money_binary')
 library(gtsummary)
 library(glue)
+library(margot)
 
 # lm_fit_church_on_hours_charity <- tbl_regression(fit_church_on_hours_charity)
 # 
@@ -192,6 +200,7 @@ b_church_on_charity_donate<-margot::here_read("b_church_on_charity_donate")
 
 library(margot)
 library(glue)
+library(tidyverse)
 # works but not used
 #testlm_coef_church_on_donate <- glue("b = {fit_church_on_donate_x[2, 1]}, SE = {fit_church_on_donate_x[2, 3]}")
 # not this table is too long in most instance 
@@ -199,16 +208,12 @@ library(glue)
 
 # baseline
 table_baseline <-margot::here_read("table_baseline")
-
 table_exposures <-margot::here_read("table_exposures")
-
 table_outcomes <-margot::here_read("table_outcomes")
-table_baseline
 # density of the exposure 
 graph_density_of_exposure_up<-margot::here_read("graph_density_of_exposure_up")
 graph_density_of_exposure_down<-margot::here_read("graph_density_of_exposure_down")
 graph_density_of_exposure_both<-margot::here_read("graph_density_of_exposure_both")
-
 
 
 # examples
@@ -235,49 +240,48 @@ t2_hours_charity_z_zero <- margot::here_read("t2_hours_charity_z_zero")
 t2_hours_charity_z_null<- margot::here_read("t2_hours_charity_z_null")
 
 
-table_baseline
 
 # results
 # import to manuscript -------------------------------------------------------
 
-tab_all_prosocial <- here_read("tab_all_prosocial")
-tab_all_prosocial_null <- here_read("tab_all_prosocial_null")
-tab_all_prosocial_null_zero <- here_read("tab_all_prosocial_null_zero")
+tab_all_prosocial <- margot::here_read("tab_all_prosocial")
+tab_all_prosocial_null <- margot::here_read("tab_all_prosocial_null")
+tab_all_prosocial_null_zero <- margot::here_read("tab_all_prosocial_null_zero")
 tab_all_prosocial
 tab_all_prosocial_null
 tab_all_prosocial_null_zero
 
 
-group_tab_all_prosocial<- here_read("group_tab_all_prosocial")
-group_tab_all_prosocial_null<- here_read("group_tab_all_prosocial_null")
-group_tab_all_prosocial_null_zero<- here_read("group_tab_all_prosocial_null_zero")
+group_tab_all_prosocial<- margot::here_read("group_tab_all_prosocial")
+group_tab_all_prosocial_null<- margot::here_read("group_tab_all_prosocial_null")
+group_tab_all_prosocial_null_zero<- margot::here_read("group_tab_all_prosocial_null_zero")
 
 group_tab_all_prosocial
 group_tab_all_prosocial_null
 group_tab_all_prosocial_null_zero
 
 
-tab_received_time <- here_read( "tab_received_time")
-tab_received_time_null <- here_read( "tab_received_time_null")
-tab_received_time_null_zero <- here_read( "tab_received_time_null_zero")
+tab_received_time <- margot::here_read( "tab_received_time")
+tab_received_time_null <- margot::here_read( "tab_received_time_null")
+tab_received_time_null_zero <- margot::here_read( "tab_received_time_null_zero")
 push_mods
 
-group_tab_received_time <- here_read( "group_tab_received_time")
-group_tab_received_time_null <- here_read( "group_tab_received_time_null")
-group_tab_received_time_null_zero <- here_read( "group_tab_received_time_null_zero")
+group_tab_received_time <- margot::here_read( "group_tab_received_time")
+group_tab_received_time_null <- margot::here_read( "group_tab_received_time_null")
+group_tab_received_time_null_zero <- margot::here_read( "group_tab_received_time_null_zero")
 
 tab_received_time
 group_tab_received_time
 group_tab_received_time
 
-tab_all_received_money <- here_read( "tab_all_received_money")
-tab_all_received_money_null <- here_read( "tab_all_received_money_null")
-tab_all_received_money_null_zero <- here_read( "tab_all_received_money_null_zero")
+tab_all_received_money <- margot::here_read( "tab_all_received_money")
+tab_all_received_money_null <- margot::here_read( "tab_all_received_money_null")
+tab_all_received_money_null_zero <- margot::here_read( "tab_all_received_money_null_zero")
 
 
-group_tab_all_received_money <- here_read( "group_tab_all_received_money")
-group_tab_all_received_money_null <- here_read( "group_tab_all_received_money_null")
-group_tab_all_received_money_null_zero <- here_read( "group_tab_all_received_money_null_zero")
+group_tab_all_received_money <- margot::here_read( "group_tab_all_received_money")
+group_tab_all_received_money_null <- margot::here_read( "group_tab_all_received_money_null")
+group_tab_all_received_money_null_zero <- margot::here_read( "group_tab_all_received_money_null_zero")
 
 # Compute for manuscript
 diff_charity <- round( ( sd_donations *  tab_all_prosocial[1,1]), 2)
@@ -303,14 +307,17 @@ charity_null_zero <- prettyNum(charity_null_zero,big.mark=",")
 volunteer_null_zero <- round( sd_volunteer * tab_all_prosocial_null_zero[2,1] * 60, 2)
 volunteer_null_zero<- prettyNum(volunteer_null_zero,big.mark=",")
 
+# read data
+df_wide_censored <- margot::here_read("df_wide_censored")
 # graphs ------------------------------------------------------------------
 title = "Weekly Religious Service vs. No Religious Service"
 title_null = "Weekly Religious Service vs. Status Quo"
 title_null_zero = "No Religious Service vs. Status Quo"
-
-
-plot_group_tab_all_prosocial <- margot_plot(
-  group_tab_all_prosocial,
+group_tab_all_prosocial
+head(df_wide_censored)
+plot_group_tab_all_prosocial <- margot::margot_plot(
+  tab_all_prosocial,
+  original_df = df_wide_censored,
   type = "RD",
   title = title,
   subtitle = NULL,
@@ -326,12 +333,13 @@ plot_group_tab_all_prosocial <- margot_plot(
   x_offset = -.15,
   x_lim_lo = -.5,
   x_lim_hi =  .5
-)+ xlab("")
+)
 
 plot_group_tab_all_prosocial
 
-plot_group_tab_all_prosocial_null <- margot_plot(
-  group_tab_all_prosocial_null,
+plot_group_tab_all_prosocial_null <- margot::margot_plot(
+  tab_all_prosocial_null,
+original_df = df_wide_censored, 
   type = "RD",
   title = title_null,
   subtitle = NULL,
@@ -347,13 +355,14 @@ plot_group_tab_all_prosocial_null <- margot_plot(
   x_offset = -.15,
   x_lim_lo = -.5,
   x_lim_hi =  .5
-)+ xlab("")
+)
 
 plot_group_tab_all_prosocial_null
 
 
-plot_group_tab_all_prosocial_null_zero <- margot_plot(
-  group_tab_all_prosocial_null_zero,
+plot_group_tab_all_prosocial_null_zero <- margot::margot_plot(
+  tab_all_prosocial_null_zero,
+  original_df = df_wide_censored, 
   type = "RD",
   title = title_null_zero,
   subtitle = NULL,#"Self-Reported Prosociality",
@@ -389,16 +398,18 @@ plot_group_tab_all_prosocial_null_zero
 
 # pathwork
 library(patchwork)
-study_1 <- plot_group_tab_all_prosocial /
-plot_group_tab_all_prosocial_null/
-  plot_group_tab_all_prosocial_null_zero + 
+plot_group_tab_all_prosocial
+study_1 <- plot_group_tab_all_prosocial$plot /
+plot_group_tab_all_prosocial_null$plot/
+  plot_group_tab_all_prosocial_null_zero$plot + 
   plot_annotation(title = "Study 1: Self-Reported Prosociality", tag_levels = 'A',
              theme = theme(plot.title = element_text(size = 16, face = "bold")))
 study_1
 
-
-plot_group_tab_all_received_time <- margot_plot(
-  group_tab_received_time,
+tab_received_time
+plot_group_tab_all_received_time <- margot::margot_plot(
+  tab_received_time,
+    original_df = df_wide_censored, 
   type = "RR",
   title = title,
   subtitle = NULL,#"Support Received From Others: Time",
@@ -413,12 +424,13 @@ plot_group_tab_all_received_time <- margot_plot(
   x_offset =  0,
   x_lim_lo = -.05,
   x_lim_hi =  2
-)+ xlab("")
+)
 plot_group_tab_all_received_time
 
 
-plot_group_tab_all_received_time_null <- margot_plot(
-  group_tab_received_time_null,
+plot_group_tab_all_received_time_null <- margot::margot_plot(
+  tab_received_time_null,
+    original_df = df_wide_censored, 
   type = "RR",
   title = title_null,
   subtitle = NULL,#"Support Received From Others: Time",
@@ -433,13 +445,14 @@ plot_group_tab_all_received_time_null <- margot_plot(
   x_offset =  0,
   x_lim_lo = -.05,
   x_lim_hi =  2
-)+ xlab("")
+)
 
 plot_group_tab_all_received_time_null
 
 
-plot_group_tab_all_received_time_null_zero <- margot_plot(
-  group_tab_received_time_null_zero,
+plot_group_tab_all_received_time_null_zero <- margot::margot_plot(
+  tab_received_time_null_zero,
+    original_df = df_wide_censored, 
   type = "RR",
   title = title_null_zero,
   subtitle = NULL,#"Support Received From Others: Time",
@@ -459,9 +472,9 @@ plot_group_tab_all_received_time_null_zero <- margot_plot(
 plot_group_tab_all_received_time_null_zero
 
 
-study_2 <- plot_group_tab_all_received_time /
-plot_group_tab_all_received_time_null/
-  plot_group_tab_all_received_time_null_zero + 
+study_2 <- plot_group_tab_all_received_time$plot /
+plot_group_tab_all_received_time_null$plot/
+  plot_group_tab_all_received_time_null_zero$plot + 
   plot_annotation(title = "Study 2: Relative Risk of Help Received Last Week: Time", tag_levels = 'A',
                   theme = theme(plot.title = element_text(size = 16, face = "bold")))
 study_2
@@ -469,8 +482,9 @@ study_2
 
 
 
-plot_group_tab_all_received_money<- margot_plot(
+plot_group_tab_all_received_money<- margot::margot_plot(
   group_tab_all_received_money,
+    original_df = df_wide_censored, 
   type = "RR",
   title = title,
   subtitle = NULL,#"Support Received From Others: Time",
@@ -485,12 +499,13 @@ plot_group_tab_all_received_money<- margot_plot(
   x_offset =  0,
   x_lim_lo = -.05,
   x_lim_hi =  2
-)+ xlab("")
+)
 plot_group_tab_all_received_money
 
 
-plot_group_tab_all_received_money_null <- margot_plot(
-  group_tab_all_received_money_null,
+plot_group_tab_all_received_money_null <- margot::margot_plot(
+  tab_all_received_money_null,
+      original_df = df_wide_censored, 
   type = "RR",
   title = title_null,
   subtitle = NULL,#"Support Received From Others: Time",
@@ -505,13 +520,14 @@ plot_group_tab_all_received_money_null <- margot_plot(
   x_offset =  0,
   x_lim_lo = -.05,
   x_lim_hi =  2
-)+ xlab("")
+)
 
 plot_group_tab_all_received_money_null
 
 
-plot_group_tab_all_received_money_null_zero <- margot_plot(
-  group_tab_all_received_money_null_zero,
+plot_group_tab_all_received_money_null_zero <- margot::margot_plot(
+  tab_all_received_money_null_zero,
+    original_df = df_wide_censored, 
   type = "RR",
   title = title_null_zero,
   subtitle = NULL,#"Support Received From Others: Time",
@@ -531,9 +547,9 @@ plot_group_tab_all_received_money_null_zero <- margot_plot(
 plot_group_tab_all_received_money_null_zero
 
 
-study_3<- plot_group_tab_all_received_money /
-plot_group_tab_all_received_money_null/
-  plot_group_tab_all_received_money_null_zero + 
+study_3<- plot_group_tab_all_received_money$plot /
+plot_group_tab_all_received_money_null$plot/
+  plot_group_tab_all_received_money_null_zero$plot + 
   plot_annotation(title = "Study 3: Relative Risk of Help Received Last Week: Money", tag_levels = 'A',
                   theme = theme(plot.title = element_text(size = 16, face = "bold")))
 study_3
@@ -652,13 +668,11 @@ regression_regular_church_volunteer_minutes <- prettyNum(regression_regular_chur
 
 ## Introduction
 
-A central question in the scientific study of religion is whether religion fosters prosociality [@johnson2005; @norenzayan2016; @watts2016; @watts2015; @sosis2003cooperation; @whitehouse2023; @schloss2011evolutionary; @swanson1967; @decoulanges1903; @wheatley1971]. Quantifying causal effects for religion, and many other social behaviours, presents significant challenges. Investigators have limited scope to randomise supernatural beliefs, community worship, and personal prayer. On the other hand, valid causal inferences from non-experimental, "real world" data must combine high-resolution repeated-measures time-series data with robust methods for causal inference. Few studies meet this standard. A recent survey of the religion and prosociality literature reveals that nearly all non-experimental studies assessing links between prosociality and religion, including several longitudinal studies, are associational @kelly2024religiosity. Presently, studies using longitudinal (panel) data have yet to appropriately leverage their repeated measures to obtain reliable causal inferences.
+A central question in the scientific study of religion is whether religion fosters prosociality [@johnson2005; @norenzayan2016; @watts2016; @watts2015; @sosis2003cooperation; @whitehouse2023; @schloss2011evolutionary; @swanson1967; @decoulanges1903; @wheatley1971]. However, quantifying causal effects for religion presents significant challenges [@major2023exploring]. Investigators have limited scope to randomise supernatural beliefs, community worship, and personal prayer. On the other hand, valid causal inferences from non-experimental, "real world" data must combine high-resolution repeated-measures time-series data with robust methods for causal inference. Few studies meet this standard. A recent survey of the religion and prosociality literature reveals that nearly all non-experimental studies assessing links between prosociality and religion, including several longitudinal studies, are associational @kelly2024religiosity. Presently, studies using longitudinal (panel) data have yet to appropriately leverage their repeated measures to obtain reliable causal inferences.
 
-An encouraging recent attempt to obtain valid causal inference is Major-Smith's investigation of the relationships between religious attendance, beliefs, and affiliation on blood donations among pregnant women and their partners in Bristol, United Kingdom, who participated in the Avon Longitudinal Study of Parents and Children, $N=13,477$ mothers and $N=13,424$ partners [@major2023exploring]. Major-Smith's study begins with a careful overview of the threats to causal inference from confounding and selection bias. A series of cross-sectional regression analyses observe associations between the stated features of religion and self-reported blood donations in this cohort. Unfortunately, because the outcome is a retrospective question asked during pregnancy about past blood donations, the analysis cannot capitalise on the time-series data of the Avon panel. There is neither control for baseline measures of religion variables (the treatments) nor for baseline blood donations (the outcome), and the study cannot evaluate outcomes after initiation into religious service or its cessation. Although cross-sectional associations can suggest causality, we cannot typically attach causal interpretations without strong assumptions about the order and timing of events [@vanderweele2021can]. Indeed, below we report an analysis restricted to baseline New Zealand Attitudes and Values Study data that observes a `r percent_greater_regression_donate` times overstatement of the monthly vs zero charitable donations causal contrast and a `r percent_greater_regression_volunteer` times overstatement of the monthly vs zero volunteering causal contrast. A virtue of @major2023exploring is that the study makes its causal assumptions explicit and provides sensitivity analysis to frame its results. These strategies should be adopted in any study that estimates causal effects, and we adopt these strategies here.
+<!-- An encouraging recent attempt to obtain valid causal inference is Major-Smith's investigation of the relationships between religious attendance, beliefs, and affiliation on blood donations among pregnant women and their partners in Bristol, United Kingdom, who participated in the Avon Longitudinal Study of Parents and Children, $N=13,477$ mothers and $N=13,424$ partners [@major2023exploring]. Major-Smith's study begins with a careful overview of the threats to causal inference from confounding and selection bias. A series of cross-sectional regression analyses observe associations between the stated features of religion and self-reported blood donations in this cohort. Unfortunately, because the outcome is a retrospective question asked during pregnancy about past blood donations, the analysis cannot capitalise on the time-series data of the Avon panel. There is neither control for baseline measures of religion variables (the treatments) nor for baseline blood donations (the outcome), and the study cannot evaluate outcomes after initiation into religious service or its cessation. Although cross-sectional associations can suggest causality, we cannot typically attach causal interpretations without strong assumptions about the order and timing of events [@vanderweele2021can]. Indeed, below we report an analysis restricted to baseline New Zealand Attitudes and Values Study data that observes a `r percent_greater_regression_donate` times overstatement of the monthly vs zero charitable donations causal contrast and a `r percent_greater_regression_volunteer` times overstatement of the monthly vs zero volunteering causal contrast. A virtue of @major2023exploring is that the study makes its causal assumptions explicit and provides sensitivity analysis to frame its results. These strategies should be adopted in any study that estimates causal effects, and we adopt these strategies here. -->
 
-Here, to obtain causal inferences from time-series data, we leverage comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study from 2018-2021 to quantify the effects of clearly defined interventions in religious attendance across the population of New Zealanders on two features of prosociality: charitable financial donations and volunteering, measured by stated charitable donations and volunteering as well as by revealed measures of help received from the community. We define a causal effect as a quantitative contrast between mean outcomes for a population from pre-specified interventions. These outcomes are called “counterfactual” or “potential” outcomes, terms we use interchangeably [@rubin2005; @neyman1923; @robins1986; @pearl2009; @vanderlaan2018].[^theory] A fundamental challenge in observational studies is to ensure *balance* between the variables in interventions or “treatments” to be compared that might affect both treatment and the potential outcomes under treatment [@shiba2021using]. We call the state of imbalance *confounding*, and the strategy for ensuring balance, *confounding control*. In this study, we express the interventions on religious service as "modified treatment policies" [@haneuse2013estimation; @diaz2023lmtp; @díaz2021; @hoffman2023]. We obtain causal inferences by contrasting inferred population averages under different modified treatment policies.
-
-[^theory]: Philosophical disagreements about the meanings assigned to "potential" and "counterfactual" outcomes do not affect our use.
+Here, to obtain causal inferences from time-series data, we leverage comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study from 2018-2021 and quantify the effects of clearly defined interventions in religious attendance across the population of New Zealanders assessed on eight outcome domains of charitable financial donations and volunteering. We obtain causal inferences by contrasting inferred population averages under different modified treatment policies [@haneuse2013estimation; @diaz2023lmtp; @díaz2021; @hoffman2023]. 
 
 Our initial causal contrast investigates: "What would be the average difference across the New Zealand population if everyone attended religious services regularly (at least four times per month) versus if no one attended?" This theoretical question simulates a hypothetical experiment with random assignment to regular or non-attendance. This contrast addresses the scientifically interesting all/none contrast that is common in experimental designs [@hernán2016].
 
@@ -668,7 +682,7 @@ Our third causal contrast examines: "What would be the average difference across
 
 Although the set of causal contrasts analysts might consider is unbounded, those we have selected address these specific scientific and policy interests.
 
-Note that our approach does not focus on testing specific hypotheses; instead, we aim to compute our pre-specified causal contrasts with high accuracy by combining appropriate time-series data and robust methods for causal inference [@hernan2024stating].
+Note that our approach does not focus on testing specific hypotheses; instead, we aim to compute our pre-specified causal contrasts accurately and consistently [@hernan2024stating].
 
 ## Method
 
