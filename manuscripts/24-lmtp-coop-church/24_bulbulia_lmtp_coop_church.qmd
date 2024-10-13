@@ -1,12 +1,8 @@
 ---
-title: "Causal Effects of Religious Service Attendance on Prosocial Behaviour: Evidence from a Longitudinal Study in New Zealand."
+title: "Religious Service Attendance and Prosocial Behaviours in New Zealand: A National Longitudinal Study"
 abstract: |
 
-  We investigate the causal effects of religious service attendance on prosocial behaviours, using longitudinal data from a nationally representative sample of 33,198 New Zealanders collected between 2018 and 2021. Our study departs from traditional approaches in three ways: (1) we utilise longitudinal data rather than relying exclusively on cross-sectional data; (2) we supplement self-reported measures of giving with measures of help received; and (3) our statistical models are designed to address causal questions rather than merely describe change over time. We model causal contrasts for three types of hypothetical interventions — increasing, decreasing, or maintaining religious service attendance — and assess their effects on eight distinct prosocial domains.
-  
-  Study 1 focuses on self-reported charitable donations and volunteering. Studies 2 and 3 examine receiving help—both personal and financial—from family, friends, and the wider community, which are novel measures of prosociality not previously used in this context. Across all analyses, we find that the causal effects of religious attendance are notably smaller than cross-sectional associations typically suggest. However, a modest increase in regular attendance would nevertheless result in charitable donations equivalent to approximately 4% of the New Zealand Government’s annual spending, revealing a significant public benefit.
-  
-  Overall, these findings underscore the importance of precise causal analyses for clarifying the social functions of religious participation in a manner relevant to inform public policy. By employing robust causal inference techniques, our research advances a methodological framework for studying cultural practices and their social consequences.
+  We investigate the causal effects of religious service attendance on prosocial behaviours, using longitudinal data from a nationally representative sample of 33,198 New Zealanders collected between 2018 and 2021. Our study departs from traditional approaches in three ways: (1) we utilise longitudinal data rather than relying exclusively on cross-sectional data; (2) we supplement self-reported measures of giving with measures of help received; and (3) our statistical models are designed to address causal questions rather than merely describe change over time. We model causal contrasts for three types of hypothetical interventions — increasing, decreasing, or maintaining religious service attendance — and assess their effects on eight distinct prosocial domains. Study 1 focuses on self-reported charitable donations and volunteering. Studies 2 and 3 examine receiving help—both personal and financial—from family, friends, and the wider community, which are novel measures of prosociality not previously used in this context. Across all analyses, we find that the causal effects of religious attendance are notably smaller than cross-sectional associations typically suggest. However, a modest increase in regular attendance would nevertheless result in charitable donations equivalent to approximately 4% of the New Zealand Government’s annual spending, revealing a significant public benefit. Overall, these findings underscore the importance of precise causal analyses for clarifying the social functions of religious participation in a manner relevant to inform public policy. By employing robust causal inference techniques, our research advances a methodological framework for studying cultural practices and their social consequences.
 
   **KEYWORDS**: *Causal Inference*; *Charity*; *Church*; *Cooperation*; *Cross-validation*; *Longitudinal*; *Machine Learning*; *Religion*; *Semi-parametric*; *SWIGs*; *Targeted Learning*; *TMLE*; *Volunteering*.
   
@@ -58,7 +54,7 @@ date: last-modified
 execute:
   echo: false
   warning: false
-  include: true
+  include: false
   eval: true
 fontfamily: libertinus
 bibliography: /Users/joseph/GIT/templates/bib/references.bib
@@ -660,7 +656,19 @@ percent_greater_rr_community_time
 # make pretty numbers
 regression_regular_church_volunteer_minutes <- prettyNum(regression_regular_church_volunteer_minutes,big.mark=",")
 
+# graphs
+graph_density_of_exposure_both <- margot::here_read("graph_density_of_exposure_both")
 
+# transition table
+transition_table <- margot::here_read("transition_table")
+
+# supplement
+transition_table_binary_gain <-margot::here_read("transition_table_binary_gain")
+transition_table_binary_zero <-margot::here_read("transition_table_binary_zero")
+love_plot_one <- margot::here_read("love_plot_one")
+table_baseline <- margot::here_read("table_baseline")
+table_outcomes <-margot::here_read("table_outcomes")
+table_exposures <-margot::here_read("table_exposures")
 
 
 ```
@@ -692,10 +700,9 @@ We collected data from the New Zealand Attitudes and Values Study (NZAVS), an an
 
 ### Treatment Indicator
 
-
 We assessed religious service attendance using the question:
 
-	-	*Do you identify with a religion and/or spiritual group? If yes, how many times did you attend a church or place of worship during the last month?*
+- *Do you identify with a religion and/or spiritual group? If yes, how many times did you attend a church or place of worship during the last month?*
 
 Responses were rounded to the nearest whole number. Because few participants reported attending more than eight times, we capped responses above eight at eight (see Appendix B, variable `religion_church_round`). In the regular church service condition, we did not intervene on responses greater than four to reduce computational burden during estimation.
 
@@ -708,8 +715,10 @@ We assessed prosocial behaviour using the following measures:
 
 Participants reported:
 
-	•	Volunteering: *"Please estimate how many hours you spent doing each of the following things last week…Volunteer/charitable work."*
-	•	Annual Charitable Financial Donations: *"How much money have you donated to charity in the last year?"*
+	- Volunteering: 
+  *Please estimate how many hours you spent doing each of the following things last week…Volunteer/charitable work.* 
+	- Annual Charitable Financial Donations: 
+  *How much money have you donated to charity in the last year?*
 
 **Study 2: Help received from others in the last week: *time* **
 
@@ -719,7 +728,7 @@ Participants estimated the amount of help they received in the past week in hour
 - *Friends...TIME (hours)*
 - *Community...TIME (hours)*
 
-Due to high variability, we transformed responses into binary indicators: 0 = none; 1 = any.
+Owing to high variability, we transformed responses into binary indicators: 0 = none; 1 = any.
 
 **Study 3: Help received from others in the last week: *money* **
 
@@ -731,20 +740,20 @@ Participants estimated the monetary help they received in the past week from:
 - *Friends...MONEY (dollars)*
 - *Community...MONEY (dollars)*
 
-Again, due to high variability, responses were converted to binary indicators: 0 = none; 1 = any.
+Again, owing to high variability, responses were converted to binary indicators: 0 = none; 1 = any.
 
-Studies 2 and 3 employed revealed measures of prosocial exposure to minimise self-presentation bias. We assumed that if religious institutions foster prosociality, initiation into regular attendance—controlling for past attendance, baseline prosocial measures, and a range of demographic, personality, and health factors—would increase exposure to prosocial behaviours. By focusing on help received, these measures are less susceptible to self-presentation biases that could otherwise confound associations between religious attendance and prosocial indicators. Including baseline outcomes and treatments in our analyses mitigates the threat of undirected correlated errors.
+Note that Studies 2 and 3 employed revealed measures of prosocial exposure to minimise self-presentation bias. We assumed that if religious institutions foster prosociality, initiation into regular attendance—controlling for past attendance, baseline prosocial measures, and a range of demographic, personality, and health factors—would increase exposure to prosocial behaviours. By focusing on help received, these measures are less susceptible to self-presentation biases that could otherwise confound associations between religious attendance and prosocial indicators. Including baseline outcomes and treatments in our analyses mitigates the threat of undirected correlated errors.
 
-Comprehensive details of all measures are provided in **Appendix A**.
+Comprehensive details of all measures are provided in **Supplement: Appendix A**.
 
 ### Causal Interventions
 
 
 We defined three targeted causal contrasts based on prespecified modified treatment policies:
 
-	1.	Regular Religious Service Treatment: Simulating a scenario where everyone attends religious services regularly. For individuals attending less than four times per month, their attendance was shifted to four; those already attending four or more times per month remained unchanged.
-	2.	Zero Religious Service Treatment: Simulating a scenario where no one attends religious services. For individuals attending more than zero times per month, their attendance was shifted to zero; those already not attending remained unchanged.
-	3.	Status Quo—No Treatment: Using each individual’s observed level of religious service attendance without any modification.
+1.	Regular Religious Service Treatment: a scenario where everyone attends religious services regularly. For individuals attending less than four times per month, their attendance was shifted to four; those already attending four or more times per month remained unchanged.
+2.	Zero Religious Service Treatment: a scenario where no one attends religious services. For individuals attending more than zero times per month, their attendance was shifted to zero; those already not attending remained unchanged.
+3.	Status Quo—No Treatment: Use each individual’s observed level of religious service attendance without any modification.
 	
 
 <!-- We define three targeted causal contrasts (*causal estimands*) as interventions on prespecified modified treatment policies (refer to @haneuse2013estimation; @diaz2021nonparametric; @diaz2023lmtp). There are three measurement intervals $k = \{0,1,2\}$. Baseline indicators of the treatment obtained from $k = 0$ are included for confounding control. $A_1$ denotes the natural level of the treatment, measured at $k = 1$—monthly frequency of religious service. Outcome indicators are obtained from $k = 2$—the end of the study. $\mathbf{\tilde{g}}(A_i)$ denotes a modified treatment policy, where $A^+_1\mathbf{\tilde{g}}(A_i = a_1)$ is the level to which $A_i$ is set according to a policy function $\mathbf{\tilde{g}}$. Under modified treatment policies, the natural value of the treatment may be a confounder. However, because we estimate the causal effects of point interventions, there is no additional threat of confounding for modified treatment policies in this study. -->
@@ -778,9 +787,9 @@ We defined three targeted causal contrasts based on prespecified modified treatm
 
 Based on these policies, we computed three causal contrasts:
 
-	1.	Regular vs. Zero Attendance: Comparing average prosocial outcomes in a society where everyone attends religious services regularly to one where no one attends. This simulates a hypothetical experiment where individuals are randomised to either regular attendance or no attendance, allowing us to assess differences in prosociality one year after the intervention.
-	2.	Regular Attendance vs. Status Quo: Comparing a society where everyone attends religious services regularly to the current state. This contrast examines the potential effect of transitioning non-regular attendees to regular attendance.
-	3.	Zero Attendance vs. Status Quo: Comparing a society where no one attends religious services to the current state. This contrast examines the potential impact of eliminating religious service attendance entirely.
+1.	Regular vs. Zero Attendance: Comparing average prosocial outcomes in a society where everyone attends religious services regularly to one where no one attends. This simulates a hypothetical experiment where individuals are randomised to either regular attendance or no attendance, allowing us to assess differences in prosociality one year after the intervention.
+2.	Regular Attendance vs. Status Quo: Comparing a society where everyone attends religious services regularly to the current state. This contrast examines the causal effect of transitioning non-regular attendees to regular attendance.
+3.	Zero Attendance vs. Status Quo: Comparing a society where no one attends religious services to the current state. This contrast examines the causal effect of eliminating religious service attendance entirely.
 	
 
 <!-- **Target Contrast A: 'Regular vs. Zero'**: How do the prosocial effects of a society with regular religious service attendance differ from those of a society with zero religious service attendance? -->
@@ -812,21 +821,23 @@ Based on these policies, we computed three causal contrasts:
 To consistently estimate a causal effect, investigators must satisfy three assumptions (refer to @bulbulia2023):
 
 
-	1.	Causal Consistency: Potential outcomes correspond to the observed outcomes under the treatments in our data. We assume that, conditional on measured covariates, potential outcomes do not depend on how the treatment was administered [@vanderweele2009; @vanderweele2013].
-	2.	Conditional Exchangeability: Given observed covariates, treatment assignment is independent of the potential outcomes being compared (no unmeasured confounding) [@hernan2024WHATIF; @chatton2020].
-	3.	Positivity: Every individual has a non-zero probability of receiving each treatment level, regardless of their covariate values. We evaluated this by examining changes in religious service attendance from baseline to the treatment wave [@westreich2010].
+1.	Causal Consistency: Potential outcomes correspond to the observed outcomes under the treatments in our data. We assume that, conditional on measured covariates, potential outcomes do not depend on how the treatment was administered [@vanderweele2009; @vanderweele2013].
+
+2.	Conditional Exchangeability: Given observed covariates, treatment assignment is independent of the potential outcomes being compared (no unmeasured confounding) [@hernan2024WHATIF; @chatton2020].
+
+3.	Positivity: Every individual has a non-zero probability of receiving each treatment level, regardless of their covariate values. We evaluated this by examining changes in religious service attendance from baseline to the treatment wave [@westreich2010].
 
 
 ### Target Population
 
-Our target population comprises New Zealand residents represented in the baseline wave of the NZAVS during 2018–2019, weighted by New Zealand Census data for age, gender, and ethnicity [@sibley2021]. While the NZAVS is a national probability study designed to reflect the broader New Zealand population, it tends to under-sample males and individuals of Asian descent, and over-sample females and Māori (the indigenous people of New Zealand). To address these disparities and enhance the accuracy of our findings, we applied survey weights adjusting for age, gender, and ethnicity. Survey weights were integrated into our statistical models using the weights option in `lmtp` [@williams2021], following established protocols [@bulbulia2024PRACTICAL].
+Our target population comprises New Zealand residents represented in the baseline wave of the NZAVS during 2018–2019, weighted by New Zealand Census data for age, gender, and ethnicity [@sibley2021]. While the NZAVS is a national probability study designed to reflect the broader New Zealand population, it tends to under-sample males and individuals of Asian descent, and over-sample females and Māori (the indigenous people of New Zealand). To address these disparities and enhance the accuracy of our findings, we applied survey weights adjusting for age, gender, and ethnicity. Survey weights were integrated into our statistical models using the weights option in `lmtp` [@williams2021], following established protocols [@bulbulia2024PRACTICAL].  Note that the sample in this study is a single cohort, enrolled in the New Zealand Attitudes and Values Study in the 2018-2019 wave (wave 10).
 
 ### Eligibility Criteria
 
 Participants were included in the analysis if they:
 
-	•	Were enrolled in the 2018 wave of the NZAVS (Time 10).
-	•	Provided responses to the religious service attendance question at both Time 10 (baseline) and Time 11 (treatment wave).
+1. Were enrolled in the 2018 wave of the NZAVS (Time 10).
+2. Provided responses to the religious service attendance question at both Time 10 (baseline) and Time 11 (treatment wave).
 
 Participants with missing covariate data at baseline were included, with missing data imputed using information available at baseline. Participants may have been lost to follow-up by the end of the study (Time 12); we adjusted for attrition and non-response using censoring weights, as described below.
 
@@ -837,30 +848,45 @@ A total of `r n_participants` individuals met these criteria and were included i
 
 To address missing data:
 
-	*	Baseline Missingness: We used the predictive mean matching algorithm from the mice package in R [@vanbuuren2018] to impute missing baseline data (<2% of covariate values). We performed single imputation, using only baseline data for imputation [@zhang2023shouldMultipleImputation].
-	*	Outcome Missingness: To account for confounding and selection bias from missing responses and panel attrition, we applied censoring weights obtained using nonparametric machine learning ensembles via the lmtp package in R [@williams2021].
+1. Baseline Missingness: We used the predictive mean matching algorithm from the mice package in R [@vanbuuren2018] to impute missing baseline data (<2% of covariate values). We performed single imputation, using only baseline data for imputation [@zhang2023shouldMultipleImputation].
+2. Outcome Missingness: To account for confounding and selection bias from missing responses and panel attrition, we applied censoring weights obtained using nonparametric machine learning ensembles via the lmtp package in R [@williams2021].
 
 
 ### Confounding Control
 
-To address confounding, we followed the modified disjunctive cause criterion [@vanderweele2019], which involved:
+To address confounding, we employ a modified disjunctive cause criterion [@vanderweele2019], which involves:
 
-	1.	Identifying all common causes of both the treatment and outcomes.
-	2.	Excluding instrumental variables that affect the exposure but not the outcome.
-	3.	Including proxies for unmeasured confounders affecting both exposure and outcome.
-	4.	Controlling for baseline exposure and baseline outcome, serving as proxies for unmeasured common causes [@vanderweele2020].
+1.	Identifying all common causes of both the treatment and outcomes.
+2.	Excluding instrumental variables that affect the exposure but not the outcome.
+3.	Including proxies for unmeasured confounders affecting both exposure and outcome.
+4.	Controlling for baseline exposure and baseline outcome, serving as proxies for unmeasured common causes [@vanderweele2020].
 
-The covariates included for confounding control are detailed in [Appendix B](#appendix-demographics) These methods adhere to the guidelines provided in [@bulbulia2024PRACTICAL] and were pre-specified in our study protocol [https://osf.io/ce4t9/](https://osf.io/ce4t9/). @tbl-02 presents a causal diagramme of our identification strategy.
+The covariates included for confounding control are detailed in [Appendix B](#appendix-demographics) These methods adhere to the guidelines provided in [@bulbulia2024PRACTICAL] and were pre-specified in our study protocol [https://osf.io/ce4t9/](https://osf.io/ce4t9/). 
+
+
+@tbl-02 presents a causal diagram of our identification strategy. The graphs are denoted $\mathcal{G}_{no.}$.
+
+In @tbl-02 $\mathcal{G}_1$, by including measures of the baseline treatment and baseline exposure, along with covariates thought to be common causes, unmeasured confounding would need to be orthogonal to these baseline measurements (refer to @vanderweele2020). However, the threat of orthogonal confounding persists, as shown in $\mathcal{G}_1-10$, which implies a need to assess the robustness of our results using sensitivity analysis.
+
+@tbl-02 $\mathcal{G}_2$ shows that if a confounder is measured in the treatment wave ($L_1$), and it is known that this confounder cannot be affected by the treatment, we should adjust for it in our model.
+
+In contrast, @tbl-02 $\mathcal{G}_3$ illustrates the threat of mediator bias. Since the treatment and confounders are measured simultaneously in each wave, including confounders measured in the treatment wave may bias results. To avoid such bias, we only included baseline confounders in our model and performed sensitivity analyses.
+
+@tbl-02 $\mathcal{G}_4$ presents instances of over-conditioning bias, which occurs when a baseline variable that is not a confounder is included, but becomes a confounder when conditioned upon. To avoid such biases, we used theory to construct our set of confounders, following VanderWeele’s modified disjunctive cause criterion [@vanderweele2019].
+
+@tbl-02 $\mathcal{G}_5$ and $\mathcal{G}_6$ highlight threats to valid inference arising from attrition. For example, if changes in religious status affect whether a participant stays in the study, or if there is a common cause of treatment and outcome in the censored data, our causal effect estimates may be biased.
+
+@tbl-02 $\mathcal{G}_7$ - $\mathcal{G}_8$ depict threats to valid causal inference from measurement error. If the errors in the treatment and outcome are uncorrelated ($\mathcal{G}_7$), the results will not generally be biased (though see @bulbulia2024wierd). However, if there is a common cause of bias in reporting both religious service attendance and charitable giving/volunteering (correlated errors, $\mathcal{G}_8$), or if increasing/decreasing religious service affects the error in reporting charitable giving or volunteering (directed error, $\mathcal{G}9$), or both ($\mathcal{G}{10}$), causal effect estimates may be biased. Sensitivity analysis helps clarify the robustness of our results to these biases. For a primer on causal graphs see [@hernan2024WHATIF; @suzuki2020; @bulbulia2023]. We reconsider measurement error in the discussion.
 
 
 ::: {#tbl-02}
 ```{=latex}
-\lmtptablethree
+\threewavepaneltwo
 ```
-This table presents three Single World Intervention Graphs (SWIGs), one for each treatment condition we compare, refer to [@richardson2013].
+Causal diagrams showing sources of bias in a three wave panel study.
 :::
 
-@tbl-02 presents three Single World Intervention Graphs (SWIGs) that describe our identification strategy. We follow [@richardson2013]'s convention for explicitly representing a conditional treatment intervention using Single World Intervention Graphs (SWIGs). Refer to [@richardson2023potential; @richardson2013; @robins2010alternative; @richardson2013swigsprimer; @shpitser2016causal; @richardson2023potential]. On modified treatment policies refer to [@diaz2012population; @richardson2013; @young2014identification; @diaz2021nonparametric; @bulbulia2024swigstime].
+<!-- @tbl-02 presents three Single World Intervention Graphs (SWIGs) that describe our identification strategy. We follow [@richardson2013]'s convention for explicitly representing a conditional treatment intervention using Single World Intervention Graphs (SWIGs). Refer to [@richardson2023potential; @richardson2013; @robins2010alternative; @richardson2013swigsprimer; @shpitser2016causal; @richardson2023potential]. On modified treatment policies refer to [@diaz2012population; @richardson2013; @young2014identification; @diaz2021nonparametric; @bulbulia2024swigstime]. -->
 
 
 ### Statistical Estimation
@@ -869,7 +895,7 @@ We used Targeted Minimum Loss-based Estimation (TMLE) to estimate causal effects
 
 In the first step, we modelled the relationships between treatments, covariates, and outcomes using machine learning algorithms, allowing for flexible modelling without restrictive assumptions. In the second step, we refined these initial estimates through an iterative updating process guided by the "efficient influence function," improving the accuracy of the causal effect estimates [@van2014discussion].
 
-We used the `lmtp` package in R [@williams2021] for estimation, employing the `SuperLearner` library with predefined algorithms `SL.ranger`, `SL.glmnet`, and `SL.xgboost` [@polley2023; @xgboost2023; @Ranger2017]. Cross-validation was used to prevent overfitting.
+We used the `lmtp` package in R [@williams2021] for estimation, employing the `SuperLearner` library with predefined algorithms `SL.ranger`, `SL.glmnet`, and `SL.xgboost` [@polley2023; @xgboost2023; @Ranger2017]. We used 10-fold cross-validation was used to prevent overfitting.
 
 We generated graphs, tables, and output reports using the margot package [@margot2024].
 
@@ -888,28 +914,26 @@ To illustrate the magnitude of the interventions, we provide histograms (See @fi
 ```{r}
 #| label: fig-hist
 #| fig-cap: "This figure shows a histogram of responses to religious service frequency in the baseline + 1 wave. Responses above eight were assigned to eight, and values were rounded to the nearest whole number. The red dashed line shows the population average. (A) Responses in the gold bars are shifted to four on the Regular Religious Service intervention. All those responses in grey (four and above) remain unchanged. (B) On the zero-intervention, responses in the blue bars denote those shifted under the zero-intervention treatment."
-#| eval: true
-#| include: true
-#| echo: false
 #| fig-width: 10
 #| fig-height: 12
+#| echo: false
+#| include: true
+#| eval: true
 
-graph_density_of_exposure_both <- margot::here_read("graph_density_of_exposure_both")
 graph_density_of_exposure_both + theme_classic()
 ```
 {{< pagebreak >}}
 
 ### Changes in Religious Service Attendance
 
-Table @tbl-transition shows the transitions in religious service attendance from baseline to the treatment wave. Assessing changes in the treatment variable is essential for evaluating the positivity assumption and understanding the potential effect of changes in exposure [@vanderweele2020; @danaei2012; @hernan2024WHATIF]. We observe that attendance levels at 0 (no attendance) and 4 (weekly attendance) were most common, but transitions between states indicate variation in attendance over time.
+@tbl-transition shows the transitions in religious service attendance from baseline to the treatment wave. Assessing changes in the treatment variable is essential for evaluating the positivity assumption and understanding the potential effect of changes in exposure [@vanderweele2020; @danaei2012; @hernan2024WHATIF]. We observe that attendance levels at 0 (no attendance) and 4 (weekly attendance) were most common, but transitions between states indicate variation in attendance over time.
 
 ```{r}
 #| label: tbl-transition
 #| tbl-cap: "This transition matrix captures stability and change in religious service between the baseline and treatment wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the state at baseline (From), and the columns correspond to the state at the treatment wave (To). **Diagonal entries** (in **bold**) signify the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** signify the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts in the sample from the baseline state to other states."
-#| eval: true
 #| echo: false
-
-transition_table <- margot::here_read("transition_table")
+#| include: true
+#| eval: true
 
 transition_table$table
 ```
@@ -930,9 +954,9 @@ Results for the treatment contrasts between Regular Religious Service and Zero R
 ```{r}
 #| label: tbl-1_1
 #| tbl-cap: "This table reports the results of model estimates for the causal effects of a universal gain of weekly religious service vs. a universal loss of weekly religious service on reported charitable behaviours at the end of the study. Contrasts are expressed in standard deviation units."
-#| eval: true
-#| include: true
 #| echo: false
+#| include: false
+#| eval: true
 
 tab_all_prosocial |>
   mutate(across(where(is.numeric), ~ round(., 3))) %>%
@@ -946,10 +970,10 @@ tab_all_prosocial |>
 # round( ( sd_donations * tab_all_prosocial[1,1]), 2)
 ```
 
-For 'donations', the effect estimate is 0.132 [0.102, 0.161]. The E-value for this estimate is 1.507, with a lower bound of 1.426. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.426 to negate the observed effect. Weaker associations would not overturn it. We infer **evidence for causality**.  On the data scale, this intervention represents a difference of **NZD `r diff_charity` per adult per year** in charitable giving compared with the zero attendance intervention.
+For 'donations', the effect estimate is 0.132 [0.102, 0.161]. The E-value for this estimate is 1.507, with a lower bound of 1.426. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.426 to negate the observed effect. Weaker associations would not overturn it. We infer *evidence for causality*.  On the data scale, this intervention represents a difference of *NZD `r diff_charity` per adult per year* in charitable giving compared with the zero attendance intervention.
 
 
-The effect estimate for 'hours volunteer' is 0.123 [0.09, 0.156]. The E-value for this estimate is 1.482, with a lower bound of 1.389. We infer **evidence for causality**. On the data scale, this intervention represents a difference of **NZD `r diff_volunteer` minutes** per adult per week in volunteering compared with the zero attendance intervention.
+The effect estimate for 'hours volunteer' is 0.123 [0.09, 0.156]. The E-value for this estimate is 1.482, with a lower bound of 1.389. We infer *evidence for causality*. On the data scale, this intervention represents a difference of *NZD `r diff_volunteer` minutes* per adult per week in volunteering compared with the zero attendance intervention.
 
 
 #### Regular Religious Service vs. Status Quo Treatment Contrast for Donations and Volunteering
@@ -975,10 +999,10 @@ tab_all_prosocial_null |>
 #round( ( sd_donations * tab_all_prosocial_null[1,1]), 2)
 ```
 
-For 'donations', the effect estimate is 0.121 [0.102, 0.14]. The E-value for this estimate is 1.477, with a lower bound of 1.422. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.422 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**. On the data scale, this intervention represents an increase of **NZD `r charity_null` per adult per year** in expected charitable giving over the status quo.
+For 'donations', the effect estimate is 0.121 [0.102, 0.14]. The E-value for this estimate is 1.477, with a lower bound of 1.422. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.422 to negate the observed effect. Weaker confounding would not overturn it. We infer evidence for causality. On the data scale, this intervention represents an increase of *NZD `r charity_null` per adult per year* in expected charitable giving over the status quo.
 
 
-For 'hours volunteer', the effect estimate is 0.095 [0.066, 0.123]. The E-value for this estimate is 1.404, with a lower bound of 1.317. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.317 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.  On the data scale, this intervention represents an increase of **`r volunteer_null` minutes ** per adult per week in hours volunteering over the status quo.
+For 'hours volunteer', the effect estimate is 0.095 [0.066, 0.123]. The E-value for this estimate is 1.404, with a lower bound of 1.317. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.317 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.  On the data scale, this intervention represents an increase of *`r volunteer_null` minutes* per adult per week in hours volunteering over the status quo.
 
 
 #### Zero Religious Service vs. The Status Quo Treatment Contrast for Donations and Volunteering
@@ -1000,10 +1024,10 @@ tab_all_prosocial_null_zero |>
 ```
 
 
-For 'donations', the effect estimate is -0.011 [-0.029, 0.008]. The E-value for this estimate is 1.111, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer that **the evidence for causality is not reliable**. On the data scale, this intervention represents a difference of NZD `r charity_null_zero` per adult per year in charitable giving compared to the status quo. Still, again, this effect is not reliable.
+For 'donations', the effect estimate is -0.011 [-0.029, 0.008]. The E-value for this estimate is 1.111, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer that *the evidence for causality is not reliable*. On the data scale, this intervention represents a difference of NZD `r charity_null_zero` per adult per year in charitable giving compared to the status quo. Still, again, this effect is not reliable.
 
 
-The effect estimate for 'hours volunteer' is -0.028 [-0.042, -0.014]. The E-value for this estimate is 1.189, with a lower bound of 1.128. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.128 to negate the observed effect. Again, weaker confounding would not overturn it. We infer **evidence for causality**. **On the data scale, this intervention represents a difference of `r volunteer_null_zero` in volunteering minutes compared with the status quo.**
+The effect estimate for 'hours volunteer' is -0.028 [-0.042, -0.014]. The E-value for this estimate is 1.189, with a lower bound of 1.128. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.128 to negate the observed effect. Again, weaker confounding would not overturn it. We infer *evidence for causality*. On the data scale, this intervention represents a difference of `r volunteer_null_zero` in volunteering minutes compared with the status quo.
 
 
 ```{r}
@@ -1063,11 +1087,11 @@ tab_received_time |>
 
 ```
 
-For 'community gives time', the effect estimate is 1.378 [1.231, 1.541]. The E-value for this estimate is 2.1, with a lower bound of 1.764. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.764 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'community gives time', the effect estimate is 1.378 [1.231, 1.541]. The E-value for this estimate is 2.1, with a lower bound of 1.764. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.764 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
-For 'friends give time', the effect estimate is 1.187 [1.108, 1.271]. The E-value for this estimate is 1.658, with a lower bound of 1.454. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.454 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'friends give time', the effect estimate is 1.187 [1.108, 1.271]. The E-value for this estimate is 1.658, with a lower bound of 1.454. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.454 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
-For 'family gives time', the effect estimate is 0.95 [0.901, 1.003]. The E-value for this estimate is 1.288, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+For 'family gives time', the effect estimate is 0.95 [0.901, 1.003]. The E-value for this estimate is 1.288, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer *that evidence for causality is not reliable*.
 
 #### Regular Religious Service vs. Status Quo Treatment Contrast for Time Received From Others
 
@@ -1091,9 +1115,9 @@ tab_received_time_null |>
 
 
 
-For 'community gives time', the effect estimate is 1.289 [1.174, 1.415]. The E-value for this estimate is 1.899, with a lower bound of 1.626. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.626 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'community gives time', the effect estimate is 1.289 [1.174, 1.415]. The E-value for this estimate is 1.899, with a lower bound of 1.626. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.626 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
-For 'friends give time', the effect estimate is 1.128 [1.061, 1.199]. The E-value for this estimate is 1.508, with a lower bound of 1.315. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.315 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'friends give time', the effect estimate is 1.128 [1.061, 1.199]. The E-value for this estimate is 1.508, with a lower bound of 1.315. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.315 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
 For 'family gives time', the effect estimate is 0.958 [0.913, 1.006]. The E-value for this estimate is 1.258, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
 
@@ -1118,11 +1142,11 @@ tab_received_time_null_zero |>
 
 ```
 
-For 'family gives time', the effect estimate is 1.008 [0.991, 1.026]. The E-value for this estimate is 1.098, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+For 'family gives time', the effect estimate is 1.008 [0.991, 1.026]. The E-value for this estimate is 1.098, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer *that evidence for causality is not reliable*.
 
-For 'friends give time', the effect estimate is 0.95 [0.928, 0.973]. The E-value for this estimate is 1.288, with a lower bound of 1.197. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.197 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'friends give time', the effect estimate is 0.95 [0.928, 0.973]. The E-value for this estimate is 1.288, with a lower bound of 1.197. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.197 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
-For 'community gives time', the effect estimate is 0.936 [0.889, 0.985]. The E-value for this estimate is 1.339, with a lower bound of 1.14. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.14 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'community gives time', the effect estimate is 0.936 [0.889, 0.985]. The E-value for this estimate is 1.339, with a lower bound of 1.14. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.14 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
 ```{r}
 #| label: fig-study2
@@ -1163,11 +1187,11 @@ tab_all_received_money |>
 ```
 
 
-For 'community gives money', the effect estimate is 1.376 [1.112, 1.703]. The E-value for this estimate is 2.095, with a lower bound of 1.465. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.465 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'community gives money', the effect estimate is 1.376 [1.112, 1.703]. The E-value for this estimate is 2.095, with a lower bound of 1.465. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.465 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
-For 'family gives money', the effect estimate is 1.137 [1.028, 1.258]. The E-value for this estimate is 1.532, with a lower bound of 1.198. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.198 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'family gives money', the effect estimate is 1.137 [1.028, 1.258]. The E-value for this estimate is 1.532, with a lower bound of 1.198. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.198 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
-For 'friends give money', the effect estimate is 1.137 [0.964, 1.342]. The E-value for this estimate is 1.532, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+For 'friends give money', the effect estimate is 1.137 [0.964, 1.342]. The E-value for this estimate is 1.532, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer *that evidence for causality is not reliable*.
 
 
 #### Regular vs. Status Quo Causal Contrast on Money Received From Others
@@ -1192,11 +1216,11 @@ tab_all_received_money_null|>
 
 ```
 
-For 'community gives money', the effect estimate is 1.254 [1.098, 1.432]. The E-value for this estimate is 1.818, with a lower bound of 1.426. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.426 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'community gives money', the effect estimate is 1.254 [1.098, 1.432]. The E-value for this estimate is 1.818, with a lower bound of 1.426. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.426 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
-For 'family gives money', the effect estimate is 1.13 [1.037, 1.232]. The E-value for this estimate is 1.513, with a lower bound of 1.233. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.233 to negate the observed effect. Weaker confounding would not overturn it. We infer **evidence for causality**.
+For 'family gives money', the effect estimate is 1.13 [1.037, 1.232]. The E-value for this estimate is 1.513, with a lower bound of 1.233. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.233 to negate the observed effect. Weaker confounding would not overturn it. We infer *evidence for causality*.
 
-For 'friends give money', the effect estimate is 1.041 [0.951, 1.139]. The E-value for this estimate is 1.248, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+For 'friends give money', the effect estimate is 1.041 [0.951, 1.139]. The E-value for this estimate is 1.248, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer *that evidence for causality is not reliable*.
 
 #### Zero vs. Status Quo Causal Contrast on Money Received From Others
 
@@ -1220,11 +1244,11 @@ tab_all_received_money_null_zero|>
 ```
 
 
-For 'family gives money', the effect estimate on the risk ratio scale is 0.993 [0.953, 1.035]. The E-value for this estimate is 1.091, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+For 'family gives money', the effect estimate on the risk ratio scale is 0.993 [0.953, 1.035]. The E-value for this estimate is 1.091, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer *that evidence for causality is not reliable*.
 
-For 'friends give money', the effect estimate on the risk ratio scale is 0.915 [0.809, 1.036]. The E-value for this estimate is 1.412, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+For 'friends give money', the effect estimate on the risk ratio scale is 0.915 [0.809, 1.036]. The E-value for this estimate is 1.412, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer *that evidence for causality is not reliable*.
 
-For 'community gives money', the effect estimate on the risk ratio scale is 0.911 [0.796, 1.042]. The E-value for this estimate is 1.425, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer **that evidence for causality is not reliable**.
+For 'community gives money', the effect estimate on the risk ratio scale is 0.911 [0.796, 1.042]. The E-value for this estimate is 1.425, with a lower bound of 1. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1 to negate the observed effect. Weaker confounding would not overturn it. We infer *that evidence for causality is not reliable*.
 
 ```{r}
 #| label: fig-study_3
@@ -1257,20 +1281,20 @@ study_3
 
 To better evaluate the contributions of our methodology to current practice, we conducted a series of cross-sectional analyses using the baseline wave data. We quantified the statistical associations between religious service attendance and our focal prosocial outcomes. We included all regression covariates from the causal models (including sample weights) for each analysis, obviously omitting the outcome measured at baseline, i.e. the response variable.
 
-**Cross-sectional volunteering result**: the change in expected hours of volunteer work for a one-unit increase in religious service attendance is `r b_church_on_hours_charity`. Multiplying this by 4.2 gives a monthly estimate of `r regression_regular_church_volunteer_minutes` minutes. This result is `r percent_greater_regression_volunteer` percent greater than the effect estimated from the 'regular vs. zero' causal contrast, indicating an **overstatement in the cross-sectional regression model**.
+**Cross-sectional volunteering result**: the change in expected hours of volunteer work for a one-unit increase in religious service attendance is `r b_church_on_hours_charity`. Multiplying this by 4.2 gives a monthly estimate of `r regression_regular_church_volunteer_minutes` minutes. This result is `r percent_greater_regression_volunteer` percent greater than the effect estimated from the 'regular vs. zero' causal contrast, indicating an *overstatement in the cross-sectional regression model*.
 
-**Cross-sectional charitable donations result**: The coefficient for religious service on annual charitable donations suggests a change in expected donation amount per unit increase in attendance is `r b_church_on_charity_donate`. When adjusted to a monthly rate by multiplying by 4.2, this value equals NZ Dollars `r regression_regular_church_charity`. It is `r percent_greater_regression_donate` percent greater than our causal contrast estimate, again indicating an **overstatement in the cross-sectional regression model**.
+**Cross-sectional charitable donations result**: The coefficient for religious service on annual charitable donations suggests a change in expected donation amount per unit increase in attendance is `r b_church_on_charity_donate`. When adjusted to a monthly rate by multiplying by 4.2, this value equals NZ Dollars `r regression_regular_church_charity`. It is `r percent_greater_regression_donate` percent greater than our causal contrast estimate, again indicating an overstatement in the cross-sectional regression model.
 
 For Studies 2 and 3, which focus on community help received, we adjusted our analysis for the non-collapsibility of odds ratios by assuming a Poisson distribution for the outcome variables, obtaining a rate ratio that approximates a risk ratio [@huitfeldt2019collapsibility; @vanderweele2020]:
 
-**Cross-sectional community assistance received result: Time**: the exponentiated change in expectation for a one-unit change in religious service attendance is `r b_church_on_community_time_binary_exp_true` approximate risk rate ratio. The monthly rate ratio derived by multiplying this coefficient by 4.2 is `r community_time_risk_ratio`. This estimate is `r percent_greater_rr_community_time` percent greater than the 'regular vs. zero' causal estimate, pointing to an **overstatement in the cross-sectional regression model**.
+**Cross-sectional community assistance received result: Time**: the exponentiated change in expectation for a one-unit change in religious service attendance is `r b_church_on_community_time_binary_exp_true` approximate risk rate ratio. The monthly rate ratio derived by multiplying this coefficient by 4.2 is `r community_time_risk_ratio`. This estimate is `r percent_greater_rr_community_time` percent greater than the 'regular vs. zero' causal estimate, pointing to an overstatement in the cross-sectional regression model.
 
-**Cross-sectional community assistance received result: Money**: similarly, the exponentiated change for money received yields an approximate risk ratio of `r b_church_on_community_money_binary_exp_true`. The monthly risk ratio, after adjustment, is `r community_money_risk_ratio`. This rate ratio is `r percent_greater_rr_community_money` percent greater than the causal estimate, again revealing an **overstatement in the cross-sectional regression model**.
+**Cross-sectional community assistance received result: Money**: similarly, the exponentiated change for money received yields an approximate risk ratio of `r b_church_on_community_money_binary_exp_true`. The monthly risk ratio, after adjustment, is `r community_money_risk_ratio`. This rate ratio is `r percent_greater_rr_community_money` percent greater than the causal estimate, again revealing an overstatement in the cross-sectional regression model.
 
 *These findings underscore that the results of cross-sectional regressions, although suggestive, can considerably diverge from those obtained from the causal analysis of panel data.*
 {{< pagebreak >}}
 
-### Economic Impact of Religious Service Attendance on Charitable Donations
+### Economic Effect of Religious Service Attendance on Charitable Donations
 
 
 ```{r}
@@ -1401,14 +1425,14 @@ We leveraged results to estimate the approximate economic value of religious ser
 
 With `r nz_adult_population` adult residents in New Zealand in 2021:[^pop]
 
-- Multiplying the adult population by the average donation sum gives a status quo national estimate for charitable giving of **NZD `r factual_charity_estimate_pop`**.
-- The net gain to charity from country-wide regular attendance at religious services, compared to the status quo, is **NZD `r net_gain`**.
-- Conversely, although the net cost to charity from a complete cessation of regular religious service attendance is **NZD `r net_loss`**, recall the confidence interval crosses zero, and this effect is not reliable.
+1. Multiplying the adult population by the average donation sum gives a status quo national estimate for charitable giving of **NZD `r factual_charity_estimate_pop`**.
+2. The net gain to charity from country-wide regular attendance at religious services, compared to the status quo, is **NZD `r net_gain`**.
+3. Conversely, although the net cost to charity from a complete cessation of regular religious service attendance is **NZD `r net_loss`**, recall the confidence interval crosses zero, and this effect is not reliable.
 
-To provide context, consider these economic consequences against the New Zealand government’s annual budget in the year outcomes were measured (2021-2022) is **NZD `r nz_annual_budget`**.
+To provide context, consider these economic consequences against the New Zealand government’s annual budget in the year outcomes were measured (2021-2022) is *NZD `r nz_annual_budget`*.
 
-- **The expected gain from a nationwide adoption of regular religious service represents `r per_gain` percent of New Zealand's annual government budget 2021.**
-- We do not obtain a reliable effect from the loss intervention.
+1. The expected gain from a nationwide adoption of regular religious service represents `r per_gain` percent of New Zealand's annual government budget 2021.
+2. We do not obtain a reliable effect from the loss intervention.
 
 [^pop]: [National Population Estimates at 30 June 2021](https://www.stats.govt.nz/information-releases/national-population-estimates-at-30-june-2021)
 [^source]: [Budget 2021](https://www.treasury.govt.nz/publications/budgets/budget-2021)
@@ -1419,27 +1443,66 @@ However, if New Zealand were to experience a complete cessation of religious ser
 
 [^noteloss]: We emphasise that failure to rule out an effect is not the same as ruling it out. The relatively low levels of religious service attendance in New Zealand mute differences in expected giving. In our view, some amount of charity is always better than none. We do not devalue any form of charitable giving. Furthermore, our population-wide estimates for the aggregated effects of *religious behaviour* do not clarify the effects of gaining or losing *religious institutions*; our analysis reflects the contributions made by those participating in religious institutions.
 
-## Discussion 
+## Discussion
 
-### Considerations
+Our study provides compelling evidence that regular religious service attendance causally enhances prosocial behaviours — specifically charitable donations and volunteering—in New Zealand. By employing robust causal inference methods on longitudinal panel data, we demonstrated that increasing religious attendance across the population could substantially elevate these prosocial activities beyond current levels. Conversely, eliminating religious services entirely would have minimal impact compared to the status quo, given the relatively low baseline levels of religious attendance.
 
-First, as stated above, our causal inferences turn on three assumptions, which are worth revisiting:
+These findings underscore the critical importance of precise causal inquiry when examining the social effects of religion. The overarching question -- "Does religion cause prosociality?"  -- is insufficiently specific and potentially misleading. Meaningful investigation requires articulating precise causal contrasts, selecting specific measures of religious belief, behaviour, and prosociality, defining the target population, and collecting appropriate repeated-measures data over time in sufficiently large samples. Only by satisfying causal assumptions and identification criteria can robust statistical estimates be obtained. Employing flexible statistical estimators reduces the risk of model misspecification, and sensitivity analyses are essential for evaluating the robustness of these estimates [@hernan2024WHATIF; @vanderweele2020].
 
-(i). **Unmeasured confounding**: Although we employ robust methods for causal inference, our results depend on the effectiveness of our strategy to control for confounding. Our sensitivity analyses address the potential impacts of unmeasured confounders. Nevertheless, the presence and influence of such confounders are uncertain and unverifiable from our data.
+Our methodological approach involved defining specific intervention contrasts that increased or decreased religious attendance, adjusting for baseline confounders —- including prior measures of treatment and outcomes -- using flexible, doubly robust machine learning ensembles with cross-validation, and comparing expected average outcomes under different treatments one year later.
 
-(ii). **Causal consistency**: The observed outcomes must correspond to the counterfactual treatments contrasted. Although "religious service attendance" may appear conditionally independent of the outcomes given baseline covariates, interpreting these interventions remains challenging. "Religious service attendance" varies widely, encompassing everything from informal gatherings at homes to formal services in cathedrals across New Zealand's religious diversity. This type of "treatment" does not mirror a straightforward medical intervention like a vaccine. The heterogeneity of "religious service" limits the clarity of our results, an issue no amount of data or analysis can resolve because "religious service" reflects a broad spectrum of community activities.
+Importantly, our study reveals that traditional effect size measures, such as Cohen’s d or $R^2$, can misrepresent practical significance when not grounded in causal inference. While the standardised effect size for the difference between regular religious service and no service was modest (0.132 [0.102, 0.161]), this translated into an increase in annual charitable donations from NZD r mean_donations_null to NZD r mean_donations_gain per individual. Aggregated across the population, this represents 4% of New Zealand’s Annual Government Budget in 2021—a substantial real-world impact. This highlights the inadequacy of relying solely on conventional statistical measures without valid causal estimates, particularly when informing policy decisions. We recommend that researchers prioritise causal inference to evaluate and communicate practical effect sizes accurately.
 
-(iii). **Positivity**: We have confirmed that religious service attendance varies within our sample and have used semi-parametric models with ensemble learning and cross-validation to prevent data over-extrapolation and model over-fitting. Conceptually, it is crucial for valid causal inference that every potential level of "treatment" to religious services is realistically possible (refer to the discussion in @vanderweele2017causaleffectsService). Although there are instances realised in our data of secular individuals initiating religious service and frequent attendees stopping (refer to @tbl-transition), it might stretch credulity too far to imagine that such changes are possible for everyone.
+Our novel measures of prosociality -- help and financial support received from one’s community -- corroborate the findings from self-reported charitable donations and volunteering. This alignment supports evolutionary theories of religious prosociality that emphasise within-group cooperative benefits [@sosis2003cooperation; @whitehouse2023]. Public data indicating that religious institutions account for 40% of the charitable sector in New Zealand further substantiate our results [@McLeod2020, p.17]; see also [@brooks2004faith; @woodyard2014doing; @monsma2007religion]. Moreover, religious organisations tend to operate efficiently, owing to low administrative costs and high volunteer engagement [@khanna1995charity; @bekkers2011literature; @McLeod2020, p.26]. 
 
-Second, our study confronts the spectre of **measurement error**: Both direct and correlated measurement errors can introduce biases, either by implying effects where none exist or by attenuating true effects [@vanderweele2012MEASUREMENT]. Importantly, evaluating prosociality using multiple measures while also controlling for these measures and the treatment at baseline helps to mitigate measurement error concerns. Nevertheless, unknown combinations of measurement error might bias our results. The outcomes and estimates we report here are best considered approximations.
+Despite the strengths of our study, some limitations persist. Measurement error, both direct and correlated, can bias findings by inflating or attenuating true effects [@vanderweele2012MEASUREMENT; @bulbulia2024wierd]. As noted by @bekkers2011accuracy, even uncorrelated errors can lead to biased estimates of charitable giving. Although we used multiple measures and controlled for baseline variables to reduce this bias, unknown errors may still affect our results. If the measurement errors in economic consequences are uncorrelated with religion, our estimates could be conservatively biased.
 
-Third, we do not examine **treatment effect heterogeneity**: Identifying which subgroups experience the strongest responses remains a task for future research. Such investigations are crucial for making informed policy decisions and tailoring advice relevant to those subgroups of the population who might benefit most. Perhaps the most obvious stratum is religious affiliates [@vanderweele2017causaleffectsService].
+Furthermore, we did not examine treatment effect heterogeneity. Identifying subgroups that exhibit the strongest responses is crucial for both scientific understanding and effective policy-making, a question for future investigations. Relately, our analysis does not specify the specific targets of charitable donations and volunteering across the population.
 
-Fourth, the **transportability of our findings remains unclear**: New Zealand is our target population. Our findings generalise to this population. However, the transportability of our findings to other settings—whether our results generalise beyond our targeted New Zealand population—remains an open question, a matter for future investigations.
+More fundamental, the generalisability of our findings beyond New Zealand is uncertain. Although our results are applicable to the New Zealand population, further research is needed to determine whether these findings can be extended to other cultural or national contexts. Initiatives such as the Global Flourish Study [@johnson2022global] will eventually provide opportunities to apply causal methods in diverse cultures. 
 
-### Observations and Recommendations
+Overall, by integrating robust causal methods with longitudinal panel data, we provide clear quantitative evidence that religious service attendance causally influences prosocial behaviours. Beyond the significance of these findings, we hope this study encourages psychological scientists to adopt causal methods, which remain underutilised in the discipline [@bulbulia2024swigstime]. Crucially, most psychological questions are inherently causal. To understand the effects of interventions requires something more than the associational methods that dominate observational psychology.
 
-First, it is essential to notice that "Does religion cause prosociality?" lacks specificity. To refine this question, we must articulate clear causal contrasts and their scale, select specific measures of "prosociality," define our target population, gather appropriate time-series data, and, only after causal assumptions and identification criteria are satisfied and threats made explicit, calculate statistical estimates. Having obtained these estimates, which rely on assumptions, we must evaluate robustness using sensitivity analyses [@hernan2024WHATIF; @ogburn2021; @bulbulia2022; @linden2020EVALUE; @vanderweele2020].
+Recent advances in computer science, epidemiology, and economics have produced conceptual and statistical tools that enable researchers to leverage observational time-series data to rigorously assess the consequences of interventions. These tools create new opportunities for investigating how interventions shape human thought and behaviour, providing a clearer path for designing and evaluating policies that affect how we relate to each other.
+
+<!-- 
+Despite employing robust causal inference methods, our findings hinge on assumptions that merit revisiting. First, unmeasured confounding remains a concern. While our sensitivity analyses address the potential effects of unmeasured confounders, their presence and influence cannot be entirely ruled out or verified within the confines of our data.
+
+Second, "Religious service attendance" encompasses a wide spectrum -- from informal home gatherings to formal cathedral services -- across New Zealand’s diverse religious traditions. This heterogeneity complicates interpretation; our “treatment” is not as uniform as a medical intervention like a vaccine. This inherent variability limits interpretation of our results, and no amount of data or analysis can fully resolve this issue.
+
+Third, the assumption of positivity demands that all levels of "treatment" -- in this case, religious service attendance -- are realistically attainable for all individuals. Although our data include instances of secular individuals beginning to attend services and frequent attendees ceasing attendance (see Table @tbl-transition), it may be unrealistic to assume that such shifts are possible for everyone. This limitation could affect the validity of our causal inferences.
+
+Fourth, we have focussed on average treatment effects across an adult population. Future studies should examine treatment effect heterogeneity. Determining which subgroups exhibit the strongest responses will improve both scientific understanding and policy-making. 
+
+Fifth, measurement error poses a challenge. Direct and correlated measurement errors can bias our findings, potentially suggesting effects where none exist or diminishing true effects [@vanderweele2012MEASUREMENT]. Although we attempted to mitigate this by using multiple measures of prosociality and controlling for these at baseline, unknown combinations of measurement error may still bias our results. More basic, it is unclear the extent to which self-reported charity and volutneering accurately reflects behaviour. The extend to which people under-report and over-report charitable giving and volunteering has yet to be systematically investigated in New Zealand. Therefore, our reported outcomes and estimates should be considered approximations.
+
+Finally, the generalisability of our findings beyond New Zealand is uncertain. Although our results are applicable to the New Zealand population, it remains to be seen whether they can be transported to other cultural or national contexts. This question warrants further investigations.
+
+
+Despite these limitations, our study provides compelling evidence that regular religious service attendance causally enhances prosocial behaviours — specifically charitable donations and volunteering—in New Zealand. By employing robust causal inference methods on longitudinal panel data, we demonstrated that increasing religious attendance across the population could substantially elevate these prosocial activities beyond current levels. Conversely, eliminating religious services entirely would have minimal impact compared to the status quo, given the relatively low baseline levels of religious attendance.
+
+These findings underscore the critical importance of precise causal inquiry when examining the social effects of religion. The overarching question -- "Does religion cause prosociality?"  -- is insufficiently specific and potentially misleading. Meaningful investigation requires articulating precise causal contrasts, selecting specific measures of religious belief, behaviour, and prosociality, defining the target population, and collecting appropriate repeated-measures data over time in sufficiently large samples. Only by satisfying causal assumptions and identification criteria can robust statistical estimates be obtained. Employing flexible statistical estimators reduces the risk of model misspecification, and sensitivity analyses are essential for evaluating the robustness of these estimates [@hernan2024WHATIF; @vanderweele2020].
+
+Our methodological approach involved defining specific intervention contrasts that increased or decreased religious attendance, adjusting for baseline confounders —- including prior measures of treatment and outcomes -- using flexible, doubly robust machine learning ensembles with cross-validation, and comparing expected average outcomes under different treatments one year later.
+
+Importantly, our study reveals that traditional effect size measures, such as Cohen’s d or $R^2$, can misrepresent practical significance when not grounded in causal inference. While the standardised effect size for the difference between regular religious service and no service was modest (0.132 [0.102, 0.161]), this translated into an increase in annual charitable donations from NZD `r mean_donations_null` to NZD `r mean_donations_gain` per individual. Aggregated across the population, this represents 4% of New Zealand’s Annual Government Budget in 2021 -- a substantial real-world effect. This highlights the inadequacy of relying solely on conventional statistical measures without valid causal estimates, particularly when informing policy decisions. We recommend that researchers prioritise causal inference to evaluate and communicate practical effect sizes accurately.
+
+Our novel measures of prosociality -- help and financial support received from one’s community -- corroborate the findings from self-reported charitable donations and volunteering. This alignment supports evolutionary theories of religious prosociality that emphasise within-group cooperative benefits [@sosis2003cooperation; @whitehouse2023]. Public data indicating that religious institutions account for 40% of the charitable sector in New Zealand further substantiate our results [@McLeod2020, p.17]; see also [@brooks2004faith; @woodyard2014doing; @monsma2007religion]. Moreover, religious organisations tend to operate efficiently, owing to low administrative costs and high volunteer engagement [@khanna1995charity; @bekkers2011literature; @McLeod2020, p.26]. 
+
+Despite the strengths of our study, limitations remain. Measurement error is an inherent challenge; both direct and correlated measurement errors can bias findings, either inflating or attenuating true effects [@vanderweele2012MEASUREMENT]. Although we attempted to mitigate this threat by using multiple measures of volunteering and charitable donations, and controlling for baseline measures of these indicators, unknown measurement errors may still influence our results.
+
+Furthermore, we did not examine treatment effect heterogeneity in this study. However, identifying subgroups that exhibit the strongest responses is crucial for both scientific understanding and effective policy-making, a topic for future investigations.
+
+Finally, the generalisability of our findings beyond New Zealand is uncertain. Although our results are applicable to the New Zealand population, further research is needed to determine whether these findings can be extended to other cultural or national contexts. Initiatives such as the Global Flourish Study [@johnson2022global] will eventually provide opportunities to apply causal methods in diverse cultures. 
+
+By integrating robust causal methods with longitudinal panel data, we have provided quantitative evidence that religious service attendance causally influences prosocial behaviours. While these findings are significant in their own right, we also hope that this study encourages a shift towards the adoption of causal inference methods in psychological science. Despite their demonstrated effectiveness, causal inference methods remain relatively uncommon in many human sciences, particularly in psychology, where traditional associational approaches continue to dominate.
+
+Admittedly, transitioning to causal methods may seem challenging, given the need for formal retraining and the demands of longitudinal data collection. Yet, causation unfolds over time, with causes preceding effects, and understanding these relationships requires methods that reflect this temporal structure. Estimating average causal effects demands multi-step workflows and robust time-series data, but these complexities should not deter researchers. Encouragingly, causal inference techniques have become standard practice in fields such as epidemiology [@lash2020] and are gaining ground in economics [@angrist2009mostly; @athey2019; @athey2021] and political science [@montgomery2018]. As these disciplines have shown, the effort required to adopt these methods is well worth the insights they provide.
+
+Ultimately, advancing psychological science will depend on moving beyond purely associational methods. The ability to rigorously assess causal relationships opens new avenues for understanding behaviour, intervention, and policy relevance -- opportunities that the field can no longer afford to overlook. -->
+
+
+<!-- First, it is essential to notice that "Does religion cause prosociality?" lacks specificity. To refine this question, we must articulate clear causal contrasts and their scale, select specific measures of "prosociality," define our target population, gather appropriate time-series data, and, only after causal assumptions and identification criteria are satisfied and threats made explicit, calculate statistical estimates. Having obtained these estimates, which rely on assumptions, we must evaluate robustness using sensitivity analyses [@hernan2024WHATIF; @ogburn2021; @bulbulia2022; @linden2020EVALUE; @vanderweele2020].
 
 Here, we obtain statistical estimates for the causal effects of religious service on charity and volunteering by (1) stating contrasts for specific interventions that increase and decrease religious service attendance across the population; (2) balancing the interventions to be compared on baseline confounders measured one year before treatment (including baseline measures of the treatment and outcomes) using flexible doubly robust machine learning ensembles with cross-validation; and (3) evaluating contrasts in expected average outcomes under different treatments one year after treatment.
 
@@ -1461,7 +1524,7 @@ Setting intellectual benefits aside, it is vital to remember that investigators 
 
 Fifth, and finally, we frame this study's contribution in light of future horizons. This study combined robust causal methods with national panel data to quantitatively investigate the social consequences of religious behaviour. Using both stated and revealed indicators, we provide evidence that religious service attendance causally affects charitable donations and volunteering. These findings offer insights into *how much* religious service affects charity and volunteering in New Zealand and possibly in similar cultures. We hope this research will serve as a guide for studies in other settings.
 
-However, even within New Zealand, much remains to be discovered. We have not attempted to elucidate heterogeneity in the treatment effects we observe. Nor have we investigated the pathways by which religious service attendance affects social behaviours. A substantial body of research has examined the psychological and cultural features through which religious behaviours affect individuals [@norenzayan2016; @shaver2020church; @watts2016; @mccullough2016christian; @konvalinka2011synchronized; @lang2015effects; @cristofori2016neural; @shaver2015evolution; @sosis2005does]. Yet obtaining a causal understanding presents conceptual, modelling, and data challenges [@robins1992; @vanderweele2015; @Diaz2023; @diaz2021nonparametric]. In the years ahead, **we recommend the wider development and application of causal inferential methods employing repeated measurements over more than three years to investigate variation, interaction, and causal mediation**.
+However, even within New Zealand, much remains to be discovered. We have not attempted to elucidate heterogeneity in the treatment effects we observe. Nor have we investigated the pathways by which religious service attendance affects social behaviours. A substantial body of research has examined the psychological and cultural features through which religious behaviours affect individuals [@norenzayan2016; @shaver2020church; @watts2016; @mccullough2016christian; @konvalinka2011synchronized; @lang2015effects; @cristofori2016neural; @shaver2015evolution; @sosis2005does]. Yet obtaining a causal understanding presents conceptual, modelling, and data challenges [@robins1992; @vanderweele2015; @Diaz2023; @diaz2021nonparametric]. In the years ahead, **we recommend the wider development and application of causal inferential methods employing repeated measurements over more than three years to investigate variation, interaction, and causal mediation**. -->
 
 {{< pagebreak >}}
 
@@ -1855,8 +1918,6 @@ A single score was obtained from sibling counts by summing responses to the "How
 #| eval: true
 #| include: true
 #| echo: false
-
-table_baseline <- margot::here_read("table_baseline")
 table_baseline |>  kbl(format = "markdown")
 ```
 
@@ -1876,8 +1937,7 @@ table_baseline |>  kbl(format = "markdown")
 #| include: true
 #| echo: false
 
-table_exposures <-margot::here_read("table_exposures")
-table_exposures |>  kbl(format = "markdown")
+table_exposures |>  kbl(format = "latex",  booktabs = TRUE)
 ```
 
 
@@ -1894,9 +1954,6 @@ tbl-table-exposures-code presents baseline (NZAVS time 10) and exposure wave (NZ
 #| eval: true
 #| include: true
 #| echo: false
-
-transition_table_binary_gain <-margot::here_read("transition_table_binary_gain")
-
 transition_table_binary_gain$table
 ```
 
@@ -1912,8 +1969,6 @@ transition_table_binary_gain$table
 #| eval: true
 #| include: true
 #| echo: false
-
-transition_table_binary_zero <-margot::here_read("transition_table_binary_zero")
 transition_table_binary_zero$table
 ```
 
@@ -1932,8 +1987,6 @@ transition_table_binary_zero$table
 #| echo: false
 #| fig-width: 10
 #| fig-height: 10
-
-love_plot_one <- margot::here_read("love_plot_one")
 love_plot_one
 ```
 
@@ -1947,8 +2000,7 @@ love_plot_one
 #| eval: true
 #| include: true
 #| echo: false
-table_outcomes <-margot::here_read("table_outcomes")
-table_outcomes |>  kbl(format = "markdown")
+table_outcomes |>  kbl(format = "latex", booktabs = TRUE)
 ```
 
 
