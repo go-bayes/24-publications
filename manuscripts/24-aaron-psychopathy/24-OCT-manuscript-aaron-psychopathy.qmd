@@ -33,9 +33,8 @@ keywords:
 editor_options: 
   chunk_output_type: console
 format:
-  docx:
-    bibliography: /Users/joseph/GIT/templates/bib/references.bib
   pdf:
+    bibliography: /Users/joseph/GIT/templates/bib/references.bib
     sanitize: true
     keep-tex: true
     link-citations: true
@@ -74,12 +73,18 @@ loadfonts(device = "all")
 library("margot")
 library("glue")
 library("patchwork")
+library("kableExtra")
 
 
 
 push_mods <-
   fs::path_expand(
     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/lmtp/24/aaron_psychopathy"
+  )
+
+push_figs <-
+  fs::path_expand(
+    "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/lmtp/24/aaron_psychopathy/figs"
   )
 # reproducibility
 set.seed(123)
@@ -93,7 +98,6 @@ nice_exposure_name_emotional_stability <- glue::glue("Emotional Stability")
 nice_exposure_name_narcissism<- glue::glue("Narcissism")
 
 # load the glue package
-library(glue)
 
 
 
@@ -104,40 +108,15 @@ library(glue)
 t0_name_exposure <- here_read("t0_name_exposure")
 t1_name_exposure <- here_read("t1_name_exposure")
 
-t0_name_exposure
-
-# 
-# 
-# baseline_vars <- margot::here_read("baseline_vars")
-# exposure_var <- margot::here_read("exposure_var")
-# outcome_vars <- margot::here_read("outcome_vars")
-# 
-# # baseline_exposure_cat <- margot::here_read("baseline_exposure_cat")
-# baseline_wave <- margot::here_read("baseline_wave")
-# exposure_waves <- margot::here_read("exposure_waves")
-# outcome_wave <- margot::here_read("outcome_wave")
-# extra_vars <- margot::here_read("extra_vars")
-# all_vars <- margot::here_read("all_vars")
-# continuous_columns_keep <- margot::here_read("continuous_columns_keep")
-# ordinal_columns <- margot::here_read("ordinal_columns")
-# 
-# # read waves
-# all_waves <- margot::here_read("all_waves")
-# baseline_and_exposure_waves <- margot::here_read("baseline_and_exposure_waves")
-# baseline_and_outcome_waves <- margot::here_read("baseline_and_outcome_waves")
-
-# # get table/graphs
-# summary_tables <- margot::here_read_qs("summary_tables", push_mods)
-#
-# # n_total
-# n_total <- here_read("n_total")
-#
-# # n_this study
-# n_participants <- summary_tables$n_participants
+# original df for interpretations
+original_df <- margot::here_read("df_wide_encoded_ordered")
 
 
 # nice labels
+shift =   glue::glue('one point')
 scale_exposure <- glue::glue("(1-7)")
+nice_scale_exposure <- glue::glue("from 1 to 7")
+
 exposure_lower_bound <- glue::glue("1")
 exposure_upper_bound <- glue::glue("7")
 # shift =   glue::glue('two points')
@@ -149,7 +128,6 @@ nice_outcome_wave <- glue::glue("NZAVS time 12, years 2020-2021")
 # labels
 # # outcome vars
 # t4_outcome_vars_z <- paste0("t4_", outcome_vars, "_z")
-
 df_lmtp <- here_read_qs("df_lmtp", push_mods)
 
 # read health outcomes
@@ -164,89 +142,52 @@ t2_partner_outcomes_z
 t2_outcomes_z <- paste0("t2_", outcome_vars, "_z")
 
 # check
-t2_outcomes_z
+t2_outcomes_z <- sort(t2_outcomes_z)
+# t2_outcomes_z
 
-
-# label mappings for health outcomes
+# label mappings for  outcomes
 label_mapping_partner <- list(
-  "t2_partner_sat_relationship_z" = "Partner Relationship Satisfaction",
-  "t2_partner_conflict_in_relationship_z" = "Partner Relationship Conflict",
-  "t2_partner_kessler6_sum_z" = "Partner Kessler 6 Distress",
-  "t2_partner_kessler_latent_depression_z" = "Partner Kessler 6 Depression",
-  "t2_partner_kessler_latent_anxiety_z" = "Partner Kessler 6 Anxiety",
-  "t2_partner_lifesat_z" = "Partner Life Satisfaction",
-  "t2_partner_pwi_z" = "Partner Personal Well-Being Index",
-  "t2_partner_self_esteem_z" = "Partner Self Esteem"
+  "t2_partner_conflict_in_relationship_z" = "Conflict in Relationship: Partner",
+  "t2_partner_kessler_latent_anxiety_z" = "Kessler 6 Anxiety: Partner",
+  "t2_partner_kessler_latent_depression_z" = "Kessler 6 Depression: Partner",
+  "t2_partner_kessler6_sum_z" = "Kessler 6 Distress: Partner",
+  "t2_partner_lifesat_z" = "Life Satisfaction: Partner",
+  "t2_partner_pwi_z" = "Personal Well-Being Index: Partner",
+  "t2_partner_sat_relationship_z" = "Satisfaction with Relationship: Partner",
+  "t2_partner_self_esteem_z" = "Self Esteem: Partner"
 )
 
 label_mapping_self <- list(
-  "t2_sat_relationship_z" = "Relationship Satisfaction",
-  "t2_conflict_in_relationship_z" = "Relationship Conflict",
-  "t2_kessler6_sum_z" = "Kessler 6 Distress",
-  "t2_kessler_latent_depression_z" = "Kessler 6 Depression",
-  "t2_kessler_latent_anxiety_z" = "Kessler 6 Anxiety",
-  "t2_lifesat_z" = "Life Satisfaction",
-  "t2_pwi_z" = "Personal Well-Being Index",
-  "t2_self_esteem_z" = "Self Esteem"
+  "t2_conflict_in_relationship_z" = "Conflict in Relationship: Self",
+  "t2_kessler_latent_anxiety_z" = "Kessler 6 Anxiety: Self",
+  "t2_kessler_latent_depression_z" = "Kessler 6 Depression: Self",
+  "t2_kessler6_sum_z" = "Kessler 6 Distress: Self",
+  "t2_lifesat_z" = "Life Satisfaction: Self",
+  "t2_pwi_z" = "Personal Well-Being Index: Self",
+  "t2_sat_relationship_z" = "Satisfaction with Relationship: Self",
+  "t2_self_esteem_z" = "Self Esteem: Self"
 )
 
 
-# treatment_gain <- glue::glue("What would be the average responses to each of the outcomes of interest if everyone in the New Zealand population increased {shift} in {nice_exposure_name} up to a maximum of {exposure_upper_bound} ({nice_scale_exposure})?")
 
-# treatment_done <- glue::glue("If the New Zealand population started with full Religious Identification and subsequently shifted for three years what would be the population average meaning of life scores one year later?")
-#
-# treatment_religious <- glue::glue("If the New Zealand population started with full identification and subsequently stayed religious for three years, what would be the population average meaning of life scores one year later?")
-#
-# treatment_secular<- glue::glue("If the New Zealand population started secular and remained secular for three years, what would be the population average meaning of life scores at the end of study?")
+treatment_contrast <- glue::glue("What would be the average responses the population of partners in New Zealand couples increased + {shift} in a {nice_exposure_name} up to a maximum of {exposure_upper_bound} ({nice_scale_exposure}), compared with a -{shift} in the same facet?")
 
-# treatment_loss_null <- glue::glue("{treatment_loss} compared with observed levels of intervention?")
 
-# gain_null <- glue::glue("Gain {shift} in {nice_exposure_name} to max {exposure_upper_bound} ({nice_scale_exposure}) vs. no change")
-# loss_null <- glue::glue("Decrease {shift} in {nice_exposure_name} to a minimum of {exposure_lower_bound} ({nice_scale_exposure}) vs. no change")
+treatment_loss_null <- glue::glue("-{shift} compared with observed levels of intervention?")
+
+treatment_gain_null <- glue::glue("+{shift} compared with observed levels of intervention?")
 
 # create the titles with automatic exposure insertion
-title <- glue("Shift + 1 up vs. Shift - 1 down (baseline)")
-
-# title <- glue::glue("Causal Effects of Loss of Psychopathy Combined on Multi-Dimensional Well-Being")
- 
+title <- glue("Shift {shift} up vs. Shift {shift} point down (baseline)")
 
 
-
-## Read in data from analysis 
-# imports
-n_participants <- readRDS(here::here(push_mods, "n_participants"))
-
-n_participants
-
-# variables
-# baseline_vars <- margot::here_read("baseline_vars")
-# exposure_var <- margot::here_read("name_exposure") # single name
-# outcome_vars <- margot::here_read("outcome_vars")
-# baseline_vars <- margot::here_read("baseline_vars")
-# exposure_var <- margot::here_read("name_exposure") # single name
-# outcome_vars <- margot::here_read("outcome_vars")
-# all_outcomes <- outcome_vars
-
-
-
-# waves
-# save
 baseline_wave <- margot::here_read("baseline_wave")
 exposure_waves <- margot::here_read("exposure_waves")
 exposure_wave <- margot::here_read("exposure_waves")
 outcome_wave <- margot::here_read("outcome_wave")
 
-
-
-# read waves
-# all_waves <- margot::here_read("all_waves")
-# baseline_and_exposure_waves <- margot::here_read("baseline_and_exposure_waves")
-# baseline_and_outcome_waves <- margot::here_read("baseline_and_outcome_waves")
-
 # get table/graphs
 summary_tables <- margot::here_read_qs("summary_tables", push_mods)
-exposure_var
-
 
 # n_this study
 n_participants <- summary_tables$n_participants
@@ -261,118 +202,148 @@ scale_exposure <- glue::glue('1-7')
 nice_scale_exposure =  glue::glue('ordinal scale 1-7')
 exposure_lower_bound =  glue::glue('1')
 exposure_upper_bound =  glue::glue('7')
-shift =   glue::glue('one point')
+
 nice_baseline_wave = glue::glue("NZAVS time 12, years 2020-2021")
 nice_exposure_wave =  glue::glue("NZAVS time 13, years 2021-2022")
 nice_outcome_wave =  glue::glue("NZAVS time 14, years 2022-2023")
 
-treatment_gain <- glue::glue("What would be the average responses to each of the outcomes of interest if everyone in the New Zealand population increased {shift} in {nice_exposure_name} up to a maximum of {exposure_upper_bound} ({nice_scale_exposure})?") 
-
-treatment_loss <- glue::glue("What would be the average responses to each of the outcomes of interest if everyone in the New Zealand population decreased to a minimum of {exposure_lower_bound} ({nice_scale_exposure})?") 
-
-treatment_null <- glue::glue("What is the average responses to each of the outcomes of interest across the New Zealand population when everyone is given their observed level of {nice_exposure_name}?") 
-
-treatment_gain_null <- glue::glue("{treatment_gain} compared with observed levels of intervention?") 
-
-treatment_loss_null <- glue::glue("{treatment_loss} compared with observed levels of intervention?") 
-
-
-gain_null <- glue::glue("Causal effect of gain {shift} in {nice_exposure_name} to max {exposure_upper_bound} ({nice_scale_exposure}) vs. no change") 
-loss_null <- glue::glue("Causal effect of decrease {shift} in {nice_exposure_name} to a minimum of {exposure_lower_bound} ({nice_scale_exposure}) vs. no change") 
-
-
-
-
-# measures_path
-# measures path for boilerplates
-#measures_path_cursor <- here::here("models", "boilerplate", "data")
-# #measure_data <- readRDS(here::here(measures_path_cursor, "merged_db.rds"))
-# measures_path_rstudio <- here::here("boilerplate", "data")
-# measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
-# 
-# 
-
-
-
-
-# read data
-# # plot_lmtp_gain_loss <- here_read_qs("plot_lmtp_gain_loss", push_mods)
-# plot_lmtp_gain_null <- here_read_qs("plot_lmtp_gain_null", push_mods)
-# plot_lmtp_loss_null <- here_read_qs("plot_lmtp_loss_null", push_mods)
-# 
-
-
-
-# # propensity model
-# propensity_model_and_plots <- margot::here_read_qs("propensity_model_and_plots", push_mods)
-# 
-
-##################################################################
-# read graphs
-# exposure_plot_slope_covariate_list <- here_read_qs("exposure_plot_slope_covariate_list", push_mods)
-# 
-# many_outcomes_combined_plot<-  here_read_qs("many_outcomes_combined_plot", push_mods)
-# 
-# 
-# # longer trend
-# long_exposure_plot_slope_covariate_list <- here_read_qs("long_exposure_plot_slope_covariate_list", push_talks)
-
-# long_exposure_plot_slope_covariate_list$env_not_climate_chg_concern
-# long_exposure_plot_slope_covariate_list$env_not_climate_chg_cause
-# long_exposure_plot_slope_covariate_list$env_not_climate_chg_real
-# long_exposure_plot_slope_covariate_list$env_not_sat_nz_environment
-# long_exposure_plot_slope_covariate_list$env_not_env_efficacy
-
-
-# histogram_exposure <- here_read_qs("histogram_political_conservative_by_wave", push_mods)
-# histogram_political_conservative_by_wave<- here_read_qs("histogram_political_conservative_by_wave",  push_mods)
-# # lmtp shifts
-# shift_exposure_up <- here_read_qs("shift_political_conservative_up", push_mods)
-# shift_exposure_up
-# shift_exposure_down <- here_read_qs("shift_political_conservative_down", push_mods)
-# shift_exposure_down
-# boxplot_exposure <- here_read_qs("baseline_and_exposure_waves_boxplot_political_conservative", push_mods)
-# boxplot_exposure
-# boxplot_outcomes <- here_read_qs("boxplot_env_not_climate_chg_cause_env_not_climate_chg_concern_env_not_climate_chg_real_env_not_env_efficacy_env_not_sat_nz_environment", push_mods)
-# boxplot_outcomes
-
-# 
-# environmental_attitudes_combined_combined_plot <- margot::read_multiple_images(push_mods, ".*environmental_attitudes_combined_combined_plot\\.png$")
-# 
-
-
-#########################################################
-# invariant names by study
-# propensity_model_and_plots <- here_read_qs("propensity_model_and_plots", push_mods)
-# transition_matrix_cat <- margot::here_read("transition_matrix_cat")
-# transition_matrix <- margot::here_read("transition_matrix")
-# 
-# # end new material
-# # marginal graph 
-# multi_results_margot_plot_output <- here_read_qs("multi_results_margot_plot_output", push_mods)
-# 
-# plot_outcome_change <- here_read_qs("env_not_env_efficacy_ggeffects_plot_env_not_env_efficacy_by_wave_political_conservative", 
-#                                     push_mods)
-
-#########################################################
-# invariant names by study
-# propensity_model_and_plots <- here_read_qs("propensity_model_and_plots", push_mods)
-# transition_matrix <- margot::here_read("transition_matrix")
-
-
-# get table/graphs
-summary_tables <- margot::here_read_qs("summary_tables", push_mods)
-
-
-# # marginal graph 
-# multi_results_margot_plot_output <- here_read_qs("multi_results_margot_plot_output", push_mods)
-# 
-# 
 
 ## correlation not causation
 # load required libraries
 library(ggplot2)
 library(ggokabeito)
+
+# plot options
+# plot options ------------------------------------------------------------
+options_base_partner <- list(
+  type = "RD",
+  title = title,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -1, # will be set based on type
+  x_lim_lo = -1, # will be set based on type
+  x_lim_hi = .5, # will be set based on type
+  text_size = 5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_partner
+)
+
+
+options_base_self <- list(
+  type = "RD",
+  title = title,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -1, # will be set based on type
+  x_lim_lo = -1, # will be set based on type
+  x_lim_hi = .5, # will be set based on type
+  text_size = 5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_self)
+
+options_antagonism_partner<- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Partner",
+  base_defaults = options_base_partner,
+  filename_prefix = "antagonism_partner"
+)
+
+
+options_antagonism_self<- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Self",
+  base_defaults = options_base_self,
+  filename_prefix = "antagonism_self"
+)
+
+options_disinhibition_partner<- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Partner",
+  base_defaults = options_base_partner,
+  filename_prefix = "disinhibition_partner"
+)
+
+options_disinhibition_self<- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Self",
+  base_defaults = options_base_self,
+  filename_prefix = "disinhibition_self"
+)
+
+
+options_emotional_stability_partner<- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Partner",
+  base_defaults = options_base_partner,
+  filename_prefix = "emotional_stability_partner"
+)
+
+options_emotional_stability_self<- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Self",
+  base_defaults = options_base_self,
+  filename_prefix = "emotional_stability_self"
+)
+
+
+options_narcissism_partner<- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Partner",
+  base_defaults = options_base_partner,
+  filename_prefix = "narcissism_partner"
+)
+
+options_narcissism_self<- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Self",
+  base_defaults = options_base_self,
+  filename_prefix = "narcissism_self"
+)
+
+options_psychopathy_combined_partner<- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Partner",
+  base_defaults = options_base_partner,
+  filename_prefix = "psychopathy_combined_partner"
+)
+
+options_psychopathy_combined_self<- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Self",
+  base_defaults = options_base_self,
+  filename_prefix = "psychopathy_combined_self"
+)
+
+
+# partner options
+# plot options
+options_antagonism_partner_osf<- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner,
+  filename_prefix = "antagonism_partner_osf"
+)
+
+
+options_disinhibition_partner_osf<- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner,
+  filename_prefix = "disinhibition_partner_osf"
+)
+
+
+
 
 # lmtp models -------------------------------------------------------------
 psychopathy_combined_partner_lmtp_output <- here_read_qs('psychopathy_combined_partner_lmtp_output', push_mods)
@@ -387,14 +358,19 @@ plot_psychopathy_combined_partner_lmtp_output <- margot_plot(
   original_df = original_df,
   label_mapping = label_mapping_partner
 )
-plot_psychopathy_combined_partner_lmtp_output$plot
 
+push_mods
+# margot_save_png(
+#   plot_psychopathy_combined_partner_lmtp_output$plot,
+#   save_path = here::here(push_figs),
+#   width = 12,
+#   height = 12,
+#   base_filename = "plot_psychopathy_combined_partner"
+# )
 
-
+# antagonism partner
 antagonism_partner_lmtp_output <- here_read_qs('antagonism_partner_lmtp_output', push_mods)
 
-test_tab <- group_tab((antagonism_partner_lmtp_output$combined_tables), type = "RD")
-margot_interpret_marginal(antagonism_partner_lmtp_output$combined_tables)
 
 plot_antagonism_partner_lmtp_output <- margot_plot(
   antagonism_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
@@ -403,13 +379,20 @@ plot_antagonism_partner_lmtp_output <- margot_plot(
   save_path = here::here(push_mods),
   original_df = original_df,
   label_mapping = label_mapping_partner
-  )
-plot_antagonism_partner_lmtp_output$plot
+)
+cat(plot_antagonism_partner_lmtp_output$interpretation)
+# save file
+# margot::margot_save_png(
+#   plot_antagonism_partner_lmtp_output$plot,
+#   width = 12,
+#   height = 12,
+#   save_path = here::here(push_figs),
+#   base_filename = "plot_antagonism_partner"
+# )
 
 
 
-
-
+# disinhibition partner
 disinhibition_partner_lmtp_output <- here_read_qs('disinhibition_partner_lmtp_output', push_mods)
 
 
@@ -422,9 +405,17 @@ plot_disinhibition_partner_lmtp_output <- margot_plot(
   label_mapping = label_mapping_partner
   
 )
-plot_disinhibition_partner_lmtp_output$plot
+plot_disinhibition_partner_lmtp_output$interpretation
 
+# margot::margot_save_png(
+#   plot_disinhibition_partner_lmtp_output$plot,
+#   width = 12,
+#   height = 12,
+#   save_path = here::here(push_figs),
+#   base_filename = "plot_disinhibition_partner"
+# )
 
+# emotional stability partner
 emotional_stability_partner_lmtp_output <- here_read_qs('emotional_stability_partner_lmtp_output', push_mods)
 
 plot_emotional_stability_partner_lmtp_output <- margot_plot(
@@ -437,10 +428,16 @@ plot_emotional_stability_partner_lmtp_output <- margot_plot(
   )
 plot_emotional_stability_partner_lmtp_output$plot
 
-=
+# margot::margot_save_png(
+#   plot_emotional_stability_partner_lmtp_output$plot,
+#   width = 12,
+#   height = 12,
+#   save_path = here::here(push_figs),
+#   base_filename = "plot_emotional_stability_partner"
+# )
+
+# narcissism
 narcissism_partner_lmtp_output <- here_read_qs('narcissism_partner_lmtp_output', push_mods)
-
-
 
 plot_narcissism_partner_lmtp_output <- margot_plot(
   narcissism_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
@@ -450,7 +447,15 @@ plot_narcissism_partner_lmtp_output <- margot_plot(
   original_df = original_df,
   label_mapping = label_mapping_partner
 )
-plot_narcissism_partner_lmtp_output$plot
+
+
+# margot::margot_save_png(
+#   plot_narcissism_partner_lmtp_output$plot,
+#   width = 12,
+#   height = 12,
+#   save_path = here::here(push_figs),
+#   base_filename = " plot_narcissism_partner"
+# )
 
 
 # self --------------------------------------------------------------------
@@ -467,9 +472,20 @@ plot_psychopathy_combined_self_lmtp_output <- margot_plot(
 
 )
 
-plot_psychopathy_combined_partner_lmtp_output$plot/
-plot_psychopathy_combined_self_lmtp_output$plot
+compare_partner_self_plot_psychopathy_combined <-plot_psychopathy_combined_self_lmtp_output$plot + plot_psychopathy_combined_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
 
+compare_partner_self_plot_psychopathy_combined
+
+# margot::margot_save_png(
+#   compare_partner_self_plot_psychopathy_combined,
+#   width = 24,
+#   height = 12,
+#   save_path = here::here(push_figs),
+#   base_filename = "compare_parter_self_plot_psychopathy_combined"
+# )
+
+
+# antagonism  self
 
 antagonism_self_lmtp_output <- here_read_qs('antagonism_self_lmtp_output', push_mods)
 antagonism_self_lmtp_output$combined_tables
@@ -484,9 +500,19 @@ plot_antagonism_self_lmtp_output <- margot_plot(
   label_mapping = label_mapping_self
 )
 
-plot_antagonism_partner_lmtp_output$plot/
-plot_antagonism_self_lmtp_output$plot
+compare_partner_self_plot_antagonism <-
+plot_antagonism_self_lmtp_output$plot + plot_antagonism_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
 
+compare_partner_self_plot_antagonism
+# margot::margot_save_png(
+#   compare_partner_self_plot_antagonism,
+#   width = 24,
+#   height = 12,
+#   save_path = here::here(push_figs),
+#   base_filename = "compare_partner_self_plot_antagonism"
+# )
+
+# disinhibition  self
 
 
 disinhibition_self_lmtp_output <- here_read_qs('disinhibition_self_lmtp_output', push_mods)
@@ -500,9 +526,20 @@ plot_disinhibition_self_lmtp_output <- margot_plot(
   label_mapping = label_mapping_self
 )
 
-plot_disinhibition_partner_lmtp_output$plot/
-plot_disinhibition_self_lmtp_output$plot
 
+compare_partner_self_plot_disinhibition <- plot_disinhibition_self_lmtp_output$plot+ plot_disinhibition_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
+
+# margot::margot_save_png(
+#   compare_partner_self_plot_disinhibition,
+#   width = 24,
+#   height = 12,
+#   save_path = here::here(push_figs),
+#   base_filename = "compare_partner_self_plot_disinhibition"
+# )
+# 
+
+
+# emotional stability self
 
 emotional_stability_self_lmtp_output <- here_read_qs('emotional_stability_self_lmtp_output', push_mods)
 
@@ -514,10 +551,23 @@ plot_emotional_stability_self_lmtp_output <- margot_plot(
   original_df = original_df,
   label_mapping = label_mapping_self
 )
-plot_emotional_stability_partner_lmtp_output$plot/plot_emotional_stability_self_lmtp_output$plot
 
 
 
+compare_partner_self_plot_emotional_stability <- plot_emotional_stability_self_lmtp_output$plot + plot_emotional_stability_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
+
+# margot::margot_save_png(
+#   compare_partner_self_plot_emotional_stability,
+#   width = 24,
+#   height = 12,
+#   save_path = here::here(push_figs),
+#   base_filename = "compare_partner_self_plot_emotional_stability"
+# )
+
+
+
+
+# narcissism self
 narcissism_self_lmtp_output <- here_read_qs('narcissism_self_lmtp_output', push_mods)
 
 plot_narcissism_self_lmtp_output <- margot_plot(
@@ -529,17 +579,24 @@ plot_narcissism_self_lmtp_output <- margot_plot(
   label_mapping = label_mapping_self
 )
 
+plot_narcissism_self_lmtp_output
+compare_partner_self_plot_narcissism <- plot_narcissism_self_lmtp_output$plot  + plot_narcissism_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
 
-plot_narcissism_self_lmtp_output$plot/
-plot_narcissism_self_lmtp_output$plot
+compare_partner_self_plot_narcissism
+margot::margot_save_png(
+  compare_partner_self_plot_narcissism,
+  width = 24,
+  height = 12,
+  save_path = here::here(push_figs),
+  base_filename = "compare_partner_self_plot_narcissism"
+)
+
 
 
 
 
 
 # models OSF original SPEC
-
-
 # plot options
 options_antagonism_partner_osf<- margot_plot_create_options(
   subtitle = "Antagonism Effect on Partner (OSF SPEC)",
@@ -583,7 +640,6 @@ options_psychopathy_combined_partner_osf<- margot_plot_create_options(
 
 
 psychopathy_combined_partner_osf_lmtp_output <- here_read_qs('psychopathy_combined_partner_osf_lmtp_output', push_mods)
-psychopathy_combined_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_shift_up
 
 
 plot_psychopathy_combined_partner_osf_lmtp_output <- margot_plot(
@@ -608,8 +664,7 @@ plot_antagonism_partner_osf_lmtp_output <- margot_plot(
   original_df = original_df,
   label_mapping = label_mapping_partner
 )
-plot_antagonism_partner_osf_lmtp_output$plot/plot_antagonism_partner_lmtp_output$plot
-
+plot_antagonism_partner_osf_lmtp_output$plot + plot_antagonism_partner_lmtp_output$plot
 
 
 
@@ -625,7 +680,7 @@ plot_disinhibition_partner_osf_lmtp_output<- margot_plot(
   label_mapping = label_mapping_partner
   
 )
-plot_disinhibition_partner_osf_lmtp_output$plot/plot_disinhibition_partner_lmtp_output$plot
+plot_disinhibition_partner_osf_lmtp_output$plot  + plot_disinhibition_partner_lmtp_output$plot
 
 
 emotional_stability_partner_osf_lmtp_output <- here_read_qs('emotional_stability_partner_osf_lmtp_output', push_mods)
@@ -638,7 +693,7 @@ plot_emotional_stability_partner_osf_lmtp_output<- margot_plot(
   original_df = original_df,
   label_mapping = label_mapping_partner
 )
-plot_emotional_stability_partner_osf_lmtp_output$plot/plot_emotional_stability_partner_lmtp_output$plot
+plot_emotional_stability_partner_osf_lmtp_output$plot + plot_emotional_stability_partner_lmtp_output$plot
 
 
 narcissism_partner_osf_lmtp_output <- here_read_qs('narcissism_partner_osf_lmtp_output', push_mods)
@@ -653,10 +708,10 @@ plot_narcissism_partner_osf_lmtp_output<- margot_plot(
   original_df = original_df,
   label_mapping = label_mapping_partner
 )
-plot_narcissism_partner_osf_lmtp_output$plot/plot_narcissism_partner_lmtp_output$plot
+plot_narcissism_partner_osf_lmtp_output$plot+ plot_narcissism_partner_lmtp_output$plot
 
-
-
+n_participants
+n_couples = 1012 / 2
 
 ```
 
@@ -687,7 +742,7 @@ The sample consisted of respondents to NZAVS times 10 (baseline, years 2018-2019
 - Missing data for all variables at baseline were allowed. Missing data at baseline were imputed through the `mice` package [@vanbuuren2018], and an extra column indicator was included to denote whether a variable was missing, following protocols described by [@williams2021].
 - Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave [@williams2021])
 
-There were `r n_participants` NZAVS participants who met these criteria in `r n_participants *2` couples.
+There were `r n_participants` NZAVS participants who met these criteria in `r n_couples` couples.
 
 
 ### Causal Contrast
@@ -696,24 +751,42 @@ Here, we leverage panel data to estimate potential outcomes in a hypothetical wo
 
 Our causal estimand takes a "shift function" or "modified treatment policy":
 
-$$ \text{Average Treatment Effect} = E\{E[Y(a^*)|\textcolor{red}{f(A)},L] - E[Y(a)|A,L]\} $$
+$$ \text{Average Treatment Effect} = E\{(E[Y(\text{Shift up})|A,L) - (E[Y(\text{Shift down})|A,L)\} $$
 
 **Intervention Functionals:**
 
 * **Shift up by +1 point:**
-   $$
-   f(A = a) = \begin{cases} a^* & \text{shift up by +1 point} \\ 
-   \tilde{a} & \text{observed value of the exposure} \end{cases}
-   $$
+
+
+$$
+\text{Shift up} \equiv f(A) = a^* = 
+\begin{cases}
+  A + 1 & \text{if the observed value of the exposure + 1 < 7 point, else:} \\
+  7 &
+\end{cases}
+$$
 
 * **Shift down by -1 point:**
-   $$
-   f(A = a) = \begin{cases} a^* & \text{shift up by -1 point} \\ 
-   \tilde{a} & \text{observed value of the exposure} \end{cases}
-   $$ 
+
+$$
+\text{Shift down} \equiv f(A) = \tilde{a} =  
+\begin{cases}
+  A - 1 & \text{if the the observed value of the exposure - 1 > 1, else:} \\
+  1 &
+\end{cases}
+$$
 
 
-Our primary interest is in the contrast of these intervention functionals.  {Appendix D](#appendix-D) reports contrssts for each intervention against the NULL of no intervention.
+* **Null**
+
+$$
+\text{Null} \equiv f(A) = a =  
+\begin{cases}
+  A & \text{the observed value of the exposure} \\
+\end{cases}
+$$
+
+Our primary interest is in the contrast of these intervention functionals.  {Appendix XX](#appendix-XX) reports contrast for each intervention against the NULL of no intervention.
 
 
 
@@ -790,57 +863,33 @@ We implemented a 10-fold cross-validation. This method partitions the data into 
 
 To measure senstivity to unmeasured confounding, we report VanderWeele and Ding's "E-value" for all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain-away the observed exposure-outcome association  [@vanderweele2020; @linden2020EVALUE]. For example, if the E-value were 1.3, it would mean an unmeasured confounder associated with both the treatment and outcome by a risk ratio of 1.3 each (or 30% increase in risk) could explain away the observed effect. Weaker confounding would not suffice. We also report the bound of the E-value closest to 1. If the lower bound of the CI were 1.1, to explain away the result, the strength of an unmeasured confounder in its association with both the treatment and the outcome would need to be at least 1.1 on the risk ratio scale (or a 10% increase in risk) to explain away the result [@vanderweele2017]. 
 
-## Study 1: Antagonism  
+
+### Deviations from pre-registered research
+
+Our current research deviates from our preregistered plan in three areas, all aimed at enhancing the robustness and validity of our findings.
+
+First, we adjusted our primary analysis to compare the average treatment effects of increasing psychopathic personality traits by one point for each individual (without exceeding the scale’s maximum) versus decreasing these traits by one point. This adjustment allows for greater separation between exposure conditions, closely emulating an experimental design and providing clearer insights into the effects of personality trait variations. Although it is possible to estimate numerous causal contrasts, comparing gains or losses with the null hypothesis of no change would yield contrasts that are not directly comparable. For completeness, all contrasts, including those from our original plan, are reported in Appendix XXX.
+
+Second, we incorporated an additional baseline confounder: reported health disability. The decision is based on the assumption that health disability may be a common cause influencing both personality traits and well-being outcomes.
+
+Third, we introduced indicators to denote when baseline variables had been imputed. This methodological refinement aligns our approach with the recommendations of @hoffman2023, ensuring transparency and robustness in handling missing data. By accounting for imputed data, we mitigate potential biases and strengthen the reliability of our results.
+
+The adjustments made in the second and third deviations resulted in a slight attenuation of the causal effect estimates, which was anticipated. Importantly, these changes did not alter our substantive conclusions, yet support credibility for our findings. Comprehensive reporting for the original preregistered study is provided in Appendix XXX.
+
+## Results Study 1: Antagonism  
 
 
-<!-- #### Histogram of Exposure -->
-
-<!-- ```{r} -->
-<!-- #| label: fig-histogram-antagonism -->
-<!-- #| fig-cap: "Histogram of exposure variable (possible response scale = 1-7)" -->
-<!-- #| eval: true -->
-<!-- #| include: true -->
-<!-- #| echo: false -->
-<!-- #| fig-height: 6 -->
-<!-- #| fig-width: 8 -->
-
-<!-- #antagonism_standard_deviation_exposure -->
-<!-- ``` -->
-
-<!-- #### Transition table -->
-
-<!-- ```{r} -->
-<!-- #| label: verify-positivity-antagonism-code -->
-<!-- #| eval: false -->
-<!-- #| echo: false -->
-
-<!-- antagonism_t_tab -->
-<!-- ``` -->
-
-<!-- @tbl-transition-antagonism shows a transition matrix captures stability and movement between antagonism responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$. -->
-
-<!-- |  From   | State 1 | State 2 | State 3 | State 4 | State 5 | State 6 | -->
-<!-- |:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:| -->
-<!-- | State 1 |  **0**  |    0    |    0    |    1    |    0    |    0    | -->
-<!-- | State 2 |    0    |  **1**  |    3    |    3    |    0    |    0    | -->
-<!-- | State 3 |    0    |    2    | **28**  |   49    |    6    |    0    | -->
-<!-- | State 4 |    0    |    2    |   38    | **463** |   118   |    2    | -->
-<!-- | State 5 |    0    |    0    |   10    |   137   | **181** |    6    | -->
-<!-- | State 6 |    0    |    0    |    1    |    3    |   13    |  **3**  | -->
-
-<!-- : Transition matrix for change in treatment from baseline to the treatment wave {#tbl-transition-antagonism} -->
-
-
-### Results Study 1 A: Antagonism Results Gain
+### Results Study 1A: Antagonism: Partner
 
 ```{r}
-#| label: fig-results-antagonism-gain
-#| fig-cap: "Results for antagonism gain on partner multi-dimensional well-being: z-transformed"
+#| label: fig-results-antagonism-partner
+#| fig-cap: "Results for antagonism effect on partner multi-dimensional well-being: z-transformed"
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
+#| fig-height: 16
+#| fig-width: 16
+
 
 plot_antagonism_partner_lmtp_output$plot
 
@@ -849,8 +898,8 @@ plot_antagonism_partner_lmtp_output$plot
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-antagonism-gain
-#| tbl-cap: "Table for antagonism gain on partner multi-dimensional well-being"
+#| label: tbl-results-antagonism-partner
+#| tbl-cap: "Table for antagonism effect on partner multi-dimensional well-being"
 #| eval: true
 #| include: false
 #| echo: false
@@ -860,681 +909,364 @@ plot_antagonism_partner_lmtp_output$transformed_table |>
   kbl(format = "markdown")
 
 cat(plot_antagonism_partner_lmtp_output$interpretation)
-
 ```
 
-Average Treatment Effect (ATE) represents the expected difference in outcomes between treatment and control groups for the population.
 
-For 'Partner Relationship Conflict', the effect estimate (RD) is 0.077 (0.005, 0.15). On the original data scale, the estimated effect is 0.101 (0.006, 0.197). The E-value for this estimate is 1.352, with a lower bound of 1.069. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.069 to negate the observed effect. Weaker confounding would not overturn it. Here, **the evidence for causality is strong**.
 
-For 'Partner Kessler 6 Depression', the effect estimate (RD) is 0.047 (-0.008, 0.101). On the original data scale, the estimated effect is 0.03 (-0.005, 0.066). The E-value for this estimate is 1.257, with a lower bound of 1. Here, **the evidence for causality is not reliable**.
-
-For 'Partner Personal Well-Being Index', the effect estimate (RD) is 0.019 (-0.041, 0.079). On the original data scale, the estimated effect is 0.027 (-0.058, 0.112). The E-value for this estimate is 1.151, with a lower bound of 1. Here, **the evidence for causality is not reliable**.
-
-For 'Partner Kessler 6 Distress', the effect estimate (RD) is 0.011 (-0.042, 0.064). On the original data scale, the estimated effect is 0.04 (-0.152, 0.232). The E-value for this estimate is 1.111, with a lower bound of 1. Here, **the evidence for causality is not reliable**.
-
-For 'Partner Kessler 6 Anxiety', the effect estimate (RD) is -0.012 (-0.07, 0.047). On the original data scale, the estimated effect is -0.008 (-0.05, 0.033). The E-value for this estimate is 1.116, with a lower bound of 1. Here, **the evidence for causality is not reliable**.
-
-For 'Partner Self Esteem', the effect estimate (RD) is -0.04 (-0.101, 0.021). On the original data scale, the estimated effect is -0.048 (-0.122, 0.025). The E-value for this estimate is 1.233, with a lower bound of 1. Here, **the evidence for causality is not reliable**.
-
-For 'Partner Relationship Satisfaction', the effect estimate (RD) is -0.057 (-0.134, 0.021). On the original data scale, the estimated effect is -0.06 (-0.142, 0.022). The E-value for this estimate is 1.29, with a lower bound of 1. Here, **the evidence for causality is not reliable**.
-
-For 'Partner Life Satisfaction', the effect estimate (RD) is -0.094 (-0.17, -0.018). On the original data scale, the estimated effect is -0.103 (-0.187, -0.02). The E-value for this estimate is 1.401, with a lower bound of 1.145. At this lower bound, unmeasured confounders would need a minimum association strength with both the intervention sequence and outcome of 1.145 to negate the observed effect. Weaker confounding would not overturn it. Here, **there is evidence for causality**.
-{{< pagebreak >}}
-
-### Results Study 1 B: Antagonism Results Loss
+### Results Study 1B: Antagonism: Self vs Partner 
 
 ```{r}
-#| label: fig-results-antagonism-loss
-#| fig-cap: "Results for antagonism loss on partner multi-dimensional well-being: z-transformed"
+#| label: fig-results-antagonism-self
+#| fig-cap: "Results for antagonism effect for self vs partner on multi-dimensional well-being: z-transformed"
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
+#| fig-height: 12
+#| fig-width: 24
 
-plot_antagonism_group_tab_outcomes_loss
+plot_antagonism_self_lmtp_output$plot + plot_antagonism_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
 
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-antagonism-loss
-#| tbl-cap: "Table for antagonism loss on partner multi-dimensional well-being"
+#| label: tbl-results-antagonism-self
+#| tbl-cap: "Table for antagonism effect on for self on multi-dimensional well-being"
 #| eval: true
-#| include: true
+#| include: false
 #| echo: false
 
-antagonism_tab_outcomes_loss |> 
+plot_antagonism_self_lmtp_output$transformed_table |>
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#interpret_table(antagonism_group_tab_outcomes_loss , "causal_difference", "ATE")
+cat(plot_antagonism_self_lmtp_output$interpretation)
 ```
 
 
-For the outcome 'Loss psychopathy antagonism: partner self-esteem', the ATE causal contrast is 0.017. The E-value for this outcome is 1.141; The confidence interval ranges from -0.036 to 0.07. Overall, we find no reliable evidence for causality.
+{{< pagebreak >}}
+## Results Study 2 Disinhibition 
 
-For the outcome 'Loss psychopathy antagonism: partner relationship satisfaction', the ATE causal contrast is 0.016. The E-value for this outcome is 1.138; The confidence interval ranges from -0.058 to 0.09. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy antagonism: partner life satisfaction', the ATE causal contrast is 0.01. The E-value for this outcome is 1.103; The confidence interval ranges from -0.046 to 0.065. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy antagonism: partner Kessler 6 anxiety', the ATE causal contrast is 0.003. The E-value for this outcome is 1.059; The confidence interval ranges from -0.056 to 0.063. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy antagonism: partner Kessler 6 distress', the ATE causal contrast is -0.008. The E-value for this outcome is 1.092; The confidence interval ranges from -0.058 to 0.042. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy antagonism: partner pers. wellbeing', the ATE causal contrast is -0.025. The E-value for this outcome is 1.175; The confidence interval ranges from -0.082 to 0.032. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy antagonism: partner Kessler 6 depression', the ATE causal contrast is -0.033. The E-value for this outcome is 1.207; The confidence interval ranges from -0.089 to 0.024. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy antagonism: partner conflict in a relationship', the ATE causal contrast is -0.06. The E-value for this outcome is 1.299; The confidence interval ranges from -0.144 to 0.025. Overall, we find no reliable evidence for causality.
-
-
-
-## Study 2 Disinhibition 
-
-
-#### Histogram of Exposure
+### Results Study 2A Disinhibition: Partner
 
 ```{r}
-#| label: fig-histogram-disinhibition
-#| fig-cap: "Histogram of exposure variable (possible response scale = 1-7)"
+#| label: fig-results-disinhibition-partner
+#| fig-cap: "Results for disinhibition effect for partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
-
-#disinhibition_standard_deviation_exposure
-```
+#| fig-height: 12
+#| fig-width: 12
 
 
-
-#### Transition table
-
-```{r}
-#| label: verify-positivity-disinhibition-code
-#| eval: false
-#| echo: false
-
-disinhibition_t_tab
-
-```
-
-@tbl-transition-disinhibition shows a transition matrix captures stability and movement between disinhibition responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
-
-
-
-|  From   | State 1 | State 2 | State 3 | State 4 | State 5 | State 6 |
-|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
-| State 1 |    **0**    |    0    |    0    |    1    |    0    |    0    |
-| State 2 |    0    |    **1**    |    3    |    3    |    0    |    0    |
-| State 3 |    0    |    2    |   **28**    |   49    |    6    |    0    |
-| State 4 |    0    |    2    |   38    |   **463**   |   118   |    2    |
-| State 5 |    0    |    0    |   10    |   137   |   **181**   |    6    |
-| State 6 |    0    |    0    |    1    |    3    |   13    |    **3**    |
-
-: Transition matrix for change in treatment from baseline to the treatment wave {#tbl-transition-disinhibition}
-
-
-
-### Results Study 2 A: Disinhibition Results Gain
-
-```{r}
-#| label: fig-results-disinhibition-gain
-#| fig-cap: "Results for disinhibition gain on partner multi-dimensional well-being: z-transformed"
-#| eval: true
-#| include: true
-#| echo: false
-#| fig-height: 6
-#| fig-width: 8
-
-plot_disinhibition_group_tab_outcomes_gain
+plot_disinhibition_partner_lmtp_output$plot
 
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-disinhibition-gain
-#| tbl-cap: "Table for disinhibition gain on partner multi-dimensional well-being"
+#| label: tbl-results-disinhibition-partner
+#| tbl-cap: "Table for disinhibition effect for partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
 
-disinhibition_tab_outcomes_loss |> 
+plot_disinhibition_partner_lmtp_output$transformed_table|> 
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#interpret_table(disinhibition_group_tab_outcomes_gain , "causal_difference", "ATE")
+cat(plot_disinhibition_partner_lmtp_output$interpretation)
 
 ```
 
-For the outcome 'Gain psychopathy disinhibition: partner life satisfaction', the ATE causal contrast is 0.025. The E-value for this outcome is 1.175;The confidence interval ranges from -0.016 to 0.065. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy disinhibition: partner Kessler 6 anxiety', the ATE causal contrast is 0.022. The E-value for this outcome is 1.163;The confidence interval ranges from -0.021 to 0.065. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy disinhibition: partner Kessler 6 distress', the ATE causal contrast is 0.017. The E-value for this outcome is 1.143;The confidence interval ranges from -0.027 to 0.062. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy disinhibition: partner conflict in relationship', the ATE causal contrast is 0.013. The E-value for this outcome is 1.121;The confidence interval ranges from -0.041 to 0.066. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy disinhibition: partner Kessler 6 depression', the ATE causal contrast is 0.01. The E-value for this outcome is 1.105;The confidence interval ranges from -0.032 to 0.052. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopath disinhibition: partner relationship satisfaction', the ATE causal contrast is 0.009. The E-value for this outcome is 1.099;The confidence interval ranges from -0.039 to 0.056. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy disinhibition: partner self-esteem', the ATE causal contrast is 0.004. The E-value for this outcome is 1.068;The confidence interval ranges from -0.036 to 0.045. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy disinhibition: partner pers. wellbeing', the ATE causal contrast is -0.01. The E-value for this outcome is 1.105;The confidence interval ranges from -0.052 to 0.032. Overall, we find no reliable evidence for causality.
-
-### Results Study 2 B: Disinhibition Results Loss
+{{< pagebreak >}}
+### Results Study 2B Disinhibition: Self vs Partner
 
 ```{r}
-#| label: fig-results-disinhibition-loss
-#| fig-cap: "Results for disinhibition loss on partner multi-dimensional well-being: z-transformed"
+#| label: fig-results-disinhibition-self
+#| fig-cap: "Results for disinhibition effect for self vs partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
+#| fig-height: 12
+#| fig-width: 24
 
-plot_disinhibition_group_tab_outcomes_loss
+
+plot_disinhibition_self_lmtp_output$plot + plot_disinhibition_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
 
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-disinhibition-loss
-#| tbl-cap: "Table for disinhibition loss on partner multi-dimensional well-being"
+#| label: tbl-results-disinhibition-self
+#| tbl-cap: "Table for disinhibition effect for self on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
 
-disinhibition_tab_outcomes_loss |> 
+plot_disinhibition_self_lmtp_output$transformed_table|> 
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#interpret_table(disinhibition_group_tab_outcomes_loss, "causal_difference", "ATE")
+cat(plot_disinhibition_self_lmtp_output$interpretation)
 
 ```
 
-Average Treatment Effect (ATE) represents the expected difference in outcomes between treatment and control groups for the population.
 
-For the outcome 'Loss psychopathy disinhibition: partner relationship satisfaction', the ATE causal contrast is 0.013. The E-value for this outcome is 1.122;The confidence interval ranges from -0.05 to 0.076. Overall, we find no reliable evidence for causality.
+{{< pagebreak >}}
+## Results Study 3 Emotional Stability 
 
-For the outcome 'Loss psychopathy disinhibition: partner Kessler 6 depression', the ATE causal contrast is 0.008. The E-value for this outcome is 1.09;The confidence interval ranges from -0.049 to 0.064. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Loss psychopathy disinhibition: partner life satisfaction', the ATE causal contrast is 0.005. The E-value for this outcome is 1.069;The confidence interval ranges from -0.05 to 0.059. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy disinhibition: partner Kessler 6 distress', the ATE causal contrast is -0.002. The E-value for this outcome is 1.049;The confidence interval ranges from -0.056 to 0.051. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy disinhibition: partner Kessler 6 anxiety', the ATE causal contrast is -0.008. The E-value for this outcome is 1.095;The confidence interval ranges from -0.068 to 0.052. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy disinhibition: partner pers. wellbeing', the ATE causal contrast is -0.02. The E-value for this outcome is 1.154;The confidence interval ranges from -0.08 to 0.041. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy disinhibition:  partner conflict in relationship', the ATE causal contrast is -0.021. The E-value for this outcome is 1.16;The confidence interval ranges from -0.083 to 0.041. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy disinhibition: partner self-esteem', the ATE causal contrast is -0.025. The E-value for this outcome is 1.178;The confidence interval ranges from -0.083 to 0.032. Overall, we find no reliable evidence for causality.
-
-## Study 3 Emotional Stability 
-
-#### Histogram of Exposure
+### Results Study 3A  Emotional Stability: Partner
 
 ```{r}
-#| label: fig-histogram-emotional
-#| fig-cap: "Histogram of exposure variable (possible response scale = 1-7)"
+#| label: fig-results-emotional-partner
+#| fig-cap: "Results for emotional stability effect for partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
+#| fig-height: 12
+#| fig-width: 12
 
-#emotional_standard_deviation_exposure
-
-```
-
-
-
-
-#### Transition table
-
-```{r}
-#| label: verify-positivity-emotional-code
-#| eval: false
-#| echo: false
-
-emotional_t_tab
-
-```
-
-
-@tbl-transition-emotional shows a transition matrix captures stability and movement between emotional stability responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
-
-
-|  From   | State 2 | State 3 | State 4 | State 5 | State 6 | State 7 |
-|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
-| State 2 | **13**  |    7    |    4    |    0    |    0    |    0    |
-| State 3 |    7    | **17**  |   20    |    5    |    1    |    0    |
-| State 4 |    4    |   26    | **124** |   75    |   21    |    0    |
-| State 5 |    0    |    3    |   69    | **140** |   107   |    3    |
-| State 6 |    0    |    0    |   21    |   86    | **251** |   21    |
-| State 7 |    0    |    0    |    1    |    5    |   30    |  **9**  |
-
-
-: Transition matrix for change in treatment from baseline to the treatment wave {#tbl-transition-emotional}
-
-
-
-### Results Study 3 A: Emotional Stability Results Gain
-
-```{r}
-#| label: fig-results-emotional-gain
-#| fig-cap: "Results for emotional stability gain on partner multi-dimensional well-being: z-transformed"
-#| eval: true
-#| include: true
-#| echo: false
-#| fig-height: 6
-#| fig-width: 8
-
-plot_emotional_group_tab_outcomes_gain
+plot_emotional_stability_partner_lmtp_output$plot
 
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-emotional-gain
-#| tbl-cap: "Table for emotional stability gain on partner multi-dimensional well-being"
+#| label: tbl-results-emotional-partner
+#| tbl-cap: "Table for emotional stability effect for partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
 
-emotional_tab_outcomes_gain |> 
+plot_emotional_stability_partner_lmtp_output$transformed_table|> 
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#interpret_table(emotional_group_tab_outcomes_gain , "causal_difference", "ATE")
-
+cat(plot_emotional_stability_partner_lmtp_output$interpretation)
 
 ```
-For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 depression', the ATE causal contrast is 0.029. The E-value for this outcome is 1.194; The confidence interval ranges from -0.01 to 0.069. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy emotional stability: partner relationship satisfaction', the ATE causal contrast is 0.027. The E-value for this outcome is 1.183; The confidence interval ranges from -0.021 to 0.075. Overall, we find no reliable evidence for causality.
+{{< pagebreak >}}
 
-For the outcome 'Gain psychopathy emotional stability: partner pers. wellbeing', the ATE causal contrast is 0.004. The E-value for this outcome is 1.066; The confidence interval ranges from -0.038 to 0.047. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy emotional stability: partner life satisfaction', the ATE causal contrast is 0.003. The E-value for this outcome is 1.058; The confidence interval ranges from -0.042 to 0.049. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 distress', the ATE causal contrast is -0.007. The E-value for this outcome is 1.085; The confidence interval ranges from -0.047 to 0.033. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy emotional stability: partner self-esteem', the ATE causal contrast is -0.019. The E-value for this outcome is 1.153; The confidence interval ranges from -0.059 to 0.02. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy emotional stability: partner conflict in relationship', the ATE causal contrast is -0.02. The E-value for this outcome is 1.157; The confidence interval ranges from -0.064 to 0.024. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy emotional stability: partner Kessler 6 anxiety', the ATE causal contrast is -0.026. The E-value for this outcome is 1.181; The confidence interval ranges from -0.066 to 0.014. Overall, we find no reliable evidence for causality.
-
-### Results Study 3 B: Emotional Stability Results Loss
+### Results Study 3B  Emotional Stability: Self vs Partner
 
 ```{r}
-#| label: fig-results-emotional-loss
-#| fig-cap: "Results for emotional stability loss on partner multi-dimensional well-being: z-transformed"
+#| label: fig-results-emotional-self
+#| fig-cap: "Results for emotional stability effect for self vs partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
+#| fig-height: 12
+#| fig-width: 24
 
-plot_emotional_group_tab_outcomes_loss
+
+plot_emotional_stability_self_lmtp_output$plot + plot_emotional_stability_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
 
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-emotional-loss
-#| tbl-cap: "Table for emotional stability loss on partner multi-dimensional well-being"
+#| label: tbl-results-emotional-self
+#| tbl-cap: "Table for emotional stability effect for self on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
 
-emotional_tab_outcomes_loss |> 
+plot_emotional_stability_self_lmtp_output$transformed_table|> 
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#interpret_table(emotional_group_tab_outcomes_loss , "causal_difference", "ATE")
+cat(plot_emotional_stability_self_lmtp_output$interpretation)
 
 ```
 
-Average Treatment Effect (ATE) represents the expected difference in outcomes between treatment and control groups for the population.
-
-For the outcome 'Loss psychopathy emotional stability: partner conflict in relationship', the ATE causal contrast is 0.036. The E-value for this outcome is 1.217;The confidence interval ranges from -0.014 to 0.085. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy emotional stability: partner Kessler 6 distress', the ATE causal contrast is 0.014. The E-value for this outcome is 1.125;The confidence interval ranges from -0.021 to 0.048. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy emotional stability: partner Kessler 6 anxiety', the ATE causal contrast is 0.011. The E-value for this outcome is 1.108;The confidence interval ranges from -0.027 to 0.048. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy emotional stability: partner Kessler 6 depression', the ATE causal contrast is 0.004. The E-value for this outcome is 1.06;The confidence interval ranges from -0.032 to 0.039. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy emotional stability: partner self-esteem', the ATE causal contrast is -0.002. The E-value for this outcome is 1.04;The confidence interval ranges from -0.036 to 0.033. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy emotional stability: partner pers. wellbeing', the ATE causal contrast is -0.007. The E-value for this outcome is 1.084;The confidence interval ranges from -0.044 to 0.031. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy emotional stability: partner life satisfaction', the ATE causal contrast is -0.009. The E-value for this outcome is 1.099;The confidence interval ranges from -0.044 to 0.027. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy emotional stability: partner relationship satisfacton', the ATE causal contrast is -0.028. The E-value for this outcome is 1.188;The confidence interval ranges from -0.068 to 0.013. Overall, we find no reliable evidence for causality
+{{< pagebreak >}}
 
 
-## Study 4 Narcissism 
 
-#### Histogram of Exposure
+
+## Results Study 4 Narcissism 
+
+
+
+### Results Study 4A Narcissism: Partner
 
 ```{r}
-#| label: fig-histogram-narcissism
-#| fig-cap: "Histogram of exposure variable (possible response scale = 1-7)"
+#| label: fig-results-narcissism-partner
+#| fig-cap: "Results for Narcissism stability gain for partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
-
-#narcl_standard_deviation_exposure
-
-```
-
-
-
-#### Transition table
-
-```{r}
-#| label: verify-positivity-narcissism-code
-#| eval: false
-#| echo: false
-
-#narc_t_tab
-```
-
-
-@tbl-transition-narcissism shows a transition matrix captures stability and movement between narcissism responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off-diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
-
-
-|  From   | State 1 | State 2 | State 3 | State 4 | State 5 | State 6 |
-|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
-| State 1 | **32**  |   42    |    3    |    0    |    0    |    0    |
-| State 2 |   49    | **350** |   100   |   12    |    0    |    0    |
-| State 3 |    5    |   111   | **171** |   41    |    3    |    0    |
-| State 4 |    0    |   12    |   59    | **53**  |    6    |    0    |
-| State 5 |    0    |    0    |    4    |    9    |  **4**  |    0    |
-| State 6 |    0    |    0    |    0    |    1    |    1    |  **0**  |
-
-
-: Transition matrix for change in treatment from baseline to the treatment wave {#tbl-transition-narcissism}
-
-
-### Results Study 4 A: Narcissism Results Gain
-
-
-```{r}
-#| label: fig-results-narcissism-gain
-#| fig-cap: "Results for Narcissism stability gain on partner multi-dimensional well-being: z-transformed"
-#| eval: true
-#| include: true
-#| echo: false
-#| fig-height: 6
-#| fig-width: 8
-
-plot_narc_group_tab_outcomes_gain
+#| fig-height: 12
+#| fig-width: 12
+plot_narcissism_partner_lmtp_output$plot
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-narcissism-gain
-#| tbl-cap: "Table for Narcissism gain on partner multi-dimensional well-being"
+#| label: tbl-results-narcissism-partner
+#| tbl-cap: "Table for Narcissism gain for partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
 
-narc_tab_outcomes_gain |> 
+plot_narcissism_partner_lmtp_output$transformed_table |> 
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#interpret_table(narc_group_tab_outcomes_gain, "causal_difference", "ATE")
-
+cat(plot_narcissism_partner_lmtp_output$interpretation)
 
 
 ```
+{{< pagebreak >}}
 
-For the outcome 'Gain psychopathy narcissism: partner conflict in relationship', the ATE causal contrast is 0.05. The E-value for this outcome is 1.266;The confidence interval ranges from -0.021 to 0.12. Overall, we find no reliable evidence for causality.
 
-For the outcome 'Gain psychopathy narcissism: partner self-esteem', the ATE causal contrast is 0.027. The E-value for this outcome is 1.184;The confidence interval ranges from -0.014 to 0.068. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy narcissism: partner pers. wellbeing', the ATE causal contrast is 0.025. The E-value for this outcome is 1.176;The confidence interval ranges from -0.019 to 0.069. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy narcissism: partner life satisfaction', the ATE causal contrast is 0.01. The E-value for this outcome is 1.106;The confidence interval ranges from -0.031 to 0.051. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy narcissism: partner Kessler 6 depression', the ATE causal contrast is 0.009. The E-value for this outcome is 1.097;The confidence interval ranges from -0.035 to 0.053. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy narcissism: partner Kessler 6 distress', the ATE causal contrast is 0.003. The E-value for this outcome is 1.059;The confidence interval ranges from -0.04 to 0.046. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy narcissism: partner Kessler 6 anxiety', the ATE causal contrast is -0.001. The E-value for this outcome is 1.03;The confidence interval ranges from -0.045 to 0.044. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy narcissism: partner relationship satisfaction', the ATE causal contrast is -0.025. The E-value for this outcome is 1.175;The confidence interval ranges from -0.089 to 0.04. Overall, we find no reliable evidence for causality.
-
-### Results Study 4 B: Narcissism Results Loss
+### Results Study 4B Narcissism: Self vs Partner
 
 ```{r}
-#| label: fig-results-narcissism-loss
-#| fig-cap: "Results for Narcissism loss on partner multi-dimensional well-being: z-transformed"
+#| label: fig-results-narcissism-self
+#| fig-cap: "Results for Narcissism stability effect for self vs partner on multi-dimensional well-being: z-transformed"
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
+#| fig-height: 12
+#| fig-width: 24
 
-plot_narc_group_tab_outcomes_loss
+plot_narcissism_self_lmtp_output$plot + plot_narcissism_partner_lmtp_output$plot   + plot_annotation(tag_levels = "A")
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-results-narcissism-self
+#| tbl-cap: "Table for Narcissism effect for self on multi-dimensional well-being"
+#| eval: true
+#| include: true
+#| echo: false
+
+plot_narcissism_self_lmtp_output$transformed_table |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+
+cat(plot_narcissism_self_lmtp_output$interpretation)
+```
+{{< pagebreak >}}
+
+## Results Study 5: Psychopathy Combined Score
+
+
+### Results Study 5A: Psychopathy Combined Score: Partner
+```{r}
+#| label: fig-results-psychopathy-partner
+#| fig-cap: "Results forPsychopathy Combined Score effect for partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 12
+
+plot_psychopathy_combined_partner_lmtp_output$plot
+
 
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-narcissism-loss
-#| tbl-cap: "Table for Narcissism loss on partner multi-dimensional well-being"
-#| eval: true
+#| label: tbl-results-psychopathy-partner
+#| tbl-cap: "Table for Psychopathy Combined Score effect for partner on multi-dimensional well-being."
 #| include: true
 #| echo: false
 
-narc_tab_outcomes_loss |> 
+plot_psychopathy_combined_partner_lmtp_output$transformed_table |> 
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#interpret_table(narc_group_tab_outcomes_loss , "causal_difference", "ATE")
-
-
+cat(plot_psychopathy_combined_partner_lmtp_output$interpretation)
 ```
 
 
-For the outcome 'Loss psychopathy narcissism: partner Kessler 6 anxiety', the ATE causal contrast is 0.037. The E-value for this outcome is 1.222;The confidence interval ranges from -0.016 to 0.089. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy narcissism: partner Kessler 6 distress', the ATE causal contrast is 0.022. The E-value for this outcome is 1.165;The confidence interval ranges from -0.026 to 0.07. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy narcissism: partner Kessler 6 depression', the ATE causal contrast is 0.011. The E-value for this outcome is 1.11;The confidence interval ranges from -0.035 to 0.056. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy narcissism: partner relationship satisfacton', the ATE causal contrast is 0. The E-value for this outcome is 1.019;The confidence interval ranges from -0.048 to 0.049. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy narcissism: partner self-esteem', the ATE causal contrast is -0.01. The E-value for this outcome is 1.105;The confidence interval ranges from -0.05 to 0.03. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy narcissism: partner pers. wellbeing', the ATE causal contrast is -0.011. The E-value for this outcome is 1.11;The confidence interval ranges from -0.053 to 0.031. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy narcissism: partner life satisfaction', the ATE causal contrast is -0.018. The E-value for this outcome is 1.147;The confidence interval ranges from -0.061 to 0.024. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy narcissism: partner conflict in a relationship', the ATE causal contrast is -0.036. The E-value for this outcome is 1.22;The confidence interval ranges from -0.1 to 0.027. Overall, we find no reliable evidence for causality.
-
-
-## Study 5: Psychopathy Combined Score
-
-
-#### Histogram of Exposure
+### Results Study 5B  Psychopathy Combined Score: Self vs Partner
 
 ```{r}
-#| label: fig-histogram-psychopathy
-#| fig-cap: "Histogram of exposure variable (possible response scale = 1-7)"
+#| label: fig-results-psychopathy-self
+#| fig-cap: "Results for  Psychopathy Combined Score effect for self vs partner on multi-dimensional well-being."
 #| eval: true
 #| include: true
 #| echo: false
-#| fig-height: 6
-#| fig-width: 8
+#| fig-height: 12
+#| fig-width: 24
 
-#psychopathy_combined_standard_deviation_exposure
-```
-
-
-
-#### Transition table
-
-```{r}
-#| label: verify-positivity-psychopathy
-#| eval: false
-#| echo: false
-
-# psychopathy_combined_t_tab
-```
-
-
-
-|  From   | State 2 | State 3 | State 4 | State 5 |
-|:-------:|:-------:|:-------:|:-------:|:-------:|
-| State 2 |  **4**  |    6    |    1    |    0    |
-| State 3 |    1    | **338** |   107   |    0    |
-| State 4 |    0    |   144   | **455** |    3    |
-| State 5 |    0    |    0    |   10    |  **1**  |
-
-: Transition matrix for change in treatment from baseline to the treatment wave {#tbl-transition-psychopathy}
-
-@tbl-transition-psychopathy shows a transition matrix captures stability and movement between psychopathy combined-score responses from the baseline (NZAVS time 10) wave and exposure wave (NZAVS time 11). Entries on the diagonal (in bold) indicate the number of individuals who stayed in their initial state. In contrast, the off-diagonal shows the transitions from the initial state (bold) to another state the following wave (off diagonal). A cell located at the intersection of row $i$ and column $j$, where $i \neq j$, shows the count of individuals moving from state $i$ to state $j$.
-
-### Results Study 5 A: Psychopathy Combined Measure Gain
-
-```{r}
-#| label: fig-results-psychopathy-gain
-#| fig-cap: "Results for Narcissism stability gain on partner multi-dimensional well-being: z-transformed"
-#| eval: true
-#| include: true
-#| echo: false
-#| fig-height: 6
-#| fig-width: 8
-
-plot_psychopathy_combined_group_tab_outcomes_gain
-
+plot_psychopathy_combined_self_lmtp_output$plot + plot_psychopathy_combined_partner_lmtp_output$plot   + plot_annotation(tag_levels = "A")
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-psychopathy-gain
-#| tbl-cap: "Table for Psychopathy gain on partner multi-dimensional well-being"
+#| label: tbl-results-psychopathy-self
+#| tbl-cap: "Table for Psychopathy Combined Score effect on self multi-dimensional well-being"
 #| eval: true
 #| include: true
 #| echo: false
 
-psychopathy_combined_tab_outcomes_gain |> 
+plot_narcissism_self_lmtp_output$transformed_table |> 
   mutate(across(where(is.numeric), ~ round(., 2))) %>%
   kbl(format = "markdown")
 
-#interpret_table(psychopathy_combined_group_tab_outcomes_gain , "causal_difference", "ATE")
+cat(plot_psychopathy_combined_self_lmtp_output$interpretation)
 ```
-
-
-Average Treatment Effect (ATE) represents the expected difference in outcomes between treatment and control groups for the population.
-
-For the outcome 'Gain psychopathy: partner Kessler 6 depression', the ATE causal contrast is 0.106. The E-value for this outcome is 1.434;The confidence interval ranges from 0.053 to 0.158. Overall, we find reliable evidence for causality.
-
-For the outcome 'Gain psychopathy: partner Kessler 6 distress', the ATE causal contrast is 0.088. The E-value for this outcome is 1.385;The confidence interval ranges from 0.036 to 0.14. Overall, we find reliable evidence for causality.
-
-For the outcome 'Gain psychopathy: partner Kessler 6 anxiety', the ATE causal contrast is 0.074. The E-value for this outcome is 1.341;The confidence interval ranges from 0.024 to 0.123. Overall, we find reliable evidence for causality.
-
-For the outcome 'Gain psychopathy: partner life satisfaction', the ATE causal contrast is 0.018. The E-value for this outcome is 1.146;The confidence interval ranges from -0.029 to 0.064. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy: partner conflict in relationship', the ATE causal contrast is 0.003. The E-value for this outcome is 1.055;The confidence interval ranges from -0.061 to 0.067. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy: partner self-esteem', the ATE causal contrast is 0.003. The E-value for this outcome is 1.052;The confidence interval ranges from -0.046 to 0.051. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy: partner relationship satisfaction', the ATE causal contrast is -0.011. The E-value for this outcome is 1.112;The confidence interval ranges from -0.073 to 0.05. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Gain psychopathy: partner pers. wellbeing', the ATE causal contrast is -0.024. The E-value for this outcome is 1.171;The confidence interval ranges from -0.075 to 0.028. Overall, we find no reliable evidence for causality.
-
-
-### Results Study 5 B: Psychopathy Combined Score Results Loss
-
-```{r}
-#| label: fig-results-psychopathy-loss
-#| fig-cap: "Results for Psychopathy loss on partner multi-dimensional well-being: z-transformed"
-#| eval: true
-#| include: true
-#| echo: false
-#| fig-height: 6
-#| fig-width: 8
-
-plot_psychopathy_combined_group_tab_outcomes_loss
-```
-
-{{< pagebreak >}}
-
-```{r}
-#| label: tbl-results-psychopathy-loss
-#| tbl-cap: "Table for Psychopathy loss on partner multi-dimensional well-being"
-#| eval: true
-#| include: true
-#| echo: false
-
-psychopathy_combined_tab_outcomes_loss |> 
-  mutate(across(where(is.numeric), ~ round(., 2))) %>%
-  kbl(format = "markdown")
-
-# interpret_table(psychopathy_combined_group_tab_outcomes_loss , "causal_difference", "ATE")
-
-#interpret_table( , "causal_difference", "ATE")
-
-
-```
-
-For the outcome 'Loss psychopathy: partner Kessler 6 anxiety', the ATE causal contrast is 0.008. The E-value for this outcome is 1.093;The confidence interval ranges from -0.043 to 0.059. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy: partner Kessler 6 distress', the ATE causal contrast is 0.002. The E-value for this outcome is 1.046;The confidence interval ranges from -0.047 to 0.051. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy: partner self-esteem', the ATE causal contrast is 0. The E-value for this outcome is 1.019;The confidence interval ranges from -0.045 to 0.044. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy: partner pers. wellbeing', the ATE causal contrast is -0.011. The E-value for this outcome is 1.113;The confidence interval ranges from -0.06 to 0.037. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy: partner Kessler 6 depression', the ATE causal contrast is -0.025. The E-value for this outcome is 1.175;The confidence interval ranges from -0.073 to 0.024. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy: partner life satisfaction', the ATE causal contrast is -0.038. The E-value for this outcome is 1.225;The confidence interval ranges from -0.087 to 0.011. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy: partner relationship satisfaction', the ATE causal contrast is -0.039. The E-value for this outcome is 1.229;The confidence interval ranges from -0.104 to 0.027. Overall, we find no reliable evidence for causality.
-
-For the outcome 'Loss psychopathy: partner conflict in relationship', the ATE causal contrast is -0.039. The E-value for this outcome is 1.231;The confidence interval ranges from -0.118 to 0.039. Overall, we find no reliable evidence for causality.
-
 
 ## Discussion 
 
-We observe that gains and losses in psychopathy traits differently affect partner well-being and relationship dynamics. 
+### Antagonism 
 
-When focussing on the effects of individual psychopathy traits, the results indicate that individual psychopathy traits, by themselves, do not reliably affect partner well-being in a measurable manner.
+Antagonism affects partners and the self in different ways. For the **partner**, the only reliable result is a reduction in life satisfaction ($-0.10$, 95% CI: $[-0.17, -0.04]$).
 
-An exception to this pattern is the trait of antagonism. An increase in antagonism decreases partner life satisfaction and an increases perceived relationship conflict. This suggests that antagonism, among the various facets of psychopathy, has a uniquely adverse effect on relationship dynamics, exacerbating conflict and diminishing partner satisfaction. 
+For the **self**, antagonism reliably increases life satisfaction ($0.10$, 95% CI: $[0.04, 0.15]$), personal well-being ($0.13$, 95% CI: $[0.07, 0.19]$), satisfaction with the relationship ($0.11$, 95% CI: $[0.05, 0.17]$), and self-esteem ($0.08$, 95% CI: $[0.02, 0.13]$).
 
-Notably a reduction in antagonism did not exert a corresponding reduction in perceived relationship conflict or an increase in life satisfaction. Speculating, perhaps habituation plays a role. The finding that individual features of psychopathy affect outcomes differently is notably consistent with @eisenbarth2022aspects.
+### Disinhibition
 
-However, our findings also reveal that the whole of psychopathy is greater -- and different in its causal effects on well-being -- than the sum of its parts. An increase in the composite measure of psychopathy reliably increases partner distress, as shown by the gains in psychopathy showing a marked increase in Kessler 6 depression and anxiety (as well as the composite score). This effect is absent when psychopathy traits decrease, suggesting that the presence or augmentation of such traits has a more pronounced negative impact on partner well-being than their reduction, speculating again, perhaps from habituation.  The effects are present in embodied features of well-being -- anxiety and depression -- but not in higher-order reflective concepts, such as life satisfaction and relationship conflict. Thus the effects we obtain for antagonism are obscured by the movement of the composite trait, and new effects are evident. 
+For the **partner**, none of the results are reliable as all confidence intervals cross zero.
 
-The discovery that compound effects of these psychopathy affect 'embodied' well-being, more than higher-order reflective dimensions has clinical importance and merits future research.  
+For the **self**, disinhibition reliably reduces anxiety ($-0.10$, 95% CI: $[-0.15, -0.05]$) and distress ($-0.05$, 95% CI: $[-0.10, -0.01]$). There is also a marginally reliable improvement in personal well-being ($0.05$, 95% CI: $[0.00, 0.11]$) and self-esteem ($0.05$, 95% CI: $[0.00, 0.10]$).
 
-Future research should explore using more objective measures for the questions raised in this study. Self-reports introduce possibilities for both systematic and random measurement errors. True effect sizes may differ from those estimated. They might be larger or smaller, than those we observe. We therefore advise caution when interpreting these findings which are preliminary and exploratory.  
 
-Finally, we caution against generalising findings outside the New Zealand population from which the data were sourced. Although our study consists of a random probability sample of couples in New Zealand who participated in the New Zealand Attitudes and Values Study in two waves (time 10 and time 11) -- couples that were not recruited as couples --we cannot extrapolate to different populations or sociocultural settings. This limitation merits future comparative research.
+### Emotional Stability
 
-Despite these limitations, we believe our study demonstrates the interest and power of combining longitudinal data with methods for causal inference to address causal questions inaccessible to experiments that lie at the heart of our interest in the statistical associations we find in observational data. We hope this work will inspire psychological scientists to embrace these tools and approaches more broadly, pushing the boundaries of what we can discover about human behaviour and relationships from observational studies.
+For the **partner**, none of the results are reliable as all confidence intervals cross zero.
+
+For the **self**, emotional stability reliably reduces anxiety ($-0.10$, 95% CI: $[-0.15, -0.05]$) and distress ($-0.06$, 95% CI: $[-0.10, -0.01]$). There is also a marginally reliable improvement in personal well-being ($0.05$, 95% CI: $[0.00, 0.11]$) and self-esteem ($0.05$, 95% CI: $[0.01, 0.10]$).
+
+
+### Narcicissm: 
+
+For **partners**, narcissism reliably increases personal well-being ($0.07$, 95% CI: $[0.02, 0.12]$) and satisfaction with the relationship ($0.08$, 95% CI: $[0.01, 0.14]$). No other reliable effects are observed.
+
+For the **self**, narcissism reliably reduces anxiety ($-0.08$, 95% CI: $[-0.14, -0.03]$), depression ($-0.10$, 95% CI: $[-0.16, -0.04]$), and distress ($-0.10$, 95% CI: $[-0.15, -0.04]$). It also reliably improves life satisfaction ($0.12$, 95% CI: $[0.06, 0.18]$) and self-esteem ($0.11$, 95% CI: $[0.06, 0.17]$).
+
+
+
+### Psychopathy Combined 
+
+For the **partner**, psychopathy reliably increases anxiety ($0.07$, 95% CI: $[0.03, 0.11]$) and distress ($0.05$, 95% CI: $[0.01, 0.09]$). It also reliably decreases personal well-being ($-0.11$, 95% CI: $[-0.14, -0.07]$), satisfaction with the relationship ($-0.06$, 95% CI: $[-0.10, -0.03]$), and self-esteem ($-0.09$, 95% CI: $[-0.13, -0.06]$).
+
+For the **self**, psychopathy reliably reduces anxiety ($-0.08$, 95% CI: $[-0.14, -0.03]$), depression ($-0.10$, 95% CI: $[-0.16, -0.04]$), and distress ($-0.10$, 95% CI: $[-0.15, -0.04]$). It also reliably improves life satisfaction ($0.12$, 95% CI: $[0.06, 0.18]$) and self-esteem ($0.11$, 95% CI: $[0.06, 0.17]$).
+
+
+### Importance of Research
+
+These findings reveal that focussing on specific traits of psychopathic personality affects people differently than does psychopathy as a whole.  When we target individual traits such as antagonism or narcissism, people often feel better about themselves -- they report higher life satisfaction, well-being, and self-esteem, and experience reduced depression and anxiety. However, these personal improvements can come at a cost to their partners, who may suffer from decreased life satisfaction and increased distress. This indicates a complex interplay between self-improvement and relational harm.
+
+On the other hand, when psychopathy is treated as a single, combined dimension, partners tend to suffer more. They experience more anxiety and distress, along with lower personal well-being and satisfaction in the relationship. Although, individuals for whom psychopathy increases might feel less depressed, they do not experience an overall improvement in well-being. As for partners, self-esteem, relationship satisfaction, and personal well being declines.  Moreover, life satisifaction declines and anxiety increases. There is a darker effects of psychopathy in couples are not restricted to the partners, but also extend to those in whom psychopathy personality is manifest. 
 
 {{< pagebreak >}}
 
@@ -1576,6 +1308,12 @@ We asked participants' age in an open-ended question ("What is your age?" or "Wh
 <!-- #### Disability (waves: 5-15) -->
 
 <!-- We assessed disability with a one item indicator adapted from @verbrugge1997, that asks "Do you have a health condition or disability that limits you, and that has lasted for 6+ months?" (1 = Yes, 0 = No). -->
+
+#### Disability
+
+
+We assessed disability with a one-item indicator adapted from @verbrugge1997. It asks, "Do you have a health condition or disability that limits you and that has lasted for 6+ months?" (1 = Yes, 0 = No).
+
 
 #### Education Attainment (waves: 1, 4-15)
 
@@ -1719,56 +1457,12 @@ We used the NZ Deprivation Index to assign each participant a score based on whe
 #| echo: false
 #| include: false
 
-#table_demography <- readRDS(here::here(push_mods_psychopathy_combined, "table_demography"))
-#table_demography |>  kbl(format = "markdown")
+summary_tables$baseline_table |> kbl(format = "markdown")
+
 
 ```
 
 
-
-|**Baseline Variables**                                                    |**N = 1,070**     |
-|:-------------------------------------------------------------------------|:-----------------|
-|__Age__                                                                   |55 (45, 61)       |
-|__Education Level Coarsen__                                               |NA                |
-|1                                                                         |15 (1.4%)         |
-|2                                                                         |306 (29%)         |
-|3                                                                         |125 (12%)         |
-|4                                                                         |304 (29%)         |
-|5                                                                         |138 (13%)         |
-|6                                                                         |129 (12%)         |
-|7                                                                         |46 (4.3%)         |
-|__Eth Cat__                                                               |NA                |
-|1                                                                         |922 (86%)         |
-|2                                                                         |78 (7.3%)         |
-|3                                                                         |25 (2.3%)         |
-|4                                                                         |41 (3.8%)         |
-|__Hours Housework log__                                                   |2.20 (1.61, 2.71) |
-|__Hours Work log__                                                        |3.58 (1.95, 3.78) |
-|__Kessler Latent Anxiety__                                                |1.00 (0.67, 1.67) |
-|__Kessler Latent Depression__                                             |0.33 (0.00, 0.67) |
-|__Kessler6 Sum__                                                          |4 (2, 7)          |
-|__Male__                                                                  |552 (52%)         |
-|__Nz Dep2018__                                                            |4.00 (2.00, 6.00) |
-|__How many children have you given birth to, fathered, and/or parented?__ |813 (76%)         |
-|__Political Conservative__                                                |NA                |
-|1                                                                         |63 (6.2%)         |
-|2                                                                         |251 (25%)         |
-|3                                                                         |238 (23%)         |
-|4                                                                         |233 (23%)         |
-|5                                                                         |146 (14%)         |
-|6                                                                         |73 (7.1%)         |
-|7                                                                         |19 (1.9%)         |
-|__Religion Church Coarsen__                                               |NA                |
-|zero                                                                      |866 (83%)         |
-|one                                                                       |29 (2.8%)         |
-|less_four                                                                 |56 (5.3%)         |
-|four_up                                                                   |98 (9.3%)         |
-|__Urban__                                                                 |867 (81%)         |
-
-: Baseline demography statistics {#tbl-table-demography}
-
-
-@tbl-table-demography presents baseline demographic statistics for couples who met inclusion criteria.
 
 
 
@@ -1782,43 +1476,14 @@ We used the NZ Deprivation Index to assign each participant a score based on whe
 #| eval: false
 #| echo: false
 #| include: false
-#table_exposures <- readRDS(here::here(push_mods_psychopathy_combined, "table_exposures"))
 
-#table_exposures |>  kbl(format = "markdown")
-
+summary_tables$exposure_tables |> kbl(format = "markdown")
 ```
 
 
-|**Baseline/Outcome Variables** |**2018**, N = 1,070 |**2019**, N = 1,070 |
-|:------------------------------|:-------------------|:-------------------|
-|__Aaron Antagonism__           |4.33 (4.00, 4.67)   |4.33 (3.88, 4.67)   |
-|Unknown                        |0                   |0                   |
-|__Aaron Disinhibition__        |2.17 (1.67, 2.83)   |2.17 (1.67, 2.67)   |
-|Unknown                        |0                   |0                   |
-|__Aaron Emotional Stability__  |5.17 (4.40, 5.83)   |5.17 (4.50, 5.83)   |
-|Unknown                        |0                   |0                   |
-|__Aaron Narcissism__           |2.50 (2.00, 3.00)   |2.50 (2.00, 3.00)   |
-|Unknown                        |0                   |1                   |
-|__Aaron Psychopathy Combined__ |3.54 (3.29, 3.79)   |3.50 (3.29, 3.75)   |
-|Unknown                        |0                   |0                   |
-|__Alert Level Combined__       |NA                  |NA                  |
-|no_alert                       |1,070 (100%)        |831 (78%)           |
-|early_covid                    |0 (0%)              |88 (8.2%)           |
-|alert_level_1                  |0 (0%)              |72 (6.7%)           |
-|alert_level_2                  |0 (0%)              |27 (2.5%)           |
-|alert_level_2_5_3              |0 (0%)              |16 (1.5%)           |
-|alert_level_4                  |0 (0%)              |36 (3.4%)           |
-|Unknown                        |0                   |0                   |
-
-: Baseline demography statistics {#tbl-table-demography}
 
 
-@tbl-table-exposures presents baseline and wave 1 statistics for the exposure variables. Because the exposure wave occurred to New Zealand's COVID-19 pandemic, we all models adjusted for the pandemic alert-level. The pandemic is a not a confounder because a confounder must be related to both the treatment and the outcome. At the end of study measurement, all had be exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. To better ensure validation of this assumption we therefore included the lead value of covid-alert level in all models.
-
-
-
-
-##  Appendix D: Baseline and End of Study Outcome Statistics {#appendix-outcomes}
+##  Appendix E: Baseline and End of Study Outcome Statistics {#appendix-outcomes}
 
 
 ```{r}
@@ -1827,40 +1492,569 @@ We used the NZ Deprivation Index to assign each participant a score based on whe
 #| eval: false
 #| echo: false
 #| include: false
-table_outcomes <- readRDS(here::here(push_mods_psychopathy_combined, "table_outcomes"))
-#table_outcomes |>  kbl(format = "markdown")
+summary_tables$outcome_table |> kbl(format = "markdown")
 
 ```
 
 
 
-|**Baseline/Outcome Variables** |**2018**, N = 1,070 |**2019**, N = 1,070 |
-|:------------------------------|:-------------------|:-------------------|
-|__Aaron Antagonism__           |4.33 (4.00, 4.67)   |4.33 (3.88, 4.67)   |
-|Unknown                        |0                   |0                   |
-|__Aaron Disinhibition__        |2.17 (1.67, 2.83)   |2.17 (1.67, 2.67)   |
-|Unknown                        |0                   |0                   |
-|__Aaron Emotional Stability__  |5.17 (4.40, 5.83)   |5.17 (4.50, 5.83)   |
-|Unknown                        |0                   |0                   |
-|__Aaron Narcissism__           |2.50 (2.00, 3.00)   |2.50 (2.00, 3.00)   |
-|Unknown                        |0                   |1                   |
-|__Aaron Psychopathy Combined__ |3.54 (3.29, 3.79)   |3.50 (3.29, 3.75)   |
-|Unknown                        |0                   |0                   |
-|__Alert Level Combined__       |NA                  |NA                  |
-|no_alert                       |1,070 (100%)        |831 (78%)           |
-|early_covid                    |0 (0%)              |88 (8.2%)           |
-|alert_level_1                  |0 (0%)              |72 (6.7%)           |
-|alert_level_2                  |0 (0%)              |27 (2.5%)           |
-|alert_level_2_5_3              |0 (0%)              |16 (1.5%)           |
-|alert_level_4                  |0 (0%)              |36 (3.4%)           |
-|Unknown                        |0                   |0                   |
+##  Appendix XX: Baseline and End of Study Outcome Statistics {#appendix-xx}
 
-: Baseline demography statistics {#tbl-table-exposures}
+### Results for OSF planned study 
+
+## Results Study 1 Antagonism OSF (Partner)
+
+```{r}
+#| label: fig-results-antagonism-partner_osf
+#| fig-cap: "Results for antagonism effect on osf partner multi-dimensional well-being: z-transformed"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 16
+#| fig-width: 16
 
 
-@tbl-table-exposures presents baseline and wave 1 statistics for the exposure variables. Because the exposure wave occurred during New Zealand's COVID-19 pandemic, all models adjusted for the pandemic alert level. The pandemic is not a confounder because a confounder must be related to both the treatment and the outcome. At the end of the study measurement, all had been exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. To better ensure validation of this assumption, we included the lead value of the covid-alert level in all models.
+plot_antagonism_partner_osf_lmtp_output$plot
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-results-antagonism-partner-osf
+#| tbl-cap: "Table for antagonism effect on osf partner multi-dimensional well-being"
+#| eval: true
+#| include: false
+#| echo: false
+
+plot_antagonism_partner_osf_lmtp_output$transformed_table |>
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+
+cat(plot_antagonism_partner_osf_lmtp_output$interpretation)
+```
+
+
+
+### Results Study 1: Compare Antagonism OSF vs Reported (Partner)
+
+```{r}
+#| label: fig-results-antagonism-osf-compare
+#| fig-cap: "Results for antagonism effect for osf vs reported partner on multi-dimensional well-being: z-transformed"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 24
+
+plot_antagonism_partner_osf_lmtp_output$plot + plot_antagonism_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
+
+```
+
+{{< pagebreak >}}
+## Results Study 2 Disinhibition OSF (Partner)
+
+```{r}
+#| label: fig-results-disinhibition-partner-osf
+#| fig-cap: "Results for disinhibition effect for osf partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 12
+
+
+plot_disinhibition_partner_osf_lmtp_output$plot
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-results-disinhibition-partner-osf
+#| tbl-cap: "Table for disinhibition effect for osf partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+
+plot_disinhibition_partner_osf_lmtp_output$transformed_table|> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+
+cat(plot_disinhibition_partner_osf_lmtp_output$interpretation)
+
+```
+
+
+{{< pagebreak >}}
+### Results Study Compare Disinhibition OSF vs Reported (Partner)
+
+```{r}
+#| label: fig-results-disinhibition-osf-compare
+#| fig-cap: "Results for disinhibition effect for osf vs reported partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 24
+
+
+plot_disinhibition_partner_osf_lmtp_output$plot + plot_disinhibition_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
+
+```
+
+{{< pagebreak >}}
+
+## Results Study 3  Emotional Stability: OSF (Partner) 
+
+```{r}
+#| label: fig-results-emotional-partner-osf
+#| fig-cap: "Results for emotional stability effect for osf partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 12
+
+plot_emotional_stability_partner_osf_lmtp_output$plot
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-results-emotional-partner-osf
+#| tbl-cap: "Table for emotional stability effect for osf partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+
+plot_emotional_stability_partner_osf_lmtp_output$transformed_table|> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+
+cat(plot_emotional_stability_partner_osf_lmtp_output$interpretation)
+
+```
+
+{{< pagebreak >}}
+
+### Results Study 3  Emotional Stability OSF vs Reported (Partner)
+
+```{r}
+#| label: fig-results-emotional-osf-compare
+#| fig-cap: "Results for emotional stability effect for osf vs reported partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 24
+
+
+plot_emotional_stability_self_lmtp_output$plot + plot_emotional_stability_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
+
+```
+
+{{< pagebreak >}}
 
 
 
 
+## Results Study 4 Narcissism 
 
+
+
+### Results Study 4A Narcissism: Partner
+
+```{r}
+#| label: fig-results-narcissism-partner-osf
+#| fig-cap: "Results for Narcissism stability gain for partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 12
+plot_narcissism_partner_osf_lmtp_output$plot
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-results-narcissism-partner-osf
+#| tbl-cap: "Table for Narcissism gain for partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+
+plot_narcissism_partner_osf_lmtp_output$transformed_table |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+
+cat(plot_narcissism_partner_osf_lmtp_output$interpretation)
+
+
+```
+{{< pagebreak >}}
+
+
+### Results Study B Narcissism OSF vs Reported (Partner)
+
+```{r}
+#| label: fig-results-narcissism-self-osf
+#| fig-cap: "Results for Narcissism stability effect for self vs partner on multi-dimensional well-being: z-transformed"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 24
+
+plot_narcissism_partner_osf_lmtp_output$plot + plot_narcissism_partner_lmtp_output$plot   + plot_annotation(tag_levels = "A")
+```
+
+## Results Study 5: Psychopathy Combined Score: OSF (Partner)
+
+```{r}
+#| label: fig-results-psychopathy-partner-osf
+#| fig-cap: "Results forPsychopathy Combined Score effect for partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 12
+
+plot_psychopathy_combined_partner_osf_lmtp_output$plot
+
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-results-psychopathy-partner-osf
+#| tbl-cap: "Table for Psychopathy Combined Score effect for partner on multi-dimensional well-being."
+#| include: true
+#| echo: false
+
+plot_psychopathy_combined_partner_osf_lmtp_output$transformed_table |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+
+cat(plot_psychopathy_combined_partner_osf_lmtp_output$interpretation)
+```
+
+
+### Psychopathy Combined Score OSF vs Reported (Partner)
+
+```{r}
+#| label: fig-results-psychopathy-osf-compare
+#| fig-cap: "Results for  Psychopathy Combined Score effect for self vs partner on multi-dimensional well-being."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 12
+#| fig-width: 24
+
+plot_psychopathy_combined_partner_osf_lmtp_output$plot + plot_psychopathy_combined_partner_lmtp_output$plot   + plot_annotation(tag_levels = "A")
+```
+
+
+
+## Appendix XXX Null Contrasts for the reported model
+
+###  Antagonism
+#### Antagonism (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-antagonism-partner-null-gain
+#| tbl-cap: "Table for Antagonism on partner multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+antagonism_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Antagonism (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-antagonism-null-loss
+#| tbl-cap: "Table for Antagonism on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+antagonism_partner_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+###  Disinhibition
+#### Disinhibition (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-disinhibition-partner-null-gain
+#| tbl-cap: "Table for Disinhibition effect for partner on multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+disinhibition_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Disinhibition (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-disinhibition-null-loss
+#| tbl-cap: "Table for Disinhibition on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+disinhibition_partner_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+
+###  Emotional Stability
+
+#### Emotional Stability (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-emotional-stability-partner-null-gain
+#| tbl-cap: "Table for Disinhibition effect for partner on multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+emotional_stability_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Emotional Stability (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-emotional-stability-null-loss
+#| tbl-cap: "Table for Disinhibition on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+emotional_stability_partner_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+
+### Narcissism
+####Narcissism (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-narcissism-partner-null-gain
+#| tbl-cap: "Table for Narcissism effect for partner on multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+narcissism_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Narcissism (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-psychopathy_combined_null-loss
+#| tbl-cap: "Table for Narcissism on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+psychopathy_combined_partner_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+### Psychopathy Combined Score
+#### Psychopathy Combined Score (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-psychopathy_combined_partner-null-gain
+#| tbl-cap: "Table for Narcissism effect for partner on multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+psychopathy_combined_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Psychopathy Combined Score (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-narcissism-null-loss
+#| tbl-cap: "Table for Narcissism on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+psychopathy_combined_partner_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+
+## Appendix XXX Null Contrasts for the OSF model
+
+###  Antagonism OSF
+#### Antagonism OSF (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-antagonism-partner-null-gain-osf
+#| tbl-cap: "Table for Antagonism on partner multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+antagonism_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Antagonism OSF (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-antagonism-null-loss-osf
+#| tbl-cap: "Table for Antagonism on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+antagonism_partner_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+###  Disinhibition OSF
+#### Disinhibition OSF (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-disinhibition-partner-null-gain-osf
+#| tbl-cap: "Table for Disinhibition effect for partner on multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+disinhibition_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Disinhibition OSF (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-disinhibition-null-loss-osf
+#| tbl-cap: "Table for Disinhibition on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+disinhibition_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+
+###  Emotional Stability OSF
+
+#### Emotional Stability OSF (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-emotional-stability-partner-null-gain-osf
+#| tbl-cap: "Table for Disinhibition effect for partner on multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+emotional_stability_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Emotional Stability OSF (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-emotional-stability-null-loss-osf
+#| tbl-cap: "Table for Disinhibition on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+emotional_stability_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+
+### Narcissism OSF
+
+####Narcissism OSF (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-narcissism-partner-null-gain-osf
+#| tbl-cap: "Table for Narcissism effect for partner on multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+narcissism_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Narcissism OSF (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-psychopathy_combined_null-loss-osf
+#| tbl-cap: "Table for Narcissism on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+psychopathy_combined_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+### Psychopathy Combined Score OSF 
+
+#### Psychopathy Combined Score OSF (Partner): Gain vs Null
+
+```{r}
+#| label: tbl-results-psychopathy_combined_partner-null-gain-osf
+#| tbl-cap: "Table for Narcissism effect for partner on multi-dimensional well-being: gain vs null."
+#| include: true
+#| echo: false
+
+psychopathy_combined_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+#### Psychopathy Combined Score OSF (Partner): Loss vs Null
+
+```{r}
+#| label: tbl-results-narcissism-null-loss-osf
+#| tbl-cap: "Table for Narcissism on partner multi-dimensional well-being: loss vs null."
+#| include: true
+#| echo: false
+
+psychopathy_combined_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_null |> 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
