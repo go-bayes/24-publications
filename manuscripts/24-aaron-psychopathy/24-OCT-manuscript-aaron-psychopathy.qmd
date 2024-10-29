@@ -76,41 +76,51 @@ library("patchwork")
 library("kableExtra")
 
 
+# set paths
 
-push_mods <-
+# set paths for short
+push_mods_short <-
   fs::path_expand(
     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/lmtp/24/aaron_psychopathy"
   )
 
-push_figs <-
+# set paths for long
+push_mods_long <-
+  fs::path_expand(
+    "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-aaron-psycho-long"
+  )
+
+# set paths for short figs
+push_figs_short <-
   fs::path_expand(
     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/lmtp/24/aaron_psychopathy/figs"
   )
+# set paths for long figs
+push_figs_long <-
+  fs::path_expand(
+    "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-aaron-psycho-long/figs"
+  )
+
+
 # reproducibility
 set.seed(123)
 
+# create nice labels
 nice_exposure_name <- glue::glue("Psychopathy Facet")
-
 nice_exposure_name_psychopathy_combined <- glue::glue("Psychopathy")
 nice_exposure_name_antagonism <- glue::glue("Antagonism")
 nice_exposure_name_disinhibition <- glue::glue("Disinhibition")
 nice_exposure_name_emotional_stability <- glue::glue("Emotional Stability")
 nice_exposure_name_narcissism<- glue::glue("Narcissism")
 
-# load the glue package
-
-
-
-
-# name_exposure_binary <- margot::here_read("name_exposure_binary")
 
 # read exposure vars
-t0_name_exposure <- here_read("t0_name_exposure")
-t1_name_exposure <- here_read("t1_name_exposure")
+t0_name_exposure <- margot::here_read("t0_name_exposure", push_mods_short)
+t1_name_exposure <- margot::here_read("t1_name_exposure", push_mods_short)
 
 # original df for interpretations
-original_df <- margot::here_read("df_wide_encoded_ordered")
-
+original_df_short <- margot::here_read("df_wide_encoded_ordered", push_mods_short)
+original_df_long <- margot::here_read("df_wide_encoded_ordered", push_mods_long)
 
 # nice labels
 shift =   glue::glue('one point')
@@ -121,32 +131,40 @@ exposure_lower_bound <- glue::glue("1")
 exposure_upper_bound <- glue::glue("7")
 # shift =   glue::glue('two points')
 nice_baseline_wave <- glue::glue("NZAVS time 10, years 2018-2019")
-nice_exposure_waves <- glue::glue("NZAVS time 11, years 2019-2020")
-nice_outcome_wave <- glue::glue("NZAVS time 12, years 2020-2021")
+nice_exposure_waves_short <- glue::glue("NZAVS time 11, years 2019-2020")
+nice_exposure_waves_long <- glue::glue("NZAVS time 11,12,13 years 2019-2022")
+nice_outcome_wave_short <- glue::glue("NZAVS time 12, years 2020-2021")
+nice_outcome_wave_long <- glue::glue("NZAVS time 14, years 2022-2023")
 
 
 # labels
 # # outcome vars
 # t4_outcome_vars_z <- paste0("t4_", outcome_vars, "_z")
-df_lmtp <- here_read_qs("df_lmtp", push_mods)
+df_lmtp_short  <- margot::here_read_qs("df_lmtp", push_mods_short)
+df_lmtp_long <- margot::here_read_qs("df_lmtp", push_mods_long)
 
 # read health outcomes
 outcome_vars <- here_read("outcome_vars")
 # get partner outcomes
 t2_partner_outcomes_z <- paste0("t2_partner_", outcome_vars, "_z")
+t4_partner_outcomes_z <- paste0("t4_partner_", outcome_vars, "_z")
 
-# check
-t2_partner_outcomes_z
 
 # get personal outcomes
 t2_outcomes_z <- paste0("t2_", outcome_vars, "_z")
+t4_outcomes_z <- paste0("t4_", outcome_vars, "_z")
 
-# check
+# sort
 t2_outcomes_z <- sort(t2_outcomes_z)
-# t2_outcomes_z
+t4_outcomes_z <- sort(t4_outcomes_z)
+
+# sort
+t2_partner_outcomes_z <- sort(t2_partner_outcomes_z)
+t4_partner_outcomes_z <- sort(t4_partner_outcomes_z)
+
 
 # label mappings for  outcomes
-label_mapping_partner <- list(
+label_mapping_partner_short <- list(
   "t2_partner_conflict_in_relationship_z" = "Conflict in Relationship: Partner",
   "t2_partner_kessler_latent_anxiety_z" = "Kessler 6 Anxiety: Partner",
   "t2_partner_kessler_latent_depression_z" = "Kessler 6 Depression: Partner",
@@ -157,7 +175,7 @@ label_mapping_partner <- list(
   "t2_partner_self_esteem_z" = "Self Esteem: Partner"
 )
 
-label_mapping_self <- list(
+label_mapping_self_short <- list(
   "t2_conflict_in_relationship_z" = "Conflict in Relationship: Self",
   "t2_kessler_latent_anxiety_z" = "Kessler 6 Anxiety: Self",
   "t2_kessler_latent_depression_z" = "Kessler 6 Depression: Self",
@@ -168,29 +186,58 @@ label_mapping_self <- list(
   "t2_self_esteem_z" = "Self Esteem: Self"
 )
 
+label_mapping_partner_long <- list(
+  "t4_partner_conflict_in_relationship_z" = "Conflict in Relationship: Partner",
+  "t4_partner_kessler_latent_anxiety_z" = "Kessler 6 Anxiety: Partner",
+  "t4_partner_kessler_latent_depression_z" = "Kessler 6 Depression: Partner",
+  "t4_partner_kessler6_sum_z" = "Kessler 6 Distress: Partner",
+  "t4_partner_lifesat_z" = "Life Satisfaction: Partner",
+  "t4_partner_pwi_z" = "Personal Well-Being Index: Partner",
+  "t4_partner_sat_relationship_z" = "Satisfaction with Relationship: Partner",
+  "t4_partner_self_esteem_z" = "Self Esteem: Partner"
+)
+
+label_mapping_self_long <- list(
+  "t4_conflict_in_relationship_z" = "Conflict in Relationship: Self",
+  "t4_kessler_latent_anxiety_z" = "Kessler 6 Anxiety: Self",
+  "t4_kessler_latent_depression_z" = "Kessler 6 Depression: Self",
+  "t4_kessler6_sum_z" = "Kessler 6 Distress: Self",
+  "t4_lifesat_z" = "Life Satisfaction: Self",
+  "t4_pwi_z" = "Personal Well-Being Index: Self",
+  "t4_sat_relationship_z" = "Satisfaction with Relationship: Self",
+  "t2_self_esteem_z" = "Self Esteem: Self"
+)
+
+contrast_partner_up <- glue::glue("If people increased by {shift} in a {nice_exposure_name} what would be the effect on their partner's well-being")
+
+contrast_partner_down <- glue::glue("If people decreased by {shift} in a {nice_exposure_name} what would be the effect on their partner's well-being")
 
 
-treatment_contrast <- glue::glue("What would be the average responses the population of partners in New Zealand couples increased + {shift} in a {nice_exposure_name} up to a maximum of {exposure_upper_bound} ({nice_scale_exposure}), compared with a -{shift} in the same facet?")
+contrast_self_up <- glue::glue("If people with partner's increased by {shift} in a {nice_exposure_name} what would be the effect on their well-being")
 
+contrast_self_down<- glue::glue("If people with partner's decreased by {shift} in a {nice_exposure_name} what would be the effect on their well-being")
 
-treatment_loss_null <- glue::glue("-{shift} compared with observed levels of intervention?")
-
-treatment_gain_null <- glue::glue("+{shift} compared with observed levels of intervention?")
+treatment_down_null <- glue::glue("down {shift} compared with observed levels of intervention?")  
+treatment_up_null <- glue::glue("up {shift} compared with observed levels of intervention?")
 
 # create the titles with automatic exposure insertion
-title <- glue("Shift {shift} up vs. Shift {shift} point down (baseline)")
+baseline_wave <- margot::here_read("baseline_wave", push_mods_short)
 
 
-baseline_wave <- margot::here_read("baseline_wave")
-exposure_waves <- margot::here_read("exposure_waves")
-exposure_wave <- margot::here_read("exposure_waves")
-outcome_wave <- margot::here_read("outcome_wave")
+exposure_waves_short   <- margot::here_read("exposure_waves", push_mods_short )
+outcome_wave_short <- margot::here_read("outcome_wave", push_mods_short)
+
+exposure_waves_long <- margot::here_read("exposure_waves", push_mods_long )
+outcome_wave_long <- margot::here_read("outcome_wave", push_mods_long)
 
 # get table/graphs
-summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+summary_table_short <- margot::here_read_qs("summary_tables", push_mods_short)
+summary_table_long <- margot::here_read_qs("summary_tables", push_mods_long)
 
 # n_this study
-n_participants <- summary_tables$n_participants
+n_participants_short <- summary_table_short$n_participants
+n_participants_long <- summary_table_long$n_participants
+
 
 # percentage missing at baseline
 # percent_missing_baseline <- here_read("percent_missing_baseline")
@@ -203,31 +250,28 @@ nice_scale_exposure =  glue::glue('ordinal scale 1-7')
 exposure_lower_bound =  glue::glue('1')
 exposure_upper_bound =  glue::glue('7')
 
-nice_baseline_wave = glue::glue("NZAVS time 12, years 2020-2021")
-nice_exposure_wave =  glue::glue("NZAVS time 13, years 2021-2022")
-nice_outcome_wave =  glue::glue("NZAVS time 14, years 2022-2023")
 
+# histogram of exposure
+histogram_antagonism_emotional_stability_disinhibition_narcissism_psychopathy_combined_by_wave_short <- here_read_qs("histogram_antagonism_emotional_stability_disinhibition_narcissism_psychopathy_combined_by_wave", push_mods_short)
+histogram_antagonism_emotional_stability_disinhibition_narcissism_psychopathy_combined_by_wave_long <- here_read_qs("histogram_antagonism_emotional_stability_disinhibition_narcissism_psychopathy_combined_by_wave", push_mods_long)
 
-## correlation not causation
-# load required libraries
-library(ggplot2)
-library(ggokabeito)
+## Short model options
+title_up_short  <- glue::glue("Three-wave Shift UP 1 pt. NULL (baseline)")
+title_down_short <- glue::glue("Three-wave Shift DOWN 1 pt vs. NULL (baseline)")
 
-# plot options
-# plot options ------------------------------------------------------------
-options_base_partner <- list(
+options_base_partner_up_short <- list(
   type = "RD",
-  title = title,
+  title = title_up_short,
   order = "default",
   colors = c(
     "positive" = "#E69F00",
     "not reliable" = "grey50",
     "negative" = "#56B4E9"
   ),
-  x_offset = -1, # will be set based on type
-  x_lim_lo = -1, # will be set based on type
-  x_lim_hi = .5, # will be set based on type
-  text_size = 5,
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
   linewidth = 0.5,
   estimate_scale = 1,
   base_size = 18,
@@ -236,23 +280,22 @@ options_base_partner <- list(
   subtitle_size = 18,
   legend_text_size = 10,
   legend_title_size = 10,
-  label_mapping_partner = label_mapping_partner
+  label_mapping_partner = label_mapping_partner_short
 )
 
 
-options_base_self <- list(
+options_base_self_up_short <- list(
   type = "RD",
-  title = title,
+  title = title_up_short,
   order = "default",
   colors = c(
     "positive" = "#E69F00",
     "not reliable" = "grey50",
     "negative" = "#56B4E9"
   ),
-  x_offset = -1, # will be set based on type
-  x_lim_lo = -1, # will be set based on type
-  x_lim_hi = .5, # will be set based on type
-  text_size = 5,
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0,   x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
   linewidth = 0.5,
   estimate_scale = 1,
   base_size = 18,
@@ -261,465 +304,1581 @@ options_base_self <- list(
   subtitle_size = 18,
   legend_text_size = 10,
   legend_title_size = 10,
-  label_mapping_partner = label_mapping_self)
+  label_mapping_partner = label_mapping_self_short)
 
-options_antagonism_partner<- margot_plot_create_options(
+
+
+options_base_partner_down_short <- list(
+  type = "RD",
+  title = title_down_short  ,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_partner_short
+)
+
+
+options_base_self_down_short <- list(
+  type = "RD",
+  title = title_down_short,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_self_short)
+
+
+
+
+
+options_antagonism_partner_up_short<- margot_plot_create_options(
   subtitle = "Antagonism Effect on Partner",
-  base_defaults = options_base_partner,
-  filename_prefix = "antagonism_partner"
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "antagonism_partner_up_short"
 )
 
-
-options_antagonism_self<- margot_plot_create_options(
+options_antagonism_self_up_short<- margot_plot_create_options(
   subtitle = "Antagonism Effect on Self",
-  base_defaults = options_base_self,
-  filename_prefix = "antagonism_self"
+  base_defaults = options_base_self_up_short,
+  filename_prefix = "antagonism_self_up_short"
 )
 
-options_disinhibition_partner<- margot_plot_create_options(
+
+
+options_disinhibition_partner_up_short<- margot_plot_create_options(
   subtitle = "Disinhibition Effect on Partner",
-  base_defaults = options_base_partner,
-  filename_prefix = "disinhibition_partner"
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "disinhibition_partner_up_short"
 )
 
-options_disinhibition_self<- margot_plot_create_options(
+
+
+options_disinhibition_self_up_short<- margot_plot_create_options(
   subtitle = "Disinhibition Effect on Self",
-  base_defaults = options_base_self,
-  filename_prefix = "disinhibition_self"
+  base_defaults = options_base_self_up_short,
+  filename_prefix = "disinhibition_self_up_short"
 )
 
 
-options_emotional_stability_partner<- margot_plot_create_options(
+options_emotional_stability_partner_up_short<- margot_plot_create_options(
   subtitle = "Emotional Stability Effect on Partner",
-  base_defaults = options_base_partner,
-  filename_prefix = "emotional_stability_partner"
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "emotional_stability_partner_up_short"
 )
 
-options_emotional_stability_self<- margot_plot_create_options(
+options_emotional_stability_self_up_short<- margot_plot_create_options(
   subtitle = "Emotional Stability Effect on Self",
-  base_defaults = options_base_self,
-  filename_prefix = "emotional_stability_self"
+  base_defaults = options_base_self_up_short,
+  filename_prefix = "emotional_stability_self_up_short"
 )
 
 
-options_narcissism_partner<- margot_plot_create_options(
+options_narcissism_partner_up_short<- margot_plot_create_options(
   subtitle = "Narcissism Effect on Partner",
-  base_defaults = options_base_partner,
-  filename_prefix = "narcissism_partner"
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "narcissism_partner_up_short"
 )
 
-options_narcissism_self<- margot_plot_create_options(
+options_narcissism_self_up_short<- margot_plot_create_options(
   subtitle = "Narcissism Effect on Self",
-  base_defaults = options_base_self,
-  filename_prefix = "narcissism_self"
+  base_defaults = options_base_self_up_short,
+  filename_prefix = "narcissism_self_up_short"
 )
 
-options_psychopathy_combined_partner<- margot_plot_create_options(
+options_psychopathy_combined_partner_up_short <- margot_plot_create_options(
   subtitle = "Psychopathy Combined Effect on Partner",
-  base_defaults = options_base_partner,
-  filename_prefix = "psychopathy_combined_partner"
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "psychopathy_combined_partner_up_short"
 )
 
-options_psychopathy_combined_self<- margot_plot_create_options(
+options_psychopathy_combined_self_up_short <- margot_plot_create_options(
   subtitle = "Psychopathy Combined Effect on Self",
-  base_defaults = options_base_self,
-  filename_prefix = "psychopathy_combined_self"
+  base_defaults = options_base_self_up_short,
+  filename_prefix = "psychopathy_combined_self_up_short"
+)
+
+# down
+
+options_antagonism_partner_down_short<- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Partner",
+  base_defaults = options_base_partner_down_short,
+  filename_prefix = "antagonism_partner_down_short"
+)
+
+options_antagonism_self_down_short<- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Self",
+  base_defaults = options_base_self_down_short,
+  filename_prefix = "antagonism_self_down_short"
+)
+
+options_disinhibition_partner_down_short<- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Partner",
+  base_defaults = options_base_partner_down_short,
+  filename_prefix = "disinhibition_partner_down_short"
+)
+options_disinhibition_self_down_short <- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Self",
+  base_defaults = options_base_self_down_short,
+  filename_prefix = "disinhibition_self_down_short"
+)
+options_emotional_stability_partner_down_short <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Partner",
+  base_defaults = options_base_partner_down_short ,
+  filename_prefix = "emotional_stability_partner_down_short"
+)
+
+options_emotional_stability_self_down_short <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Self",
+  base_defaults = options_base_self_down_short,
+  filename_prefix = "emotional_stability_self_down_short"
 )
 
 
-# partner options
-# plot options
-options_antagonism_partner_osf<- margot_plot_create_options(
+options_narcissism_partner_up_short <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Partner",
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "narcissism_partner_up_short"
+)
+
+options_narcissism_self_down_short <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Self",
+  base_defaults = options_base_self_down_short,
+  filename_prefix = "narcissism_self_down_short"
+)
+
+options_psychopathy_combined_partner_up_short <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Partner",
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "psychopathy_combined_partner_up_short"
+)
+
+options_psychopathy_combined_self_down_short  <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Self",
+  base_defaults = options_base_self_down_short,
+  filename_prefix = "psychopathy_combined_self_down_short"
+)
+
+
+# # plot options
+options_antagonism_partner_osf_up_short <- margot_plot_create_options(
   subtitle = "Antagonism Effect on Partner (OSF SPEC)",
-  base_defaults = options_base_partner,
-  filename_prefix = "antagonism_partner_osf"
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "antagonism_partner_osf_up_short"
 )
 
-
-options_disinhibition_partner_osf<- margot_plot_create_options(
+options_disinhibition_partner_osf_up_short  <- margot_plot_create_options(
   subtitle = "Disinhibition Effect on Partner (OSF SPEC)",
-  base_defaults = options_base_partner,
-  filename_prefix = "disinhibition_partner_osf"
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "disinhibition_partner_osf_up_short"
+)
+
+options_emotional_stability_partner_osf_up_short <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "emotional_stability_partner_osf_up_short"
+)
+
+options_narcissism_partner_osf_up_short <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "narcissism_partner_osf_up_short"
+)
+
+options_psychopathy_combined_partner_osf_up_short  <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner_up_short,
+  filename_prefix = "psychopathy_combined_partner_osf_up_short"
+)
+
+# down
+options_antagonism_partner_osf_down_short <- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner_down_short,
+  filename_prefix = "antagonism_partner_osf_down_short"
+)
+
+options_disinhibition_partner_osf_down_short <- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner_down_short,
+  filename_prefix = "disinhibition_partner_osf_down_short"
+)
+
+options_emotional_stability_partner_osf_down_short <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner_down_short,
+  filename_prefix = "emotional_stability_partner_osf_down_short"
+)
+
+options_narcissism_partner_osf_down_short  <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner_down_short,
+  filename_prefix = "narcissism_partner_osf_down_short"
+)
+
+options_psychopathy_combined_partner_osf_down_short  <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Partner (OSF SPEC)",
+  base_defaults = options_base_partner_down_short,
+  filename_prefix = "psychopathy_combined_partner_osf_down_short"
 )
 
 
 
+# models ------------------------------------------------------------------
 
-# lmtp models -------------------------------------------------------------
-psychopathy_combined_partner_lmtp_output <- here_read_qs('psychopathy_combined_partner_lmtp_output', push_mods)
-psychopathy_combined_partner_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_shift_up
+# short models
+psychopathy_combined_partner_lmtp_output_short <- here_read_qs('psychopathy_combined_partner_lmtp_output', push_mods_short)
+psychopathy_combined_partner_lmtp_output_short$combined_tables
 
 
-plot_psychopathy_combined_partner_lmtp_output <- margot_plot(
-  psychopathy_combined_partner_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_shift_up,
-  options = options_psychopathy_combined_partner,
+psychopathy_combined_partner_shift_up_vs_null_short <- margot_plot(
+  psychopathy_combined_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_psychopathy_combined_partner_up_short,
   save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+) 
+
+
+psychopathy_combined_partner_shift_up_vs_null_short$plot
+
+
+psychopathy_combined_partner_shift_down_vs_null_short <- margot_plot(
+  psychopathy_combined_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_psychopathy_combined_partner_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+) 
+psychopathy_combined_partner_shift_down_vs_null_short$plot
+
+# 
+antagonism_partner_lmtp_output_short <- here_read_qs('antagonism_partner_lmtp_output', push_mods_short)
+antagonism_partner_lmtp_output_short$combined_tables
+antagonism_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null
+
+
+
+antagonism_partner_shift_up_vs_null_short <- margot_plot(
+  antagonism_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_antagonism_partner_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+  )
+
+antagonism_partner_shift_up_vs_null_short$plot
+
+antagonism_partner_shift_down_vs_null_short <- margot_plot(
+  antagonism_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_antagonism_partner_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
 )
 
-push_mods
-# margot_save_png(
-#   plot_psychopathy_combined_partner_lmtp_output$plot,
-#   save_path = here::here(push_figs),
-#   width = 12,
-#   height = 12,
-#   base_filename = "plot_psychopathy_combined_partner"
-# )
+antagonism_partner_shift_down_vs_null_short$plot
 
-# antagonism partner
-antagonism_partner_lmtp_output <- here_read_qs('antagonism_partner_lmtp_output', push_mods)
+#
+#
+disinhibition_partner_lmtp_output_short <- here_read_qs('disinhibition_partner_lmtp_output', push_mods_short)
 
+disinhibition_partner_lmtp_output_short$combined_tables
 
-plot_antagonism_partner_lmtp_output <- margot_plot(
-  antagonism_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_antagonism_partner,
+disinhibition_partner_shift_up_vs_null_short <- margot_plot(
+  disinhibition_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_disinhibition_partner_up_short,
   save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
-)
-cat(plot_antagonism_partner_lmtp_output$interpretation)
-# save file
-# margot::margot_save_png(
-#   plot_antagonism_partner_lmtp_output$plot,
-#   width = 12,
-#   height = 12,
-#   save_path = here::here(push_figs),
-#   base_filename = "plot_antagonism_partner"
-# )
-
-
-
-# disinhibition partner
-disinhibition_partner_lmtp_output <- here_read_qs('disinhibition_partner_lmtp_output', push_mods)
-
-
-plot_disinhibition_partner_lmtp_output <- margot_plot(
-  disinhibition_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_disinhibition_partner,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
   
 )
-plot_disinhibition_partner_lmtp_output$interpretation
 
-# margot::margot_save_png(
-#   plot_disinhibition_partner_lmtp_output$plot,
-#   width = 12,
-#   height = 12,
-#   save_path = here::here(push_figs),
-#   base_filename = "plot_disinhibition_partner"
-# )
+disinhibition_partner_shift_up_vs_null_short$plot
 
-# emotional stability partner
-emotional_stability_partner_lmtp_output <- here_read_qs('emotional_stability_partner_lmtp_output', push_mods)
-
-plot_emotional_stability_partner_lmtp_output <- margot_plot(
-  emotional_stability_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_emotional_stability_partner,
+disinhibition_partner_shift_down_vs_null_short <- margot_plot(
+  disinhibition_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_disinhibition_partner_down_short,
   save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
-  )
-plot_emotional_stability_partner_lmtp_output$plot
-
-# margot::margot_save_png(
-#   plot_emotional_stability_partner_lmtp_output$plot,
-#   width = 12,
-#   height = 12,
-#   save_path = here::here(push_figs),
-#   base_filename = "plot_emotional_stability_partner"
-# )
-
-# narcissism
-narcissism_partner_lmtp_output <- here_read_qs('narcissism_partner_lmtp_output', push_mods)
-
-plot_narcissism_partner_lmtp_output <- margot_plot(
-  narcissism_partner_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_narcissism_partner,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+  
 )
 
+disinhibition_partner_shift_down_vs_null_short$plot
 
-# margot::margot_save_png(
-#   plot_narcissism_partner_lmtp_output$plot,
-#   width = 12,
-#   height = 12,
-#   save_path = here::here(push_figs),
-#   base_filename = " plot_narcissism_partner"
-# )
+# 
+
+emotional_stability_partner_lmtp_output_short <- here_read_qs('emotional_stability_partner_lmtp_output', push_mods_short)
+emotional_stability_partner_lmtp_output_short$combined_tables
+
+emotional_stability_partner_shift_up_vs_null_short <- margot_plot(
+  emotional_stability_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_emotional_stability_partner_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+  )
+emotional_stability_partner_shift_up_vs_null_short$plot
+emotional_stability_partner_shift_up_vs_null_short$interpretation
+
+emotional_stability_partner_shift_down_vs_null_short <- margot_plot(
+  emotional_stability_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_emotional_stability_partner_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+)
+emotional_stability_partner_shift_down_vs_null_short$plot
+emotional_stability_partner_shift_down_vs_null_short$interpretation
+
+#
+
+narcissism_partner_lmtp_output_short <- here_read_qs('narcissism_partner_lmtp_output', push_mods_short)
+narcissism_partner_lmtp_output_short$combined_tables
+
+narcissism_partner_shift_up_vs_null_short <- margot_plot(
+  narcissism_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_narcissism_partner_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+)
+narcissism_partner_shift_up_vs_null_short$plot
+narcissism_partner_shift_up_vs_null_short$transformed_table
+
+
+narcissism_partner_shift_down_vs_null_short <- margot_plot(
+  narcissism_partner_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_narcissism_partner_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+)
+narcissism_partner_shift_down_vs_null_short$plot
+narcissism_partner_shift_down_vs_null_short$transformed_table
+
 
 
 # self --------------------------------------------------------------------
 
-psychopathy_combined_self_lmtp_output <- here_read_qs('psychopathy_combined_self_lmtp_output', push_mods)
+psychopathy_combined_self_lmtp_output_short <- here_read_qs('psychopathy_combined_self_lmtp_output', push_mods_short)
 
-plot_psychopathy_combined_self_lmtp_output <- margot_plot(
-  psychopathy_combined_self_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_shift_up,
-  options = options_psychopathy_combined_self,
+psychopathy_combined_self_shift_up_vs_null_short <- margot_plot(
+  psychopathy_combined_self_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_psychopathy_combined_self_up_short,
   save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_self
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_self_short
 
 )
 
-compare_partner_self_plot_psychopathy_combined <-plot_psychopathy_combined_self_lmtp_output$plot + plot_psychopathy_combined_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
-
-compare_partner_self_plot_psychopathy_combined
-
-# margot::margot_save_png(
-#   compare_partner_self_plot_psychopathy_combined,
-#   width = 24,
-#   height = 12,
-#   save_path = here::here(push_figs),
-#   base_filename = "compare_parter_self_plot_psychopathy_combined"
-# )
+psychopathy_combined_self_shift_up_vs_null_short$plot/psychopathy_combined_partner_shift_up_vs_null_short$plot
 
 
-# antagonism  self
-
-antagonism_self_lmtp_output <- here_read_qs('antagonism_self_lmtp_output', push_mods)
-antagonism_self_lmtp_output$combined_tables
+psychopathy_combined_self_shift_down_vs_null_short <- margot_plot(
+  psychopathy_combined_self_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_psychopathy_combined_self_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_self_short
   
+)
+psychopathy_combined_self_shift_down_vs_null_short$plot/psychopathy_combined_partner_shift_down_vs_null_short$plot
+
+
+
+antagonism_self_lmtp_output_short <- here_read_qs('antagonism_self_lmtp_output', push_mods_short)
+antagonism_self_lmtp_output_short$combined_tables
   
-plot_antagonism_self_lmtp_output <- margot_plot(
-  antagonism_self_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_antagonism_self,
+antagonism_self_shift_up_vs_null_short <- margot_plot(
+  antagonism_self_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_antagonism_self_up_short,
   save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_self
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_self_short
 )
 
-compare_partner_self_plot_antagonism <-
-plot_antagonism_self_lmtp_output$plot + plot_antagonism_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
-
-compare_partner_self_plot_antagonism
-# margot::margot_save_png(
-#   compare_partner_self_plot_antagonism,
-#   width = 24,
-#   height = 12,
-#   save_path = here::here(push_figs),
-#   base_filename = "compare_partner_self_plot_antagonism"
-# )
-
-# disinhibition  self
+antagonism_self_shift_up_vs_null_short$plot/
+  antagonism_partner_shift_up_vs_null_short$plot
 
 
-disinhibition_self_lmtp_output <- here_read_qs('disinhibition_self_lmtp_output', push_mods)
-
-plot_disinhibition_self_lmtp_output <- margot_plot(
-  disinhibition_self_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_disinhibition_self,
+antagonism_self_shift_down_vs_null_short <- margot_plot(
+  antagonism_self_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_antagonism_self_down_short,
   save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_self
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_self_short
+)
+
+antagonism_self_shift_down_vs_null_short$plot/
+  antagonism_partner_shift_down_vs_null_short$plot
+
+#
+disinhibition_self_lmtp_output_short <- here_read_qs('disinhibition_self_lmtp_output', push_mods_short)
+
+disinhibition_self_shift_up_vs_null_short <- margot_plot(
+  disinhibition_self_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_disinhibition_self_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_self_short
+)
+
+disinhibition_self_shift_up_vs_null_short$plot /
+  disinhibition_partner_shift_up_vs_null_short$plot
+
+disinhibition_self_shift_down_vs_null_short <- margot_plot(
+  disinhibition_self_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_disinhibition_self_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_self_short
+)
+
+disinhibition_self_shift_down_vs_null_short$plot /
+  disinhibition_partner_shift_down_vs_null_short$plot
+
+# 
+emotional_stability_self_lmtp_output_short <- here_read_qs('emotional_stability_self_lmtp_output', push_mods_short)
+
+emotional_stability_self_shift_up_vs_null_short <- margot_plot(
+  emotional_stability_self_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_emotional_stability_self_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_self_short
+)
+emotional_stability_self_shift_up_vs_null_short$plot  / emotional_stability_partner_shift_up_vs_null_short$plot
+
+# 
+narcissism_self_lmtp_output_short <- here_read_qs('narcissism_self_lmtp_output', push_mods_short)
+
+narcissism_self_shift_up_vs_null_short <- margot_plot(
+  narcissism_self_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_narcissism_self_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_self_short
 )
 
 
-compare_partner_self_plot_disinhibition <- plot_disinhibition_self_lmtp_output$plot+ plot_disinhibition_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
+narcissism_self_shift_up_vs_null_short$plot/
+  narcissism_partner_shift_up_vs_null_short$plot
 
-# margot::margot_save_png(
-#   compare_partner_self_plot_disinhibition,
-#   width = 24,
-#   height = 12,
-#   save_path = here::here(push_figs),
-#   base_filename = "compare_partner_self_plot_disinhibition"
-# )
+
+
+
+# original study ----------------------------------------------------------
+# 
+psychopathy_combined_partner_osf_lmtp_output_short <- here_read_qs('psychopathy_combined_partner_osf_lmtp_output', push_mods_short)
+
+psychopathy_combined_partner_shift_up_vs_null_osf_short <- margot_plot(
+  psychopathy_combined_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_psychopathy_combined_partner_osf_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+) 
+
+psychopathy_combined_partner_shift_up_vs_null_osf_short$plot / psychopathy_combined_partner_shift_up_vs_null_short$plot
+
+
+
+psychopathy_combined_partner_shift_down_vs_null_osf_short <- margot_plot(
+  psychopathy_combined_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_psychopathy_combined_partner_osf_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+) 
+psychopathy_combined_partner_shift_down_vs_null_osf_short$plot / psychopathy_combined_partner_shift_down_vs_null_short$plot
+
+# 
+antagonism_partner_osf_lmtp_output_short <- here_read_qs('antagonism_partner_osf_lmtp_output', push_mods_short)
+# 
+antagonism_partner_shift_up_vs_null_osf_short <- margot_plot(
+  antagonism_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_antagonism_partner_osf_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+  )
+antagonism_partner_shift_up_vs_null_osf_short$plot/antagonism_partner_shift_up_vs_null_short$plot
+
+
+
+antagonism_partner_shift_down_vs_null_osf_short <- margot_plot(
+  antagonism_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_antagonism_partner_osf_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+)
+antagonism_partner_shift_down_vs_null_osf_short$plot / antagonism_partner_shift_down_vs_null_short$plot
+
+disinhibition_partner_osf_lmtp_output_short <- here_read_qs('disinhibition_partner_osf_lmtp_output', push_mods_short)
+# 
+disinhibition_partner_shift_up_vs_null_osf_short <- margot_plot(
+  disinhibition_partner_lmtp_output_osf_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_disinhibition_partner_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+  
+)
+
+disinhibition_partner_shift_up_vs_null_osf_short$plot /disinhibition_partner_shift_up_vs_null_short$plot
+
+disinhibition_partner_shift_down_vs_null_osf_short <- margot_plot(
+  disinhibition_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_disinhibition_partner_osf_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+  
+)
+
+disinhibition_partner_shift_down_vs_null_osf_short$plot /disinhibition_partner_shift_down_vs_null_short$plot
+
+# 
+emotional_stability_partner_osf_lmtp_output_short <- here_read_qs('emotional_stability_partner_osf_lmtp_output', push_mods_short)
+# 
+emotional_stability_partner_shift_up_vs_null_osf_short<- margot_plot(
+  emotional_stability_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_emotional_stability_partner_osf_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+)
+emotional_stability_partner_shift_up_vs_null_osf_short$plot/emotional_stability_partner_shift_up_vs_null_short$plot
+
+
+emotional_stability_partner_shift_down_vs_null_osf_short<- margot_plot(
+  emotional_stability_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_emotional_stability_partner_osf_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+)
+emotional_stability_partner_shift_down_vs_null_osf_short$plot/emotional_stability_partner_shift_down_vs_null_short$plot
+
+# 
+narcissism_partner_osf_lmtp_output_short <- here_read_qs('narcissism_partner_osf_lmtp_output', push_mods_short)
+
+narcissism_partner_shift_up_vs_null_osf_short<- margot_plot(
+  narcissism_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_narcissism_partner_osf_up_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+)
+narcissism_partner_shift_up_vs_null_osf_short$plot/narcissism_partner_shift_up_vs_null_short$plot
+
+
+narcissism_partner_shift_down_vs_null_osf_short<- margot_plot(
+  narcissism_partner_osf_lmtp_output_short$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_narcissism_partner_osf_down_short,
+  save_output = TRUE,
+  save_path = here::here(push_mods_short),
+  original_df = original_df_short,
+  label_mapping = label_mapping_partner_short
+)
+narcissism_partner_shift_up_vs_null_osf_short$plot/narcissism_partner_shift_up_vs_null_short$plot
+
+
+# participant numbers short study
+n_participants_short = 1012
+n_couples_short = 1012 / 2
+
+# transition matrices short study
+transition_matrices_short <- margot::here_read("transition_matrices", push_mods_short)
+
+transition_matrices_short$psychopathy_combined
+
+# long models ------------------------------------------------
+title_up_long <- glue("Five-wave Shift UP 1 pt. NULL (baseline)")
+title_down_long <- glue("Five-wave Shift DOWN 1 pt vs. NULL (baseline)")
+title_up_down_long <- glue("Five-wave Shift UP 1 pt vs. Shift DOWN 1pt (baseline)")
+
+
+options_base_partner_up_long <- list(
+  type = "RD",
+  title = title_up_long,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_partner_long
+)
+
+
+
+options_base_partner_down_long <- list(
+  type = "RD",
+  title = title_down_long,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_partner_long
+)
+
+
+options_base_partner_up_down_long <- list(
+  type = "RD",
+  title = title_up_down_long,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_self_long
+)
+
+
+
+options_base_self_up_long <- list(
+  type = "RD",
+  title = title_up_long,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_self_long)
+
+
+
+
+options_base_self_down_long  <- list(
+  type = "RD",
+  title = title_down_long,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on type
+  text_size = 4.5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_partner_long
+)
+
+
+options_base_self_up_down_long <- list(
+  type = "RD",
+  title = title_up_down_long,
+  order = "default",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -2.05, # will be set based on type
+  x_lim_lo = -2.0, # will be set based on type
+  x_lim_hi = 1, # will be set based on typee
+  text_size = 4.5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  label_mapping_partner = label_mapping_partner_long
+)
+
+
+
+
+options_antagonism_partner_up_long <- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Partner",
+  base_defaults = options_base_partner_up_long,
+  filename_prefix = "antagonism_partner_up_long"
+)
+
+options_antagonism_self_up_long <- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Self",
+  base_defaults = options_base_self_up_long,
+  filename_prefix = "antagonism_self_up_long"
+)
+
+
+options_disinhibition_partner_up_long <- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Partner",
+  base_defaults = options_base_partner_up_long,
+  filename_prefix = "disinhibition_partner_up_long"
+)
+
+options_disinhibition_self_up_long <- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Self",
+  base_defaults = options_base_self_up_long,
+  filename_prefix = "disinhibition_self_up_long"
+)
+
+options_emotional_stability_partner_up_long <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Partner",
+  base_defaults = options_base_partner_up_long,
+  filename_prefix = "emotional_stability_partner_up_long"
+)
+
+options_emotional_stability_self_up_long <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Self",
+  base_defaults = options_base_self_up_long,
+  filename_prefix = "emotional_stability_self_up_long"
+)
+
+options_narcissism_partner_up_long <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Partner",
+  base_defaults = options_base_partner_up_long,
+  filename_prefix = "narcissism_partner_up_long"
+)
+
+options_narcissism_self_up_long <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Self",
+  base_defaults = options_base_self_up_long,
+  filename_prefix = "narcissism_self_up_long"
+)
+
+options_psychopathy_combined_partner_up_long <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Partner",
+  base_defaults = options_base_partner_up_long,
+  filename_prefix = "psychopathy_combined_partner_up_long"
+)
+
+options_psychopathy_combined_self_up_long <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Self",
+  base_defaults = options_base_self_up_long,
+  filename_prefix = "psychopathy_combined_self_up_long"
+)
+
+# down
+
+options_antagonism_partner_down_long <- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Partner",
+  base_defaults = options_base_partner_down_long,
+  filename_prefix = "antagonism_partner_down_long"
+)
+
+options_antagonism_self_down_long <- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Self",
+  base_defaults = options_base_self_down_long,
+  filename_prefix = "antagonism_self_down_long"
+)
+
+options_disinhibition_partner_down_long <- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Partner",
+  base_defaults = options_base_partner_down_long,
+  filename_prefix = "disinhibition_partner_down_long"
+)
+
+options_disinhibition_self_down_long <- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Self",
+  base_defaults = options_base_self_down_long,
+  filename_prefix = "disinhibition_self_down_long"
+)
+
+options_emotional_stability_partner_down_long <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Partner",
+  base_defaults = options_base_partner_down_long,
+  filename_prefix = "emotional_stability_partner_down_long"
+)
+
+options_emotional_stability_self_down_long <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Self",
+  base_defaults = options_base_self_down_long,
+  filename_prefix = "emotional_stability_self_down_long"
+)
+
+options_narcissism_partner_down_long <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Partner",
+  base_defaults = options_base_partner_down_long,
+  filename_prefix = "narcissism_partner_down_long"
+)
+
+options_narcissism_self_down_long <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Self",
+  base_defaults = options_base_self_down_long,
+  filename_prefix = "narcissism_self_down_long"
+)
+
+options_psychopathy_combined_partner_down_long <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Partner",
+  base_defaults = options_base_partner_down_long,
+  filename_prefix = "psychopathy_combined_partner_down_long"
+)
+
+options_psychopathy_combined_self_down_long <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Self",
+  base_defaults = options_base_self_down_long,
+  filename_prefix = "psychopathy_combined_self_down_long"
+)
+
+options_psychopathy_combined_partner_up_down_long <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Partner",
+  base_defaults = options_base_partner_up_down_long,
+  filename_prefix = "psychopathy_combined_partner_up_down_long"
+)
+
+options_psychopathy_combined_self_up_down_long <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Self",
+  base_defaults = options_base_self_up_down_long,
+  filename_prefix = "psychopathy_combined_self_up_down_long"
+)
+
+## updown
+
+options_antagonism_partner_up_down_long <- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Partner",
+  base_defaults = options_base_partner_up_down_long,
+  filename_prefix = "antagonism_partner_up_down_long"
+)
+
+options_antagonism_self_up_down_long <- margot_plot_create_options(
+  subtitle = "Antagonism Effect on Self",
+  base_defaults = options_base_self_up_down_long,
+  filename_prefix = "antagonism_self_up_down_long"
+)
+
+options_disinhibition_partner_up_down_long <- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Partner",
+  base_defaults = options_base_partner_up_down_long,
+  filename_prefix = "disinhibition_partner_up_down_long"
+)
+
+options_disinhibition_self_up_down_long <- margot_plot_create_options(
+  subtitle = "Disinhibition Effect on Self",
+  base_defaults = options_base_self_up_down_long,
+  filename_prefix = "disinhibition_self_up_down_long"
+)
+
+options_emotional_stability_partner_up_down_long <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Partner",
+  base_defaults = options_base_partner_up_down_long,
+  filename_prefix = "emotional_stability_partner_up_down_long"
+)
+
+options_emotional_stability_self_up_down_long <- margot_plot_create_options(
+  subtitle = "Emotional Stability Effect on Self",
+  base_defaults = options_base_self_up_down_long,
+  filename_prefix = "emotional_stability_self_up_down_long"
+)
+
+options_narcissism_partner_up_down_long <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Partner",
+  base_defaults = options_base_partner_up_down_long,
+  filename_prefix = "narcissism_partner_up_down_long"
+)
+
+options_narcissism_self_up_down_long <- margot_plot_create_options(
+  subtitle = "Narcissism Effect on Self",
+  base_defaults = options_base_self_up_down_long,
+  filename_prefix = "narcissism_self_up_down_long"
+)
+
+options_psychopathy_combined_partner_up_down_long <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Partner",
+  base_defaults = options_base_partner_up_down_long,
+  filename_prefix = "psychopathy_combined_partner_up_down_long"
+)
+
+options_psychopathy_combined_self_up_down_long <- margot_plot_create_options(
+  subtitle = "Psychopathy Combined Effect on Self",
+  base_defaults = options_base_self_up_down_long,
+  filename_prefix = "psychopathy_combined_self_up_down_long"
+)
+
+# read models
+# read data
+psychopathy_combined_partner_lmtp_output_long <- here_read_qs('psychopathy_combined_partner_lmtp_output', push_mods_long)
+# view tables
+psychopathy_combined_partner_lmtp_output_long$combined_tables
+
+# create partner shift up plot
+psychopathy_combined_partner_shift_up_vs_null_long <- margot_plot(
+  psychopathy_combined_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_psychopathy_combined_partner_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+) 
+# view plot
+psychopathy_combined_partner_shift_up_vs_null_long$plot
+
+# create partner shift down plot
+psychopathy_combined_partner_shift_down_vs_null_long <- margot_plot(
+  psychopathy_combined_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_psychopathy_combined_partner_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+) 
+# view plot
+psychopathy_combined_partner_shift_down_vs_null_long$plot
+
+# create partner shift up vs down plot
+psychopathy_combined_partner_shift_up_vs_shift_down_long <- margot_plot(
+  psychopathy_combined_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_shift_down,
+  options = options_psychopathy_combined_partner_up_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+) 
+# view plot
+psychopathy_combined_partner_shift_up_vs_shift_down_long$plot
+
+# read antagonism data
+antagonism_partner_lmtp_output_long <- here_read_qs('antagonism_partner_lmtp_output', push_mods_long)
+# view tables
+antagonism_partner_lmtp_output_long$combined_tables
+
+# create antagonism partner shift up plot
+antagonism_partner_shift_up_vs_null_long <- margot_plot(
+  antagonism_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_antagonism_partner_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+)
+# view plot
+antagonism_partner_shift_up_vs_null_long$plot
+
+# create antagonism partner shift down plot
+antagonism_partner_shift_down_vs_null_long <- margot_plot(
+  antagonism_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_antagonism_partner_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+)
+# view plot
+antagonism_partner_shift_down_vs_null_long$plot
+
+# read disinhibition data
+disinhibition_partner_lmtp_output_long <- here_read_qs('disinhibition_partner_lmtp_output', push_mods_long)
+# view tables
+disinhibition_partner_lmtp_output_long$combined_tables
+
+# create disinhibition partner shift up plot
+disinhibition_partner_shift_up_vs_null_long <- margot_plot(
+  disinhibition_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_disinhibition_partner_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+)
+# view plot
+disinhibition_partner_shift_up_vs_null_long$plot
+
+# create disinhibition partner shift down plot
+disinhibition_partner_shift_down_vs_null_long <- margot_plot(
+  disinhibition_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_disinhibition_partner_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+)
+# view plot
+disinhibition_partner_shift_down_vs_null_long$plot
+
+# read emotional stability data
+emotional_stability_partner_lmtp_output_long <- here_read_qs('emotional_stability_partner_lmtp_output', push_mods_long)
+# view tables
+emotional_stability_partner_lmtp_output_long$combined_tables
+
+# create emotional stability partner shift up plot
+emotional_stability_partner_shift_up_vs_null_long <- margot_plot(
+  emotional_stability_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_emotional_stability_partner_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+)
+# view plot
+emotional_stability_partner_shift_up_vs_null_long$plot
+
+# create emotional stability partner shift down plot
+emotional_stability_partner_shift_down_vs_null_long <- margot_plot(
+  emotional_stability_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_emotional_stability_partner_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+)
+# view plot
+emotional_stability_partner_shift_down_vs_null_long$plot
+
+# read narcissism data
+narcissism_partner_lmtp_output_long <- here_read_qs('narcissism_partner_lmtp_output', push_mods_long)
+# view tables
+narcissism_partner_lmtp_output_long$combined_tables
+
+# create narcissism partner shift up plot
+narcissism_partner_shift_up_vs_null_long <- margot_plot(
+  narcissism_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_narcissism_partner_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+)
+# view plot
+narcissism_partner_shift_up_vs_null_long$plot
+
+# create narcissism partner shift down plot
+narcissism_partner_shift_down_vs_null_long <- margot_plot(
+  narcissism_partner_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_narcissism_partner_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_partner_long
+)
+# view plot
+narcissism_partner_shift_down_vs_null_long$plot
+
+# read psychopathy self data
+psychopathy_combined_self_lmtp_output_long <- here_read_qs('psychopathy_combined_self_lmtp_output', push_mods_long)
+
+# create psychopathy self shift up plot
+psychopathy_combined_self_shift_up_vs_null_long <- margot_plot(
+  psychopathy_combined_self_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_psychopathy_combined_self_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+psychopathy_combined_self_shift_up_vs_null_long$plot/psychopathy_combined_partner_shift_up_vs_null_long$plot
+
+# create psychopathy self shift down plot
+psychopathy_combined_self_shift_down_vs_null_long <- margot_plot(
+  psychopathy_combined_self_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_psychopathy_combined_self_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+psychopathy_combined_self_shift_down_vs_null_long$plot/psychopathy_combined_partner_shift_down_vs_null_long$plot
+
+# read antagonism self data
+antagonism_self_lmtp_output_long <- here_read_qs('antagonism_self_lmtp_output', push_mods_long)
+# view tables
+antagonism_self_lmtp_output_long$combined_tables
+
+# create antagonism self shift up plot
+antagonism_self_shift_up_vs_null_long <- margot_plot(
+  antagonism_self_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_antagonism_self_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+antagonism_self_shift_up_vs_null_long$plot/antagonism_partner_shift_up_vs_null_long$plot
+
+# create antagonism self shift down plot
+antagonism_self_shift_down_vs_null_long <- margot_plot(
+  antagonism_self_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_antagonism_self_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+antagonism_self_shift_down_vs_null_long$plot/antagonism_partner_shift_down_vs_null_long$plot
+
+# read disinhibition self data
+disinhibition_self_lmtp_output_long <- here_read_qs('disinhibition_self_lmtp_output', push_mods_long)
+
+# create disinhibition self shift up plot
+disinhibition_self_shift_up_vs_null_long <- margot_plot(
+  disinhibition_self_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_disinhibition_self_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+disinhibition_self_shift_up_vs_null_long$plot/disinhibition_partner_shift_up_vs_null_long$plot
+
+# create disinhibition self shift down plot
+disinhibition_self_shift_down_vs_null_long <- margot_plot(
+  disinhibition_self_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_disinhibition_self_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+disinhibition_self_shift_down_vs_null_long$plot/disinhibition_partner_shift_down_vs_null_long$plot
+
+# read emotional stability self data
+emotional_stability_self_lmtp_output_long <- here_read_qs('emotional_stability_self_lmtp_output', push_mods_long)
+
+# create emotional stability self shift up plot
+emotional_stability_self_shift_up_vs_null_long <- margot_plot(
+  emotional_stability_self_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_emotional_stability_self_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+emotional_stability_self_shift_up_vs_null_long$plot/emotional_stability_partner_shift_up_vs_null_long$plot
+
+# create emotional stability self shift down plot
+emotional_stability_self_shift_down_vs_null_long <- margot_plot(
+  emotional_stability_self_lmtp_output_long$combined_tables$combined_outcomes_shift_down_vs_null,
+  options = options_emotional_stability_self_down_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+emotional_stability_self_shift_down_vs_null_long$plot/emotional_stability_partner_shift_down_vs_null_long$plot
+
+# read narcissism self data
+narcissism_self_lmtp_output_long <- here_read_qs('narcissism_self_lmtp_output', push_mods_long)
+
+# create narcissism self shift up plot
+narcissism_self_shift_up_vs_null_long <- margot_plot(
+  narcissism_self_lmtp_output_long$combined_tables$combined_outcomes_shift_up_vs_null,
+  options = options_narcissism_self_up_long,
+  save_output = TRUE,
+  save_path = here::here(push_mods_long),
+  original_df = original_df_long,
+  label_mapping = label_mapping_self_long
+)
+# view comparative plot
+narcissism_self_shift_up_vs_null_long$plot/narcissism_partner_shift_up_vs_null_long$plot
+
+
+
+# participant numbers long study
+n_participants_long
+n_couples_short = n_participants_long / 2
+
+# transition matrices short study
+transition_matrices_long<- margot::here_read("transition_matrices", push_mods_long)
+
+transition_matrices_long$psychopathy_combined
+
+
+
+
+#################### ONLY MODELS ####################
+
+
+Estimation
+
+
+
+
+
+
+# models ------------------------------------------------------------------
+
+# view plot
+psychopathy_combined_partner_shift_up_vs_null_short$plot
+
+
+# view plot
+psychopathy_combined_partner_shift_down_vs_null_short$plot
+
+
+# view plot
+antagonism_partner_shift_up_vs_null_short$plot
+
+# view plot
+antagonism_partner_shift_down_vs_null_short$plot
+
+# view plot
+disinhibition_partner_shift_up_vs_null_short$plot
+
+
+
+# view plot
+disinhibition_partner_shift_down_vs_null_short$plot
+
+
+# view plot
+emotional_stability_partner_shift_up_vs_null_short$plot
+emotional_stability_partner_shift_up_vs_null_short$interpretation
+
+
+# view plot
+emotional_stability_partner_shift_down_vs_null_short$plot
+emotional_stability_partner_shift_down_vs_null_short$interpretation
+
+
+# view plot
+narcissism_partner_shift_up_vs_null_short$plot
+narcissism_partner_shift_up_vs_null_short$transformed_table
+
+
+
+# view plot
+narcissism_partner_shift_down_vs_null_short$plot
+narcissism_partner_shift_down_vs_null_short$transformed_table
+
+
+
+# self --------------------------------------------------------------------
+
+
+
+# view plot
+psychopathy_combined_self_shift_up_vs_null_short$plot/psychopathy_combined_partner_shift_up_vs_null_short$plot
+
+
+
+
+# view plot
+psychopathy_combined_self_shift_down_vs_null_short$plot/psychopathy_combined_partner_shift_down_vs_null_short$plot
+
+
+
+
+# view plot
+antagonism_self_shift_up_vs_null_short$plot/
+  antagonism_partner_shift_up_vs_null_short$plot
+
+
+
+
+# view plot
+antagonism_self_shift_down_vs_null_short$plot/
+  antagonism_partner_shift_down_vs_null_short$plot
+
+
+
+
+# view plot
+disinhibition_self_shift_up_vs_null_short$plot /
+  disinhibition_partner_shift_up_vs_null_short$plot
+
+# view plot
+disinhibition_self_shift_down_vs_null_short$plot /
+  disinhibition_partner_shift_down_vs_null_short$plot
+
 # 
 
 
-# emotional stability self
+# view plot
+emotional_stability_self_shift_up_vs_null_short$plot  / emotional_stability_partner_shift_up_vs_null_short$plot
 
-emotional_stability_self_lmtp_output <- here_read_qs('emotional_stability_self_lmtp_output', push_mods)
 
-plot_emotional_stability_self_lmtp_output <- margot_plot(
-  emotional_stability_self_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_emotional_stability_self,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_self
+# view plot
+narcissism_self_shift_up_vs_null_short$plot/
+  narcissism_partner_shift_up_vs_null_short$plot
+
+
+
+
+# original study ----------------------------------------------------------
+
+# view plot
+psychopathy_combined_partner_shift_up_vs_null_osf_short$plot / psychopathy_combined_partner_shift_up_vs_null_short$plot
+
+
+
+
+# view plot
+psychopathy_combined_partner_shift_down_vs_null_osf_short$plot / psychopathy_combined_partner_shift_down_vs_null_short$plot
+
+
+
+
+# view plot  
+antagonism_partner_shift_up_vs_null_osf_short$plot/antagonism_partner_shift_up_vs_null_short$plot
+
+
+
+# view plot
+antagonism_partner_shift_down_vs_null_osf_short$plot / antagonism_partner_shift_down_vs_null_short$plot
+
+
+
+# view plot
+disinhibition_partner_shift_up_vs_null_osf_short$plot /disinhibition_partner_shift_up_vs_null_short$plot
+
+
+
+# view plot
+disinhibition_partner_shift_down_vs_null_osf_short$plot /disinhibition_partner_shift_down_vs_null_short$plot
+
+
+# view plot
+emotional_stability_partner_shift_up_vs_null_osf_short$plot/emotional_stability_partner_shift_up_vs_null_short$plot
+
+# view plot
+emotional_stability_partner_shift_down_vs_null_osf_short$plot/emotional_stability_partner_shift_down_vs_null_short$plot
+
+# view plot
+narcissism_partner_shift_up_vs_null_osf_short$plot/narcissism_partner_shift_up_vs_null_short$plot
+
+# view plot
+narcissism_partner_shift_down_vs_null_osf_short$plot/narcissism_partner_shift_down_vs_null_short$plot
+
+
+
+# long models ------------------------------------------------
+
+
+## LONG MODELS
+
+
+# view plot
+psychopathy_combined_partner_shift_up_vs_null_long$plot
+
+# view plot
+psychopathy_combined_partner_shift_down_vs_null_long$plot
+
+
+# view plot
+psychopathy_combined_partner_shift_up_vs_shift_down_long$plot
+
+# view plot
+antagonism_partner_shift_up_vs_null_long$plot
+
+# view plot
+antagonism_partner_shift_down_vs_null_long$plot
+
+# view plot
+disinhibition_partner_shift_up_vs_null_long$plot
+
+
+# view plot
+disinhibition_partner_shift_down_vs_null_long$plot
+
+# view plot
+emotional_stability_partner_shift_up_vs_null_long$plot
+
+
+# view plot
+emotional_stability_partner_shift_down_vs_null_long$plot
+
+# view plot
+narcissism_partner_shift_up_vs_null_long$plot
+
+# view plot
+narcissism_partner_shift_down_vs_null_long$plot
+
+
+# view comparative plot
+psychopathy_combined_self_shift_up_vs_null_long$plot/psychopathy_combined_partner_shift_up_vs_null_long$plot
+
+# view comparative plot
+psychopathy_combined_self_shift_down_vs_null_long$plot/psychopathy_combined_partner_shift_down_vs_null_long$plot
+
+# view comparative plot
+antagonism_self_shift_up_vs_null_long$plot/antagonism_partner_shift_up_vs_null_long$plot
+
+# view comparative plot
+antagonism_self_shift_down_vs_null_long$plot/antagonism_partner_shift_down_vs_null_long$plot
+
+
+# view comparative plot
+disinhibition_self_shift_up_vs_null_long$plot/disinhibition_partner_shift_up_vs_null_long$plot
+
+
 )
+# view comparative plot
+disinhibition_self_shift_down_vs_null_long$plot/disinhibition_partner_shift_down_vs_null_long$plot
 
 
-
-compare_partner_self_plot_emotional_stability <- plot_emotional_stability_self_lmtp_output$plot + plot_emotional_stability_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
-
-# margot::margot_save_png(
-#   compare_partner_self_plot_emotional_stability,
-#   width = 24,
-#   height = 12,
-#   save_path = here::here(push_figs),
-#   base_filename = "compare_partner_self_plot_emotional_stability"
-# )
-
-
-
-
-# narcissism self
-narcissism_self_lmtp_output <- here_read_qs('narcissism_self_lmtp_output', push_mods)
-
-plot_narcissism_self_lmtp_output <- margot_plot(
-  narcissism_self_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_narcissism_self,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_self
 )
+# view comparative plot
+emotional_stability_self_shift_up_vs_null_long$plot/emotional_stability_partner_shift_up_vs_null_long$plot
 
-plot_narcissism_self_lmtp_output
-compare_partner_self_plot_narcissism <- plot_narcissism_self_lmtp_output$plot  + plot_narcissism_partner_lmtp_output$plot + plot_annotation(tag_levels = "A")
-
-compare_partner_self_plot_narcissism
-margot::margot_save_png(
-  compare_partner_self_plot_narcissism,
-  width = 24,
-  height = 12,
-  save_path = here::here(push_figs),
-  base_filename = "compare_partner_self_plot_narcissism"
 )
+# view comparative plot
+emotional_stability_self_shift_down_vs_null_long$plot/emotional_stability_partner_shift_down_vs_null_long$plot
 
 
-
-
-
-
-# models OSF original SPEC
-# plot options
-options_antagonism_partner_osf<- margot_plot_create_options(
-  subtitle = "Antagonism Effect on Partner (OSF SPEC)",
-  base_defaults = options_base_partner,
-  filename_prefix = "antagonism_partner_osf"
 )
+# view comparative plot
+narcissism_self_shift_up_vs_null_long$plot/narcissism_partner_shift_up_vs_null_long$plot
 
 
 
-
-options_disinhibition_partner_osf<- margot_plot_create_options(
-  subtitle = "Disinhibition Effect on Partner (OSF SPEC)",
-  base_defaults = options_base_partner,
-  filename_prefix = "disinhibition_partner_osf"
-)
-
-
-
-options_emotional_stability_partner_osf <- margot_plot_create_options(
-  subtitle = "Emotional Stability Effect on Partner (OSF SPEC)",
-  base_defaults = options_base_partner,
-  filename_prefix = "emotional_stability_partner_osf"
-)
-
-
-
-
-options_narcissism_partner_osf <- margot_plot_create_options(
-  subtitle = "Narcissism Effect on Partner (OSF SPEC)",
-  base_defaults = options_base_partner,
-  filename_prefix = "narcissism_partner_osf"
-)
-
-
-
-options_psychopathy_combined_partner_osf<- margot_plot_create_options(
-  subtitle = "Psychopathy Combined Effect on Partner (OSF SPEC)",
-  base_defaults = options_base_partner,
-  filename_prefix = "psychopathy_combined_partner_osf"
-)
-
-
-psychopathy_combined_partner_osf_lmtp_output <- here_read_qs('psychopathy_combined_partner_osf_lmtp_output', push_mods)
-
-
-plot_psychopathy_combined_partner_osf_lmtp_output <- margot_plot(
-  psychopathy_combined_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_down_vs_shift_up,
-  options = options_psychopathy_combined_partner_osf,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
-)
-plot_psychopathy_combined_partner_osf_lmtp_output$plot/plot_psychopathy_combined_partner_lmtp_output$plot
-
-
-
-antagonism_partner_osf_lmtp_output <- here_read_qs('antagonism_partner_osf_lmtp_output', push_mods)
-
-plot_antagonism_partner_osf_lmtp_output <- margot_plot(
-  antagonism_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_antagonism_partner_osf,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
-)
-plot_antagonism_partner_osf_lmtp_output$plot + plot_antagonism_partner_lmtp_output$plot
-
-
-
-disinhibition_partner_osf_lmtp_output <- here_read_qs('disinhibition_partner_osf_lmtp_output', push_mods)
-
-
-plot_disinhibition_partner_osf_lmtp_output<- margot_plot(
-  disinhibition_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_disinhibition_partner_osf,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
-  
-)
-plot_disinhibition_partner_osf_lmtp_output$plot  + plot_disinhibition_partner_lmtp_output$plot
-
-
-emotional_stability_partner_osf_lmtp_output <- here_read_qs('emotional_stability_partner_osf_lmtp_output', push_mods)
-
-plot_emotional_stability_partner_osf_lmtp_output<- margot_plot(
-  emotional_stability_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_emotional_stability_partner_osf,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
-)
-plot_emotional_stability_partner_osf_lmtp_output$plot + plot_emotional_stability_partner_lmtp_output$plot
-
-
-narcissism_partner_osf_lmtp_output <- here_read_qs('narcissism_partner_osf_lmtp_output', push_mods)
-
-
-
-plot_narcissism_partner_osf_lmtp_output<- margot_plot(
-  narcissism_partner_osf_lmtp_output$combined_tables$combined_outcomes_shift_up_vs_shift_down,
-  options = options_narcissism_partner_osf,
-  save_output = TRUE,
-  save_path = here::here(push_mods),
-  original_df = original_df,
-  label_mapping = label_mapping_partner
-)
-plot_narcissism_partner_osf_lmtp_output$plot+ plot_narcissism_partner_lmtp_output$plot
-
-n_participants
-n_couples = 1012 / 2
 
 ```
 
 ## Introduction
 
+
+### Causal Questions
 A central question in psychopathy research is how it affects relationships. 
 
 To address this question, we develop an outcome-wide longitudinal study using a national longitudinal probability sample in New Zealand. 
+
+In Study 1a, we investigate the effect of a one-year intervention on psychopathic personality and its facets on partners. (Planned OSF study)
+
+
+In Study 1b, we investigate the effect of a one-year intevention on psychopathic personality on those who receive the psychopathy treatments (selves), and compare self/partner outcomes. 
+
+
+In Study 2a, we investigate the longer-term effects of three-year inteventions on psychopathic personality, focussing on three-year interventions on psychopathy.
+
+
+In Study 2b, we investigate long-term effects on selves, again focussing on three-year interventions and comparing the effects on selves with those of partners. 
+
+Study 1a and 1b clarify the short term effects of psychapthy interventions on partner who have been together at least one year. 
+
+Study 2a and 2b clarify the longer term effects of psychopathy interventions on those who experience the interventions for at least three years. 
+
+
+### Motivation
+
+The questions we examine hold relevance across several subfields of psychological science, particularly forensic psychology, personality psychology, and relationship research. This study is also broadly significant for advancing causal questions within observational research.
+
+Currently, few studies in relationship research address causality directly, tending instead to investigate statistical associations between actors and partners over time. Establishing causality, however, requires a clearly defined causal contrast of interest, well-defined treatments, and random assignment of individuals drawn from a population of interest to treatment conditions. Because we cannot observe an individual’s response to an unassigned treatment, individual causal effects remain unobservable. However, with randomisation, investigators can infer population-level responses asymptotically, as individuals in treatment conditions are exchangeable. These effects are always obtained for populations or strata of populations, never for individuals. In relationship research, where the effects of interest are on partners of individuals, individual partner effects also remain elusive. Even when repeated measures designs are employed, causal effect estimates in experimental research are always "between-treatments" -- whatever the reporting habits of experimental researchers.  
+
+Notably, for many theoretically relevant questions, randomised controlled trials are neither feasible nor ethical. In observational research, identifying causal effects requires assumptions usually inherent to experiments and a systematic approach in which investigators specify (1) a target population; (2) a causal question as a contrast of population averages under distinct treatments; (3) identification assumptions ensuring assignment to treatment conditions is “as good as random”; (4) a statistical estimator for causal quantities; (5) a statistical model with its assumptions; and (6) sensitivity analyses to evaluate results [@ogburn2021]. However in observational research, it is useful to always keep in model the ideal experiment or "target trial" that we investigators would conduct where such an experiment feasible and ethical [@hernan2024].  
+
+
+To begin, when emulating a "target trial" observational investigators investigators must ensure that outcomes they measure do not precede the treatments being contrasted. In experimental designs, it is clear that events that occur before manipulation cannot be reported as outcomes, but this assurance is typically absent in observational research, where repeated measures over time are usually necessary to ensure the necessary chronological hygiene. Temporal resolution alone, however, is insufficient for causal inference. Investigators must define a clear pair, or set, of treatments (or ‘exposures’) for comparison. In randomised experiments, treatments and any control conditions define the contrasted conditions. In observational studies, where exposures are not administered by the researcher, the exposures and contrasts must be explicitly specified. Robust causal inference requires that the exposures under comparison are observed across all levels of covariates in the statistical model (the positiviety assumption), that the treatments although not under control of the investigators are comparable (causal consistency), and that treatment assignment although not under the control of investigators is "as good as random" (conditional exchangeability). Moreover, to obtain incident effects, investigators must ensure that only initiation into exposures are counted [@hernan2016]. For instance, examining a harmful exposure without accounting for initial susceptibility could introduce ‘healthy-worker bias,’ misleadingly suggesting a positive association between the exposure and outcome when the true causal relationship is harmful [@robins1986]. Despite advanced statistical modelling and time series data, relationship research has yet to systematically adopt rigorous causal inference methods [@bulbulia2024swigstime]. The present study addresses this gap. 
 
 
 ## Method
@@ -732,157 +1891,234 @@ Data were collected as part of The New Zealand Attitudes and Values Study (NZAVS
 [Appendix A](#appendix-demographics) provides information about demographic covariates used for confounding control (NZAVS time 10, years 2018-2019).
 
 
-### Eligibility criteria 
+## Target Population
+
+In Studies 1a and 1b, the target population consisted of all New Zealanders who were in a relationship at NZAVS time 10 (baseline, years 2018-2019) and remained in a relationship at NZAVS time 11 (years 2019-2020). 
+
+In Studies 2a and 2b, the target population consisted of all New Zealanders who were in a relationship at NZAVS time 10 (baseline, years 2018-2019), and may have been lost to follow up in NZAVS time 11-14.  
+
+
+### Eligibility criteria for Studies 1a and 1b (short-term interventions)
 
 The sample consisted of respondents to NZAVS times 10 (baseline, years 2018-2019), time 11 (treatment wave, years 2019-2020), and time 12 (outcome wave) (years 2020-2021).
 
-
-- Participants who were identified as being in couples.   
-- Participants who provided full information to the psychopathy measures in the `r baseline_wave` and `r exposure_wave`. Participants may have been lost to follow up in the outcome wave `r outcome_wave`. 
-- Missing data for all variables at baseline were allowed. Missing data at baseline were imputed through the `mice` package [@vanbuuren2018], and an extra column indicator was included to denote whether a variable was missing, following protocols described by [@williams2021].
+- Participants who were identified as being in couples in both the baseline and exposure waves, where both partners were observed.   
+- Participants who provided full information to the psychopathy measures in the `r baseline_wave` and `r exposure_wave_short`. Participants may have been lost to follow up in the outcome wave `r outcome_wave_short`. 
+- Missing data for all variables in the baseline wave baseline were allowed. Missing data at baseline were imputed through the `mice` package [@vanbuuren2018], and an extra column indicator was included to denote whether a variable was missing, following protocols described by [@williams2021].
 - Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 12 (years 2020-2021, the outcome wave [@williams2021])
 
-There were `r n_participants` NZAVS participants who met these criteria in `r n_couples` couples.
 
+There were `r n_participants_short` NZAVS participants who met these criteria in `r n_couples` couples.
 
-### Causal Contrast
+### Eligibility criteria for Studies 2a and 2b (longer-term interventions)
 
-Here, we leverage panel data to estimate potential outcomes in a hypothetical world in which partners in couples were shifted up or down on a one-point scale for psychopathic personality.
+The sample consisted of respondents to NZAVS times 10 (baseline, years 2018-2019), times 11-13 (treatment waves, years 2019-2022), and time 14 (outcome wave, years 2022-2023).
 
-Our causal estimand takes a "shift function" or "modified treatment policy":
+- Participants who were identified as being in couples in the baseline wave, where both partners were observed. 
+- Participants may have been lost to follow up in the exposure waves and outcomes waves. 
+- Missing data for all variables in the baseline wave were allowed. Missing data at baseline were imputed through the `mice` package [@vanbuuren2018], and an extra column indicator was included to denote whether a variable was missing, following protocols described by [@williams2021].
+- Inverse probability of censoring weights were calculated as part of estimation in `lmtp` to adjust for missing outcomes at NZAVS Time 14 (years 2022-2023, the outcome wave [@williams2021]).
+- If one or more partner dropped out of the study, both partners were censored. 
 
-$$ \text{Average Treatment Effect} = E\{(E[Y(\text{Shift up})|A,L) - (E[Y(\text{Shift down})|A,L)\} $$
+There were `r n_participants_long` NZAVS participants who met these criteria in `r n_couples_long` couples.
 
-**Intervention Functionals:**
+### Causal Contrasts in Romantic Partnerships
 
-* **Shift up by +1 point:**
+We specify causal effects non-parametrically by defining contrasts between potential outcomes under different interventions. This approach allows us to clearly state what would happen to both individuals and their partners under specific changes to personality traits.
 
+#### Notation
+
+- A romantic partnership is defined as a pair of individuals $(s, p)$, where:
+  - $s$ = self (the individual)
+  - $p$ = partner
+- $A_s$ = intervention on the self's psychopathic personality or one of its facets
+- $A_p$ = partner's psychopathic personality (not intervened upon)
+- $Y_s$ = outcome for self (e.g., well-being)
+- $Y_p$ = outcome for partner
+- $L$ = measured covariates
+
+### Potential Outcomes
+
+For any intervention where we set the self's personality facet to level $\tilde{a}_s$:
+
+- $Y_p(\tilde{a}_s)$ denotes the potential outcome for the partner when the self is intervened upon.
+- $Y_s(\tilde{a}_s)$ denotes the potential outcome for the self when the self is intervened upon.
+
+Since we do not intervene on the partner's psychopathic personality, the partner's exposure remains at its observed value $\tilde{a}_p = A_p$.
+
+### Assumptions
+
+To identify these potential outcomes, we assume conditional exchangeability given measured covariates $L$:
 
 $$
-\text{Shift up} \equiv f(A) = a^* = 
+\{Y_p(\tilde{a}_s), Y_s(\tilde{a}_s)\} \coprod A_s \mid L
+$$
+
+This means that, conditional on $L$, the treatment assignments $A_s = \tilde{a}_s$ are 'as good as random.' This allows us to estimate causal effects from observed data.
+
+## Intervention Types
+
+We define three specific shift interventions on the psychopathic personality trait, which is bounded between 1 and 7:
+
+### 1. Shift Up (+1)
+
+We define the shift-up intervention as:
+
+$$
+a_s^+ = f(A_s) = 
 \begin{cases}
-  A + 1 & \text{if the observed value of the exposure + 1 < 7 point, else:} \\
-  7 &
+A_s + 1, & \text{if } A_s + 1 \leq 7 \\
+7, & \text{if } A_s + 1 > 7
 \end{cases}
 $$
 
-* **Shift down by -1 point:**
+This ensures that the shifted value does not exceed the maximum score of 7.
+
+### 2. Shift Down (-1)
+
+We define the shift-down intervention as:
 
 $$
-\text{Shift down} \equiv f(A) = \tilde{a} =  
+a_s^- = f(A_s) = 
 \begin{cases}
-  A - 1 & \text{if the the observed value of the exposure - 1 > 1, else:} \\
-  1 &
+A_s - 1, & \text{if } A_s - 1 \geq 1 \\
+1, & \text{if } A_s - 1 < 1
 \end{cases}
 $$
 
+This ensures that the shifted value does not go below the minimum score of 1.
 
-* **Null**
+### 3. Null (No Change)
+
+The null intervention leaves the exposure at its observed value:
 
 $$
-\text{Null} \equiv f(A) = a =  
-\begin{cases}
-  A & \text{the observed value of the exposure} \\
-\end{cases}
+a_s = A_s
 $$
 
-Our primary interest is in the contrast of these intervention functionals.  {Appendix XX](#appendix-XX) reports contrast for each intervention against the NULL of no intervention.
+### Causal Effects
 
+We specify causal effects by contrasting potential outcomes under these interventions.  In study 1 this intervention occurred for one year (baseline + 1 year), and in study 2 it occurred for three years (baseline + 3 years). Outcomes were measured one year after the end of the intervention to ensure temporal order in causal inferences [@vanderweele2020]. 
+
+#### Average Partner Effect (APE)
+
+The Average Partner Effect (APE) computes how changing the self's trait affects the partner's outcome.
+
+##### For Shift Up:
+
+$$
+\text{APE}_{\text{up}} = E\left[ Y_p(a_s^+) - Y_p(a_s) \mid L \right]
+$$
+
+This Average Partner Effect (APE) computes the average change in the partner's outcome when we increase the self's trait by 1 point from the observed treatment level..
+
+##### For Shift Down:
+
+$$
+\text{APE}_{\text{down}} = E\left[ Y_p(a_s^-) - Y_p(a_s) \mid L \right]
+$$
+
+This Average Partner Effect (APE) computes the average change in the partner's outcome when we decrease the self's trait by 1 point from the observed treatment level.
+
+#### Average Self Effect (ASE)
+
+The Average Self Effect (ASE) measures how changing one's own trait affects their own outcome.
+
+##### For Shift Up:
+
+$$
+\text{ASE}_{\text{up}} = E\left[ Y_s(a_s^+) - Y_s(a_s) \mid L \right]
+$$
+
+This Average Self Effect computes the average change in the self's outcome when we increase their trait by 1 point from the observed treatment level.
+
+##### For Shift Down:
+
+$$
+\text{ASE}_{\text{down}} = E\left[ Y_s(a_s^-) - Y_s(a_s) \mid L \right]
+$$
+
+This Average Self Effect computes the average change in the self's outcome when we decrease their trait by 1 point from the observed treatment level.
+
+In Studies 1a and 1b, we estimate the Average Partner and Self effects, respectively, from one-year shift interventions (both increases and decreases) on psychopathic personality traits in a population of New Zealanders who have been in relationships for three years. The interventions occurred in the second year, with outcomes measured in the third year. We allowed for loss to follow-up and break-ups in the third year, estimating the per-protocol effect using inverse probability of censoring weights.
+
+In Studies 2a and 2b, we estimate the Average Partner and Self effects from three-year shift interventions on psychopathic personality traits among New Zealanders in five-year relationships. The interventions took place from the second to the fourth year, and outcomes were measured in the fifth year. Loss to follow-up was permitted after baseline. When break-ups occurred, both partners were censored, and we estimated the per-protocol effect using inverse probability of censoring weights.
+
+Having stated our causal estimands and target population, we now turn to our identification assumptions.
 
 
 ### Identification Assumptions
 
-To consistently estimate causal effects, we rely on three key assumptions:
+To consistently estimate causal effects, we rely on three assumptions. These assumptions are standard in the literature on causal inference [@hernan2024, @bulbulia2024].
 
-1. **Causal Consistency:** potential outcomes must align with observed outcomes under the treatments in our data. Essentially, we assume potential outcomes do not depend on the specific way treatment was administered, as long as we consider measured covariates. 
+1. **Causal Consistency:** potential outcomes must align with observed outcomes under the treatments in our data. Essentially, we assume potential outcomes do not depend on the specific way treatment was administered, as long as we consider measured covariates. Note that we adjust both for parter and self co-variates at baseline. 
 
-2. **Conditional Exchangeability:** given the observed covariates, we assume treatment assignment is independent of potential outcomes. In simpler terms, this means "no unmeasured confounding" – any factors influencing both treatment assignment and outcomes must be included in our measured covariates.
+2. **Conditional Exchangeability:** given the observed covariates, we assume treatment assignment is independent of potential outcomes. In simpler terms, this means "no unmeasured confounding" – any variables that influence both treatment assignment and outcomes are included in our covariate set. 
 
-3. **Positivity:** for unbiased estimation, every subject must have a non-zero chance of receiving the treatment, regardless of their covariate values. We evaluate this assumption in each study by examining changes in psychopathy "treatments" from baseline (NZAVS time 10) to the treatment wave (NZAVS time 11). It is the initiation of a psychopathic trait and their combinations, whose causal effect we seek to quantify
-
-
-
-### Analysis
-
-Criteria for analysis were pre-specified and pre-registered in advance of the analysis at:[https://osf.io/ce4t9/](https://osf.io/ce4t9/), and followed standard NZAVS protocols for three-wave causal inference designs [@bulbulia2024PRACTICAL].
+3. **Positivity:** for unbiased estimation, every subject must have a non-zero chance of receiving the treatment, regardless of their covariate values. We evaluate this assumption in each study by examining changes in psychopathy "treatments" from baseline (NZAVS time 10) to the treatment wave (NZAVS time 11).  [Appendix XXX](appendix-transition): Transition matrices shows this observed shifts in the treatment variables from baseline (NZAVS time 10) to exposure waves (NZAVS time 11).
 
 
-### Confounding Control Strategy
+<!-- ### Confounding Control Strategy -->
 
-We followed @vanderweele2020's *minimally modified disjunctive criteria* for confounding control.
+<!-- We followed @vanderweele2020's *minimally modified disjunctive criteria* for confounding control. -->
 
-1. **Initial identify confounders**: using causal diagrams, we began by enumerating all covariates that may influence either the treatment (exposure) or outcomes, spanning five domains. This includes variables directly affecting the exposure or outcome, as well as potential consequences of these variables (i.e. proxies.)
+<!-- 1. **Initial identify confounders**: using causal diagrams, we began by enumerating all covariates that may influence either the treatment (exposure) or outcomes, spanning five domains. This includes variables directly affecting the exposure or outcome, as well as potential consequences of these variables (i.e. proxies.) -->
 
-2. **Remove instrumental variables**: we removed variables that are identified as instrumental variables, i.e., those influencing the exposure but not the outcome. Their inclusion can reduce the efficiency of the analysis.
+<!-- 2. **Remove instrumental variables**: we removed variables that are identified as instrumental variables, i.e., those influencing the exposure but not the outcome. Their inclusion can reduce the efficiency of the analysis. -->
 
-3. **Inclusion of proxy variables**: for unmeasured variables that affect both the exposure and outcome, include proxy variables wherever possible. These proxies act as indicators for the unmeasured common causes. [Appendix B](#appendix-demographics) lists covariates we used for confounding control. These protocols follow advice in [@bulbulia2024PRACTICAL] as prespecified in [https://osf.io/ce4t9/](https://osf.io/ce4t9/).
+<!-- 3. **Include proxy variables**: for unmeasured variables that affect both the exposure and outcome, we include proxy variables wherever possible. These proxies act as indicators for the unmeasured common causes. [Appendix B](#appendix-demographics) lists covariates we used for confounding control. These protocols follow advice in [@bulbulia2024PRACTICAL] as described in [https://osf.io/ce4t9/](https://osf.io/ce4t9/). -->
 
-4. **Baseline exposure control**: we included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. Accounting for prior exposure also allowed us to recover an incident exposure effect as opposed to a prevalent exposure effect: that is, we were able to focus on the one-year effect on partner well-being from initiation to psychopathy or a psychopathic trait [@danaei2012; @hernan2023].
+<!-- 4. **Baseline exposure control**: we included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. Accounting for prior exposure also allowed us to recover an incident exposure effect as opposed to a prevalent exposure effect: that is, we were able to focus on the one-year effect on partner well-being from initiation to psychopathy or a psychopathic trait [@danaei2012; @hernan2023]. -->
 
-5. **Baseline outcome control**: we also included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. This strategy also minimises the possibility of reverse causation.
-
-
-Additionally, we adopted the following confounding-control strategies:
+<!-- 5. **Baseline outcome control**: we also included baseline measures of the outcome to adjust for unmeasured confounding [@vanderweele2020]. This strategy also minimises the possibility of reverse causation. -->
 
 
-6. **Partner's covariates**: because the effect of changes in one individual's variables on their partner's outcomes is assessed, we include baseline measures for the partner's covariates, as we as of the focal partner. Additionally, we clustered individuals with their dyadic partnerships, which helps adjust for unmeasured features that might affect results.
+<!-- Additionally, we adopted the following confounding-control strategies: -->
+
+
+
 
 
 <!-- Valid inferences for the New Zealand population were secured by applying post-stratification census weights for age, European ethnicity, and gender. -->
 
 
 
-#### Estimator 
+#### Estimation 
 
-We employ a semi-parametric estimator known as Targeted Minimum Loss-based Estimation (TMLE), which is able to estimate the causal effect of modified treatment policies on outcomes over time [@vanderlaan2011; @vanderlaan2018]. Estimation was performed using `lmtp` package [@williams2021; @díaz2021; @hoffman2023]. TMLE is a robust method that combines machine learning techniques with traditional statistical models to estimate causal effects while providing valid statistical uncertainty measures for these estimates.
+In Studies 1a and 1b, we estimate the causal effect of modified treatment policies over time using Targeted Minimum Loss-based Estimation (TMLE), a semi-parametric estimator [@vanderlaan2011; @vanderlaan2018]. TMLE estimation was conducted via the lmtp package [@williams2021; @díaz2021; @hoffman2023]. TMLE proceeds in two main steps involving outcome and treatment (exposure) models. First, machine learning algorithms flexibly model the relationships among treatments, covariates, and outcomes, allowing TMLE to capture complex, high-dimensional covariate structures without strict model assumptions. This step yields an initial set of estimates. In the second step, TMLE "targets" these initial estimates by incorporating observed data distribution information, improving the accuracy of the causal effect estimate through an iterative process. 
 
-TMLE operates through a two-step process involving outcome and treatment (exposure) models. Initially, it employes machine learning algorithms to flexibly model the relationship between treatments, covariates, and outcomes. This flexibility allows TMLE to account for complex, high-dimensional covariate spaces without imposing restrictive model assumptions. The outcome of this step is a set of initial estimates for these relationships.
+A notable strength of TMLE is its double-robustness property, meaning that consistent causal effect estimation is achieved as long as either the outcome or treatment model is correctly specified. TMLE also incorporates cross-validation to prevent overfitting. These features collectively create a robust methodology for examining causal effects of interventions on outcomes. The integration of TMLE with machine learning reduces reliance on restrictive modelling assumptions. For further details, see [@hoffman2022; @hoffman2023; @díaz2021].
 
-The second step of TMLE involves "targeting" these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This is achieved through an iterative updating process, which adjusts the initial estimates towards the true causal effect. This updating process is guided by the efficient influence function, ensuring that the final TMLE estimate is as close as possible to the true causal effect while remaining robust to model misspecification in either the outcome or treatment model.
-
-A central feature of TMLE is its double-robustness property, meaning that if either the model for the treatment or the outcome is correctly specified, the TMLE estimator will still consistently estimate the causal effect. Additionally, TMLE uses cross-validation to avoid overfitting and ensure that the estimator performs well in finite samples. Each of these steps contributes to a robust methodology for examining the *causal* effects on of interventions on outcomes. The marriage of TMLE and machine learning technologies reduces the dependence on restrictive modelling assumptions and introduces an additional layer of robustness. For further details see [@hoffman2022; @hoffman2023; @díaz2021]
+In Studies 2a and 2b, we used a Sequential Doubly-Robust Estimator from the `lmtp` package, which is multiply robust for repeated treatments across multiple waves [@diaz2023lmtp; @hoffman2023]. This estimator strengthens robustness to misspecification in either the outcome or treatment model. The lmtp package relies on the SuperLearner library, integrating diverse machine learning algorithms [@SuperLearner2023]. Given our relatively small sample sizes (fewer than 2,000 participants), we selected the Ranger estimator, a non-parametric causal forest method known for its resistance to overfitting [Ranger2017]. All statistical models implemented a 10-fold cross-validation.
 
 
-#### Estimation
 
-We used the `lmtp` R package to estimate treatments' causal effects on well-being outcomes for each of the four trait dimensions and the composite measure. Measurements of the treatments and outcomes were included with baseline covariates. Our models included an indicator for censorship in the next wave (C) which adjusted for loss to follow-up/attrition conditional on measured covariates. As mentioned, models estimated the effects of shifting the treatment variable by one unit (both increase and decrease) using custom shift functions (f and f_1), which adjust the treatment variable within the observed range. Two custom shift functions were defined to model the hypothetical intervention of increasing or decreasing the treatment variable by one unit, and these were contrasted against the expectation from a 'null' model.
+#### Statistical Assumptions and Sensitivity Analysis
 
-- **increase +1 function**: increases the treatment variable by one unit, capped at the maximum observed score.
-- **decrease -1 function**: decreases the treatment variable by one unit, floored at the minimum observed score.
-- **'null' model:** the null model was specified identically to the treatment effect models in terms of the included covariates, outcome variable, and model structure but without applying any shift to the treatment variable. This ensured that any differences observed between the treatment models and the null model can be attributed to the treatment effect rather than differences in model specification. By estimating a model under the assumption of no change in the treatment status, we obtained clear baselines against which the effects of treatment shifts could be assessed.
-
-`lmtp` draws on the the `SuperLearner` library, which comprises various machine learning algorithms [@SuperLearner2023]. Given the relatively sample (N=1070) we used the `Ranger` and `randomForest` estimators - both causal forest estimators --  a subset of non-parametric estimators distinguished by their resilience against overfitting [Ranger2017; randomForest2002].  Causal forests excel in identifying complex, non-linear relationships between variables without presupposing a specific model form, and thus making fewer assumptions about the underlying data distribution.
+  1. We account for statistical dependencies among partners by including an indicator for relationship clusters, we assume no further statistical dependencies in the data.
+  2. Although semi-parametric, multiply-robust estimators offer improved robustness against model misspecification compared to parametric models, they are not completely immune to it. We assume correct model specification for either the outcome or treatment model.
+  3.  We perform sensitivity analyses using the E-value metric [@vanderweele2017; @linden2020EVALUE]. The E-value represents the minimum association strength (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and outcome—after adjusting for measured covariates—to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE].
 
 
-#### Cross-Validation
+#### Pre-Registered Analysis Plan
 
-We implemented a 10-fold cross-validation. This method partitions the data into ten subsets of approximately equal size. During the cross-validation process, nine subsets are used to train the model, and the remaining subset is used for testing. This process is repeated ten times, with each of the ten subsets used exactly once as the test set. Using different subsets for training and validation, minimises the risk of the model being overly complex and fitting the noise in the training dataset, which can lead to poor performance on new data. Moreover, each observation is used for training and validation, which is particularly beneficial in scenarios where the amount of data is limited. The cross-validation process results in ten estimates of model accuracy, which can be averaged to provide a more comprehensive measure of model performance.
+Criteria for analysis in study 1a was pre-specified and pre-registered in advance of the analysis at:[https://osf.io/ce4t9/](https://osf.io/ce4t9/), and followed standard NZAVS protocols for three-wave causal inference designs [@bulbulia2024PRACTICAL]. The results for Study 1a are presented in Appendix XXX.  
+
+The Study 1a as presented in the main text we deviated from the current plan in two ways. First, we incorporated an additional baseline confounders: reported health disability, relationship status, and length of relationship. Second, we introduced indicators to denote when baseline variables had been imputed. These decisions are based on the assumption that health disability and relationship status might affect both personality traits and well-being outcomes. Additionally, length in a relationship might affect both personality facets and well-being outcomes. We introduced indicators to denote when baseline variables had been imputed. This refinement aligns our approach with the recommendations of @hoffman2023, ensuring robustness in handling missing data. Essentially machine learning can better adjust for imputation at baseline by recognising which variables have been imputed for each individual. 
+
+Results for the pre-specified OSF are presented in Appendix XXX. *There were no substantive differences in the augmented design.* However, we report the augmented design as a model for best practice.
+
+Study 1b was not pre-registered. On reflection, we decided to include the personal effects of psychopathic interventions on those who experience them to provide a more complete picture of the effects of psychopathy.  Study 1b followed the same protocols as Study 1a, with outcomes measured one year after the end of the intervention on selves rather than on partners. 
+
+Studies 2a and 2b were not pre-registered. On reflection, we decided to include a multi-wave study to provide a more complete picture of psychopathy and its long term effects. Additionally, we allowed for censoring in the treatment wave to estimate the per-protocol effect of treatment, on the assumption that that psychopathic personality traits might lead to attrition already at the treatment wave. Although this prospect does not bias causal effect estimation in Studies 1a and 1b, the target population is smaller in those studies, which do not generalise to the population of New Zealand couples in the baseline wave, whose densitisty of psychopathic personality traits may be higher than those who carry on responding in the treatment wave [@bulbulia2024wierd]
 
 
-#### Sensitiviy Analysis Using the E-value
-
-To measure senstivity to unmeasured confounding, we report VanderWeele and Ding's "E-value" for all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain-away the observed exposure-outcome association  [@vanderweele2020; @linden2020EVALUE]. For example, if the E-value were 1.3, it would mean an unmeasured confounder associated with both the treatment and outcome by a risk ratio of 1.3 each (or 30% increase in risk) could explain away the observed effect. Weaker confounding would not suffice. We also report the bound of the E-value closest to 1. If the lower bound of the CI were 1.1, to explain away the result, the strength of an unmeasured confounder in its association with both the treatment and the outcome would need to be at least 1.1 on the risk ratio scale (or a 10% increase in risk) to explain away the result [@vanderweele2017]. 
-
-
-### Deviations from pre-registered research
-
-Our current research deviates from our preregistered plan in three areas, all aimed at enhancing the robustness and validity of our findings.
-
-First, we adjusted our primary analysis to compare the average treatment effects of increasing psychopathic personality traits by one point for each individual (without exceeding the scale’s maximum) versus decreasing these traits by one point. This adjustment allows for greater separation between exposure conditions, closely emulating an experimental design and providing clearer insights into the effects of personality trait variations. Although it is possible to estimate numerous causal contrasts, comparing gains or losses with the null hypothesis of no change would yield contrasts that are not directly comparable. For completeness, all contrasts, including those from our original plan, are reported in Appendix XXX.
-
-Second, we incorporated an additional baseline confounder: reported health disability. The decision is based on the assumption that health disability may be a common cause influencing both personality traits and well-being outcomes.
-
-Third, we introduced indicators to denote when baseline variables had been imputed. This methodological refinement aligns our approach with the recommendations of @hoffman2023, ensuring transparency and robustness in handling missing data. By accounting for imputed data, we mitigate potential biases and strengthen the reliability of our results.
-
-The adjustments made in the second and third deviations resulted in a slight attenuation of the causal effect estimates, which was anticipated. Importantly, these changes did not alter our substantive conclusions, yet support credibility for our findings. Comprehensive reporting for the original preregistered study is provided in Appendix XXX.
-
-## Results Study 1: Antagonism  
-
+## Study 1a: Three Wave Effect of Psychopathy Interventions on Partner Well-being
 
 ### Results Study 1A: Antagonism: Partner
 
 ```{r}
-#| label: fig-results-antagonism-partner
+#| label: fig-results-antagonism-partner-up
 #| fig-cap: "Results for antagonism effect on partner multi-dimensional well-being: z-transformed"
 #| eval: true
 #| include: true
@@ -891,15 +2127,15 @@ The adjustments made in the second and third deviations resulted in a slight att
 #| fig-width: 16
 
 
-plot_antagonism_partner_lmtp_output$plot
+plot_antagonism_partner_lmtp_output_short$plot
 
 ```
 
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-results-antagonism-partner
-#| tbl-cap: "Table for antagonism effect on partner multi-dimensional well-being"
+#| label: tbl-results-antagonism-partner-up
+#| tbl-cap: "Table for antagonism effect on partner multi-dimensional well-being: "
 #| eval: true
 #| include: false
 #| echo: false
@@ -1481,8 +2717,6 @@ summary_tables$exposure_tables |> kbl(format = "markdown")
 ```
 
 
-
-
 ##  Appendix E: Baseline and End of Study Outcome Statistics {#appendix-outcomes}
 
 
@@ -1498,7 +2732,106 @@ summary_tables$outcome_table |> kbl(format = "markdown")
 
 
 
-##  Appendix XX: Baseline and End of Study Outcome Statistics {#appendix-xx}
+## Appendix XX: Transition Matrices
+
+
+
+
+```{r}
+#| label: fig-exposure_histograms
+#| fig-cap: "Distribution of the treatment variables at baseline."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 16
+#| fig-width: 12
+
+histogram_antagonism_emotional_stability_disinhibition_narcissism_psychopathy_combined_by_wave
+```
+
+@fig-exposure_histograms presents this distribution of the treatment variables at baseline, along with their means and standard deviations. 
+We next consider change in the treatment variables over time.  Note that to make the transition tables readible, we rounded values of each exposure to the nearest whole number. This means that the tables will show less change than occurred. However, because our interest in exposures for which there is a one point shift in the response (up or down), the tables give an approximate sense of how change occurred in the same over one year. 
+
+### Transition Table: Antagonism
+
+```{r}
+#| label: tbl-table-transition-antagonism
+#| tbl-cap: "Observed shifts from the baseline to exposure wave in Antagonism"
+#| eval: false
+#| echo: false
+#| include: false
+transition_matrices$antagonism$table
+#transition_matrices$antagonism$explanation
+```
+
+@tbl-table-transition-antagonism: This transition matrix captures shifts in states across Antagonismfrom the baseline to exposure wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the treatment at baseline (From), and the columns correspond to the state at the following wave (To). **Diagonal entries** (in **bold**) correspond to the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** correspond to the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts from the baseline state to other states.
+
+
+
+### Transition Table: Disinhibition
+
+```{r}
+#| label: tbl-table-transition-disinhibition
+#| tbl-cap: "Observed shifts from the baseline to exposure wave in Disinhibition"
+#| eval: false
+#| echo: false
+#| include: false
+transition_matrices$disinhibition$table
+# transition_matrices$disinhibition$explanation
+```
+
+@tbl-table-transition-disinhibition: This transition matrix captures shifts in states across Disinhibition from the baseline to exposure wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the treatment at baseline (From), and the columns correspond to the state at the following wave (To). **Diagonal entries** (in **bold**) correspond to the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** correspond to the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts from the baseline state to other states.
+
+
+
+### Transition Table: Emotional Stability
+
+```{r}
+#| label: tbl-table-transition-emotional_stability
+#| tbl-cap: "Observed shifts from the baseline to exposure wave in Emotional Stability"
+#| eval: false
+#| echo: false
+#| include: false
+transition_matrices$emotional_stability$table
+#transition_matrices$emotional_stability$explanation
+```
+
+@tbl-table-transition-emotional_stability: This transition matrix captures shifts in states across Emotional Stability from the baseline to exposure wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the treatment at baseline (From), and the columns correspond to the state at the following wave (To). **Diagonal entries** (in **bold**) correspond to the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** correspond to the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts from the baseline state to other states.
+
+
+
+### Transition Table: Narcissism
+
+```{r}
+#| label: tbl-table-transition-narcissism
+#| tbl-cap: "Observed shifts from the baseline to exposure wave in Narcissism"
+#| eval: false
+#| echo: false
+#| include: false
+transition_matrices$narcissism
+#transition_matrices$emotional_stability$explanation
+```
+
+@tbl-table-transition-narcissism: This transition matrix captures shifts in states across Narcissism from the baseline to exposure wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the treatment at baseline (From), and the columns correspond to the state at the following wave (To). **Diagonal entries** (in **bold**) correspond to the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** correspond to the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts from the baseline state to other states.
+
+
+### Transition Table: Emotional Stability
+
+```{r}
+#| label: tbl-table-transition-emotional_stability
+#| tbl-cap: "Observed shifts from the baseline to exposure wave in Emotional Stability"
+#| eval: false
+#| echo: false
+#| include: false
+#transition_matrices$psychopathy_combined$table
+transition_matrices$psychopathy_combined$explanation
+```
+
+@tbl-table-transition-emotional_stability: This transition matrix captures shifts in states across Emotional Stability from the baseline to exposure wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the treatment at baseline (From), and the columns correspond to the state at the following wave (To). **Diagonal entries** (in **bold**) correspond to the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** correspond to the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts from the baseline state to other states.
+
+
+
+##  Appendix XX: OSF Planned Study Results {#appendix-xx}
 
 ### Results for OSF planned study 
 
