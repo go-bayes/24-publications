@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>inkuk-pol-env-long</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="24-inkuk-pol-env-long_files/libs/clipboard/clipboard.min.js"></script>
+<script src="24-inkuk-pol-env-long_files/libs/quarto-html/quarto.js"></script>
+<script src="24-inkuk-pol-env-long_files/libs/quarto-html/popper.min.js"></script>
+<script src="24-inkuk-pol-env-long_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="24-inkuk-pol-env-long_files/libs/quarto-html/anchor.min.js"></script>
+<link href="24-inkuk-pol-env-long_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="24-inkuk-pol-env-long_files/libs/quarto-html/quarto-syntax-highlighting-2486e1f0a3ee9ee1fc393803a1361cdb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="24-inkuk-pol-env-long_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="24-inkuk-pol-env-long_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="24-inkuk-pol-env-long_files/libs/bootstrap/bootstrap-677b520d69fcc55ab41b4b425631e74d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<p>`— title: “Quantifying Causal Effects of Political Conservativism on Environmental Attitudes Using National Panel Data Reveals Longitudinal Growth is Not Causation” abstract: | Whether political conservativism affects environmental attitudes is a topic of considerable interest and ongoing debate. This question is challenging to address because political conservativism cannot be manipulated. Moreover, observational data, even when longitudinal, do not clarify causality. Here, we use a three-wave outcome-wide panel of 38,000 New Zealanders (2020-2023) to estimate the causal effects of political conservativism on a range of environmental attitudes and behaviours. Controlling for pre-existing differences in both political conservativism and environmental attitudes and demographic variables, we find that the effect of political conservativism reduces acceptance of beliefs in climate change, belief in human-caused climate change, and climate change concern, but it does not affect perceived environmental efficacy compared with observed attitudes. We find that a two-point decrease in political conservatism only affects beliefs in the reality of climate change. Here, we find that associations in the data are misleading guides to causality. <strong>KEYWORDS</strong>: <em>Causal Inference</em>; <em>Climate Change</em>; <em>Conservativism</em>; <em>Cross-validation</em>; <em>Environmental</em>, <em>Longitudinal</em>; <em>Machine Learning</em>; <em>Political</em>; <em>Semi-parametric</em>. author: - name: Inkuk E Kim affiliation: Victoria University of Wellington, New Zealand orcid: 0000-0003-3169-6576 - name: Chris G. Sibley affiliation: School of Psychology, University of Auckland orcid: 0000-0002-4064-8800 - name: Joseph A. Bulbulia affiliation: Victoria University of Wellington, New Zealand orcid: 0000-0002-5861-2056 email: joseph.bulbulia@vuw.ac.nz corresponding: yes editor_options: chunk_output_type: console format: pdf: sanitise: true keep-tex: true link-citations: true colorlinks: true documentclass: article classoption: [single column] lof: false lot: false geometry: - top=30mm - left=25mm - heightrounded - headsep=22pt - headheight=11pt - footskip=33pt - ignorehead - ignorefoot template-partials: - /Users/joseph/GIT/templates/quarto/title.tex header-includes: - date: last-modified execute: echo: false warning: false include: true eval: true fontfamily: libertinus bibliography: /Users/joseph/GIT/templates/bib/references.bib csl: /Users/joseph/GIT/templates/csl/camb-a.csl</p>
+<hr>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>A central question in political psychology is whether Political Conservativism affects attitudes toward the environment. Causality is difficult to establish because Political Conservativism—which involves deeply held convictions about right and wrong—cannot be manipulated experimentally. Observational studies, including longitudinal ones, typically report correlations or patterns of growth. However, causal interpretations of correlations and growth are subject to well-understood biases.</p>
+<p>Here, we leverage comprehensive panel data from 44,658 participants in the New Zealand Attitudes and Values Study, spanning NZAVS time 10, years 2018-2019, NZAVS time 11-13, years 2019-2022, and NZAVS time 14, years 2022-2023, to quantify the effects of clearly defined interventions in Political Conservativism across the population of New Zealanders.</p>
+</section>
+<section id="method" class="level2">
+<h2 class="anchored" data-anchor-id="method">Method</h2>
+<p>We define a causal effect as the difference in average outcomes between groups of people who experience different conditions based on planned interventions. The outcomes are measured across the whole population after one condition and compared to outcomes measured after another condition. These different outcomes are called “counterfactual” or “potential” outcomes because each person can only experience one condition, so the outcome under the unexperienced condition must be estimated.</p>
+<p>This challenge of estimating counterfactuals is well understood in randomised experiments. In such experiments, although we cannot observe what would have happened if a person had received a different treatment, random assignment ensures that the average outcomes between groups are comparable. This allows us to reliably estimate the difference between treatments at the population level.</p>
+<p>However, in observational studies, where treatments are not randomised, we must make additional assumptions and apply special methods to address biases in manifest correlations. Such assumptions and methods aim to <em>balance</em> the groups on variables that might influence both the treatment and the outcome <span class="citation" data-cites="rubin2005 neyman1923 robins1986 pearl2009 vanderlaan2018">[@rubin2005; @neyman1923; @robins1986; @pearl2009; @vanderlaan2018]</span>. We begin our workflow by stating the target population for whom inferences are meant to generalise and the specific causal contrasts of interest for this study.</p>
+<section id="sample" class="level3">
+<h3 class="anchored" data-anchor-id="sample">Sample</h3>
+</section>
+<section id="target-population" class="level3">
+<h3 class="anchored" data-anchor-id="target-population">Target Population</h3>
+<p>The target population for this study comprises New Zealand residents as represented by the New Zealand Attitudes and Values Study (NZAVS) during NZAVS time 10, years 2018-2019 weighted by New Zealand Census weights for age, gender, and ethnicity (refer to <span class="citation" data-cites="sibley2021">@sibley2021</span>). The NZAVS is a national probability study designed to accurately reflect the broader New Zealand population. Despite its comprehensive scope, the NZAVS has some limitations in its demographic representation. Notably, it tends to under-sample males and individuals of Asian descent while over-sampling females and Māori (the indigenous peoples of New Zealand). To address these disparities and enhance the accuracy of our findings, we apply New Zealand Census survey weights to the sample data.</p>
+<p>These weights adjust for variations in age, gender, and ethnicity to better approximate the national demographic composition <span class="citation" data-cites="sibley2021">[@sibley2021]</span>. Survey weights were integrated into statistical models using the <code>weights</code> option in <code>lmtp</code> <span class="citation" data-cites="williams2021">[@williams2021]</span>, following protocols stated in <span class="citation" data-cites="bulbulia2024PRACTICAL">[@bulbulia2024PRACTICAL]</span>.</p>
+<section id="causal-estimands" class="level4">
+<h4 class="anchored" data-anchor-id="causal-estimands">Causal Estimands</h4>
+<ul>
+<li><span class="math inline">\(A\)</span> = intervention on population in political orientation for three years after baseline wave (i.e.&nbsp;controlling for baseline covariates).</li>
+<li><span class="math inline">\(Y\)</span> = outcome: (environment orientation dimension).</li>
+<li><span class="math inline">\(L\)</span> = baseline covariates (political orientation, the baseline environmental attitudes, and demographic covariates).</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="intervention-types" class="level2">
+<h2 class="anchored" data-anchor-id="intervention-types">Intervention Types</h2>
+<p>We define three specific shift interventions on the psychopathic personality trait, which is bounded between 1 and 7:</p>
+<section id="gain-in-political-orientation-1" class="level3">
+<h3 class="anchored" data-anchor-id="gain-in-political-orientation-1">1. Gain in Political Orientation (+1)</h3>
+<p>We define the shift-up intervention as:</p>
+<p><span class="math display">\[
+a^+ = f(A) =
+\begin{cases}
+A + 1, &amp; \text{if } A + 1 \leq 7 \\
+7, &amp; \text{if } A + 1 &gt; 7
+\end{cases}
+\]</span></p>
+<p>This ensures that the shifted value does not exceed the maximum score of 7.</p>
+</section>
+<section id="loss-in-political-orientation--1" class="level3">
+<h3 class="anchored" data-anchor-id="loss-in-political-orientation--1">2. Loss in Political Orientation (-1)</h3>
+<p>We define the shift-down intervention as:</p>
+<p><span class="math display">\[
+a^{-} = f(A) =
+\begin{cases}
+A - 1, &amp; \text{if } A - 1 \geq 1 \\
+1, &amp; \text{if } A - 1 &lt; 1
+\end{cases}
+\]</span></p>
+<p>This ensures that the shifted value does not go below the minimum score of 1.</p>
+</section>
+<section id="null-no-change" class="level3">
+<h3 class="anchored" data-anchor-id="null-no-change">3. Null (no change)</h3>
+<p>The null intervention leaves the exposure at its observed value:</p>
+<p><span class="math display">\[
+a = A
+\]</span></p>
+</section>
+<section id="potential-outcomes" class="level3">
+<h3 class="anchored" data-anchor-id="potential-outcomes">Potential Outcomes</h3>
+<p>For any intervention where we set the subjects political orientation to level <span class="math inline">\(\tilde{a}\)</span>:</p>
+<ul>
+<li><span class="math inline">\(E[Y^(\tilde{a})]\)</span> denotes the potential outcome in an environmental orientation when the population is intervened upon.</li>
+</ul>
+</section>
+<section id="assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="assumptions">Assumptions</h3>
+<p>To identify these potential outcomes, we assume conditional exchangeability given measured covariates <span class="math inline">\(L\)</span>:</p>
+<p><span class="math display">\[
+\big\{ Y(\tilde{a}) \big\} \coprod A \mid L
+\]</span></p>
+<p>This means that, conditional on <span class="math inline">\(L\)</span>, the treatment assignments <span class="math inline">\(A = \tilde{a}\)</span> are ‘as good as random.’ This allows us to estimate causal effects from observed data.</p>
+</section>
+<section id="causal-effects" class="level3">
+<h3 class="anchored" data-anchor-id="causal-effects">Causal Effects</h3>
+<p>We specify causal effects by contrasting potential outcomes under these interventions, as they occurred for three years after the baseline wave(baseline + 3 years). To ensure temporal order in causal inferences, we measure outcomes at the end of the study (NZAVS time 14, years 2022-2023) (refer to <span class="citation" data-cites="vanderweele2020">@vanderweele2020</span>).</p>
+</section>
+</section>
+<section id="scales" class="level2">
+<h2 class="anchored" data-anchor-id="scales">Scales</h2>
+<section id="exposure-variable" class="level3">
+<h3 class="anchored" data-anchor-id="exposure-variable">Exposure Variable</h3>
+<section id="political-conservative" class="level4">
+<h4 class="anchored" data-anchor-id="political-conservative">Political Conservative</h4>
+<p><em>Please rate how politically liberal versus conservative you see yourself as being.</em></p>
+<p>Ordinal response: (1 = Extremely Liberal, 7 = Extremely Conservative) <span class="citation" data-cites="jost_end_2006-1">[@jost_end_2006-1]</span></p>
+</section>
+</section>
+<section id="outcome-variables" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-variables">Outcome Variables</h3>
+<section id="deny-climate-change-is-human-caused" class="level4">
+<h4 class="anchored" data-anchor-id="deny-climate-change-is-human-caused">Deny Climate Change is Human-Caused</h4>
+<p><em>1. Climate change is caused by humans (reversed).</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="sibley2013model">[@sibley2013model]</span>.</p>
+</section>
+<section id="deny-climate-change-concern" class="level4">
+<h4 class="anchored" data-anchor-id="deny-climate-change-concern">Deny Climate Change Concern</h4>
+<p><em>I am deeply concerned about climate change (reversed).</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree). Developed for the NZAVS.</p>
+</section>
+<section id="deny-climate-change-reality" class="level4">
+<h4 class="anchored" data-anchor-id="deny-climate-change-reality">Deny Climate Change Reality</h4>
+<p><em>Climate change is real (reversed).</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="sibley2013model">[@sibley2013model]</span>.</p>
+</section>
+<section id="deny-environmental-efficacy" class="level4">
+<h4 class="anchored" data-anchor-id="deny-environmental-efficacy">Deny Environmental Efficacy</h4>
+<p><em>By taking personal action I believe I can make a positive difference to environmental problems (reversed)</em> <em>I feel I can make a difference to the state of the environment (reversed).</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="sharma2008we">[@sharma2008we]</span>.</p>
+</section>
+<section id="dissatisfied-with-the-new-zealand-environment" class="level4">
+<h4 class="anchored" data-anchor-id="dissatisfied-with-the-new-zealand-environment">Dissatisfied with the New Zealand Environment</h4>
+<p><em>Please rate your level of satisfaction with the following aspects of your life and New Zealand…The quality of New Zealand’s natural environment (reversed).</em></p>
+<p>Ordinal response: (0 = Completely Dissatisfied, 10 = Completely Datisfied) <span class="citation" data-cites="tiliouine_measuring_2006">[@tiliouine_measuring_2006]</span>.</p>
+</section>
+</section>
+<section id="causal-assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="causal-assumptions">Causal Assumptions</h3>
+<p>Having stated our interventions of interest, the target population for whom generalisations apply, and our measures, we next consider whether and how we may identify these effects using time-series data. Rather than testing specific hypotheses, we aim to estimate these pre-specified causal effects on the target population as accurately as possible. We achieve this by combining detailed time-series data with robust methods for causal inference <span class="citation" data-cites="hernan2024stating">[@hernan2024stating]</span>.</p>
+<ol type="1">
+<li><p><strong>The Causal Consistency Assumption</strong>: The observed outcome under the observed political_conservative is equal to the potential outcome under that exposure level.</p></li>
+<li><p><strong>The Positivity Assumption</strong>: There is a non-zero probability of receiving each level of political_conservative for every combination of values of political_conservative and confounders in the population.</p></li>
+<li><p><strong>The Assumption of No Unmeasured Confounding</strong>: All variables that affect both political_conservative and the outcome have been measured and accounted for in the analysis. <a href="#tbl-three-wave" class="quarto-xref">Table&nbsp;1</a> a schematic of our confounding control strategy (JB TO DO)</p></li>
+<li><p><strong>The Assumption of No Interference</strong>: The potential outcomes for one individual are not affected by the political_conservative status of other individuals.</p></li>
+</ol>
+<p>These assumptions are critical for the causal interpretability of our results and should be carefully considered in light of the study design and available data.</p>
+<div id="tbl-three-wave" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-three-wave-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Causal directed acyclic graphs present the confounding control strategy adopted in a three-wave panel study. <span class="math inline">\(U\)</span> denotes the set of unmeasured confounders. The numerical subscripts denote time, where <span class="math inline">\(0\)</span> denotes the baseline, <span class="math inline">\(1\)</span> denotes the treatment wave, and <span class="math inline">\(2\)</span> denotes the outcome wave (end of study). Hence, there are three measurement intervals. <span class="math inline">\(L_0\)</span> denotes all confounders measured at baseline. <span class="math inline">\(A_1\)</span> denotes the exposure or treatment, in this case, Political Conservativism. <span class="math inline">\(Y_2\)</span> denotes the outcomes measured at the end of the study. The solid arrows denote assumed causal influences. The dashed arrows denote potential unmeasured confounding. We do not draw an arrow linking <span class="math inline">\(A_1 \to Y_2\)</span> because the purpose of a causal directed acyclic graph is to evaluate associations in the absence of causation <span class="citation" data-cites="bulbulia2023">[@bulbulia2023]</span>. We include baseline values of the treatment, namely <span class="math inline">\(A_0\)</span>, and of the outcome, <span class="math inline">\(Y_0\)</span>, to safeguard against unmeasured confounding. By including the baseline measure of the exposure and all outcomes, for unmeasured confounders to bias the estimate of the causal effect of <span class="math inline">\(A_1\)</span> on <span class="math inline">\(Y_2\)</span>, they would need to affect both variables independently of their measured states at baseline, namely: <span class="math inline">\(A_0\)</span> and <span class="math inline">\(Y_0\)</span>.
+</figcaption>
+<div aria-describedby="tbl-three-wave-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+
+</div>
+</figure>
+</div>
+</section>
+<section id="eligibility-criteria" class="level3">
+<h3 class="anchored" data-anchor-id="eligibility-criteria">Eligibility Criteria</h3>
+<p>To be included in the analysis of this study, participants needed to participate in NZAVS time 10, years 2018-2019 and respond to baseline measure of the Political Conservativism.</p>
+<p>Missing covariate data at 2018 were permitted. The proportion of missing data at baseline was: 1.12.</p>
+<p>Participants may have been lost to follow-up at the end of the study if they met eligibility criteria.</p>
+<p>A total of 44,658 individuals met these criteria and were included in the study.</p>
+</section>
+<section id="confounding-control" class="level3">
+<h3 class="anchored" data-anchor-id="confounding-control">Confounding Control</h3>
+<p>To address confounding in our analysis, we implement <span class="citation" data-cites="vanderweele2019">[@vanderweele2019]</span>’s <em>modified disjunctive cause criterion</em> by following these steps:</p>
+<ol type="1">
+<li><strong>Identify all common causes</strong> of both the treatment and outcomes.</li>
+<li><strong>Exclude instrumental variables</strong> that affect the exposure but not the outcome. Instrumental variables do not contribute to controlling confounding and can reduce the efficiency of the estimates.</li>
+<li><strong>Include proxies for unmeasured confounders</strong> affecting both exposure and outcome. According to the principles of d-separation <span class="citation" data-cites="pearl2009a">@pearl2009a</span>, using proxies allows us to control for their associated unmeasured confounders indirectly.</li>
+<li><strong>Control for baseline Political Conservativism</strong> and all outcome variables (refer to <span class="citation" data-cites="vanderweele2020">@vanderweele2020</span>.)</li>
+</ol>
+<p><a href="#appendix-demographics">Appendix B</a> details the covariates we included for confounding control. These methods adhere to the guidelines provided in <span class="citation" data-cites="bulbulia2024PRACTICAL">[@bulbulia2024PRACTICAL]</span> and were pre-specified in our study protocol <a href="https://osf.io/ce4t9/">https://osf.io/ce4t9/</a>.</p>
+</section>
+<section id="missing-data" class="level3">
+<h3 class="anchored" data-anchor-id="missing-data">Missing Data</h3>
+<p>To mitigate bias from missing data, we implement the following strategies:</p>
+<p><strong>Baseline missingness</strong>: we employed the <code>ppm</code> algorithm from the <code>mice</code> package in R <span class="citation" data-cites="vanbuuren2018">[@vanbuuren2018]</span> to impute missing baseline data (wave NZAVS time 12, years 2020-2021). This method allowed us to reconstruct incomplete datasets by estimating a plausible value for missing observation. Because we could only pass one data set to the lmtp, we employed single imputation. Approximately 1.2% of covariate values were missing at NZAVS time 12, years 2020-2021. We only used baseline data to impute baseline wave missingness (refer to <span class="citation" data-cites="zhang2023shouldMultipleImputation">@zhang2023shouldMultipleImputation</span>).</p>
+<p><strong>Exposure wave missingness</strong>: even if the population in the baseline wave corresponds to the target population, attrition between NZAVS time 10, years 2018-2019 and NZAVS time 11-13, years 2019-2022 may threaten generalisations to the target population. To address potential bias from loss-to-follow up in the exposure wave we employed non-parametric inverse-probability of censoring weights.</p>
+<p><strong>Outcome missingness</strong>: to address confounding and selection bias arising from missing responses and panel attrition at the end of study NZAVS time 14, years 2022-2023, we applied censoring weights obtained using nonparametric machine learning ensembles afforded by the <code>lmtp</code> package (and its dependencies) in R <span class="citation" data-cites="williams2021">[@williams2021]</span>.</p>
+</section>
+<section id="statistical-estimator" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-estimator">Statistical Estimator</h3>
+<section id="longitudinal-modified-treatment-policy-lmtp-estimator" class="level4">
+<h4 class="anchored" data-anchor-id="longitudinal-modified-treatment-policy-lmtp-estimator">Longitudinal Modified Treatment Policy (LMTP) Estimator</h4>
+<p>We perform statistical estimation using a semi-parametric Targeted Minimum Loss-based Estimation (TMLE) approach, specifically the Longitudinal Modified Treatment Policy (LMTP) estimator. TMLE is a robust method for estimating causal effects while providing valid statistical uncertainty measures <span class="citation" data-cites="van2014targeted van2012targeted">[@van2014targeted; @van2012targeted]</span>.</p>
+<p>TMLE operates through a two-step process:</p>
+<ol type="1">
+<li><p><strong>Initial Modeling:</strong> TMLE models the relationship between treatments, covariates, and outcomes. We employ machine learning algorithms for this step, allowing us to flexibly model complex, high-dimensional covariate spaces without imposing restrictive model assumptions <span class="citation" data-cites="van2014discussion vanderlaan2011 vanderlaan2018">[@van2014discussion; @vanderlaan2011; @vanderlaan2018]</span>. This results in a set of initial estimates for these relationships.</p></li>
+<li><p><strong>Targeting:</strong> TMLE ‘targets’ these initial estimates by incorporating information about the observed data distribution to improve the accuracy of the causal effect estimate. This iterative updating process adjusts the initial estimates towards the actual causal effect, guided by the efficient influence function.</p></li>
+</ol>
+<p>TMLE offers several advantages for causal inference:</p>
+<ol type="1">
+<li>Double robust estimation: the estimator is consistent if either the outcome model or the treatment mechanism model is correctly specified (but not necessarily both);</li>
+<li>Efficiency in the presence of time-varying confounding;</li>
+<li>Ability to handle complex longitudinal data structures and time-varying treatments;</li>
+<li>Flexibility in specifying dynamic treatment regimes;</li>
+<li>Compatibility with machine learning methods for initial estimation steps;</li>
+<li>Handling missing data from attrition and loss-to-follow up using inverse probability of censoring weighting.</li>
+</ol>
+<p>We use cross-validation to avoid overfitting, following pre-stated protocols <span class="citation" data-cites="bulbulia2024PRACTICAL">[@bulbulia2024PRACTICAL]</span>. The integration of TMLE and machine learning reduces dependence on restrictive modeling assumptions and introduces an additional layer of robustness.</p>
+<p>We perform estimation using the <code>lmtp</code> package <span class="citation" data-cites="williams2021">[@williams2021]</span>. We use the <code>superlearner</code> library for semi-parametric estimation with the predefined libraries <code>SL.ranger</code>, <code>SL.glmnet</code>, and <code>SL.xgboost</code> <span class="citation" data-cites="polley2023 xgboost2023 Ranger2017">[@polley2023; @xgboost2023; @Ranger2017]</span>. For further details on targeted learning using the <code>lmtp</code> package, see <span class="citation" data-cites="hoffman2022 hoffman2023 díaz2021">[@hoffman2022; @hoffman2023; @díaz2021]</span>. Graphs, tables, and output reports are created using the <code>margot</code> package <span class="citation" data-cites="margot2024">[@margot2024]</span>.</p>
+</section>
+</section>
+<section id="sensitivity-analysis-using-the-e-value" class="level3">
+<h3 class="anchored" data-anchor-id="sensitivity-analysis-using-the-e-value">Sensitivity Analysis Using the E-value</h3>
+<p>To assess the sensitivity of results to unmeasured confounding, we report VanderWeele and Ding’s E-value in all analyses <span class="citation" data-cites="vanderweele2017">[@vanderweele2017]</span>. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association <span class="citation" data-cites="vanderweele2020 linden2020EVALUE">[@vanderweele2020; @linden2020EVALUE]</span>. To evaluate the strength of evidence, we use the bound of the E-value 95% confidence interval closest to 1. This provides a clear metric for understanding the robustness of our findings in the presence of potential unmeasured confounding.</p>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<section id="descriptive-findings" class="level3">
+<h3 class="anchored" data-anchor-id="descriptive-findings">Descriptive Findings</h3>
+<p><a href="#fig-outcomes-time" class="quarto-xref">Figure&nbsp;1</a> shows the predicted means for multi-dimensional environmental attitudes by Political Conservativism from NZAVS time 11-13, years 2019-2022 to NZAVS time 14, years 2022-2023. For denial of human-caused climate change, climate concern, and belief in climate change reality, there is a clear separation by political conservatism, with conservatives expressing higher levels of denial across these dimensions. However, even at the high end of political conservatism, the means are relatively low, especially for belief in climate change reality, where the conservative average is at the midpoint of the scale (4 on a 1-7 scale). On the other hand, conservatives tend to report greater satisfaction with the natural environment in New Zealand, though dissatisfaction is increasing. The separation by political conservatism is less pronounced for denial of personal efficacy in environmental change, with those at the high end of the political conservatism scale only slightly more inclined to deny efficacy compared to those at the low end.</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 5 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-outcomes-time" class="quarto-float quarto-figure quarto-figure-center anchored" width="960">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-outcomes-time-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="24-inkuk-pol-env-long_files/figure-html/fig-outcomes-time-1.png" id="fig-outcomes-time" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-outcomes-time-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="political-conservativism-measured-at-the-baseline-wave-nzavs-time-10-years-2018-2019-and-the-exposure-wave-nzavs-time-11-13-years-2019-2022" class="level3">
+<h3 class="anchored" data-anchor-id="political-conservativism-measured-at-the-baseline-wave-nzavs-time-10-years-2018-2019-and-the-exposure-wave-nzavs-time-11-13-years-2019-2022">Political Conservativism measured at the Baseline Wave (NZAVS time 10, years 2018-2019) and the Exposure Wave NZAVS time 11-13, years 2019-2022</h3>
+<p><a href="#fig-exposure-wave" class="quarto-xref">Figure&nbsp;2</a> shows the distribution of the exposure variable in the treatment wave.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-exposure-wave" class="quarto-float quarto-figure quarto-figure-center anchored" width="960">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-exposure-wave-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="24-inkuk-pol-env-long_files/figure-html/fig-exposure-wave-1.png" id="fig-exposure-wave" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-exposure-wave-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="evidence-for-change-in-the-treatment-variable" class="level3">
+<h3 class="anchored" data-anchor-id="evidence-for-change-in-the-treatment-variable">Evidence for Change in the Treatment Variable</h3>
+<p><a href="#tbl-transition" class="quarto-xref">Table&nbsp;2</a> clarifies the change in the treatment variable from the baseline wave to the baseline + 1 wave across the sample. Assessing change in a variable is essential for evaluating the positivity assumption and recovering evidence for the incident exposure effect of the treatment variable <span class="citation" data-cites="vanderweele2020 danaei2012 hernan2024WHATIF">[@vanderweele2020; @danaei2012; @hernan2024WHATIF]</span>.</p>
+<div class="cell">
+<div id="tbl-transition" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-transition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Transition matrix for change in
+</figcaption>
+<div aria-describedby="tbl-transition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 13%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">From</th>
+<th style="text-align: center;">State 1</th>
+<th style="text-align: center;">State 2</th>
+<th style="text-align: center;">State 3</th>
+<th style="text-align: center;">State 4</th>
+<th style="text-align: center;">State 5</th>
+<th style="text-align: center;">State 6</th>
+<th style="text-align: center;">State 7</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">State 1</td>
+<td style="text-align: center;"><strong>2447</strong></td>
+<td style="text-align: center;">1544</td>
+<td style="text-align: center;">244</td>
+<td style="text-align: center;">209</td>
+<td style="text-align: center;">49</td>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">28</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">State 2</td>
+<td style="text-align: center;">1484</td>
+<td style="text-align: center;"><strong>9471</strong></td>
+<td style="text-align: center;">3794</td>
+<td style="text-align: center;">1180</td>
+<td style="text-align: center;">281</td>
+<td style="text-align: center;">116</td>
+<td style="text-align: center;">19</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">State 3</td>
+<td style="text-align: center;">226</td>
+<td style="text-align: center;">3661</td>
+<td style="text-align: center;"><strong>7666</strong></td>
+<td style="text-align: center;">3684</td>
+<td style="text-align: center;">986</td>
+<td style="text-align: center;">187</td>
+<td style="text-align: center;">27</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">State 4</td>
+<td style="text-align: center;">198</td>
+<td style="text-align: center;">1084</td>
+<td style="text-align: center;">3570</td>
+<td style="text-align: center;"><strong>13843</strong></td>
+<td style="text-align: center;">3247</td>
+<td style="text-align: center;">764</td>
+<td style="text-align: center;">144</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">State 5</td>
+<td style="text-align: center;">36</td>
+<td style="text-align: center;">289</td>
+<td style="text-align: center;">1144</td>
+<td style="text-align: center;">3542</td>
+<td style="text-align: center;"><strong>4867</strong></td>
+<td style="text-align: center;">1552</td>
+<td style="text-align: center;">101</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">State 6</td>
+<td style="text-align: center;">25</td>
+<td style="text-align: center;">113</td>
+<td style="text-align: center;">216</td>
+<td style="text-align: center;">904</td>
+<td style="text-align: center;">1728</td>
+<td style="text-align: center;"><strong>2254</strong></td>
+<td style="text-align: center;">343</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">State 7</td>
+<td style="text-align: center;">18</td>
+<td style="text-align: center;">19</td>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">170</td>
+<td style="text-align: center;">136</td>
+<td style="text-align: center;">337</td>
+<td style="text-align: center;"><strong>422</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</section>
+</section>
+<section id="results-1" class="level2">
+<h2 class="anchored" data-anchor-id="results-1">Results</h2>
+<section id="study-1-causal-effect-of-a-one-unit-gain-in-political-conservativism-to-max-7-on-the-exposure-unit-scale-from-one-to-seven-vs.-no-change" class="level3">
+<h3 class="anchored" data-anchor-id="study-1-causal-effect-of-a-one-unit-gain-in-political-conservativism-to-max-7-on-the-exposure-unit-scale-from-one-to-seven-vs.-no-change">Study 1: Causal effect of a one unit gain in Political Conservativism to max 7 (on the exposure unit scale from one to seven) vs.&nbsp;no change</h3>
+<div class="cell">
+<div id="tbl-1_1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-1_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Causal effect of gain in Political Conservativism on environmental attitudes.
+</figcaption>
+<div aria-describedby="tbl-1_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 20%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 10%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">E[Y(1)]-E[Y(0)]</th>
+<th style="text-align: right;">2.5 %</th>
+<th style="text-align: right;">97.5 %</th>
+<th style="text-align: right;">E_Value</th>
+<th style="text-align: right;">E_Val_bound</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Humans Cause Climate Change</td>
+<td style="text-align: right;">-0.213</td>
+<td style="text-align: right;">-0.306</td>
+<td style="text-align: right;">-0.120</td>
+<td style="text-align: right;">1.723</td>
+<td style="text-align: right;">1.477</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Climate Change Concern</td>
+<td style="text-align: right;">-0.156</td>
+<td style="text-align: right;">-0.255</td>
+<td style="text-align: right;">-0.058</td>
+<td style="text-align: right;">1.572</td>
+<td style="text-align: right;">1.294</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Climate Change is Real</td>
+<td style="text-align: right;">-0.134</td>
+<td style="text-align: right;">-0.238</td>
+<td style="text-align: right;">-0.031</td>
+<td style="text-align: right;">1.512</td>
+<td style="text-align: right;">1.198</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Satisfied with NZ Environment</td>
+<td style="text-align: right;">0.136</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.227</td>
+<td style="text-align: right;">1.518</td>
+<td style="text-align: right;">1.254</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-1_1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="24-inkuk-pol-env-long_files/figure-html/fig-1_1-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Causal effect of gain in Political Conservativism on environmental attitudes. Contrasts are expressed in standard deviation units.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#tbl-1_1" class="quarto-xref">Table&nbsp;3</a> and <a href="#fig-1_1" class="quarto-xref">Figure&nbsp;3</a> present the comparison of the intervention: Causal effect of a one unit gain in Political Conservativism to max 7 (on the exposure unit scale from one to seven) vs.&nbsp;no change</p>
+<section id="climate-change-concern" class="level4">
+<h4 class="anchored" data-anchor-id="climate-change-concern">Climate change concern</h4>
+<p>The effect estimate (rd) is -0.156 (-0.255, -0.058). On the original scale, the estimated effect is -0.271 (-0.442, -0.1). E-value lower bound is 1.294, indicating evidence for causality.</p>
+</section>
+<section id="climate-change-is-real" class="level4">
+<h4 class="anchored" data-anchor-id="climate-change-is-real">Climate change is real</h4>
+<p>The effect estimate (rd) is -0.134 (-0.238, -0.031). On the original scale, the estimated effect is -0.193 (-0.341, -0.044). E-value lower bound is 1.198, indicating evidence for causality.</p>
+</section>
+<section id="humans-cause-climate-change" class="level4">
+<h4 class="anchored" data-anchor-id="humans-cause-climate-change">Humans cause climate change</h4>
+<p>The effect estimate (rd) is -0.213 (-0.306, -0.12). On the original scale, the estimated effect is -0.351 (-0.505, -0.198). E-value lower bound is 1.477, indicating evidence for causality.</p>
+</section>
+<section id="satisfied-with-nz-environment" class="level4">
+<h4 class="anchored" data-anchor-id="satisfied-with-nz-environment">Satisfied with nz environment</h4>
+<p>The effect estimate (rd) is 0.136 (0.045, 0.227). On the original scale, the estimated effect is 0.325 (0.108, 0.543). E-value lower bound is 1.254, indicating evidence for causality.</p>
+</section>
+</section>
+<section id="study-2-causal-effect-of-decrease-a-one-unit-gain-in-political-conservativism-to-a-minimum-of-1-on-the-exposure-unit-scale-from-one-to-seven-vs.-no-change" class="level3">
+<h3 class="anchored" data-anchor-id="study-2-causal-effect-of-decrease-a-one-unit-gain-in-political-conservativism-to-a-minimum-of-1-on-the-exposure-unit-scale-from-one-to-seven-vs.-no-change">Study 2: Causal effect of decrease a one unit gain in Political Conservativism to a minimum of 1 (on the exposure unit scale from one to seven) vs.&nbsp;no change</h3>
+<div class="cell">
+<div id="tbl-2_1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-2_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Causal effect of loss in Political Conservativism on environmental attitudes.
+</figcaption>
+<div aria-describedby="tbl-2_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 20%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 10%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">E[Y(1)]-E[Y(0)]</th>
+<th style="text-align: right;">2.5 %</th>
+<th style="text-align: right;">97.5 %</th>
+<th style="text-align: right;">E_Value</th>
+<th style="text-align: right;">E_Val_bound</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Humans Cause Climate Change</td>
+<td style="text-align: right;">0.272</td>
+<td style="text-align: right;">0.196</td>
+<td style="text-align: right;">0.348</td>
+<td style="text-align: right;">1.881</td>
+<td style="text-align: right;">1.678</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Climate Change Concern</td>
+<td style="text-align: right;">0.128</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">0.232</td>
+<td style="text-align: right;">1.496</td>
+<td style="text-align: right;">1.174</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Climate Change is Real</td>
+<td style="text-align: right;">0.161</td>
+<td style="text-align: right;">0.087</td>
+<td style="text-align: right;">0.236</td>
+<td style="text-align: right;">1.585</td>
+<td style="text-align: right;">1.380</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Satisfied with NZ Environment</td>
+<td style="text-align: right;">0.078</td>
+<td style="text-align: right;">-0.048</td>
+<td style="text-align: right;">0.205</td>
+<td style="text-align: right;">1.355</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-2_1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="24-inkuk-pol-env-long_files/figure-html/fig-2_1-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2_1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Causal effect of loss in Political Conservativism on environmental attitudes. Contrasts are expressed in standard deviation units.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#tbl-2_1" class="quarto-xref">Table&nbsp;4</a> and <a href="#fig-2_1" class="quarto-xref">Figure&nbsp;4</a> present the comparison of the intervention: Causal effect of a one unit gain in Political Conservativism to max 7 (on the exposure unit scale from one to seven) vs.&nbsp;no change</p>
+</section>
+</section>
+<section id="discussion" class="level2">
+<h2 class="anchored" data-anchor-id="discussion">Discussion</h2>
+<p>Our results provide important insights into the relationship between political conservatism and environmental attitudes in New Zealand. The descriptive findings show a consistent separation across all domains based on political orientation, with stronger effects observed in certain areas, such as the denial of climate change reality and concern. However, our causal estimates indicate that these associations do not apply uniformly across all outcomes.</p>
+<p>We examined two different interventions: a gain in Political Conservativism (an increase of two points up to a maximum of 7) and a loss in Political Conservativism (a decrease to a minimum of 1). We contrasted these means of these shift-interventions with observed political conservatism levels in the population. These interventions allow us to explore both gain and loss scenarios, which are critical to distinguish since the effects of increasing versus decreasing political conservatism may not mirror each other.</p>
+<p>Our findings suggest that political conservatism is causally linked to denial of climate change reality and concern. In particular, the evidence for causality is strong in the gain condition for denial of climate change reality, concern, and human causation of climate change. However, for the denial of personal environmental efficacy and satisfaction with the New Zealand environment, the evidence for causality is weak or unreliable.</p>
+<p>These findings underscore the importance of distinguishing between causal effect estimates and correlations. Although descriptive statistics indicate associations between political conservatism and environmental attitudes, these correlations are not the same as causal relationships. Even when measured over time, correlations do not necessarily imply causality.</p>
+<p>Moreover, our study demonstrates the importance of distinguishing between gain and loss interventions in political orientation and their impact on environmental attitudes. The evidence supports a one-year causal effect from the loss of political conservativism on beliefs the climate change is human-caused, yet with no reliable evidence for change in other dimensions of environmental belief.</p>
+<p>Looking ahead, we recommend the wider development and application of causal inferential methods employing repeated measurements over more than three years to investigate variation, interaction, and causal mediation.</p>
+<div style="page-break-after: always;"></div>
+<section id="ethics" class="level3">
+<h3 class="anchored" data-anchor-id="ethics">Ethics</h3>
+<p>The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.</p>
+</section>
+<section id="data-availability" class="level3">
+<h3 class="anchored" data-anchor-id="data-availability">Data Availability</h3>
+<p>The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: <a href="https://github.com/go-bayes/models/tree/main/scripts/24-POL-CONSERVE-environ">https://github.com/go-bayes/models/tree/main/scripts/24-POL-CONSERVE-environ</a>.</p>
+</section>
+<section id="acknowledgements" class="level3">
+<h3 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h3>
+<p>The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.</p>
+</section>
+<section id="author-statement" class="level3">
+<h3 class="anchored" data-anchor-id="author-statement">Author Statement</h3>
+<p>JB and IK conceived the study. JB developed the approach. CS led NZAVS data collection. All authors contributed to the manuscript.</p>
+<div style="page-break-after: always;"></div>
+</section>
+</section>
+<section id="appendix-measures-a" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-measures-a">Appendix A: Measures</h2>
+<p><a href="#tbl-table-exposure" class="quarto-xref">Table&nbsp;6</a> presents descriptive statistics for baseline covariates, measure in NZAVS time 10, years 2018-2019.</p>
+<section id="covariate-measures-at-baseline" class="level3">
+<h3 class="anchored" data-anchor-id="covariate-measures-at-baseline">Covariate measures at baseline</h3>
+<div class="cell">
+<div id="tbl-table-baseline" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-table-baseline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Baseline covariates
+</figcaption>
+<div aria-describedby="tbl-table-baseline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><strong>Exposure + Demographic Variables</strong></th>
+<th style="text-align: left;"><strong>N = 44,658</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Age</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">49 (14)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">18, 99</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">39, 60</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Agreeableness</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">5.35 (0.99)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">4.75, 6.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">379</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Alcohol Frequency</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">5,474 (13%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">10,131 (23%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">8,325 (19%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">10,297 (24%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">8,799 (20%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">141 (0.3%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,491</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Alcohol Intensity</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">2.17 (2.17)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.00, 30.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">1.00, 3.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">2,579</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Belong</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">5.14 (1.07)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">4.33, 6.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">376</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Born Nz Binary</strong></td>
+<td style="text-align: left;">34,779 (78%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">162</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Conscientiousness</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">5.11 (1.06)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">4.50, 6.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">372</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Education Level Coarsen</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">no_qualification</td>
+<td style="text-align: left;">1,056 (2.4%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cert_1_to_4</td>
+<td style="text-align: left;">15,547 (35%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cert_5_to_6</td>
+<td style="text-align: left;">5,613 (13%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">university</td>
+<td style="text-align: left;">11,940 (27%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">post_grad</td>
+<td style="text-align: left;">4,919 (11%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">masters</td>
+<td style="text-align: left;">3,791 (8.6%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">doctorate</td>
+<td style="text-align: left;">1,074 (2.4%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">718</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Employed Binary</strong></td>
+<td style="text-align: left;">35,601 (80%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Eth Cat</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">euro</td>
+<td style="text-align: left;">35,660 (81%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maori</td>
+<td style="text-align: left;">5,013 (11%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">pacific</td>
+<td style="text-align: left;">1,042 (2.4%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">asian</td>
+<td style="text-align: left;">2,360 (5.4%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">583</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Extraversion</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">3.91 (1.20)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">3.00, 4.75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">372</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Hlth Disability Binary</strong></td>
+<td style="text-align: left;">9,792 (22%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">858</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Honesty Humility</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">5.41 (1.18)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">4.75, 6.25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">374</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Hours Children</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">14 (32)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0, 168</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">0, 10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,315</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Hours Commute</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">5.3 (6.4)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.0, 80.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">2.0, 7.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,315</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Hours Exercise</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">5.8 (7.7)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.0, 80.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">2.0, 7.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,315</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Hours Housework</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">10 (10)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0, 168</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">5, 14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,315</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Household Inc</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">115,666 (92,021)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1, 3,005,000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">60,000, 150,000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">2,660</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Kessler Latent Anxiety</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">1.21 (0.77)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.00, 4.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">0.67, 1.67</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">408</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Kessler Latent Depression</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">0.58 (0.75)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.00, 4.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">0.00, 1.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">411</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Log Hours Children</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">1.17 (1.61)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.00, 5.13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">0.00, 2.40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,315</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Log Hours Commute</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">1.50 (0.83)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.00, 4.39</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">1.10, 2.08</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,315</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Log Hours Exercise</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">1.55 (0.84)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.00, 4.39</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">1.10, 2.08</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,315</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Log Hours Housework</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">2.14 (0.78)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.00, 5.13</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">1.79, 2.71</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,315</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Log Household Inc</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">11.40 (0.76)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">0.69, 14.92</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">11.00, 11.92</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">2,660</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Male Binary</strong></td>
+<td style="text-align: left;">16,537 (37%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Neuroticism</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">3.49 (1.15)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">2.75, 4.25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">379</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Not Heterosexual Binary</strong></td>
+<td style="text-align: left;">2,955 (6.8%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,049</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Nz Dep2018</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">4.75 (2.72)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 10.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">2.00, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">302</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Nzsei 13 l</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">54 (16)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">10, 90</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">42, 69</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">286</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Openness</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">4.97 (1.12)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">4.25, 5.75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">373</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Parent Binary</strong></td>
+<td style="text-align: left;">31,575 (71%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partner Binary</strong></td>
+<td style="text-align: left;">33,520 (75%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">81</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Political Conservative</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2,515 (5.6%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">8,676 (19%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">8,820 (20%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">13,913 (31%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">6,694 (15%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">3,299 (7.4%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">741 (1.7%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Power No Control Composite</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">2.96 (1.40)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">2.00, 4.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">152</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Religion Identification Level</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">29,645 (67%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">1,716 (3.9%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">1,171 (2.6%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">2,106 (4.8%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">2,600 (5.9%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">2,246 (5.1%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">4,806 (11%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">368</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Rural Gch 2018 l</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">27,661 (62%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">8,292 (19%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">5,414 (12%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">2,468 (5.6%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">523 (1.2%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">300</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Rwa</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">3.27 (1.15)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">2.50, 4.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Sample Frame Opt in Binary</strong></td>
+<td style="text-align: left;">1,344 (3.0%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Sdo</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">2.31 (0.96)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">1.50, 3.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Short Form Health</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">5.05 (1.17)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">4.33, 6.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Smoker Binary</strong></td>
+<td style="text-align: left;">3,138 (7.2%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">1,119</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Support</strong></td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mean (SD)</td>
+<td style="text-align: left;">5.96 (1.12)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min, Max</td>
+<td style="text-align: left;">1.00, 7.00</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q1, Q3</td>
+<td style="text-align: left;">5.33, 7.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: left;">36</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="exposure-measures-at-baseline-and-exposure-waves" class="level3">
+<h3 class="anchored" data-anchor-id="exposure-measures-at-baseline-and-exposure-waves">Exposure measures at baseline and exposure waves</h3>
+<div class="cell">
+<div id="tbl-table-exposure" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-table-exposure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Exposure at baseline and exposure waves
+</figcaption>
+<div aria-describedby="tbl-table-exposure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><a href="#tbl-table-exposure" class="quarto-xref">Table&nbsp;6</a> presents descriptive statistics for the exposure: Political Conservativism measured in NZAVS time 10, years 2018-2019 and NZAVS time 11-13, years 2019-2022.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="outcome-measure-at-baseline-and-exposure-waves" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-measure-at-baseline-and-exposure-waves">Outcome measure at baseline and exposure waves</h3>
+<p><strong>?@tbl-table-outcomespresents</strong> descriptive statistics for the the outcome variables measured in NZAVS time 10, years 2018-2019 and NZAVS time 14, years 2022-2023.</p>
+<div class="cell">
+<div id="tbl-table-outcomes" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-table-outcomes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Outcomes at baseline and end-of-study
+</figcaption>
+<div aria-describedby="tbl-table-outcomes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</section>
+</section>
+<section id="appendix-measures-b" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-measures-b">Appendix B: Measures</h2>
+<section id="measures" class="level3">
+<h3 class="anchored" data-anchor-id="measures">Measures</h3>
+<section id="age" class="level4">
+<h4 class="anchored" data-anchor-id="age">Age</h4>
+<p><em>What is your date of birth?</em></p>
+<p>We asked participants’ ages in an open-ended question (“What is your age?” or “What is your date of birth”).. Developed for the NZAVS.</p>
+</section>
+<section id="agreeableness" class="level4">
+<h4 class="anchored" data-anchor-id="agreeableness">Agreeableness</h4>
+<p><em>I sympathize with others’ feelings.</em> <em>I am not interested in other people’s problems.</em> <em>I feel others’ emotions.</em> <em>I am not really interested in others (reversed).</em></p>
+<p>Mini-IPIP6 Agreeableness dimension: (i) I sympathize with others’ feelings. (ii) I am not interested in other people’s problems. (r) (iii) I feel others’ emotions. (iv) I am not really interested in others. (r) <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="alcohol-frequency" class="level4">
+<h4 class="anchored" data-anchor-id="alcohol-frequency">Alcohol Frequency</h4>
+<p><em>“How often do you have a drink containing alcohol?”</em></p>
+<p>Participants could chose between the following responses: ‘(1 = Never - I don’t drink, 2 = Monthly or less, 3 = Up to 4 times a month, 4 = Up to 3 times a week, 5 = 4 or more times a week, 6 = Don’t know)’ <span class="citation" data-cites="Ministry_of_Health_2013">[@Ministry_of_Health_2013]</span>.</p>
+</section>
+<section id="alcohol-intensity" class="level4">
+<h4 class="anchored" data-anchor-id="alcohol-intensity">Alcohol Intensity</h4>
+<p><em>“How many drinks containing alcohol do you have on a typical day when drinking alcohol? (number of drinks on a typical day when drinking)”</em></p>
+<p>Participants responded using an open-ended box <span class="citation" data-cites="Ministry_of_Health_2013">[@Ministry_of_Health_2013]</span>.</p>
+</section>
+<section id="belong" class="level4">
+<h4 class="anchored" data-anchor-id="belong">Belong</h4>
+<p><em>Know that people in my life accept and value me.</em> <em>Feel like an outsider.</em> <em>Know that people around me share my attitudes and beliefs.</em></p>
+<p>We assessed felt belongingness with three items adapted from the Sense of Belonging Instrument (Hagerty &amp; Patusky, 1995): (1) “Know that people in my life accept and value me”; (2) “Feel like an outsider”; (3) “Know that people around me share my attitudes and beliefs”. Participants responded on a scale from 1 (Very Inaccurate) to 7 (Very Accurate). The second item was reversely coded <span class="citation" data-cites="hagerty1995">[@hagerty1995]</span>.</p>
+</section>
+<section id="born-nz-binary" class="level4">
+<h4 class="anchored" data-anchor-id="born-nz-binary">Born Nz (Binary)</h4>
+<p>We asked participants, “Which country were you born in?” or “Where were you born? (please be specific, e.g., which town/city?)” (waves: 6-15).. Developed for the NZAVS.</p>
+</section>
+<section id="conscientiousness" class="level4">
+<h4 class="anchored" data-anchor-id="conscientiousness">Conscientiousness</h4>
+<p><em>I get chores done right away.</em> <em>I like order.</em> <em>I make a mess of things.</em> <em>I often forget to put things back in their proper place.</em></p>
+<p>Mini-IPIP6 Conscientiousness dimension: (i) I get chores done right away. (ii) I like order. (iii) I make a mess of things. (r) (iv) I often forget to put things back in their proper place. (r) <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="education-level-coarsen" class="level4">
+<h4 class="anchored" data-anchor-id="education-level-coarsen">Education Level Coarsen</h4>
+<p><em>What is your highest level of qualification?</em></p>
+<p>We asked participants, “What is your highest level of qualification?”. We coded participans highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school qualifications coded as Level 3, and all other ancillary categories coded as missing). Developed for the NZAVS.</p>
+</section>
+<section id="employed-binary" class="level4">
+<h4 class="anchored" data-anchor-id="employed-binary">Employed (Binary)</h4>
+<p><em>Are you currently employed (This includes self-employed of casual work)?</em></p>
+<p>Binary response: (0 = No, 1 = Yes). Stats NZ Census Question.</p>
+</section>
+<section id="eth-cat-categorical" class="level4">
+<h4 class="anchored" data-anchor-id="eth-cat-categorical">Eth Cat (Categorical)</h4>
+<p><em>Which ethnic group(s) do you belong to?</em></p>
+<p>Coded string: (1 = New Zealand European; 2 = Māori; 3 = Pacific; 4 = Asian). NZ Census coding.</p>
+</section>
+<section id="extraversion" class="level4">
+<h4 class="anchored" data-anchor-id="extraversion">Extraversion</h4>
+<p><em>I am the life of the party.</em> <em>I don’t talk a lot (reversed).</em> <em>I keep in the background (reversed).</em> <em>I talk to a lot of different people at parties.</em></p>
+<p>Mini-IPIP6 Extraversion dimension: (i) I am the life of the party. (ii) I don’t talk a lot. (r) (iii) I keep in the background. (r) (iv) I talk to a lot of different people at parties <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="hlth-disability-binary" class="level4">
+<h4 class="anchored" data-anchor-id="hlth-disability-binary">Hlth Disability (Binary)</h4>
+<p>We assessed disability with a one-item indicator adapted from Verbrugge (1997). It asks, “Do you have a health condition or disability that limits you and that has lasted for 6+ months?” (1 = Yes, 0 = No) <span class="citation" data-cites="verbrugge1997">[@verbrugge1997]</span>.</p>
+</section>
+<section id="honesty-humility" class="level4">
+<h4 class="anchored" data-anchor-id="honesty-humility">Honesty Humility</h4>
+<p><em>I feel entitled to more of everything (reversed).</em> <em>I deserve more things in life (reversed).</em> <em>I deserve more things in life (reversed).</em> <em>I would get a lot of pleasure from owning expensive luxury goods (reversed).</em></p>
+<p>Mini-IPIP6 Honesty-Humility dimension: (i) I feel entitled to more of everything. (r) (ii) I deserve more things in life. (r) (iii) I would like to be seen driving around in a very expensive car. (r) (iv) I would get a lot of pleasure from owning expensive luxury goods. (r) <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="kessler-latent-anxiety" class="level4">
+<h4 class="anchored" data-anchor-id="kessler-latent-anxiety">Kessler Latent Anxiety</h4>
+<p><em>During the past 30 days, how often did…you feel restless or fidgety?</em> <em>During the past 30 days, how often did…you feel that everything was an effort?</em> <em>During the past 30 days, how often did…you feel nervous?</em></p>
+<p>Ordinal response: (0 = None Of The Time; 1 = A Little Of The Time; 2= Some Of The Time; 3 = Most Of The Time; 4 = All Of The Time) <span class="citation" data-cites="kessler2002">[@kessler2002]</span>.</p>
+</section>
+<section id="kessler-latent-depression" class="level4">
+<h4 class="anchored" data-anchor-id="kessler-latent-depression">Kessler Latent Depression</h4>
+<p><em>During the past 30 days, how often did…you feel hopeless?</em> <em>During the past 30 days, how often did…you feel so depressed that nothing could cheer you up?</em> <em>During the past 30 days, how often did…you feel you feel restless or fidgety?</em></p>
+<p>Ordinal response: (0 = None Of The Time; 1 = A Little Of The Time; 2= Some Of The Time; 3 = Most Of The Time; 4 = All Of The Time) <span class="citation" data-cites="kessler2002">[@kessler2002]</span>.</p>
+</section>
+<section id="log-hours-children" class="level4">
+<h4 class="anchored" data-anchor-id="log-hours-children">Log Hours Children</h4>
+<p><em>Hours spent…looking after children.</em></p>
+<p>We took the natural log of the response + 1 <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="log-hours-commute" class="level4">
+<h4 class="anchored" data-anchor-id="log-hours-commute">Log Hours Commute</h4>
+<p><em>Hours spent…travelling/commuting.</em></p>
+<p>We took the natural log of the response + 1.. Developed for the NZAVS.</p>
+</section>
+<section id="log-hours-exercise" class="level4">
+<h4 class="anchored" data-anchor-id="log-hours-exercise">Log Hours Exercise</h4>
+<p><em>Hours spent…exercising/physical activity.</em></p>
+<p>We took the natural log of the response + 1 <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="log-hours-housework" class="level4">
+<h4 class="anchored" data-anchor-id="log-hours-housework">Log Hours Housework</h4>
+<p><em>Hours spent…housework/cooking.</em></p>
+<p>We took the natural log of the response + 1 <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="log-household-inc" class="level4">
+<h4 class="anchored" data-anchor-id="log-household-inc">Log Household Inc</h4>
+<p><em>Please estimate your total household income (before tax) for the year XXXX.</em></p>
+<p>We took the natural log of the response + 1.. Developed for the NZAVS.</p>
+</section>
+<section id="male-binary" class="level4">
+<h4 class="anchored" data-anchor-id="male-binary">Male (Binary)</h4>
+<p>We asked participants’ gender in an open-ended question: “what is your gender?” or “Are you male or female?” (waves: 1-5). Female was coded as 0, Male was coded as 1, and gender diverse coded as 3 (Fraser et al., 2020). (or 0.5 = neither female nor male). Here, we coded all those who responded as Male as 1, and those who did not as 0 <span class="citation" data-cites="fraser_coding_2020">[@fraser_coding_2020]</span>.</p>
+</section>
+<section id="neuroticism" class="level4">
+<h4 class="anchored" data-anchor-id="neuroticism">Neuroticism</h4>
+<p><em>I have frequent mood swings.</em> <em>I am relaxed most of the time (reversed).</em> <em>I get upset easily.</em> <em>I seldom feel blue (reversed).</em></p>
+<p>Mini-IPIP6 Neuroticism dimension: (i) I have frequent mood swings. (ii) I am relaxed most of the time. (r) (iii) I get upset easily. (iv) I seldom feel blue. (r) <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="not-heterosexual-binary" class="level4">
+<h4 class="anchored" data-anchor-id="not-heterosexual-binary">Not Heterosexual (Binary)</h4>
+<p><em>How would you describe your sexual orientation? (e.g., heterosexual, homosexual, straight, gay, lesbian, bisexual, etc.)</em></p>
+<p>Open-ended question, coded as binary (not heterosexual = 1) <span class="citation" data-cites="greaves2017diversity">[@greaves2017diversity]</span>.</p>
+</section>
+<section id="nz-dep2018" class="level4">
+<h4 class="anchored" data-anchor-id="nz-dep2018">NZ Dep2018</h4>
+<p><em>New Zealand Deprivation - Decile Index - Using 2018 Census Data</em></p>
+<p>Numerical: (1-10) <span class="citation" data-cites="atkinson2019">[@atkinson2019]</span>.</p>
+</section>
+<section id="nzsei-13" class="level4">
+<h4 class="anchored" data-anchor-id="nzsei-13">NZsei 13</h4>
+<p>We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) (Fahy et al., 2017). This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation <span class="citation" data-cites="fahy2017">[@fahy2017]</span>.</p>
+</section>
+<section id="openness" class="level4">
+<h4 class="anchored" data-anchor-id="openness">Openness</h4>
+<p><em>I have a vivid imagination.</em> <em>I have difficulty understanding abstract ideas (reversed).</em> <em>I do not have a good imagination (reversed).</em> <em>I am not interested in abstract ideas (reversed).</em></p>
+<p>Mini-IPIP6 Openness to Experience dimension: (i) I have a vivid imagination. (ii) I have difficulty understanding abstract ideas. (r) (iii) I do not have a good imagination. (r) (iv) I am not interested in abstract ideas. (r) <span class="citation" data-cites="sibley2011">[@sibley2011]</span>.</p>
+</section>
+<section id="parent-binary" class="level4">
+<h4 class="anchored" data-anchor-id="parent-binary">Parent (Binary)</h4>
+<p>We asked participants, “If you are a parent, what is the birth date of your eldest child?” or “If you are a parent, in which year was your eldest child born?” (waves: 10-current). Parents were coded as 1, while the others were coded as 0.. Developed for the NZAVS.</p>
+</section>
+<section id="partner-binary" class="level4">
+<h4 class="anchored" data-anchor-id="partner-binary">Partner (Binary)</h4>
+<p><em>What is your relationship status? (e.g., single, married, de-facto, civil union, widowed, living together, etc.)</em></p>
+<p>Coded as binary (has partner = 1).. Developed for the NZAVS.</p>
+</section>
+<section id="political-conservative-1" class="level4">
+<h4 class="anchored" data-anchor-id="political-conservative-1">Political Conservative</h4>
+<p><em>Please rate how politically liberal versus conservative you see yourself as being.</em></p>
+<p>Ordinal response: (1 = Extremely Liberal, 7 = Extremely Conservative) <span class="citation" data-cites="jost_end_2006-1">[@jost_end_2006-1]</span>.</p>
+</section>
+<section id="power-no-control-composite" class="level4">
+<h4 class="anchored" data-anchor-id="power-no-control-composite">Power No Control Composite</h4>
+<p><em>I do not have enough power or control over important parts of my life.</em> <em>Other people have too much power or control over important parts of my life.</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="overall2016power">[@overall2016power]</span>.</p>
+</section>
+<section id="religion-identification-level" class="level4">
+<h4 class="anchored" data-anchor-id="religion-identification-level">Religion Identification Level</h4>
+<p><em>How important is your religion to how you see yourself?</em></p>
+<p>Ordinal response: (1 = Not Important, 7 = Very Important). Developed for the NZAVS.</p>
+</section>
+<section id="rural-gch-2018" class="level4">
+<h4 class="anchored" data-anchor-id="rural-gch-2018">Rural Gch 2018</h4>
+<p><em>High Urban Accessibility = 1, Medium Urban Accessibility = 2, Low Urban Accessibility = 3, Remote = 4, Very Remote = 5.</em></p>
+<p>“Participants residence locations were coded according to a five-level ordinal categorisation ranging from Urban to Rural.” <span class="citation" data-cites="whitehead2023unmasking">[@whitehead2023unmasking]</span>.</p>
+</section>
+<section id="sample-frame-opt-in-binary" class="level4">
+<h4 class="anchored" data-anchor-id="sample-frame-opt-in-binary">Sample Frame Opt in (Binary)</h4>
+<p><em>Participant was not randomly sampled from the New Zealand Electoral Roll.</em></p>
+<p>Code string (Binary): (0 = No, 1 = Yes). Developed for the NZAVS.</p>
+</section>
+<section id="short-form-health" class="level4">
+<h4 class="anchored" data-anchor-id="short-form-health">Short Form Health</h4>
+<p><em>In general, would you say your health is…</em></p>
+<p>Ordinal response: (1 = Poor, 7 = Excellent) <span class="citation" data-cites="instrument1992mos">[@instrument1992mos]</span>.</p>
+</section>
+<section id="smoker-binary" class="level4">
+<h4 class="anchored" data-anchor-id="smoker-binary">Smoker (Binary)</h4>
+<p><em>Do you currently smoke tobacco cigarettes?</em></p>
+<p>Binary smoking indicator (0 = No, 1 = Yes).. Developed for NZAVS.</p>
+</section>
+<section id="support" class="level4">
+<h4 class="anchored" data-anchor-id="support">Support</h4>
+<p><em>There are people I can depend on to help me if I really need it.</em> <em>There is no one I can turn to for guidance in times of stress (reversed).</em> <em>I know there are people I can turn to when I need help.</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="cutrona1987">[@cutrona1987]</span>.</p>
+</section>
+<section id="free-speech" class="level4">
+<h4 class="anchored" data-anchor-id="free-speech">Free Speech</h4>
+<p><em>Although I may disagree with the opinions that other people hold, they should be allowed to express those views publicly.</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="dore2022boundaries">[@dore2022boundaries]</span>.</p>
+</section>
+<section id="pol-politician-trust" class="level4">
+<h4 class="anchored" data-anchor-id="pol-politician-trust">Pol Politician Trust</h4>
+<p><em>Politicians in New Zealand can generally be trusted.</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="sibley2020a">[@sibley2020a]</span>.</p>
+</section>
+<section id="police-trust" class="level4">
+<h4 class="anchored" data-anchor-id="police-trust">Police Trust</h4>
+<p><em>People’s basic rights are well protected by the New Zealand Police.</em> <em>There are many things about the New Zealand Police and its policies that need to be changed (reversed).</em> <em>The New Zealand Police care about the well-being of everyone they deal with.</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="tyler2005">[@tyler2005]</span>.</p>
+</section>
+<section id="trust-science-our-society-places-too-much-emphasis-reversed" class="level4">
+<h4 class="anchored" data-anchor-id="trust-science-our-society-places-too-much-emphasis-reversed">Trust Science Our Society Places Too Much Emphasis Reversed</h4>
+<p><em>Our society places too much emphasis on science.</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="hartman2017">[@hartman2017]</span>.</p>
+</section>
+<section id="deny-climate-change-is-caused-by-humans" class="level4">
+<h4 class="anchored" data-anchor-id="deny-climate-change-is-caused-by-humans">Deny Climate Change is Caused by Humans</h4>
+<p><em>1. Climate change is caused by humans (reversed).</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="sibley2013model">[@sibley2013model]</span>.</p>
+</section>
+<section id="deny-climate-change-concern-1" class="level4">
+<h4 class="anchored" data-anchor-id="deny-climate-change-concern-1">Deny Climate Change Concern</h4>
+<p><em>I am deeply concerned about climate change (reversed).</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree). Developed for the NZAVS.</p>
+</section>
+<section id="deny-climate-change-is-real" class="level4">
+<h4 class="anchored" data-anchor-id="deny-climate-change-is-real">Deny Climate Change is Real</h4>
+<p><em>Climate change is real (reversed).</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="sibley2013model">[@sibley2013model]</span>.</p>
+</section>
+<section id="deny-environmental-efficacy-1" class="level4">
+<h4 class="anchored" data-anchor-id="deny-environmental-efficacy-1">Deny Environmental Efficacy</h4>
+<p><em>By taking personal action I believe I can make a positive difference to environmental problems (reversed)</em> <em>I feel I can make a difference to the state of the environment (reversed).</em></p>
+<p>Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) <span class="citation" data-cites="sharma2008we">[@sharma2008we]</span>.</p>
+</section>
+<section id="not-satisfied-with-the-new-zealand-environment" class="level4">
+<h4 class="anchored" data-anchor-id="not-satisfied-with-the-new-zealand-environment">Not Satisfied with the New Zealand Environment</h4>
+<p><em>Please rate your level of satisfaction with the following aspects of your life and New Zealand…The quality of New Zealand’s natural environment (reversed).</em></p>
+<p>Ordinal response: (0 = Completely Dissatisfied, 10 = Completely Datisfied) <span class="citation" data-cites="tiliouine_measuring_2006">[@tiliouine_measuring_2006]</span>.</p>
+<div style="page-break-after: always;"></div>
+<!-- ### Appendix C: Covariate Imbalance Prior to Adjustment  -->
+<!-- ### Imbalance of Confounding Covariates Treatments  -->
+<!-- @fig-match_1 shows imbalance of covariates on the treatment at the treatment wave. The variable on which there is strongest imbalance is the baseline measure of Political Conservativism. It is important to adjust for this measure both for confounding control and to better estimate an incident exposure effect for the religious service at the treatment wave (in contrast to merely estimating a prevalence effect). See @vanderweele2020. -->
+<!-- ```{r} -->
+<!-- #| label: fig-match_1 -->
+<!-- #| fig-cap: "This figure shows the imbalance in covariates on the treatment, revealing a need for special methods of the kind we employ here to recover consistent unbiased causal effect estimates." -->
+<!-- #| eval: true -->
+<!-- #| include: true -->
+<!-- #| echo: false -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 10 -->
+<!-- propensity_model_and_plots$love_plot -->
+<!-- ``` -->
+<div style="page-break-after: always;"></div>
+</section>
+</section>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="references" class="level2 appendix"><h2 class="anchored quarto-appendix-heading">References</h2><div class="quarto-appendix-contents">
+
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1174 @@
+---
+title: "Quantifying Causal Effects of Political Conservativism on Environmental Attitudes Using National Panel Data Reveals Longitudinal Growth is Not Causation"
+abstract: |
+   Whether political conservativism affects environmental attitudes is a topic of considerable interest and ongoing debate. This question is challenging to address because political conservativism cannot be manipulated. Moreover, observational data, even when longitudinal, do not clarify causality. Here, we use a three-wave outcome-wide panel of 38,000 New Zealanders (2020-2023) to estimate the causal effects of political conservativism on a range of environmental attitudes and behaviours. Controlling for pre-existing differences in both political conservativism and environmental attitudes and demographic variables, we find that the effect of political conservativism reduces acceptance of beliefs in climate change, belief in human-caused climate change, and climate change concern, but it does not affect perceived environmental efficacy compared with observed attitudes. We find that a two-point decrease in political conservatism only affects beliefs in the reality of climate change. Here, we find that associations in the data are misleading guides to causality.
+   **KEYWORDS**: *Causal Inference*; *Climate Change*; *Conservativism*; *Cross-validation*; *Environmental*, *Longitudinal*; *Machine Learning*; *Political*; *Semi-parametric*.
+author: 
+  - name: Inkuk E Kim
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0003-3169-6576 
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland
+    orcid: 0000-0002-4064-8800
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+editor_options: 
+    chunk_output_type: console
+format:
+  pdf:  
+    bibliography: /Users/joseph/GIT/templates/bib/references.bib
+    pdf-engine: lualatex
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+# detach("package:margot", unload = TRUE)
+# devtools::install_github("go-bayes/margot")
+library(margot)
+packageVersion(pkg = "margot")
+library(boilerplate)
+
+# for making graphs
+library("tinytex")
+library("extrafont")
+loadfonts(device = "all")
+
+
+# rendering document
+library("margot")
+library("glue")
+library("patchwork")
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+# set seed
+
+# set data paths
+push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-pol-env-long")
+
+# set lables
+label_mapping <- list(
+  "t4_env_climate_chg_cause_z" = "Humans Cause Climate Change",
+  "t4_env_climate_chg_concern_z" = "Climate Change Concern",
+  "t4_env_climate_chg_real_z" = "Climate Change is Real",
+ # "env_not_env_efficacy" = "Deny Personal Env Efficacy",
+  "t4_env_sat_nz_environment_z" = "Satisfied with NZ Environment"
+)
+
+
+name_exposure <- margot::here_read("name_exposure")
+
+# read exposure vars
+t0_name_exposure <- here_read("t0_name_exposure")
+t1_name_exposure <- here_read("t1_name_exposure")
+t2_name_exposure <- here_read("t2_name_exposure")
+t3_name_exposure <- here_read("t3_name_exposure")
+
+
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_var <- margot::here_read("exposure_var")
+outcome_vars <- margot::here_read("outcome_vars")
+
+outcome_vars <- sort(outcome_vars)
+outcome_vars
+
+# baseline_exposure_cat <- margot::here_read("baseline_exposure_cat")
+baseline_wave <- margot::here_read("baseline_wave")
+exposure_waves <- margot::here_read("exposure_waves")
+outcome_wave <- margot::here_read("outcome_wave")
+extra_vars <- margot::here_read("extra_vars")
+all_vars <- margot::here_read("all_vars")
+
+# read waves
+all_waves <- margot::here_read("all_waves")
+baseline_and_exposure_waves <- margot::here_read("baseline_and_exposure_waves")
+baseline_and_outcome_waves <- margot::here_read("baseline_and_outcome_waves")
+
+# get table/graphs
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+
+# n_total
+n_total <- here_read("n_total")
+
+# n_this study
+n_participants <- summary_tables$n_participants
+
+# nice labels
+nice_exposure_name <-  glue::glue("Political Conservativism")
+shift <- glue::glue("one unit")
+scale_exposure <- glue::glue("(1-7)")
+nice_scale_exposure <- glue::glue("on the exposure unit scale from one to seven")
+
+scale_exposure <- glue::glue("(1-7)")
+exposure_lower_bound <- glue::glue("1")
+exposure_upper_bound <- glue::glue("7")
+# shift =   glue::glue('two points')
+nice_baseline_wave <- glue::glue("NZAVS time 10, years 2018-2019")
+nice_exposure_waves <- glue::glue("NZAVS time 11-13, years 2019-2022")
+nice_outcome_wave <- glue::glue("NZAVS time 14, years 2022-2023")
+
+percent_missing_baseline <- here_read("percent_missing_baseline")
+percentage_missing_baseline <- glue::glue(round(percent_missing_baseline,2))
+percentage_missing_baseline
+# labels
+t4_outcomes_z <- paste0("t4_", outcome_vars, "_z")
+t4_outcomes_z
+
+treatment_gain <- glue::glue("What would be the average responses to each of the outcomes of interest if everyone in the target population **increased** by {shift} in {nice_exposure_name} up to a maximum of {exposure_upper_bound} {nice_scale_exposure}?")
+
+treatment_gain
+
+treatment_loss <- glue::glue("What would be the average responses to each of the outcomes of interest if everyone in the target **decreased** by {shift} in {nice_exposure_name} up to a maximum of {exposure_upper_bound} {nice_scale_exposure}?")
+
+title <- glue::glue("Causal Effects of {nice_exposure_name} on Environmental Attitudes")
+
+treatment_null <- glue::glue("Everyone is given their observed level of {nice_exposure_name}?") 
+
+treatment_gain_null <- glue::glue("{treatment_gain} for three years after the baseline wave compared with observed levels of intervention?") 
+
+treatment_loss_null <- glue::glue("{treatment_loss} compared for three years after the baseline wavee with observed levels of intervention?") 
+
+gain_null <- glue::glue("Causal effect of a {shift} gain in {nice_exposure_name} to max {exposure_upper_bound} ({nice_scale_exposure}) vs. no change") 
+loss_null <- glue::glue("Causal effect of decrease a {shift} gain in {nice_exposure_name} to a minimum of {exposure_lower_bound} ({nice_scale_exposure}) vs. no change") 
+
+# measures_path
+# measures path for boilerplates
+#measures_path_cursor <- here::here("models", "boilerplate", "data")
+#measure_data <- readRDS(here::here(measures_path_cursor, "merged_db.rds"))
+measures_path_rstudio <- here::here("manuscripts", "24-inkuk-pol-env")
+measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+#measure_data
+#measures_path_rstudio
+# read data not soring
+# plot_lmtp_gain_loss <- here_read_qs("plot_lmtp_gain_loss", push_mods)
+# # plot_lmtp_gain_null <- here_read_qs("plot_lmtp_gain_null", push_mods)
+# # plot_lmtp_loss_null <- here_read_qs("plot_lmtp_loss_null", push_mods)
+
+# # propensity model
+# propensity_model_and_plots <- margot::here_read_qs("propensity_model_and_plots", push_mods)
+
+
+##################################################################
+# read graphs
+# exposure_plot_slope_covariate_list <- here_read_qs("exposure_plot_slope_covariate_list", push_mods)
+
+
+
+
+# # longer trend
+# long_exposure_plot_slope_covariate_list <- here_read_qs("long_exposure_plot_slope_covariate_list", push_talks)
+
+# long_exposure_plot_slope_covariate_list$env_not_climate_chg_concern
+# long_exposure_plot_slope_covariate_list$env_not_climate_chg_cause
+# long_exposure_plot_slope_covariate_list$env_not_climate_chg_real
+# long_exposure_plot_slope_covariate_list$env_not_sat_nz_environment
+# long_exposure_plot_slope_covariate_list$env_not_env_efficacy
+
+histogram_exposures <- here_read_qs("histogram_political_conservative_by_wave", push_mods)
+
+
+# histogram_exposure <- here_read_qs("histogram_political_conservative_by_wave", push_mods)
+histogram_political_conservative_by_wave<- here_read_qs("histogram_political_conservative_by_wave",  push_mods)
+histogram_political_conservative_by_wave
+
+many_outcomes_plot<-  here_read_qs("many_outcomes_plot_combined_plot",  push_mods)
+many_outcomes_plot
+# # lmtp shifts
+# shift_exposure_up <- here_read_qs("shift_political_conservative_up", push_mods)
+# shift_exposure_up
+# shift_exposure_down <- here_read_qs("shift_political_conservative_down", push_mods)
+# shift_exposure_down
+# boxplot_exposure <- here_read_qs("baseline_and_exposure_waves_boxplot_political_conservative", push_mods)
+# boxplot_exposure
+# boxplot_outcomes <- here_read_qs("boxplot_env_not_climate_chg_cause_env_not_climate_chg_concern_env_not_climate_chg_real_env_not_env_efficacy_env_not_sat_nz_environment", push_mods)
+# boxplot_outcomes
+
+
+# environmental_attitudes_combined_combined_plot <- margot::read_multiple_images(push_mods, ".*environmental_attitudes_combined_combined_plot\\.png$")
+
+
+#########################################################
+# invariant names by study
+# propensity_model_and_plots <- here_read_qs("propensity_model_and_plots", push_mods)
+# transition_matrix_cat <- margot::here_read("transition_matrix_cat")
+transition_matrix <- margot::here_read("transition_matrix")
+transition_matrix$explanation
+transition_matrix$table
+
+#########################################################
+# invariant names by study
+# propensity_model_and_plots <- here_read_qs("propensity_model_and_plots", push_mods)
+# transition_matrix <- margot::here_read("transition_matrix")
+
+# import untransformed data
+original_df <- margot::here_read_qs("df_wide_impute", push_mods)
+
+# get table/graphs
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+
+# n_total
+n_total <- here_read("n_total")
+
+# n_this study
+n_participants <- summary_tables$n_participants
+
+# read models
+
+# plot options ------------------------------------------------------------
+options_base <- list(
+  type = "RD",
+  title = title,
+  order = "alphabetical",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  text_size = 4.5,
+  linewidth = 0.4,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 5,
+  title_size = 20,
+  x_lim_hi = 1.5,
+  x_lim_lo = -1.5,
+  x_offset = -1.5,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10
+)
+
+
+options_shift_right_vs_shift_left <- margot_plot_create_options(
+  subtitle = "Gained Liberal vs Lost Conservative (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "shift_right_vs_shift_left"
+)
+
+
+options_shift_right_vs_null <- margot_plot_create_options(
+  subtitle = "Gained Conservative vs Null",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "shift_right_vs_mull"
+)
+
+
+options_shift_left_vs_null <- margot_plot_create_options(
+  subtitle = "Gain Liberal vs Null",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "shift_left_vs_mull"
+)
+
+# read model
+pol_env_lmtp_output <- here_read_qs("pol_env_lmtp_output", push_mods)
+
+
+plot_pol_env_lmtp_output_right_vs_left <- margot_plot(
+  pol_env_lmtp_output$combined_tables$combined_outcomes_right_vs_left,
+  options = options_shift_right_vs_shift_left,
+  save_output = TRUE,
+  label_mapping = label_mapping,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+plot_pol_env_lmtp_output_left_vs_null <- margot_plot(
+  pol_env_lmtp_output$combined_tables$combined_outcomes_left_vs_null,
+  options = options_shift_left_vs_null,
+  save_output = TRUE,
+  label_mapping = label_mapping,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+plot_pol_env_lmtp_output_right_vs_null <- margot_plot(
+  pol_env_lmtp_output$combined_tables$combined_outcomes_right_vs_null,
+  options = options_shift_right_vs_null,
+  save_output = TRUE,
+  label_mapping = label_mapping,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+plot_pol_env_lmtp_output_left_vs_null$plot
+plot_pol_env_lmtp_output_right_vs_null$plot
+```
+
+
+
+## Introduction
+
+A central question in political psychology is whether `r nice_exposure_name` affects attitudes toward the environment. Causality is difficult to establish because `r nice_exposure_name`—which involves deeply held convictions about right and wrong—cannot be manipulated experimentally. Observational studies, including longitudinal ones, typically report correlations or patterns of growth. However, causal interpretations of correlations and growth are subject to well-understood biases.
+
+Here, we leverage comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study, spanning `r nice_baseline_wave`, `r nice_exposure_waves`, and `r nice_outcome_wave`, to quantify the effects of clearly defined interventions in `r nice_exposure_name` across the population of New Zealanders.
+
+
+## Method
+
+We define a causal effect as the difference in average outcomes between groups of people who experience different conditions based on planned interventions. The outcomes are measured across the whole population after one condition and compared to outcomes measured after another condition. These different outcomes are called "counterfactual" or "potential" outcomes because each person can only experience one condition, so the outcome under the unexperienced condition must be estimated.
+
+This challenge of estimating counterfactuals is well understood in randomised experiments. In such experiments, although we cannot observe what would have happened if a person had received a different treatment, random assignment ensures that the average outcomes between groups are comparable. This allows us to reliably estimate the difference between treatments at the population level. 
+
+However, in observational studies, where treatments are not randomised, we must make additional assumptions and apply special methods to address biases in manifest correlations. Such assumptions and methods aim to *balance* the groups on variables that might influence both the treatment and the outcome [@rubin2005; @neyman1923; @robins1986; @pearl2009; @vanderlaan2018]. We begin our workflow by stating the target population for whom inferences are meant to generalise and the specific causal contrasts of interest for this study. 
+
+
+### Sample
+
+```{r}
+#| eval: false
+#| include: false
+
+result <- boilerplate_report_methods(
+  exposure_var = exposure_var,
+  outcome_vars = all_outcomes,
+  n_total = 47000,
+  baseline_wave = nice_baseline_wave,
+  exposure_wave = nice_exposure_waves,
+  outcome_wave = nice_outcome_wave,
+  baseline_missing_data_proportion = percent_missing_baseline_round,
+  appendices_measures = "C",
+  measure_data = measure_data,
+  causal_interventions = list(interventions = c(treatment_gain, treatment_loss)),
+  contrasts = "null",
+  null_intervention = "Do not change exposure_var",
+  sample = list(appendices = "A-C"),
+  statistical_estimator = list(estimators = c("lmtp")),
+  inclusion_criteria = c(
+    "Enrolled in the 2018 wave of the New Zealand Attitudes and Values Study (NZAVS time 10).",
+    "Missing covariate data at {baseline_wave} was permitted, and the data was subjected to imputation methods to reduce bias."
+  ),
+  exclusion_criteria = c(
+    "Did not respond to the question on {exposure_nice_name} at {baseline_wave}."
+  ),
+  n_participants = 32451,
+  confounding_control = list(appendix_ref = "B", protocol_url = "https://osf.io/ce4t9/"),
+  additional_sections = list(
+    sensitivity_analysis = list(
+      description = "We use the E-value method to assess sensitivity to unmeasured confounding."
+    ),
+    scope_interventions = list(figure_ref = "@fig-custom-hist"),
+    evidence_change = list(table_ref = "@tbl-custom-transition")
+  )
+)
+cat(result)
+
+```
+
+### Target Population
+
+The target population for this study comprises New Zealand residents as represented by the New Zealand Attitudes and Values Study (NZAVS) during `r {nice_baseline_wave}` weighted by New Zealand Census weights for age, gender, and ethnicity (refer to @sibley2021). The NZAVS is a national probability study designed to accurately reflect the broader New Zealand population. Despite its comprehensive scope, the NZAVS has some limitations in its demographic representation. Notably, it tends to under-sample males and individuals of Asian descent while over-sampling females and Māori (the indigenous peoples of New Zealand). To address these disparities and enhance the accuracy of our findings, we apply New Zealand Census survey weights to the sample data.
+
+These weights adjust for variations in age, gender, and ethnicity to better approximate the national demographic composition [@sibley2021]. Survey weights were integrated into statistical models using the `weights` option in `lmtp` [@williams2021], following protocols stated in [@bulbulia2024PRACTICAL].
+
+### Eligibility Criteria
+
+To be included in the analysis of this study, participants needed to participate in `r nice_baseline_wave` and respond to baseline measure of the `r nice_exposure_name`.
+
+
+Missing covariate data at `r {baseline_wave}` were permitted. The proportion of missing data at baseline was: `r {percentage_missing_baseline}`.
+
+Participants may have been lost to follow-up at the end of the study if they met eligibility criteria.
+
+A total of `r n_participants` individuals met these criteria and were included in the study.
+
+#### Causal Estimands
+
+- $A$ = intervention on population in political orientation for three years after baseline wave (i.e. controlling for baseline covariates).
+- $Y$ = outcome: (environment orientation dimension).
+- $L$ = baseline covariates (political orientation, the baseline environmental attitudes, and demographic covariates).
+
+## Intervention Types
+
+We define three specific shift interventions on the `r nice_exposure_name`` trait, which is bounded between 1 and 7:
+
+### 1. Gain in Political Orientation (+1)
+
+We define the shift-up intervention as:
+
+$$
+a^+ = f(A) = 
+\begin{cases}
+A + 1, & \text{if } A + 1 \leq 7 \\
+7, & \text{if } A + 1 > 7
+\end{cases}
+$$
+
+This ensures that the shifted value does not exceed the maximum score of 7.
+
+### 2. Loss in Political Orientation (-1)
+
+We define the shift-down intervention as:
+
+$$
+a^{-} = f(A) = 
+\begin{cases}
+A - 1, & \text{if } A - 1 \geq 1 \\
+1, & \text{if } A - 1 < 1
+\end{cases}
+$$
+
+This ensures that the shifted value does not go below the minimum score of 1.
+
+### 3. Null (no change)
+
+The null intervention leaves the exposure at its observed value:
+
+$$
+a = A
+$$
+
+### Potential Outcomes
+
+For any intervention where we set the subjects political orientation to level $\tilde{a}$:
+
+>  $E[Y(\tilde{a})]$ denotes the potential outcome in an environmental orientation when the population is intervened upon.
+
+
+### Assumptions
+
+To identify these potential outcomes, we assume conditional exchangeability given measured covariates $L$:
+
+$$
+\Big\{ Y(\tilde{a}) \Big\} \coprod A \mid L
+$$
+
+This means that, conditional on $L$, the treatment assignments $A = \tilde{a}$ are 'as good as random.' This allows us to estimate causal effects from observed data.
+
+### Causal Effects
+
+We specify causal effects by contrasting potential outcomes under these interventions, as they occurred for three years after the baseline wave(baseline + 3 years). To ensure temporal order in causal inferences, we measure outcomes at the end of the study (NZAVS time 14, years 2022-2023) (refer to @vanderweele2020). 
+
+
+## Measures
+
+### Exposure Variable
+
+#### Political Conservative
+
+*Please rate how politically liberal versus conservative you see yourself as being.*
+
+Ordinal response: (1 = Extremely Liberal, 7 = Extremely Conservative)
+ [@jost_end_2006-1]
+
+### Outcome Variables
+
+```{r}
+#| eval: false
+#| include: false
+
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+```
+
+
+#### Deny Climate Change is Human-Caused
+
+*1. Climate change is caused by humans (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@sibley2013model].
+
+#### Deny Climate Change Concern
+
+*I am deeply concerned about climate change (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree). Developed for the NZAVS.
+
+#### Deny Climate Change Reality 
+
+*Climate change is real (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@sibley2013model].
+
+#### Deny Environmental Efficacy
+
+*By taking personal action I believe I can make a positive difference to environmental problems (reversed)*
+*I feel I can make a difference to the state of the environment (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@sharma2008we].
+
+#### Dissatisfied with the New Zealand Environment
+
+*Please rate your level of satisfaction with the following aspects of your life and New Zealand...The quality of New Zealand's natural environment (reversed).*
+
+Ordinal response: (0 = Completely Dissatisfied, 10 =  Completely Datisfied) [@tiliouine_measuring_2006].
+
+
+### Causal Assumptions
+
+
+Having stated our interventions of interest, the target population for whom generalisations apply, and our measures, we next consider whether and how we may identify these effects using time-series data. Rather than testing specific hypotheses, we aim to estimate these pre-specified causal effects on the target population as accurately as possible. We achieve this by combining detailed time-series data with robust methods for causal inference [@hernan2024stating].
+
+
+1. **The Causal Consistency Assumption**: The observed outcome under the observed political_conservative is equal to the potential outcome under that exposure level.
+
+2. **The Positivity Assumption**: There is a non-zero probability of receiving each level of political_conservative for every combination of values of political_conservative and confounders in the population.
+
+3. **The Assumption of No Unmeasured Confounding**: All variables that affect both political_conservative and the outcome have been measured and accounted for in the analysis.
+
+4. **The Assumption of No Interference**: The potential outcomes for one individual are not affected by the political_conservative status of other individuals.
+
+These assumptions are critical for the causal interpretability of our results and should be carefully considered in light of the study design and available data.
+
+
+
+### Confounding Control
+
+To address confounding in our analysis, we implement [@vanderweele2019]'s *modified disjunctive cause criterion* by following these steps:
+
+1. **Identify all common causes** of both the treatment and outcomes.
+2. **Exclude instrumental variables** that affect the exposure but not the outcome. Instrumental variables do not contribute to controlling confounding and can reduce the efficiency of the estimates.
+3. **Include proxies for unmeasured confounders** affecting both exposure and outcome. According to the principles of d-separation @pearl2009a, using proxies allows us to control for their associated unmeasured confounders indirectly.
+4. **Control for baseline `r nice_exposure_name`** and all outcome variables (refer to @vanderweele2020.)
+
+[Appendix B](#appendix-demographics) details the covariates we included for confounding control. These methods adhere to the guidelines provided in [@bulbulia2024PRACTICAL] and were pre-specified in our study protocol [https://osf.io/ce4t9/](https://osf.io/ce4t9/).
+
+
+
+ @tbl-swig a schematic of our confounding control strategy. A Single World Intervention Template is a causal graph used to generate multiple counterfactual graphs, illustrating potential outcomes under an intervention [@richardson2013swigsprimer; @robins2010alternative; @richardson2023potential; @bulbulia2024swigstime]. This table presents the confounding control strategy adopted in our five-wave panel study.
+
+  - $U$ represents unmeasured confounders.
+  - Numerical subscripts denote time, where $0$ is baseline, $1$ is the treatment wave, and $\tau$ is the outcome wave (end of study). This study includes three measurement intervals.
+  - $L_0$ represents all confounders measured at baseline, while $A_1$ denotes the first exposure or treatment. This set includes $A_0$ (baseline treatment) and all baseline outcomes, $Y_0$.
+  - $A_{1:\tau - 1}$ denotes subsequent treatments. In this study, we intervene on `r {nice_exposure_name}` at $A_1$, $A_2$, and $A_3$.
+  - $Y_4$ represents outcomes measured at the end of the study.
+
+Solid arrows indicate assumed causal influences. The grey arrow reflects the assumption that unmeasured confounding is controlled. $L_{t-k}$ denotes time-varying confounders that might affect both the next wave's exposure and final outcome variables. After controlling for baseline confounders, baseline measures of exposure, and all baseline outcomes, we assume no further time-varying confounding [@bulbulia2024swigstime].
+
+Baseline values of the treatment ($A_0$) and outcome ($Y_0$) are included to reduce unmeasured confounding. Including these ensures that any unmeasured confounders influencing $A_1$ and $Y_2$ would need to affect them independently of their baseline states, namely $A_0$ and $Y_0$.
+
+
+::: {#tbl-swig}
+```{=latex}
+\tvfour
+```
+A Single World Intervention Template is a causal graph that allows us to generate multiple counterfactual graphs showing the potential outcomes under an intervention [@richardson2013swigsprimer; @robins2010alternative; @richardson2023potential]. present the confounding control strategy adopted in a three-wave panel study. By including the baseline measure of the exposure and all outcomes, for unmeasured confounders to bias the estimate of the causal effect of the exposures and outcomes they would need to do so independently of their measured states at baseline [@vanderweele2020].
+:::
+
+
+
+### Missing Data
+
+
+To mitigate bias from missing data, we implement the following strategies:
+
+**Baseline missingness**: we employed the `ppm` algorithm from the `mice` package in R [@vanbuuren2018] to impute missing baseline data (wave NZAVS time 12, years 2020-2021). This method allowed us to reconstruct incomplete datasets by estimating a plausible value for missing observation. Because we could only pass one data set to the lmtp, we employed single imputation. Approximately 1.2% of covariate values were missing at NZAVS time 12, years 2020-2021. We only used baseline data to impute baseline wave missingness (refer to @zhang2023shouldMultipleImputation).
+
+**Exposure wave missingness**: even if the population in the baseline wave corresponds to the target population, attrition between `r {nice_baseline_wave}` and `r {nice_exposure_waves}` may threaten generalisations to the target population. To address potential bias from loss-to-follow up in the exposure wave we employed non-parametric inverse-probability of censoring weights.
+
+**Outcome missingness**: to address confounding and selection bias arising from missing responses and panel attrition at the end of study NZAVS time 14, years 2022-2023, we applied censoring weights obtained using nonparametric machine learning ensembles afforded by the `lmtp` package (and its dependencies) in R [@williams2021].
+
+### Statistical Estimator
+  
+#### Longitudinal Modified Treatment Policy (LMTP) Estimator
+
+We perform statistical estimation using a Sequential Doubly-Robust Estimator from the `lmtp` package, which is multiply robust for repeated treatments across multiple waves [@diaz2023lmtp; @hoffman2023]. This estimator is robust to misspecification in either the outcome or treatment model over time. The lmtp package relies on the SuperLearner library, integrating diverse machine learning algorithms [@SuperLearner2023]. Given the high-dimensionality of the data, we used the Ranger estimator, a non-parametric causal forest method known for its resistance to overfitting [Ranger2017]. All statistical models implemented a 10-fold cross-validation. SDR robust method for estimating causal effects while providing valid statistical uncertainty measures [@van2014targeted; @van2012targeted]. For further information on targeted learning using the `lmtp` package, see [@hoffman2022; @hoffman2023; @díaz2021]. Graphs, tables, and output reports are created using the `margot` package [@margot2024].
+    
+
+### Sensitivity Analysis Using the E-value
+
+To assess the sensitivity of results to unmeasured confounding, we report VanderWeele and Ding's E-value in all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE]. To evaluate the strength of evidence, we use the bound of the E-value 95% confidence interval closest to 1. This provides an approximate metric for understanding the robustness of our findings in the presence of potential unmeasured confounding.
+
+
+## Results
+
+### Descriptive Findings 
+
+
+@fig-outcomes-time shows the predicted means for multi-dimensional environmental attitudes by `r {nice_exposure_name}` from `r nice_exposure_waves` to `r nice_outcome_wave`. For denial of human-caused climate change, climate concern, and belief in climate change reality, there is a clear separation by political conservatism, with conservatives expressing higher levels of denial across these dimensions. However, even at the high end of political conservatism, the means are relatively low, especially for belief in climate change reality, where the conservative average is at the midpoint of the scale (4 on a 1-7 scale). On the other hand, conservatives tend to report greater satisfaction with the natural environment in New Zealand, though dissatisfaction is increasing. The separation by political conservatism is less pronounced for denial of personal efficacy in environmental change, with those at the high end of the political conservatism scale only slightly more inclined to deny efficacy compared to those at the low end.
+
+```{r}
+#| label: fig-outcomes-time
+#| fig-cap: " "
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+many_outcomes_plot
+```
+
+
+
+
+
+### `r nice_exposure_name` measured at the Baseline Wave (`r nice_baseline_wave`) and the Exposure Wave `r nice_exposure_waves`
+
+@fig-exposure-wave shows the distribution of the exposure variable in the treatment wave.
+
+
+```{r}
+#| label: fig-exposure-wave
+#| fig-cap: " "
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+histogram_political_conservative_by_wave
+```
+
+
+
+
+{{< pagebreak >}}
+
+### Evidence for Change in the Treatment Variable
+
+@tbl-transition clarifies the change in the treatment variable from the baseline wave to the baseline + 1 wave across the sample. Assessing change in a variable is essential for evaluating the positivity assumption and recovering evidence for the incident exposure effect of the treatment variable [@vanderweele2020; @danaei2012; @hernan2024WHATIF].
+
+
+```{r}
+#| label: tbl-transition
+#| tbl-cap: "Transition matrix for change in {nice_exposure_name}"
+#| eval: true
+#| echo: false
+transition_matrix$table
+```
+
+
+{{< pagebreak >}}
+
+
+## Results
+
+### Study 1: `r {gain_null}`
+
+```{r}
+#| label: tbl-1_1
+#| tbl-cap: "Causal effect of gain in Political Conservativism on environmental attitudes."
+#| eval: true
+#| include: true
+#| echo: false
+plot_pol_env_lmtp_output_right_vs_null$transformed_table |> kbl("markdown")
+```
+
+
+
+```{r}
+#| label: fig-1_1
+#| fig-cap:  "Causal effect of gain in Political Conservativism on environmental attitudes. Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+plot_pol_env_lmtp_output_right_vs_null$plot
+```
+
+
+@tbl-1_1 and @fig-1_1 present the comparison of the intervention: `r {gain_null}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(plot_pol_env_lmtp_output_right_vs_null$interpretation)
+```
+
+
+
+### Study 2: `r {loss_null}`
+
+```{r}
+#| label: tbl-2_1
+#| tbl-cap: "Causal effect of loss in Political Conservativism on environmental attitudes."
+#| eval: true
+#| include: true
+#| echo: false
+plot_pol_env_lmtp_output_left_vs_null$transformed_table |> kbl("markdown")
+```
+
+
+
+```{r}
+#| label: fig-2_1
+#| fig-cap:  "Causal effect of loss in Political Conservativism on environmental attitudes. Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+plot_pol_env_lmtp_output_left_vs_null$plot
+```
+
+
+@tbl-2_1 and @fig-2_1 present the comparison of the intervention: `r {gain_null}`
+
+```{r, results = 'asis'}
+#| include: false
+#| echo: false
+cat(plot_pol_env_lmtp_output_left_vs_null$interpretation)
+```
+
+## Discussion 
+
+Our results provide important insights into the relationship between political conservatism and environmental attitudes in New Zealand. The descriptive findings show a consistent separation across all domains based on political orientation, with stronger effects observed in certain areas, such as the denial of climate change reality and concern. However, our causal estimates indicate that these associations do not apply uniformly across all outcomes.
+
+We examined two different interventions: a gain in `r nice_exposure_name` (an increase of two points up to a maximum of 7) and a loss in `r nice_exposure_name` (a decrease to a minimum of 1). We contrasted these means of these shift-interventions with observed political conservatism levels in the population. These interventions allow us to explore both gain and loss scenarios, which are critical to distinguish since the effects of increasing versus decreasing political conservatism may not mirror each other.
+
+Our findings suggest that political conservatism is causally linked to denial of climate change reality and concern. In particular, the evidence for causality is strong in the gain condition for denial of climate change reality, concern, and human causation of climate change. However, for the denial of personal environmental efficacy and satisfaction with the New Zealand environment, the evidence for causality is weak or unreliable.
+
+These findings underscore the importance of distinguishing between causal effect estimates and correlations. Although descriptive statistics indicate associations between political conservatism and environmental attitudes, these correlations are not the same as causal relationships. Even when measured over time, correlations do not necessarily imply causality.
+
+Moreover, our study demonstrates the importance of distinguishing between gain and loss interventions in political orientation and their impact on environmental attitudes. The evidence supports a one-year causal effect from the loss of political conservativism on beliefs the climate change is human-caused, yet with no reliable evidence for change in other dimensions of environmental belief. 
+
+Looking ahead, we recommend the wider development and application of causal inferential methods employing repeated measurements over more than three years to investigate variation, interaction, and causal mediation.
+
+{{< pagebreak >}}
+
+### Ethics
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+### Data Availability
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: [https://github.com/go-bayes/models/tree/main/scripts/24-POL-CONSERVE-environ](https://github.com/go-bayes/models/tree/main/scripts/24-POL-CONSERVE-environ). 
+
+
+### Acknowledgements
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+### Author Statement
+
+JB and IK conceived the study. JB developed the approach. CS led NZAVS data collection. All authors contributed to the manuscript.
+
+
+{{< pagebreak >}}
+
+
+
+
+## Appendix A: Measures {#appendix-measures-a}
+
+@tbl-table-exposure presents descriptive statistics for baseline covariates, measure in  `r {nice_baseline_wave}`.
+
+### Covariate measures at baseline
+```{r}
+#| tbl-cap: "Baseline covariates"
+#| label: tbl-table-baseline
+#| eval: true
+#| include: true
+#| echo: false
+summary_tables$baseline_table |> kbl("markdown")
+```
+
+
+{{< pagebreak >}}
+
+### Exposure measures at baseline and exposure waves
+
+
+
+```{r}
+#| tbl-cap: "Exposure at baseline and exposure waves"
+#| label: tbl-table-exposure
+#| eval: true
+#| include: true
+#| echo: false
+summary_tables$exposure_table  |>  kbl("latex")
+```
+ 
+@tbl-table-exposure presents descriptive statistics for the exposure: `r {nice_exposure_name}` measured in `r {nice_baseline_wave}` and `r {nice_exposure_waves}`.
+ 
+{{< pagebreak >}}
+
+### Outcome measure at baseline and exposure waves
+
+@tbl-table-outcomes presents descriptive statistics for the the outcome variables measured in `r {nice_baseline_wave}` and `r {nice_outcome_wave}`. 
+
+```{r}
+#| label: tbl-table-outcomes
+#| tbl-cap: "Outcomes at baseline and end-of-study"
+#| eval: true
+#| include: true
+#| echo: false
+summary_tables$outcome_table |> kbl("latex")
+```
+
+{{< pagebreak >}}
+
+## Appendix B: Measures {#appendix-measures-b}
+
+```{r}
+#| eval: false
+#| include: false
+#| echo: false
+appendix_text_version_1 <- boilerplate::boilerplate_report_measures(
+  baseline_vars = baseline_vars,
+  exposure_var = exposure_var,
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+```
+
+### Measures
+
+#### Age
+
+*What is your date of birth?*
+
+We asked participants' ages in an open-ended question ("What is your age?" or "What is your date of birth").. Developed for the NZAVS.
+
+#### Agreeableness
+
+*I sympathize with others' feelings.*
+*I am not interested in other people's problems.*
+*I feel others' emotions.*
+*I am not really interested in others (reversed).*
+
+Mini-IPIP6 Agreeableness dimension: (i) I sympathize with others' feelings. (ii) I am not interested in other people's problems. (r) (iii) I feel others' emotions. (iv) I am not really interested in others. (r) [@sibley2011].
+
+#### Alcohol Frequency
+
+*"How often do you have a drink containing alcohol?"*
+
+Participants could chose between the following responses: '(1 = Never - I don't drink, 2 = Monthly or less, 3 = Up to 4 times a month, 4 = Up to 3 times a week, 5 = 4 or more times a week, 6 = Don't know)' [@Ministry_of_Health_2013].
+
+#### Alcohol Intensity
+
+*"How many drinks containing alcohol do you have on a typical day when drinking alcohol? (number of drinks on a typical day when drinking)"*
+
+Participants responded using an open-ended box [@Ministry_of_Health_2013].
+
+#### Belong
+
+*Know that people in my life accept and value me.*
+*Feel like an outsider.*
+*Know that people around me share my attitudes and beliefs.*
+
+We assessed felt belongingness with three items adapted from the Sense of Belonging Instrument (Hagerty & Patusky, 1995): (1) "Know that people in my life accept and value me"; (2) "Feel like an outsider"; (3) "Know that people around me share my attitudes and beliefs". Participants responded on a scale from 1 (Very Inaccurate) to 7 (Very Accurate). The second item was reversely coded [@hagerty1995].
+
+#### Born Nz (Binary)
+
+We asked participants, "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).. Developed for the NZAVS.
+
+#### Conscientiousness
+
+*I get chores done right away.*
+*I like order.*
+*I make a mess of things.*
+*I often forget to put things back in their proper place.*
+
+Mini-IPIP6 Conscientiousness dimension: (i) I get chores done right away. (ii) I like order. (iii) I make a mess of things. (r) (iv) I often forget to put things back in their proper place. (r) [@sibley2011].
+
+#### Education Level Coarsen
+
+*What is your highest level of qualification?*
+
+We asked participants, "What is your highest level of qualification?". We coded participans highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school qualifications coded as Level 3, and all other ancillary categories coded as missing). Developed for the NZAVS.
+
+#### Employed (Binary)
+
+*Are you currently employed (This includes self-employed of casual work)?*
+
+Binary response: (0 = No, 1 = Yes). Stats NZ Census Question.
+
+#### Eth Cat (Categorical)
+
+*Which ethnic group(s) do you belong to?*
+
+Coded string: (1 = New Zealand European; 2 = Māori; 3 = Pacific; 4 = Asian). NZ Census coding.
+
+#### Extraversion
+
+*I am the life of the party.*
+*I don't talk a lot (reversed).*
+*I keep in the background (reversed).*
+*I talk to a lot of different people at parties.*
+
+Mini-IPIP6 Extraversion dimension: (i) I am the life of the party. (ii) I don't talk a lot. (r) (iii) I keep in the background. (r) (iv) I talk to a lot of different people at parties [@sibley2011].
+
+#### Hlth Disability (Binary)
+
+We assessed disability with a one-item indicator adapted from Verbrugge (1997). It asks, "Do you have a health condition or disability that limits you and that has lasted for 6+ months?" (1 = Yes, 0 = No) [@verbrugge1997].
+
+#### Honesty Humility
+
+*I feel entitled to more of everything (reversed).*
+*I deserve more things in life (reversed).*
+*I deserve more things in life (reversed).*
+*I would get a lot of pleasure from owning expensive luxury goods (reversed).*
+
+Mini-IPIP6 Honesty-Humility dimension: (i) I feel entitled to more of everything. (r) (ii) I deserve more things in life. (r) (iii) I would like to be seen driving around in a very expensive car. (r) (iv) I would get a lot of pleasure from owning expensive luxury goods. (r) [@sibley2011].
+
+#### Kessler Latent Anxiety
+
+*During the past 30 days, how often did...you feel restless or fidgety?*
+*During the past 30 days, how often did...you feel that everything was an effort?*
+*During the past 30 days, how often did...you feel nervous?*
+
+Ordinal response: (0 = None Of The Time; 1 = A Little Of The Time; 2= Some Of The Time; 3 = Most Of The Time; 4 = All Of The Time) [@kessler2002].
+
+#### Kessler Latent Depression
+
+*During the past 30 days, how often did...you feel hopeless?*
+*During the past 30 days, how often did...you feel so depressed that nothing could cheer you up?*
+*During the past 30 days, how often did...you feel you feel restless or fidgety?*
+
+Ordinal response: (0 = None Of The Time; 1 = A Little Of The Time; 2= Some Of The Time; 3 = Most Of The Time; 4 = All Of The Time) [@kessler2002].
+
+#### Log Hours Children
+
+*Hours spent...looking after children.*
+
+We took the natural log of the response + 1 [@sibley2011].
+
+#### Log Hours Commute
+
+*Hours spent...travelling/commuting.*
+
+We took the natural log of the response + 1.. Developed for the NZAVS.
+
+#### Log Hours Exercise
+
+*Hours spent...exercising/physical activity.*
+
+We took the natural log of the response + 1 [@sibley2011].
+
+#### Log Hours Housework
+
+*Hours spent...housework/cooking.*
+
+We took the natural log of the response + 1 [@sibley2011].
+
+#### Log Household Inc
+
+*Please estimate your total household income (before tax) for the year XXXX.*
+
+We took the natural log of the response + 1.. Developed for the NZAVS.
+
+#### Male (Binary)
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male was coded as 1, and gender diverse coded as 3 (Fraser et al., 2020). (or 0.5 = neither female nor male). Here, we coded all those who responded as Male as 1, and those who did not as 0 [@fraser_coding_2020].
+
+#### Neuroticism
+
+*I have frequent mood swings.*
+*I am relaxed most of the time (reversed).*
+*I get upset easily.*
+*I seldom feel blue (reversed).*
+
+Mini-IPIP6 Neuroticism dimension: (i) I have frequent mood swings. (ii) I am relaxed most of the time. (r) (iii) I get upset easily. (iv) I seldom feel blue. (r) [@sibley2011].
+
+#### Not Heterosexual (Binary)
+
+*How would you describe your sexual orientation? (e.g., heterosexual, homosexual, straight, gay, lesbian, bisexual, etc.)*
+
+Open-ended question, coded as binary (not heterosexual = 1) [@greaves2017diversity].
+
+#### NZ Dep2018
+
+*New Zealand Deprivation - Decile Index - Using 2018 Census Data*
+
+Numerical: (1-10) [@atkinson2019].
+
+#### NZsei 13 
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) (Fahy et al., 2017). This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation [@fahy2017].
+
+#### Openness
+
+*I have a vivid imagination.*
+*I have difficulty understanding abstract ideas (reversed).*
+*I do not have a good imagination (reversed).*
+*I am not interested in abstract ideas (reversed).*
+
+Mini-IPIP6 Openness to Experience dimension: (i) I have a vivid imagination. (ii) I have difficulty understanding abstract ideas. (r) (iii) I do not have a good imagination. (r) (iv) I am not interested in abstract ideas. (r) [@sibley2011].
+
+#### Parent (Binary)
+
+We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-current). Parents were coded as 1, while the others were coded as 0.. Developed for the NZAVS.
+
+#### Partner (Binary)
+
+*What is your relationship status? (e.g., single, married, de-facto, civil union, widowed, living together, etc.)*
+
+Coded as binary (has partner = 1).. Developed for the NZAVS.
+
+#### Political Conservative
+
+*Please rate how politically liberal versus conservative you see yourself as being.*
+
+Ordinal response: (1 = Extremely Liberal, 7 = Extremely Conservative) [@jost_end_2006-1].
+
+#### Power No Control Composite
+
+*I do not have enough power or control over important parts of my life.*
+*Other people have too much power or control over important parts of my life.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@overall2016power].
+
+#### Religion Identification Level
+
+*How important is your religion to how you see yourself?*
+
+Ordinal response: (1 = Not Important, 7 = Very Important). Developed for the NZAVS.
+
+#### Rural Gch 2018 
+
+*High Urban Accessibility = 1, Medium Urban Accessibility = 2, Low Urban Accessibility  = 3, Remote = 4, Very Remote = 5.*
+
+"Participants residence locations were coded according to a five-level ordinal categorisation ranging from Urban to Rural." [@whitehead2023unmasking].
+
+#### Sample Frame Opt in (Binary)
+
+*Participant was not randomly sampled from the New Zealand Electoral Roll.*
+
+Code string (Binary): (0 = No, 1 = Yes). Developed for the NZAVS.
+
+#### Short Form Health
+
+*In general, would you say your health is...*
+
+Ordinal response: (1 = Poor, 7 = Excellent) [@instrument1992mos].
+
+#### Smoker (Binary)
+
+*Do you currently smoke tobacco cigarettes?*
+
+Binary smoking indicator (0 = No, 1 = Yes).. Developed for NZAVS.
+
+#### Support
+
+*There are people I can depend on to help me if I really need it.*
+*There is no one I can turn to for guidance in times of stress (reversed).*
+*I know there are people I can turn to when I need help.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@cutrona1987].
+
+#### Free Speech
+
+*Although I may disagree with the opinions that other people hold, they should be allowed to express those views publicly.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@dore2022boundaries].
+
+#### Pol Politician Trust
+
+*Politicians in New Zealand can generally be trusted.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@sibley2020a].
+
+#### Police Trust
+
+*People's basic rights are well protected by the New Zealand Police.*
+*There are many things about the New Zealand Police and its policies that need to be changed (reversed).*
+*The New Zealand Police care about the well-being of everyone they deal with.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@tyler2005].
+
+#### Trust Science Our Society Places Too Much Emphasis Reversed
+
+*Our society places too much emphasis on science.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@hartman2017].
+
+#### Deny Climate Change is Caused by Humans
+
+*1. Climate change is caused by humans (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@sibley2013model].
+
+#### Deny Climate Change Concern
+
+*I am deeply concerned about climate change (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree). Developed for the NZAVS.
+
+#### Deny Climate Change is Real
+
+*Climate change is real (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@sibley2013model].
+
+#### Deny Environmental Efficacy
+
+*By taking personal action I believe I can make a positive difference to environmental problems (reversed)*
+*I feel I can make a difference to the state of the environment (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@sharma2008we].
+
+#### Not Satisfied with the New Zealand Environment
+
+*Please rate your level of satisfaction with the following aspects of your life and New Zealand...The quality of New Zealand's natural environment (reversed).*
+
+Ordinal response: (0 = Completely Dissatisfied, 10 =  Completely Datisfied) [@tiliouine_measuring_2006].
+
+<!-- ### Appendix C: Covariate Imbalance Prior to Adjustment  -->
+<!-- ### Imbalance of Confounding Covariates Treatments  -->
+
+<!-- @fig-match_1 shows imbalance of covariates on the treatment at the treatment wave. The variable on which there is strongest imbalance is the baseline measure of `r nice_exposure_name`. It is important to adjust for this measure both for confounding control and to better estimate an incident exposure effect for the religious service at the treatment wave (in contrast to merely estimating a prevalence effect). See @vanderweele2020. -->
+
+<!-- ```{r} -->
+<!-- #| label: fig-match_1 -->
+<!-- #| fig-cap: "This figure shows the imbalance in covariates on the treatment, revealing a need for special methods of the kind we employ here to recover consistent unbiased causal effect estimates." -->
+<!-- #| eval: true -->
+<!-- #| include: true -->
+<!-- #| echo: false -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 10 -->
+
+<!-- propensity_model_and_plots$love_plot -->
+<!-- ``` -->
+
+{{< pagebreak >}}
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
