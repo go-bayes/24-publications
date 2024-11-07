@@ -1,0 +1,700 @@
+---
+title: "Stability in Trust in Science: Evidence from A National Panel Study (years 2019-2023)"
+abstract: |
+   The public perceptions of science has wide-ranging effects, from the adoption public health behaviours to climate action. Here, drawing on a nationally diverse panel study in New Zealand, we describe change in (1) trust in the institution of science and (2) trust in scientists from October 2019- October 2023 (New Zealand Attitudes and Values Study, N = 42,681). Because sample attrition and non-response may be systematically related to trust in scientists and scientific institutions we infer missing responses we using multiple-imputation. Notably, even as the population reports high levels of trust in science and scientists, a sizable minority of the population is distrusting. In absolute terms, we observe stability for institutional trust in science over time. Although political conservatives are more distrusting, they are not becoming more distrusting over time. Indeed the signals point greater average trust among political conservatives. Similarly trust in science and in scientists is somewhat weaker among the non-european minority population, however mean levels of science remain consistent. In absolute terms the gap betwen men and other genders is shrinking (men tend to be trusting), although this gap too is shrinking. We caution against any causal interpretation of the data, matters for future investigations. Moreover, we cannot draw inferences about the populations that was not represented in the 2019 New Zealand Attitudes and Values Study cohort. However, among this large and diverse cohort, the signal is one familiar to longitudinal research -- one of considerable stability. 
+   **KEYWORDS**: *Conservativism*; *Institutional Trust*; *Longitudinal*; *Panel*; *Political*; *Science*.
+author: 
+  - name: Authors
+    affiliation: New Zealand
+    orcid: 0000-0003-3169-6576 
+editor_options: 
+    chunk_output_type: console
+format:
+  pdf:  
+    bibliography: /Users/joseph/GIT/templates/bib/references.bib
+    pdf-engine: lualatex
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+# detach("package:margot", unload = TRUE)
+# devtools::install_github("go-bayes/margot")
+library(margot)
+packageVersion(pkg = "margot")
+library(boilerplate)
+
+# for making graphs
+library("tinytex")
+library("extrafont")
+loadfonts(device = "all")
+
+
+# rendering document
+library("margot")
+library("glue")
+library("patchwork")
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+# set seed
+
+# joseph.bulbulia@gmail.com (joseph.bulbulia@vuw.ac.nz)
+set.seed(123)
+
+
+# path to data folder (set to path on your computer) - for pushing and pulling model results
+push_mods <- here::here(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-john-kerr-trust-science-growth"
+)
+
+# load libs
+library(margot)
+library(geepack)
+library(parameters)
+library(Amelia)
+library(tidyverse)
+library(ggplot2)
+library(ggeffects)
+library(glue)
+library(patchwork)
+library(mice)
+library(splines)
+
+# read data (use 01 script to data wrangle)
+# dat_long_imputed_bounds_ordinal <- margot::here_read_qs("dat_long_imputed_bounds_ordinal", push_mods)
+
+
+measures_path_rstudio <- here::here("manuscripts", "24-john-kerr-growth-trust-science")
+measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+
+
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_vars <- margot::here_read("exposure_vars")
+outcome_vars <- margot::here_read("outcome_vars")
+baseline_vars
+
+
+# read waves
+all_waves <- c(2019:2022)
+
+# get table/graphs
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+
+# n_total
+n_total <- here_read("n_total")
+
+# n_this study
+n_participants <- summary_tables$n_participants
+
+
+scale_outcome <- glue::glue("(1-7)")
+outcome_lower_bound <- glue::glue("1")
+outcome_upper_bound <- glue::glue("7")
+# shift =   glue::glue('two points')
+nice_baseline_wave <- glue::glue("NZAVS time 10, years 2019-2020")
+nice_all_waves <- glue::glue("NZAVS time 11-14, years 2019-2023")
+
+# percent_missing_baseline <- here_read("percent_missing_baseline")
+# percentage_missing_baseline <- glue::glue(round(percent_missing_baseline,2))
+# percentage_missing_baseline
+# labels
+#
+
+# read models
+m_trust_science_marginal <- margot::here_read_qs("m_trust_science_marginal", push_mods)
+predict_trust_science_marginal <- ggeffects::pool_predictions(m_trust_science_marginal)
+
+# table
+predict_trust_science_marginal |> print_md()
+
+# graph result
+plot_science_marginal <- plot (
+  ggeffects::pool_predictions(m_trust_science_marginal),
+  show_data = TRUE,
+  jitter = .4,
+  color = "quadro",
+  dot_alpha  = .05,
+  limits = c(.5, 7.5)
+) +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science (1-7)", title = "Trust in Science: Marginal") + theme_classic()
+# view graph
+plot_science_marginal
+
+# read model
+m_trust_scientists_marginal <- here_read_qs("m_trust_scientists_marginal", push_mods)
+
+# generate predictions
+predict_trust_scientists_marginal <- ggeffects::pool_predictions(m_trust_scientists_marginal)
+
+# table
+predict_trust_scientists_marginal |> print_md()
+
+
+# graph result
+plot_scientists_marginal <- plot (
+  ggeffects::pool_predictions(m_trust_scientists_marginal),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .05,
+  limits = c(.5, 7.5),
+  color = "quadro"
+  # colors = list(ribbon = "red", line = "red")
+)  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists (1-7)", title = "Trust in Scientists: Marginal") + theme_classic()
+
+# view graph
+plot_scientists_marginal
+
+
+# marginal combine graphs
+
+# patchwork graph
+combo_marginal_graph <- plot_science_marginal  + plot_scientists_marginal  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time: Rolling Population Average") +
+plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+# 
+combo_marginal_graph
+
+# pol orientation
+m_trust_science_conditional_pol_cons <- here_read_qs("m_trust_science_conditional_pol_cons", push_mods)
+
+# pool results using Rubin's rule
+predict_trust_science_pol_cons <- ggeffects::pool_predictions(m_trust_science_conditional_pol_cons)
+
+# table
+predict_trust_science_pol_cons |> print_md()
+
+plot_trust_science_pol_cons <- plot (
+  ggeffects::pool_predictions(m_trust_science_conditional_pol_cons),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .005,
+  limits = c(.5, 7.5),
+  color = "quadro")  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science (1-7)", title = "Trust in Science by Political Conservativism") + theme_classic()
+
+# view
+plot_trust_science_pol_cons
+
+
+m_trust_scientists_conditional_pol_cons <- here_read_qs("m_trust_scientists_conditional_pol_cons", push_mods)
+ggeffects::pool_predictions(m_trust_scientists_conditional_pol_cons)
+
+# pool results using Rubin's rule
+predict_trust_scientists_pol_cons <- ggeffects::pool_predictions(m_trust_scientists_conditional_pol_cons)
+
+# table
+predict_trust_scientists_pol_cons |> print_md()
+
+
+plot_trust_scientists_pol_cons <- plot (
+  ggeffects::pool_predictions(m_trust_scientists_conditional_pol_cons),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .005,
+  limits = c(.5, 7.5),
+  color = "quadro")  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists (1-7)", title = "Trust in Scientists by Political Conservativism")+ theme_classic()
+
+plot_trust_scientists_pol_cons
+
+
+# conditional graph scientists
+combo_pol_cons_graph <- plot_trust_science_pol_cons  + plot_trust_scientists_pol_cons  + 
+  plot_annotation(subtitle = "New Zealand Attitudes and Values Study waves 11-14 (years 2019-2023, N = 42,681)", tag_levels = "A", title = "Trust in Science over Time by Political Conservativism") + plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+combo_pol_cons_graph
+
+
+# read model
+m_trust_science_conditional_eth_cat <- here_read_qs("m_trust_science_conditional_eth_cat", push_mods)
+
+
+# pool results using Rubin's rule
+predict_trust_science_eth_cat <- ggeffects::pool_predictions(m_trust_science_conditional_eth_cat)
+
+# table
+predict_trust_science_eth_cat |> print_md()
+
+
+# inspect model
+# plot model
+plot_trust_science_eth_cat <- plot (
+  ggeffects::pool_predictions(m_trust_science_conditional_eth_cat),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .005,
+  limits = c(.5, 7.5),
+ # facets = TRUE,
+ # grid = TRUE,
+  color = "quadro"
+# colors = list(
+  #   ribbon = "red",  # confidence band color
+  #   line = "red"      # line color
+  # )
+)  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science (1-7)", title = "Trust in Science by Ethnicity") +
+  theme_classic()
+
+# view graph
+plot_trust_science_eth_cat
+
+
+cat( summary_tables$outcomes |> kableExtra::kbl(format="markdown"))
+
+m_trust_scientists_conditional_eth_cat <- here_read_qs("m_trust_scientists_conditional_eth_cat", push_mods)
+ggeffects::pool_predictions(m_trust_scientists_conditional_eth_cat)
+
+# pool results using Rubin's rule
+predict_trust_scientists_eth_cat <- ggeffects::pool_predictions(m_trust_scientists_conditional_eth_cat)
+
+# table
+predict_trust_scientists_eth_cat |> print_md()
+
+
+
+plot_trust_scientists_eth_cat <- plot (
+  ggeffects::pool_predictions(m_trust_scientists_conditional_eth_cat),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .005,
+  limits = c(.5, 7.5),
+  #facets = TRUE,
+  color = "quadro"
+  # colors = list(
+  #   ribbon = "red",  # confidence band color
+  #   line = "red"      # line color
+  # )
+)  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists (1-7)", title = "Trust in Scientists by Ethnicity") +
+  theme_classic() 
+
+
+plot_trust_scientists_eth_cat
+
+
+# condiional graph scientists
+combo_eth_cat_graph <- plot_trust_science_eth_cat  + plot_trust_scientists_eth_cat  +
+  plot_annotation(subtitle = "New Zealand Attitudes and Values Study waves 11-14 (years 2019-2023, N = 42,681)", tag_levels = "A", title = "Trust in Science over Time by Ethnicity") + plot_layout(guides = "collect") &  theme(legend.position = 'bottom') 
+
+combo_eth_cat_graph
+
+
+# male --------------------------------------------------------------------
+
+# read model
+m_trust_science_conditional_male <- here_read_qs("m_trust_science_conditional_male", push_mods)
+ggeffects::pool_predictions(m_trust_science_conditional_male)
+
+# pool results using Rubin's rule
+predict_trust_science_male <- ggeffects::pool_predictions(m_trust_science_conditional_male)
+
+# table
+predict_trust_science_male |> print_md()
+
+# plot model
+plot_trust_science_male <- plot (
+  ggeffects::pool_predictions(m_trust_science_conditional_male),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .005,
+  limits = c(.5, 7.5),
+  color = "quadro"#,
+ # facets = TRUE
+  # grid = TRUE,
+  # colors = list(
+  #   ribbon = "red",  
+  #   line = "red"  
+  # )
+)  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science (1-7)", title = "Trust in Science by Gender (binary)")  + theme_classic()
+
+
+# view graph
+plot_trust_science_male
+
+
+
+m_trust_scientists_conditional_male <- here_read_qs("m_trust_scientists_conditional_male", push_mods)
+
+# pool results using Rubin's rule
+predict_trust_scientists_male <- ggeffects::pool_predictions(m_trust_scientists_conditional_male)
+
+# table
+predict_trust_scientists_male |> print_md()
+
+plot_trust_scientists_male <- plot (
+  ggeffects::pool_predictions(m_trust_scientists_conditional_male),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .005,
+  limits = c(.5, 7.5),
+  color = "quadro",
+#  grid = TRUE,
+  # colors = list(
+  #   ribbon = "red",  
+  #   line = "red"    
+  # )
+)  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists (1-7)", title = "Trust in Scientists by Gender (binary)") + theme_classic()
+
+
+plot_trust_scientists_male
+
+
+
+# condiional graph scientists
+combo_male_graph <- plot_trust_science_male  + plot_trust_scientists_male  +
+  plot_annotation(subtitle = "New Zealand Attitudes and Values Study waves 11-14 (years 2019-2023, N = 42,681)", tag_levels = "A", title = "Trust in Science over Time by Gender (binary)") + plot_layout(guides = "collect") &  theme(legend.position = 'bottom') 
+
+combo_male_graph
+
+
+# key vars ----------------------------------------------------------------
+
+predict_trust_science_marginal |> print_md(ci_brackets = TRUE,   pretty_names = TRUE)
+predict_trust_science_pol_cons |> print_md(collapse_tables = TRUE,   ci_brackets = TRUE,   pretty_names = TRUE)
+predict_trust_science_eth_cat |> print_md(collapse_tables = TRUE, ci_brackets = TRUE)
+predict_trust_science_male |> print_md(collapse_tables = TRUE, ci_brackets = TRUE)
+
+
+predict_trust_scientists_marginal |> print_md(ci_brackets = TRUE,   pretty_names = TRUE)
+predict_trust_scientists_pol_cons |> print_md(collapse_tables = TRUE,   ci_brackets = TRUE,   pretty_names = TRUE)
+predict_trust_scientists_eth_cat |> print_md(collapse_tables = TRUE, ci_brackets = TRUE)
+predict_trust_scientists_male |> print_md(collapse_tables = TRUE, ci_brackets = TRUE)
+
+
+# graphs
+combo_marginal_graph
+combo_pol_cons_graph
+combo_eth_cat_graph
+combo_male_graph
+```
+
+
+
+## Introduction
+
+Whether people are growing more sceptical of science is question of considerable interest and concern. 
+
+
+To address this question, we leverage comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study, spanning 2019-2021.
+
+
+## Method
+
+
+
+### Sample
+
+```{r}
+#| eval: false
+#| include: false
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  baseline_vars = baseline_vars,
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+cat(outcome_measures)
+
+```
+
+### Target Population
+
+The target population for this study comprises New Zealand residents as represented by the New Zealand Attitudes and Values Study (NZAVS) during 2019 (the baseline wave for this study) weighted by New Zealand Census weights for age, gender, and ethnicity (refer to @sibley2021). The NZAVS is a national probability study designed to accurately reflect the broader New Zealand population. Despite its comprehensive scope, the NZAVS has some limitations in its demographic representation. Notably, it tends to under-sample males and individuals of Asian descent while over-sampling females and Māori (the indigenous peoples of New Zealand). To address these disparities and enhance the accuracy of our findings, we apply New Zealand Census survey weights to the sample data.
+
+These weights adjust for variations in age, gender, and ethnicity to better approximate the national demographic composition [@sibley2021]. 
+
+### Eligibility Criteria
+
+To be included in the analysis of this study, participants needed to participate in `r nice_baseline_wave` and respond to baseline measure of the `r nice_exposure_name`.
+
+
+Missing covariate data at `r {baseline_wave}` were permitted. The proportion of missing data at baseline was: `r {percentage_missing_baseline}`.
+
+Participants may have been lost to follow-up at the end of the study if they met eligibility criteria.
+
+A total of `r n_participants` individuals met these criteria and were included in the study.
+
+
+## Measures
+
+
+```{r}
+#| eval: false
+#| include: false
+
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+cat(outcome_measures)
+```
+
+### Missing Data
+
+
+To mitigate bias from missing data, we implement the following strategies:
+
+**Baseline missingness**: we employed the `ppm` algorithm from the `mice` package in R [@vanbuuren2018] to impute missing baseline data (wave NZAVS time 12, years 2020-2021). This method allowed us to reconstruct incomplete datasets by estimating a plausible value for missing observation. Because we could only pass one data set to the lmtp, we employed single imputation. Approximately 1.2% of covariate values were missing at NZAVS time 12, years 2020-2021. We only used baseline data to impute baseline wave missingness (refer to @zhang2023shouldMultipleImputation).
+
+**Exposure wave missingness**: even if the population in the baseline wave corresponds to the target population, attrition between `r {nice_baseline_wave}` and `r {nice_exposure_waves}` may threaten generalisations to the target population. To address potential bias from loss-to-follow up in the exposure wave we employed non-parametric inverse-probability of censoring weights.
+
+**Outcome missingness**: to address confounding and selection bias arising from missing responses and panel attrition at the end of study NZAVS time 14, years 2022-2023, we applied censoring weights obtained using nonparametric machine learning ensembles afforded by the `lmtp` package (and its dependencies) in R [@williams2021].
+
+### Statistical Estimator
+  
+#### Longitudinal Modified Treatment Policy (LMTP) Estimator
+
+We perform statistical estimation using a Sequential Doubly-Robust Estimator from the `lmtp` package, which is multiply robust for repeated treatments across multiple waves [@diaz2023lmtp; @hoffman2023]. This estimator is robust to misspecification in either the outcome or treatment model over time. The lmtp package relies on the SuperLearner library, integrating diverse machine learning algorithms [@SuperLearner2023]. Given the high-dimensionality of the data, we used the Ranger estimator, a non-parametric causal forest method known for its resistance to overfitting [Ranger2017]. All statistical models implemented a 10-fold cross-validation. SDR robust method for estimating causal effects while providing valid statistical uncertainty measures [@van2014targeted; @van2012targeted]. For further information on targeted learning using the `lmtp` package, see [@hoffman2022; @hoffman2023; @díaz2021]. Graphs, tables, and output reports are created using the `margot` package [@margot2024].
+    
+
+### Sensitivity Analysis Using the E-value
+
+To assess the sensitivity of results to unmeasured confounding, we report VanderWeele and Ding's E-value in all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE]. To evaluate the strength of evidence, we use the bound of the E-value 95% confidence interval closest to 1. This provides an approximate metric for understanding the robustness of our findings in the presence of potential unmeasured confounding.
+
+
+## Results
+
+### Descriptive Findings 
+
+There is evidence suggesting some social galvanisation, indicated by a polarisation trend, especially in the “Trust Science” data from 2019 to 2022. The responses seem to increasingly favour the extreme of full trust (7), with the percentage in this category remaining stable at around 44%-45% from 2020 to 2022, while middle categories (such as 4 and 5) have reduced notably over time.
+
+For “Trust Scientists,” a similar trend is observable, albeit less pronounced. The proportion selecting full trust (7) rises from 22% in 2019 to a high of 28% in 2021 before slightly decreasing in 2022. Meanwhile, moderate levels of trust (such as 4 and 5) have generally decreased, suggesting an increasing concentration at higher levels of trust or extreme values.
+
+This trend points to a growing segmentation, where individuals seem more likely to polarise towards full trust, with middle-ground responses shrinking, which could be interpreted as a form of social galvanisation. However, a more formal analysis using measures of dispersion (e.g., variance or entropy) would be required for precise quantification.
+
+
+```{r}
+#| label: fig-outcomes-time
+#| fig-cap: " "
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+summary_tables$outcomes
+```
+
+
+
+
+
+### `r nice_exposure_name` measured at the Baseline Wave (`r nice_baseline_wave`) and the Exposure Wave `r nice_exposure_waves`
+
+@fig-exposure-wave shows the distribution of the exposure variable in the treatment wave.
+
+
+```{r}
+#| label: fig-exposure-wave
+#| fig-cap: " "
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 12
+
+histogram_political_conservative_by_wave
+```
+
+
+
+
+{{< pagebreak >}}
+
+### Evidence for Change in the Treatment Variable
+
+@tbl-transition clarifies the change in the treatment variable from the baseline wave to the baseline + 1 wave across the sample. Assessing change in a variable is essential for evaluating the positivity assumption and recovering evidence for the incident exposure effect of the treatment variable [@vanderweele2020; @danaei2012; @hernan2024WHATIF].
+
+
+```{r}
+#| label: tbl-transition
+#| tbl-cap: "Transition matrix for change in {nice_exposure_name}"
+#| eval: true
+#| echo: false
+transition_matrix$table
+```
+
+
+{{< pagebreak >}}
+
+
+## Results
+
+### Study 1: `r {gain_null}`
+
+```{r}
+#| label: tbl-1_1
+#| tbl-cap: "Causal effect of gain in Political Conservativism on environmental attitudes."
+#| eval: true
+#| include: true
+#| echo: false
+plot_pol_env_lmtp_output_right_vs_null$transformed_table |> kbl("markdown")
+```
+
+
+
+```{r}
+#| label: fig-1_1
+#| fig-cap:  "Causal effect of gain in Political Conservativism on environmental attitudes. Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+plot_pol_env_lmtp_output_right_vs_null$plot
+```
+
+
+@tbl-1_1 and @fig-1_1 present the comparison of the intervention: `r {gain_null}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(plot_pol_env_lmtp_output_right_vs_null$interpretation)
+```
+
+
+
+### Study 2: `r {loss_null}`
+
+```{r}
+#| label: tbl-2_1
+#| tbl-cap: "Causal effect of loss in Political Conservativism on environmental attitudes."
+#| eval: true
+#| include: true
+#| echo: false
+plot_pol_env_lmtp_output_left_vs_null$transformed_table |> kbl("markdown")
+```
+
+
+
+```{r}
+#| label: fig-2_1
+#| fig-cap:  "Causal effect of loss in Political Conservativism on environmental attitudes. Contrasts are expressed in standard deviation units."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+plot_pol_env_lmtp_output_left_vs_null$plot
+```
+
+
+@tbl-2_1 and @fig-2_1 present the comparison of the intervention: `r {gain_null}`
+
+```{r, results = 'asis'}
+#| include: false
+#| echo: false
+cat(plot_pol_env_lmtp_output_left_vs_null$interpretation)
+```
+
+## Discussion 
+
+Our results provide important insights into the relationship between political conservatism and environmental attitudes in New Zealand. The descriptive findings show a consistent separation across all domains based on political orientation, with stronger effects observed in certain areas, such as the denial of climate change reality and concern. However, our causal estimates indicate that these associations do not apply uniformly across all outcomes.
+
+We examined two different interventions: a gain in `r nice_exposure_name` (an increase of two points up to a maximum of 7) and a loss in `r nice_exposure_name` (a decrease to a minimum of 1). We contrasted these means of these shift-interventions with observed political conservatism levels in the population. These interventions allow us to explore both gain and loss scenarios, which are critical to distinguish since the effects of increasing versus decreasing political conservatism may not mirror each other.
+
+Our findings suggest that political conservatism is causally linked to denial of climate change reality and concern. In particular, the evidence for causality is strong in the gain condition for denial of climate change reality, concern, and human causation of climate change. However, for the denial of personal environmental efficacy and satisfaction with the New Zealand environment, the evidence for causality is weak or unreliable.
+
+These findings underscore the importance of distinguishing between causal effect estimates and correlations. Although descriptive statistics indicate associations between political conservatism and environmental attitudes, these correlations are not the same as causal relationships. Even when measured over time, correlations do not necessarily imply causality.
+
+Moreover, our study demonstrates the importance of distinguishing between gain and loss interventions in political orientation and their impact on environmental attitudes. The evidence supports a one-year causal effect from the loss of political conservativism on beliefs the climate change is human-caused, yet with no reliable evidence for change in other dimensions of environmental belief. 
+
+Looking ahead, we recommend the wider development and application of causal inferential methods employing repeated measurements over more than three years to investigate variation, interaction, and causal mediation.
+
+{{< pagebreak >}}
+
+### Ethics
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+### Data Availability
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: [https://github.com/go-bayes/models/tree/main/scripts/24-POL-CONSERVE-environ](https://github.com/go-bayes/models/tree/main/scripts/24-POL-CONSERVE-environ). 
+
+
+### Acknowledgements
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+### Author Statement
+
+JB and IK conceived the study. JB developed the approach. CS led NZAVS data collection. All authors contributed to the manuscript.
+
+
+{{< pagebreak >}}
+
+
+
+
+## Appendix A: Measures {#appendix-measures-a}
+
+@tbl-table-exposure presents descriptive statistics for baseline covariates, measure in  `r {nice_baseline_wave}`.
+
+### Covariate measures at baseline
+```{r}
+#| tbl-cap: "Baseline covariates"
+#| label: tbl-table-baseline
+#| eval: true
+#| include: true
+#| echo: false
+summary_tables$baseline_table |> kbl("markdown")
+```
+
+
+
+
+{{< pagebreak >}}
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
