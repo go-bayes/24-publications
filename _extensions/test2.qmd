@@ -1,0 +1,714 @@
+---
+title: "Evidence for Declining Trust in Science From A Large National Panel Study in New Zealand (years 2019-2023)"
+abstract: |
+   The public perceptions of science has wide-ranging effects, from the adoption public health behaviours to climate action. Here, drawing on a nationally diverse panel study in New Zealand, we report attitudes to trust in the institution of science and trust in scientists from October 2019- October 2023 in a large nationally diverse cohort of (N = 42,681, New Zealand Attitudes and Values Study), using multiple imputation to address systematic bias from attrition. Study 1 focuses on average responses, revealing stability in rolling average responses over time. Study 2 focuses on the proportional change in predicted probabilities across the low, medium, and high ends of the response scale  Since 2019, the proportion of individuals in the low trust category has been slowly increasing. After the COVID pandemic, trust in the medium category declined, while trust in the high category rose. The European majority remains the most trusting of science, but the post-pandemic increase in trust is waning. Māori have lower trust in science, with a smaller post-pandemic boost that is now diminishing. Māori and Pacific peoples show the lowest levels of trust, with this mistrust growing since the pandemic. Political conservatives are also experiencing an increase in mistrust of science. Initially, men were more trusting of science, but declining trust among men, alongside rising high trust in other genders, has equalised trust levels between the sexes. Trust among political conservatives has shown a steady increase, though causality is unclear, as greater trust in science may correlate with a shift towards conservatism. Overall, these patterns indicate that, despite stable averages, there is preliminary evidence of rising mistrust in scientific institutions and scientists. 
+   **KEYWORDS**: *Conservativism*; *Institutional Trust*; *Longitudinal*; *Panel*; *Political*; *Science*.
+author: 
+  - name: Authors (and author order TBA)
+    affiliation: New Zealand
+    orcid: 0000-0003-3169-6576 
+editor_options: 
+    chunk_output_type: console
+format:
+  pdf:  
+    bibliography: /Users/joseph/GIT/templates/bib/references.bib
+    pdf-engine: lualatex
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+# detach("package:margot", unload = TRUE)
+# devtools::install_github("go-bayes/margot")
+library(margot)
+packageVersion(pkg = "margot")
+library(boilerplate)
+
+# for making graphs
+library("tinytex")
+library("extrafont")
+loadfonts(device = "all")
+
+# combo_marginal_graph_ord
+# combo_pols_graph_ord
+# combo_eth_graph_ord
+# combo_male_graph_ord
+
+
+# rendering document
+library("margot")
+library("glue")
+library("patchwork")
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+library("parameters")
+library("tinytable")
+options(tinytable_tt_digits = 3)
+
+# set seed
+
+# joseph.bulbulia@gmail.com (joseph.bulbulia@vuw.ac.nz)
+set.seed(123)
+
+
+# path to data folder (set to path on your computer) - for pushing and pulling model results
+push_mods <- here::here(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-john-kerr-trust-science-growth"
+)
+
+# read data (use 01 script to data wrangle)
+# dat_long_imputed_bounds_ordinal <- margot::here_read_qs("dat_long_imputed_bounds_ordinal", push_mods)
+
+
+measures_path_rstudio <- here::here("manuscripts", "24-john-kerr-growth-trust-science")
+measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+
+
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_vars <- margot::here_read("exposure_vars")
+outcome_vars <- margot::here_read("outcome_vars")
+baseline_vars
+exposure_vars
+n_participants <-here_read("n_participants")
+n_participants
+# read waves
+all_waves <- c(2019:2022)
+
+# get table/graphs
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+
+# hist outcomes
+histogram_outcomes <- here_read_qs("histogram_trust_science_trust_scientists_by_wave", push_mods)
+
+
+#outcome table means
+
+# # read cat
+# tbl_combined_cat <- here_read_qs("tbl_combined_cat", push_mods)
+# 
+# # first model
+# tbl_combined_cat
+# # first imputed dataset
+# tbl_combined_imp <- here_read_qs("tbl_combined_imp", push_mods)
+# tbl_combined_imp
+# 
+# # mean
+# summary_table_mean <- here_read_qs("summary_table_mean", push_mods)
+# summary_table_mean_imp <- here_read_qs("summary_table_mean_imp", push_mods)
+# 
+# summary_table_mean
+# summary_table_mean_imp
+
+tt_summary_mean_response_sample <- here_read("tt_summary_mean_response_sample")
+tt_summary_mean_response_sample
+tt_summary_mean_response_sample_imp <- here_read("tt_summary_mean_response_sample_imp")
+tt_summary_mean_response_sample_imp
+
+
+# alluvial plots
+sankey_plot_science_sample<-  here_read_qs("sankey_plot_science_sample", push_mods)
+sankey_plot_st_sample <-  here_read_qs("sankey_plot_st_sample", push_mods)
+
+
+sankey_plot_science_imp<-  here_read_qs("sankey_plot_science_imp", push_mods)
+sankey_plot_st_imp<-  here_read_qs("sankey_plot_st_imp", push_mods)
+
+tt_summary_table_cat<- here_read("tt_summary_table_cat")
+tt_summary_table_cat_imp <- here_read("tt_summary_table_cat_imp")
+tt_summary_table_cat
+tt_summary_table_cat_imp
+
+# n_total
+n_total <- here_read("n_total")
+
+scale_outcome <- glue::glue("(1-7)")
+outcome_lower_bound <- glue::glue("1")
+outcome_upper_bound <- glue::glue("7")
+# shift =   glue::glue('two points')
+nice_baseline_wave <- glue::glue("New Zealand Attitudes and Values Study Time 11, years 2019-2020")
+nice_all_waves <- glue::glue("New Zealand Attitudes and Values Study Time Time 11-14, years 2019-2023")
+nice_end_of_study_wave <- glue::glue("Zealand Attitudes and Values Study Time 14, years 2022-2023")
+# percent_missing_baseline <- here_read("percent_missing_baseline")
+# percentage_missing_baseline <- glue::glue(round(percent_missing_baseline,2))
+# percentage_missing_baseline
+# labels
+#
+
+# read models
+
+# read models -------------------------------------------------------------
+# nnet. 
+trust_science_marginal <- here_read("trust_science_marginal")
+trust_scientists_marginal <- here_read("trust_scientists_marginal")
+trust_science_pols <- here_read("trust_science_pols")
+trust_scientists_pols <- here_read("trust_scientists_pols")
+trust_science_eth <- here_read("trust_science_eth")
+trust_scientists_eth <- here_read("trust_scientists_eth")
+trust_science_male <- here_read("trust_science_male")
+trust_scientists_male <- here_read("trust_scientists_male")
+
+# gee
+trust_science_marginal_gee <- here_read("trust_science_marginal_gee")
+trust_scientists_marginal_gee <- here_read("trust_scientists_marginal_gee")
+trust_science_pols_gee <- here_read("trust_science_pols_gee")
+trust_scientists_pols_gee <- here_read("trust_scientists_pols_gee")
+trust_science_eth_gee <- here_read("trust_science_eth_gee")
+trust_scientists_eth_gee <- here_read("trust_scientists_eth_gee")
+trust_science_male_gee <- here_read("trust_science_male_gee")
+trust_scientists_male_gee <- here_read("trust_scientists_male_gee")
+
+
+
+
+# plot ordinal marginal ---------------------------------------------------
+plot_trust_science_marginal_ord <- plot (
+  ggeffects::pool_predictions(trust_science_marginal),
+  limits = c(0.04, .8),
+  dot_size = 2)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science", title = "Average Trust in Science: Multinomial") + theme_bw()
+plot_trust_science_marginal_ord
+
+plot_trust_scientists_marginal_ord <- plot (
+  ggeffects::pool_predictions(trust_scientists_marginal),
+  limits = c(0.04, .8),
+  dot_size = 2
+)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists", title = "Average Trust in Scientists: Multinomial") + theme_bw()
+plot_trust_scientists_marginal_ord
+
+
+# patchwork graph
+combo_marginal_graph_ord <- plot_trust_science_marginal_ord  + plot_trust_scientists_marginal_ord  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time: Rolling Population Average") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+
+# ord plot pols -----------------------------------------------------------
+
+plot_trust_science_pols_ord <- plot (
+  ggeffects::pool_predictions(trust_science_pols),
+  limits = c(0.04, .8),
+  dot_size = 2,
+  color = "system"
+)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science", title = "Trust in Science by Political Conservativism: Multinomial") + theme_bw()
+plot_trust_science_pols_ord
+
+plot_trust_scientists_pols <- plot (
+  ggeffects::pool_predictions(trust_scientists_pols),
+  limits = c(0.04, .8),
+  dot_size = 2,
+  color = "system"
+)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists", title = "Trust in Scientists by Political Conservativism: Multinomial") + theme_bw()
+plot_trust_scientists_pols
+
+
+# patchwork graph
+combo_pols_graph_ord <- plot_trust_science_pols_ord  + plot_trust_scientists_pols  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time by Political Conservativism") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+combo_pols_graph_ord
+
+
+# ord plot eth -----------------------------------------------------------
+
+plot_trust_science_eth_ord <- plot (
+  ggeffects::pool_predictions(trust_science_eth),
+  limits = c(0.04, .8),
+  dot_size = 2,
+  color = "system"
+)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science", title = "Trust in Science by Ethnicity: Multinomial") + theme_bw()
+plot_trust_science_eth_ord
+
+plot_trust_scientists_eth_ord <- plot (
+  ggeffects::pool_predictions(trust_scientists_eth),
+  limits = c(0.04, .8),
+  dot_size = 2,
+  color = "system"
+)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists", title = "Trust in Scientists by Ethnicity: Multinomial") + theme_bw()
+plot_trust_scientists_eth_ord
+
+
+# patchwork graph
+combo_eth_graph_ord <- plot_trust_science_eth_ord  + plot_trust_scientists_eth_ord  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time by Ethnicity") +
+  plot_layout(guides = "collect")  & theme(legend.position = 'bottom')
+
+combo_eth_graph_ord
+
+
+# ord gender --------------------------------------------------------------
+
+plot_trust_science_male_ord <- plot (
+  ggeffects::pool_predictions(trust_science_male),
+  limits = c(0.04, .8),
+  dot_size = 2,
+  color = "system"
+)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science (1-7)", title = "Trust in Science by Gender (binary): Multinomial") + theme_bw()
+plot_trust_science_male_ord
+
+plot_trust_scientists_male_ord <- plot (
+  ggeffects::pool_predictions(trust_scientists_male),
+  limits = c(0.04, .8),
+  dot_size = 2,
+  color = "system"
+)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists (1-7)", title = "Trust in Scientists by Gender (binary): Multinomial") + theme_bw()
+plot_trust_scientists_male_ord
+
+
+# patchwork graph
+combo_male_graph_ord <- plot_trust_science_male_ord  + plot_trust_scientists_male_ord  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time by Gender (binary)") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+
+
+# graphs gee --------------------------------------------------------------
+
+# plot science gee --------------------------------------------------------
+
+plot_trust_science_marginal_gee <- plot (
+  ggeffects::pool_predictions(trust_science_marginal_gee),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .02,
+  alpha = 3,
+  limits = c(.5, 7.5),
+  dot_size = 2)+
+  geom_point(aes(x = x, y = predicted), color = "dodgerblue", size = 2)  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science (1-7)", title = "Average Trust in Science: Continuous") + theme_bw() 
+
+plot_trust_science_marginal_gee
+
+plot_trust_scientists_marginal_gee <- plot (
+  ggeffects::pool_predictions(trust_scientists_marginal_gee),
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .02,
+  alpha = 3,
+  limits = c(.5, 7.5),
+  dot_size = 2)+
+  geom_point(aes(x = x, y = predicted), color = "dodgerblue", size = 2)  +
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists (1-7)", title = "Average Trust in Scientists: Continuous") + theme_bw()
+plot_trust_scientists_marginal_gee
+
+
+# patchwork graph
+combo_marginal_graph_gee <- plot_trust_science_marginal_gee  + plot_trust_scientists_marginal_gee  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time: Rolling Population Average") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+
+
+# continuous plot pols ----------------------------------------------------
+plot_trust_science_pols_gee <- plot (
+  ggeffects::pool_predictions(trust_science_pols_gee),
+  show_data = TRUE,
+  jitter = .5,
+  dot_alpha  = .02,
+  alpha = 3,
+  limits = c(.5, 7.5),
+  color = "system",
+  dot_size = 2)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science", title = "Trust in Science by Political Conservativism: Continuous") + theme_bw()
+plot_trust_science_pols_gee
+
+plot_trust_scientists_pols_gee <- plot (
+  ggeffects::pool_predictions(trust_scientists_pols_gee),
+  show_data = TRUE,
+  jitter = .5,
+  dot_alpha  = .02,
+  alpha = 3,
+  limits = c(.5, 7.5),
+  color = "system",
+  dot_size = 2)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists", title = "Trust in Scientists by Political Conservativism: Continuous") + theme_bw()
+plot_trust_scientists_pols_gee
+
+
+# patchwork graph
+combo_pols_graph_gee <- plot_trust_science_pols_gee  + plot_trust_scientists_pols_gee  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time by Political Conservativism") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+combo_pols_graph_gee
+
+
+
+# ethnic continuous plot --------------------------------------------------
+plot_trust_science_eth_gee <- plot (
+  ggeffects::pool_predictions(trust_science_eth_gee),
+  show_data = TRUE,
+  jitter = .2,
+  dot_alpha  = .01,
+  alpha = 3,
+  limits = c(.5, 7.5),
+  color = "system",
+  dot_size = 2)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science", title = "Trust in Science by Ethnicity: Continuous") + theme_bw()
+plot_trust_science_eth_gee
+
+plot_trust_scientists_eth_gee <- plot (
+  ggeffects::pool_predictions(trust_scientists_eth_gee),
+  show_data = TRUE,
+  jitter = .2,
+  dot_alpha  = .01,
+  alpha = 3,
+  limits = c(.5, 7.5),
+  color = "system",
+  dot_size = 2)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists", title = "Trust in Scientists by Ethnicity: Continuous") + theme_bw()
+plot_trust_scientists_eth_gee
+
+
+# patchwork graph
+combo_eth_graph_gee <- plot_trust_science_eth_gee  + plot_trust_scientists_eth_gee  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time by Ethnicity") +
+  plot_layout(guides = "collect")  & theme(legend.position = 'bottom')
+
+combo_eth_graph_gee
+
+
+# continuous plot MALE ----------------------------------------------------
+
+plot_trust_science_male_gee <- plot (
+  ggeffects::pool_predictions(trust_science_male_gee),
+  show_data = TRUE,
+  jitter = .2,
+  dot_alpha  = .005,
+  alpha = 3,
+  limits = c(.5, 7.5),
+  color = "system",
+  dot_size = 2)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Science (1-7)", title = "Trust in Science by Gender (binary): Continuous") + theme_bw()
+plot_trust_science_male_gee
+
+plot_trust_scientists_male_gee <- plot (
+  ggeffects::pool_predictions(trust_scientists_male_gee),
+  show_data = TRUE,
+  jitter = .2,
+  dot_alpha  = .005,
+  alpha = 3,
+  limits = c(.5, 7.5),
+  color = "system",
+  dot_size = 2)+
+  labs(x = "NZAVS Waves 11-14", y = "Trust in Scientists (1-7)", title = "Trust in Scientists by Gender (binary): Continuous") + theme_bw()
+plot_trust_scientists_male_gee
+
+
+# patchwork graph
+combo_male_graph_gee <- plot_trust_science_male_gee  + plot_trust_scientists_male_gee  + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science over Time by Gender (binary)") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+
+
+# combo_male_graph_ord
+# combo_male_graph_gee
+# combo_eth_graph_gee
+# combo_pols_graph_gee
+
+```
+
+
+
+## Introduction
+
+Whether people are growing more sceptical of science is question of considerable interest and concern. 
+
+To address this question, we leverage for waves of comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study, spanning the years 2019-2023.
+
+Study 1 reports averages response among the 2019 cohort during this period, and also stratifies responses by ethnicity, gender (binary) and political orientation. 
+
+Study 2 investigates dynamics across the response scale, considering dynamics at the low, medium, and high end the trust in science and trust in scientist scales. 
+
+The focus of this study is descriptive and exploratory.  
+
+
+## Method
+
+## Method
+
+
+
+### Sample
+
+```{r}
+#| eval: false
+#| include: false
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  baseline_vars = baseline_vars,
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+cat(outcome_measures)
+
+```
+
+### Target Population
+
+The target population for this study comprises New Zealand residents as represented by the New Zealand Attitudes and Values Study (NZAVS) during 2019 (the baseline wave for this study) weighted by New Zealand Census weights for age, gender, and ethnicity (refer to @sibley2021). The NZAVS is a national probability study designed to accurately reflect the broader New Zealand population. Despite its comprehensive scope, the NZAVS has some limitations in its demographic representation. Notably, it tends to under-sample males and individuals of Asian descent while over-sampling females and Māori (the indigenous peoples of New Zealand). To address these disparities and enhance the accuracy of our findings, we apply 2018 New Zealand Census survey weights to the sample data. These weights adjust for variations in age, gender, and ethnicity to better approximate the national demographic composition [@sibley2021]. 
+
+### Cohort
+
+To be included in the analysis of this study, participants needed to participate in `r nice_baseline_wave`. Participants may have been lost to follow-up at the end of the study if they met eligibility criteria. Missing covariate data this baseline wave and all follow up waves through `r nice_end_of_study_wave`. The proportion of missing data for each variable by wave is describe in @tbl-summary-vars.
+
+A total of `r n_participants` individuals met these criteria and were included in the study, and their responses were tracked over time. [Appendix A](#appendix-a) @tbl-baseline presents sample demographic data.
+
+
+<!-- ```{r, results = 'asis'} -->
+<!-- #| label: tbl-summary-vars -->
+<!-- #| tbl-cap: "Sample Summary Statistics" -->
+<!-- #| eval: true -->
+<!-- #| echo: false -->
+<!-- summary_tables$variables |> kbl("markdown") -->
+<!-- ``` -->
+
+
+
+## Measures
+
+We estimated target population average responses for two indicators of trust in science, which for simplicity we call Trust in Science and Trust in Scientists.  
+
+```{r}
+#| eval: false
+#| include: false
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+```
+
+#### Trust Science
+
+*Our society places too much emphasis on science (reversed).*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@hartman2017].
+
+#### Trust Scientists
+
+*I have a high degree of confidence in the scientific community.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@nisbet2015].
+
+
+We note note that the term "Trust in Science" is an over-simpification of the measure, we focuses in the emphasis placed on science within society.  It is plausible that at least some who disagree with societies emphasis on science are nevertheless trusting of its institutions, even as they think society would be better off emphasising the religion, the arts, family, or other domains.  Again we use "Trust in Science" as a shorthand.
+
+
+
+### Study Design
+
+In Study 1, we report on population-level changes in average trust in science and scientists from late 2019 to late 2022. Our results clarify predicted means for the New Zealand population from late 2019 and over the following years through late 2023.
+
+
+In Study 2, we focus on changes across different points of the response scale, examining shifts at the low, medium, and high ends. Responses rated 3 or below were categorised as "low," those rated 4 or 5 were categorised as "medium," and responses of 6 or 7 were categorised as "high." @fig-hist-outcomes displays a histogram of the response distribution in the observed sample, prior to adjustments for attrition.
+
+{{< pagebreak >}}
+```{r}
+#| label: fig-hist-outcomes
+#| tble-cap: "Historgram of sample trust responses over time."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 32
+#| 
+histogram_outcomes
+```
+{{< pagebreak >}}
+
+```{r}
+#| eval: false
+#| include: false
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  exposure_var = exposure_vars,
+  measure_data = measure_data
+)
+```
+
+In both Study 1 and Study 2, we also compare average responses based on (1) ethnicity, (2) gender (a binary indicator), and (3) political conservatism.
+
+Responses were recorded to the following questions:
+
+#### Ethnicity (Categorical)
+
+*Which ethnic group(s) do you belong to?*
+
+Responses were coded as follows, using New Zealand Census standards: (1 = New Zealand European, 2 = Māori, 3 = Pacific, 4 = Asian).
+
+#### Gender (Binary Indicator)
+
+What is your gender?
+
+Gender was assessed through an open-ended question: "What is your gender?." Female was coded as 0, Male as 1, and gender diverse as 3 (or 0.5 for responses indicating neither female nor male) following the coding system described by Fraser et al. (2020). For the purpose of this analysis, we coded all participants who identified as Male as 1 and all others as 0 [@fraser_coding_2020].
+
+#### Political Conservatism
+
+Please rate how politically liberal versus conservative you see yourself as being.
+
+Responses were recorded on an ordinal scale from 1 (Extremely Liberal) to 7 (Extremely Conservative) [@jost_end_2006-1].
+
+
+
+#### Trust Scientists: Observed Sample Means
+
+
+```{r}
+#| label: tbl-sample-means
+#| tbl-cap: "Sample average response"
+#| eval: true
+#| include: true
+#| echo: false
+tt_summary_mean_response_sample
+```
+
+@fig-alluv-science-sample and @tbl-sample-means presents sample average responses for trust in science over time. Between 2019 and 2022, the average trust levels in both science and scientists suggests a gradient of increase. For Trust in Science, the average score rose from 5.56 in 2019 to 5.84 by 2021, maintaining the same level through 2022. This indicates a steady improvement in trust over the period in the retained sample.
+
+For Trust in Scientists, the average response increased from 5.30 in 2019 to 5.55 in 2020 and stayed stable through 2021 and 2022.
+
+However, number of respondents with unknown trust status increased substantially over the years for both trust measures. For Trust in Science, the count rose from 563 in 2019 to 18,221 in 2022. Similarly, for Trust in Scientists, the unknown category grew from 1,257 in 2019 to 18,948 in 2022.
+
+Hence, the sample data reveals both a positive trend in average trust levels alongside a notable rise in the number of unknown responses over the period. Of course, attrition is to be expected in a panel study. However, we must be cautious when naively interpreting these data because mistrust in science may be -- and credibly is -- systematically related to panel attrition and non-response. 
+
+
+#### Trust Scientists: Observed Categorical Responses
+
+```{r}
+#| label: fig-alluv-science-sample
+#| fig-cap: "Historgram of sample trust responses over time."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+sankey_plot_science_sample
+```
+
+```{r}
+#| label: fig-alluv-st-sample
+#| fig-cap: "Historgram of sample trust responses over time."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+sankey_plot_st_sample
+```
+
+
+```{r}
+#| label: tbl-sample-cat
+#| tbl-cap: "Sample proportions classified as low, medium, or high"
+#| eval: true
+#| include: true
+#| echo: false
+tt_summary_table_cat 
+```
+
+@tbl-sample-cat summaries responses by low (1-3), medium (4,5) and high (6,7) levels of trust in science and in scientists. Over the four-year period from 2019 to 2022, there were notable changes in the levels of trust in science and scientists among respondents.
+
+For trust in science, the proportion of respondents reporting low trust declined steadily from 8.0% (3434 respondents) in 2019 to 4.1% (1740 respondents) in 2022. A similar decreasing trend is evident for the medium trust category, which dropped from 31.0% (13210 respondents) in 2019 to 13.4% (5720 respondents) in 2022. By contrast, the proportion of respondents reporting high trust in science increased from 61.0% (26037 respondents) in 2019 to 82.5% (35221 respondents) in 2022. The largest increase in high trust occurred between 2019 and 2020, after which a consistent upward trend continued. @fig-alluv-science-sample is an alluvial graph that shows the predominately upward shift in trust in science. 
+
+For trust in scientists, there was a comparable pattern. Low trust decreased from 11.2% (4797 respondents) in 2019 to 4.5% (1910 respondents) in 2022. Medium trust also declined, from 33.2% (14161 respondents) in 2019 to 16.7% (7107 respondents) in 2022, with the steepest reduction occurring between 2019 and 2020. High trust in scientists rose significantly from 55.6% (23723 respondents) in 2019 to 78.9% (33664 respondents) in 2022, showing substantial growth, particularly between 2019 and 2020, followed by smaller but continuous increases. @fig-alluv-st-sample is an alluvial graph that shows the predominately upward shift for trust in scientists.
+
+Overall, these findings suggest a marked shift towards higher levels of trust in both science and scientists over time, characterised by declines in low and medium trust and corresponding increases in high trust, with the most pronounced changes were observed between 2019 and 2020.  However, observed responses are unlikely to be the same in the cohort that did not respond, particularly if -- as seems credible -- low trust in science or scientists leads to attrition.  That is, although the data reveal a positive trend in average trust levels alongside, the number of unknown responses for a cohort also increases over this same period. If we suppose, credibly, that those who become mistrusting of science are more likely to drop out of a scientific study the picture of growth in trust may be overly positive. 
+
+
+### Missing Data
+
+Our objective is to estimate the population levels of trust in science and scientists in the general New Zealand population from late 2019 to late 2023 using data from the New Zealand Attitudes and Values Study (NZAVS). We face two primary data challenges when estimating population-level trends.
+
+First, although the NZAVS is a national probability study that recruits participants using randomised mailouts from the New Zealand Electoral Roll, only approximately 10% of those invited choose to participate. It is plausible that the proportion of science sceptics is higher among those who declined participation, as the NZAVS is conducted by scientists with the aim of fostering scientific understanding.
+
+Second, although the NZAVS maintains an annual retention rate between 70–80% of its sample, attrition over time is inevitable in any longitudinal panel. It is credible that participants who develop scepticism towards science or scientists may be more likely to drop out, leading to an overestimation of trust levels in the remaining sample.
+
+Although we cannot directly address the first challenge -- we cannot accurately estimate the density of those who mistrust science among those who never participated in our scientific study -- the second challenge, inferring mistrust among those participated in the New Zealand Attitudes and Values Study in 2019 and subsequently abandoned the study, can potentially be mitigated. If the probability of missing responses, both within a wave and over time, can be assumed to be conditionally independent given observed covariates, we can apply multiple imputation methods to adjust for bias in attrition. This approach allows us to systematically incorporate the uncertainty arising from missing data into our estimates [@blackwell_2017_unified; @bulbulia2023a].
+
+Here, we use the Amelia package in R [@amelia_2011] to create ten multiply imputed datasets for the 2019 New Zealand Attitudes and Values Study cohort for waves 11-14 (years 2019-2022). The `Amelia` package is purpose-built for within-unit imputation in repeated-measures time-series data. All covariates in @tbl-summary-vars were included in the imputation model, and the time variable ("year") was modelled as a cubic spline to account for non-linear trends over the four-year period.
+
+
+
+### Statistical Estimator
+
+In Study 1, we examined mean responses for trust in science and trust in scientists over time using generalised estimating equations (GEE), using the `geepack` package in R [@geepack_2006]. This method provides robust standard errors, ensuring valid statistical inference even when the data exhibit intra-individual clustering, with fewer assumptions than are required for multi-level models (citation). We specified GEE models using participant ID as the clustering variable to adjust for repeated observations across survey waves. To obtain inferences for the New Zealand population, we incorporated sample weights derived from the 2018 New Zealand Census data. We modelled responses separately for the ten imputed datasets and then pooled uncertainty over these estimates using Rubin's rule (employed using `ggeffect:pool_predictions()` [@ggeffects_2018]). 
+
+In Study 2, we focused the proportional change in predicted probabilities across low, medium, and high categories of trust responses. For this purpose, we employed neural networks using the `nnet` package in R [@nnet_2002]. The neural network models provided estimates of the probability of responses falling into each category across different survey waves. The outputs included predicted probabilities for each response category. As with Study 1, we used sample weights constructed from the 2018 New Zealand Census data to ensure that our estimates were representative of the broader population, and cluster robust prediction using cluster robust standard errors im `ggeffects` [@ggeffects_2018]. Again we used sample weights to adjust for any sampling biases and ensure that the analyses produced estimates that generalise to the New Zealand adult population. These weights were based on demographic distributions from the 2018 New Zealand Census and were applied during model estimation to account for potential non-representativeness in the sample data. We plot the predicted means at confidence intervals using `ggeffects`[@ggeffects_2018]. Tables were created using  `tinytable` [@tinytable_2024]; `ggplot2` [@ggplot2_2016]; and the `margot` package [@margot2024]. 
+
+
+
+## Results 
+
+### Multiple Imputation
+
+
+
+{{< pagebreak >}}
+```{r}
+#| label: tbl-sample-means-imp
+#| tbl-cap: "Sample average response"
+#| eval: true
+#| include: true
+#| echo: false
+tt_summary_mean_response_sample_imp 
+```
+
+{{< pagebreak >}}
+@tbl-sample-means-imp presents averages in the first imputed dataset.  For Trust in Science, the imputed average slightly increases from 5.56 in 2019 to 5.68 in 2020 and then declined gradually to 5.64 in 2021 and 5.61 in 2022.
+
+For Trust in Scientists, the average starts at 5.28 in 2019 rising to to 5.42 in 2020, but steadily decreases to 5.37 in 2021 and further to 5.32 by 2022. These patterns suggest that initial improvements in average trust levels following the New Zealand Pandemic response in 2020 were followed by a slight decrease over the four-year period. Notably the pattern evident in the imputed dataset differs markedly from the pattern of increasing growth evident for the observed cohort, which suggests steady growth in trust, both for science and scientists.
+
+
+{{< pagebreak >}}
+```{r}
+#| label: tbl-sample-cat-imp
+#| tbl-cap: "Sample proportions classified as low, medium, or high"
+#| eval: true
+#| include: false
+#| echo: false
+tt_summary_table_cat_imp
+```
+
+{{< pagebreak >}}
+
+@tbl-sample-cat-imp displays the distribution of responses for Trust in Science and Trust in Scientists within the first imputed dataset. For trust in scientists, the proportion of the cohort reporting low trust increased slightly from 11.8% (5056) in 2019 to 12.2% (5224) in 2022. Medium trust declined from 34.3% (14660) in 2019 to 31.1% (13279) in 2020, and ended at 34.0% (14498) in 2022. High trust rose from 53.8% (22965) in 2019 to 58.0% (24770) in 2020, and then declined to 53.8% (22959) by 2022.
+
+For trust in science, low trust increased gradually from 8.3% (3523) in 2019 to 9.8% (4163) in 2022. Medium trust fell from 31.5% (13446) in 2019 to 26.5% (11329) in 2020, then rose to 28.5% (12184) by 2022. High trust increased from 60.2% (25712) in 2019 to 64.6% (27570 respondents) in 2020, followed by a decline to 61.7% (26334) in 2022. Overall, while high trust peaked in 2020 for both measures, subsequent years showed modest decreases or stabilisation.
+
+These results, drawn from the first imputed dataset, indicate how responses may vary year by year and underscore the importance of imputation to account for potential non-response bias and ensure more reliable estimations of trust trends in a longitudinal cohort that may become compromised by mistrust in science. In particular, a substantial number of inferred low trust responses suggests that the decline in low trust observed in the sample may not accurately reflect the true sentiments of the broader cohort.
+
+To quantitatively evaluate patterns of stability and change for the population, we next report statistical models that employ all ten multiply imputed datasets. We emphasise that purposes are descriptive and exploratory, we do not test specific hypothesis, or address causal theories. 

@@ -1,0 +1,156 @@
+---
+title: "Evidence for Declining Trust in Science From A Large National Panel Study in New Zealand (years 2019-2023)"
+abstract: |
+   The public perceptions of science has wide-ranging effects, from the adoption public health behaviours to climate action. Here, drawing on a nationally diverse panel study in New Zealand, we report attitudes to trust in the institution of science and trust in scientists from October 2019- October 2023 in a large nationally diverse cohort of (N = 42,681, New Zealand Attitudes and Values Study), using multiple imputation to address systematic bias from attrition. Study 1 focuses on average responses, revealing stability in rolling average responses over time. Study 2 focuses on the proportional change in predicted probabilities across the low, medium, and high ends of the response scale  Since 2019, the proportion of individuals in the low trust category has been slowly increasing. After the COVID pandemic, trust in the medium category declined, while trust in the high category rose. The European majority remains the most trusting of science, but the post-pandemic increase in trust is waning. Māori have lower trust in science, with a smaller post-pandemic boost that is now diminishing. Māori and Pacific peoples show the lowest levels of trust, with this mistrust growing since the pandemic. Political conservatives are also experiencing an increase in mistrust of science. Initially, men were more trusting of science, but declining trust among men, alongside rising high trust in other genders, has equalised trust levels between the sexes. Trust among political conservatives has shown a steady increase, though causality is unclear, as greater trust in science may correlate with a shift towards conservatism. Overall, these patterns indicate that, despite stable averages, there is preliminary evidence of rising mistrust in scientific institutions and scientists. 
+   **KEYWORDS**: *Conservativism*; *Institutional Trust*; *Longitudinal*; *Panel*; *Political*; *Science*.
+author: 
+  - name: Authors (and author order TBA)
+    affiliation: New Zealand
+    orcid: 0000-0003-3169-6576 
+editor_options: 
+    chunk_output_type: console
+format:
+  pdf:  
+    bibliography: /Users/joseph/GIT/templates/bib/references.bib
+    keep-tex: true
+    header-includes: |
+      \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+    pdf-engine: lualatex
+    sanitise: false
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+library(margot)
+library(tinytable)
+library(kableExtra)
+library(ggeffects)
+library(parameters)
+options(tinytable_tt_digits = 3)
+
+library("margot")
+library("glue")
+library("patchwork")
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+library("parameters")
+library("tinytable")
+
+# options(tinytable_pdf_engine = "lualatex")
+# options(tinytable_quarto_disable_processing = TRUE)
+
+
+# path to data folder (set to path on your computer) - for pushing and pulling model results
+push_mods <- here::here(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-john-kerr-trust-science-growth"
+)
+
+tt_summary_mean_response_sample <- here_read("tt_summary_mean_response_sample")
+tt_summary_mean_response_sample |> print("markdown")
+tt_summary_mean_response_sample |> print("latex")
+tt_summary_mean_response_sample_imp <- here_read("tt_summary_mean_response_sample_imp")
+tt_summary_mean_response_sample_imp|> print("markdown")
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+
+trust_science_marginal_gee <- here_read("trust_science_marginal_gee")
+ggeffects::pool_predictions(trust_science_marginal_gee) |> print_md(  collapse_tables = FALSE)
+
+
+tt_summary_mean_response_sample <- here_read("tt_summary_mean_response_sample")
+tt_summary_mean_response_sample
+tt_summary_mean_response_sample_imp <- here_read("tt_summary_mean_response_sample_imp")
+tt_summary_mean_response_sample_imp
+
+
+# alluvial plots
+sankey_plot_science_sample<-  here_read_qs("sankey_plot_science_sample", push_mods)
+sankey_plot_st_sample <-  here_read_qs("sankey_plot_st_sample", push_mods)
+
+
+sankey_plot_science_imp<-  here_read_qs("sankey_plot_science_imp", push_mods)
+sankey_plot_st_imp<-  here_read_qs("sankey_plot_st_imp", push_mods)
+
+tt_summary_table_cat<- here_read("tt_summary_table_cat")
+tt_summary_table_cat_imp <- here_read("tt_summary_table_cat_imp")
+tt_summary_table_cat
+tt_summary_table_cat_imp
+```
+
+#### Trust Scientists: Observed Categorical Responses
+
+
+
+
+```{r}
+#| label: tbl-sample-cat
+#| tbl-cap: "Sample proportions classified as low, medium, or high"
+#| eval: true
+#| include: false
+#| echo: false
+tt_summary_table_cat |> print("markdown")
+```
+
+
+
++----------------------+-------+---------------+---------------+---------------+---------------+
+| Response             | Level | 2019          | 2020          | 2021          | 2022          |
++======================+=======+===============+===============+===============+===============+
+| **Trust Science**    | low   | 3434 (8.0%)   | 2465 (5.8%)   | 2012 (4.7%)   | 1740 (4.1%)   |
++----------------------+-------+---------------+---------------+---------------+---------------+
+|                      | med   | 13210 (31.0%) | 7855 (18.4%)  | 6223 (14.6%)  | 5720 (13.4%)  |
++----------------------+-------+---------------+---------------+---------------+---------------+
+|                      | high  | 26037 (61.0%) | 32361 (75.8%) | 34446 (80.7%) | 35221 (82.5%) |
++----------------------+-------+---------------+---------------+---------------+---------------+
+| **Trust Scientists** | low   | 4797 (11.2%)  | 2818 (6.6%)   | 2477 (5.8%)   | 1910 (4.5%)   |
++----------------------+-------+---------------+---------------+---------------+---------------+
+|                      | med   | 14161 (33.2%) | 9385 (22.0%)  | 7448 (17.5%)  | 7107 (16.7%)  |
++----------------------+-------+---------------+---------------+---------------+---------------+
+|                      | high  | 23723 (55.6%) | 30478 (71.4%) | 32756 (76.7%) | 33664 (78.9%) |
++----------------------+-------+---------------+---------------+---------------+---------------+ 
+
+
+
+## Results 
+
+### Multiple Imputation
+
+```{r}
+#| label: tbl-sample-means-imp
+#| tbl-cap: "Sample average response"
+#| eval: true
+#| include: true
+#| echo: false
+tt_summary_mean_response_sample_imp 
+```
