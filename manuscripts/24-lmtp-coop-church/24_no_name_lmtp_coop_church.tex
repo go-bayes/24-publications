@@ -79,15 +79,17 @@
 \makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
 % Set default figure placement to htbp
-\makeatletter
 \def\fps@figure{htbp}
 \makeatother
 % definitions for citeproc citations
@@ -181,9 +183,6 @@
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
 
-\ifLuaTeX
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
 \usepackage{bookmark}
 
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
@@ -210,7 +209,7 @@ Behaviours in New Zealand: A National Longitudinal Study}
   
 
 
-\date{2024-10-15}
+\date{2024-11-15}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -315,7 +314,7 @@ unbounded, those we have selected address these specific scientific and
 policy interests.
 
 Note that our approach does not focus on testing specific hypotheses;
-instead, we aim to accurately and consistently compute our pre-specified
+instead, we aim to accurately and consistently compute pre-specified
 causal contrasts (\citeproc{ref-hernan2024stating}{Hernán and Greenland
 2024}).
 
@@ -331,14 +330,14 @@ expanded to include over fifty researchers, with responses from 72,910
 participants to date. The study operates independently of political or
 corporate funding and is based at a university. Data summaries for all
 measures used in this study are provided in \textbf{Supplemental
-Appendices B-D}. For more information about the NZAVS, see:
+Appendices B-D}. For more information about the NZAVS, refer to:
 \href{https://doi.org/10.17605/OSF.IO/75SNB}{OSF.IO/75SNB}. The data for
 this study were obtained from the NZAVS waves 10-12 cohort, covering
 2018-2021. Although this cohort is a national probability sample, we
 weighted responses by New Zealand 2018 Census estimates (age, gender,
 ethnicity) to produce results that better reflect the New Zealand
 population. Information on these survey weights can be found in the
-NZAVS documentation, see:
+NZAVS documentation, refer to:
 \href{https://doi.org/10.17605/OSF.IO/75SNB}{OSF.IO/75SNB}.
 
 \subsubsection{Treatment Indicator}\label{treatment-indicator}
@@ -731,7 +730,7 @@ universal versus one where it is completely absent?
 
 \centering{
 
-\includegraphics{24_no_name_lmtp_coop_church_files/figure-pdf/fig-hist-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{24_no_name_lmtp_coop_church_files/figure-pdf/fig-hist-1.pdf}}
 
 }
 
@@ -763,16 +762,16 @@ attendance) were most common, but transitions between states indicate
 variation in attendance over time.
 
 \begin{longtable}[]{@{}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.1196}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}
-  >{\centering\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0978}}@{}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1196}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}
+  >{\centering\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0978}}@{}}
 
 \caption{\label{tbl-transition}This transition matrix captures stability
 and change in religious service between the baseline and treatment wave.
@@ -927,10 +926,10 @@ For \emph{hours volunteer}, the effect estimate is 0.095 {[}0.066,
 0.123{]}. The E-value for this estimate is 1.404, with a lower bound of
 1.317. At this lower bound, unmeasured confounders would need a minimum
 association strength with both the intervention sequence and outcome of
-1.317 to negate the observed effect. Weaker confounding would not
-overturn it. We infer \emph{evidence for causality}. On the data scale,
-this intervention represents an increase of \emph{23.33 minutes} per
-adult per week in hours volunteering over the status quo.
+1.317 to negate the observed effect. We infer \emph{evidence for
+causality}. On the data scale, this intervention represents an increase
+of \emph{23.33 minutes} per adult per week in hours volunteering over
+the status quo.
 
 \paragraph{Zero Religious Service vs.~The Status Quo Treatment Contrast
 for Donations and
@@ -942,12 +941,12 @@ Quo, focusing on self-reported volunteering and charitable donations.
 These results are measured on the difference scale.
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2424}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2424}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1061}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1061}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1212}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1818}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2424}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2424}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1061}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1061}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1212}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}@{}}
 
 \caption{\label{tbl-1_3}This table reports the results of model
 estimates for the causal effects of a universal loss of weekly religious
@@ -982,11 +981,10 @@ For \emph{donations}, the effect estimate is -0.011 {[}-0.029, 0.008{]}.
 The E-value for this estimate is 1.111, with a lower bound of 1. At this
 lower bound, unmeasured confounders would need a minimum association
 strength with both the intervention sequence and outcome of 1 to negate
-the observed effect. Weaker confounding would not overturn it. We infer
-that \emph{the evidence for causality is not reliable}. On the data
-scale, this intervention represents a difference of NZD -54.72 per adult
-per year in charitable giving compared to the status quo. Still, again,
-this effect is not reliable.
+the observed effect. We infer that \emph{the evidence for causality is
+not reliable}. On the data scale, this intervention represents a
+difference of NZD -54.72 per adult per year in charitable giving
+compared to the status quo. Still, again, this effect is not reliable.
 
 The effect estimate for \emph{hours volunteer} is -0.028 {[}-0.042,
 -0.014{]}. The E-value for this estimate is 1.189, with a lower bound of
@@ -1001,7 +999,7 @@ minutes compared with the status quo.
 
 \centering{
 
-\includegraphics{24_no_name_lmtp_coop_church_files/figure-pdf/fig-1_1-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{24_no_name_lmtp_coop_church_files/figure-pdf/fig-1_1-1.pdf}}
 
 }
 
@@ -1030,12 +1028,12 @@ and Zero, focusing on voluntary help received from others during the
 past week (yes/no). These results are measured on the risk ratio scale.
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.3000}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2286}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0857}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1000}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1143}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1714}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3000}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2286}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0857}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1000}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1714}}@{}}
 
 \caption{\label{tbl-study2A}This table reports the results of model
 estimates for the causal effects of a universal gain of weekly religious
@@ -1079,15 +1077,12 @@ For \emph{friends give time}, the effect estimate is 1.187 {[}1.108,
 1.271{]}. The E-value for this estimate is 1.658, with a lower bound of
 1.454. At this lower bound, unmeasured confounders would need a minimum
 association strength with both the intervention sequence and outcome of
-1.454 to negate the observed effect. Weaker confounding would not
-overturn it. We infer \emph{evidence for causality}.
+1.454 to negate the observed effect. We infer \emph{evidence for
+causality}.
 
 For \emph{family gives time}, the effect estimate is 0.95 {[}0.901,
 1.003{]}. The E-value for this estimate is 1.288, with a lower bound of
-1. At this lower bound, unmeasured confounders would need a minimum
-association strength with both the intervention sequence and outcome of
-1 to negate the observed effect. Weaker confounding would not overturn
-it. We infer \emph{that evidence for causality is not reliable}.
+1. We infer \emph{that evidence for causality is not reliable}.
 
 \paragraph{Regular Religious Service vs.~Status Quo Treatment Contrast
 for Time Received From
@@ -1099,12 +1094,12 @@ Quo, focusing on voluntary help received from others during the past
 week (yes/no). These results are measured on the risk ratio scale.
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.3000}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2286}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0857}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1000}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1143}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1714}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3000}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2286}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0857}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1000}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1714}}@{}}
 
 \caption{\label{tbl-2-2}This table reports the results of model
 estimates for the causal effects of a universal gain of weekly religious
@@ -1148,15 +1143,12 @@ For \emph{friends give time}, the effect estimate is 1.128 {[}1.061,
 1.199{]}. The E-value for this estimate is 1.508, with a lower bound of
 1.315. At this lower bound, unmeasured confounders would need a minimum
 association strength with both the intervention sequence and outcome of
-1.315 to negate the observed effect. Weaker confounding would not
-overturn it. We infer \emph{evidence for causality}.
+1.315 to negate the observed effect. We infer \emph{evidence for
+causality}.
 
 For \emph{family gives time}, the effect estimate is 0.958 {[}0.913,
 1.006{]}. The E-value for this estimate is 1.258, with a lower bound of
-1. At this lower bound, unmeasured confounders would need a minimum
-association strength with both the intervention sequence and outcome of
-1 to negate the observed effect. Weaker confounding would not overturn
-it. We infer \textbf{that evidence for causality is not reliable}.
+1. We infer \textbf{that evidence for causality is not reliable}.
 
 \paragraph{Zero Religious Service vs.~Status Quo Treatment Contrast for
 Time Received From
@@ -1165,15 +1157,16 @@ Others}\label{zero-religious-service-vs.-status-quo-treatment-contrast-for-time-
 Figure~\ref{fig-study2} \emph{C} and Table~\ref{tbl-2_3} present results
 for the treatment contrasts between Zero Religious Service and Status
 Quo, focusing on voluntary help received from others during the past
-week (yes/no). These results are measured on the risk ratio scale.
+week (yes/no). These causal effect estimates are presented on the risk
+ratio scale.
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.3000}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2286}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0857}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1000}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1143}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1714}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3000}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2286}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0857}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1000}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1714}}@{}}
 
 \caption{\label{tbl-2_3}This table reports results of model estimates
 for the causal effects of a universal loss of weekly religious service
@@ -1208,30 +1201,27 @@ community gives time & 0.936 & 0.889 & 0.985 & 1.339 & 1.140 \\
 
 For \emph{family gives time}, the effect estimate is 1.008 {[}0.991,
 1.026{]}. The E-value for this estimate is 1.098, with a lower bound of
-1. At this lower bound, unmeasured confounders would need a minimum
-association strength with both the intervention sequence and outcome of
-1 to negate the observed effect. Weaker confounding would not overturn
-it. We infer \emph{that evidence for causality is not reliable}.
+1. We infer \emph{that evidence for causality is not reliable}.
 
 For \emph{friends give time}, the effect estimate is 0.95 {[}0.928,
 0.973{]}. The E-value for this estimate is 1.288, with a lower bound of
 1.197. At this lower bound, unmeasured confounders would need a minimum
 association strength with both the intervention sequence and outcome of
-1.197 to negate the observed effect. Weaker confounding would not
-overturn it. We infer \emph{evidence for causality}.
+1.197 to negate the observed effect. We infer \emph{evidence for
+causality}.
 
 For \emph{community gives time}, the effect estimate is 0.936 {[}0.889,
 0.985{]}. The E-value for this estimate is 1.339, with a lower bound of
 1.14. At this lower bound, unmeasured confounders would need a minimum
 association strength with both the intervention sequence and outcome of
-1.14 to negate the observed effect. Weaker confounding would not
-overturn it. We infer \emph{evidence for causality}.
+1.14 to negate the observed effect. We infer \emph{evidence for
+causality}.
 
 \begin{figure}
 
 \centering{
 
-\includegraphics{24_no_name_lmtp_coop_church_files/figure-pdf/fig-study2-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{24_no_name_lmtp_coop_church_files/figure-pdf/fig-study2-1.pdf}}
 
 }
 
@@ -1259,12 +1249,12 @@ and Zero, focusing on money received from others during the past week
 (yes/no). These results are measured on the risk ratio scale.
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.3099}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2254}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0845}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0986}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1127}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1690}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3099}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2254}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0845}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0986}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1127}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1690}}@{}}
 
 \caption{\label{tbl-3_1}This table reports the results of model
 estimates for the causal effects of a universal gain of weekly religious
@@ -1301,22 +1291,19 @@ For \emph{community gives money}, the effect estimate is 1.376 {[}1.112,
 1.703{]}. The E-value for this estimate is 2.095, with a lower bound of
 1.465. At this lower bound, unmeasured confounders would need a minimum
 association strength with both the intervention sequence and outcome of
-1.465 to negate the observed effect. Weaker confounding would not
-overturn it. We infer \emph{evidence for causality}.
+1.465 to negate the observed effect. We infer \emph{evidence for
+causality}.
 
 For \emph{family gives money}, the effect estimate is 1.137 {[}1.028,
 1.258{]}. The E-value for this estimate is 1.532, with a lower bound of
 1.198. At this lower bound, unmeasured confounders would need a minimum
 association strength with both the intervention sequence and outcome of
-1.198 to negate the observed effect. Weaker confounding would not
-overturn it. We infer \emph{evidence for causality}.
+1.198 to negate the observed effect. We infer \emph{evidence for
+causality}.
 
 For \emph{friends gives money}, the effect estimate is 1.137 {[}0.964,
 1.342{]}. The E-value for this estimate is 1.532, with a lower bound of
-1. At this lower bound, unmeasured confounders would need a minimum
-association strength with both the intervention sequence and outcome of
-1 to negate the observed effect. Weaker confounding would not overturn
-it. We infer \emph{that evidence for causality is not reliable}.
+1. We infer \emph{that evidence for causality is not reliable}.
 
 \paragraph{Regular vs.~Status Quo Causal Contrast on Money Received From
 Others}\label{regular-vs.-status-quo-causal-contrast-on-money-received-from-others}
@@ -1327,12 +1314,12 @@ and Status Quo, focusing on money received from others during the past
 week (yes/no). These results are measured on the risk ratio scale.
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.3099}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2254}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0845}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0986}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1127}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1690}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3099}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2254}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0845}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0986}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1127}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1690}}@{}}
 
 \caption{\label{tbl-3_2}This table reports the results of model
 estimates for the causal effects of a universal gain of weekly religious
@@ -1376,15 +1363,12 @@ For \emph{family gives money}, the effect estimate is 1.13 {[}1.037,
 1.232{]}. The E-value for this estimate is 1.513, with a lower bound of
 1.233. At this lower bound, unmeasured confounders would need a minimum
 association strength with both the intervention sequence and outcome of
-1.233 to negate the observed effect. Weaker confounding would not
-overturn it. We infer \emph{evidence for causality}.
+1.233 to negate the observed effect. We infer \emph{evidence for
+causality}.
 
 For \emph{friends gives money}, the effect estimate is 1.041 {[}0.951,
 1.139{]}. The E-value for this estimate is 1.248, with a lower bound of
-1. At this lower bound, unmeasured confounders would need a minimum
-association strength with both the intervention sequence and outcome of
-1 to negate the observed effect. Weaker confounding would not overturn
-it. We infer \emph{that evidence for causality is not reliable}.
+1. We infer \emph{that evidence for causality is not reliable}.
 
 \paragraph{Zero vs.~Status Quo Causal Contrast on Money Received From
 Others}\label{zero-vs.-status-quo-causal-contrast-on-money-received-from-others}
@@ -1395,12 +1379,12 @@ Status Quo, focusing on money received from others during the past week
 (yes/no). These results are measured on the risk ratio scale.
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.3099}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2254}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0845}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.0986}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1127}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1690}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3099}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.2254}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0845}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0986}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1127}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1690}}@{}}
 
 \caption{\label{tbl-3_3}Table reports results of model estimates for the
 causal effects of a universal loss of weekly religious service vs.~the
@@ -1435,33 +1419,24 @@ community gives money & 0.911 & 0.796 & 1.042 & 1.425 & 1 \\
 
 For \emph{family gives money}, the effect estimate on the risk ratio
 scale is 0.993 {[}0.953, 1.035{]}. The E-value for this estimate is
-1.091, with a lower bound of 1. At this lower bound, unmeasured
-confounders would need a minimum association strength with both the
-intervention sequence and outcome of 1 to negate the observed effect.
-Weaker confounding would not overturn it. We infer \emph{that evidence
-for causality is not reliable}.
+1.091, with a lower bound of 1. We infer \emph{that evidence for
+causality is not reliable}.
 
 For \emph{friends gives money}, the effect estimate on the risk ratio
 scale is 0.915 {[}0.809, 1.036{]}. The E-value for this estimate is
-1.412, with a lower bound of 1. At this lower bound, unmeasured
-confounders would need a minimum association strength with both the
-intervention sequence and outcome of 1 to negate the observed effect.
-Weaker confounding would not overturn it. We infer \emph{that evidence
-for causality is not reliable}.
+1.412, with a lower bound of 1. We infer \emph{that evidence for
+causality is not reliable}.
 
 For \emph{community gives money}, the effect estimate on the risk ratio
 scale is 0.911 {[}0.796, 1.042{]}. The E-value for this estimate is
-1.425, with a lower bound of 1. At this lower bound, unmeasured
-confounders would need a minimum association strength with both the
-intervention sequence and outcome of 1 to negate the observed effect.
-Weaker confounding would not overturn it. We infer \emph{that evidence
-for causality is not reliable}.
+1.425, with a lower bound of 1. We infer \emph{that evidence for
+causality is not reliable}.
 
 \begin{figure}
 
 \centering{
 
-\includegraphics{24_no_name_lmtp_coop_church_files/figure-pdf/fig-study_3-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{24_no_name_lmtp_coop_church_files/figure-pdf/fig-study_3-1.pdf}}
 
 }
 
@@ -1480,20 +1455,20 @@ expressed on the risk ratio scale.}
 with Cross-Sectional
 Regressions}\label{additional-study-comparison-of-causal-inference-results-with-cross-sectional-regressions}
 
-To better evaluate the contributions of our methodology to current
-practice, we conducted a series of cross-sectional analyses using the
-baseline wave data. We quantified the statistical associations between
-religious service attendance and our focal prosocial outcomes. We
-included all regression covariates from the causal models (including
-sample weights) for each analysis, obviously omitting the outcome
-measured at baseline, i.e.~the response variable.
+To clarify how our causal inferences compare with estimates from
+commonly used observational research methods, we quantified the
+statistical associations between religious service attendance and all
+prosocial outcomes using cross-sectional methods frequently employed in
+observational psychology. For each analysis, we included all regression
+covariates from the causal models, including sample weights, while
+omitting the baseline measurement of the outcome variable.
 
 \textbf{Cross-sectional volunteering result}: the change in expected
 hours of volunteer work for a one-unit increase in religious service
 attendance is b = 0.31; (95\% CI 0.28, 0.34). Multiplying this by 4.2
 gives a monthly estimate of 77.95 minutes. This result is 2.58 percent
 greater than the effect estimated from the `regular vs.~zero' causal
-contrast, indicating an \emph{overstatement in the cross-sectional
+contrast, revealing an \emph{overstatement in the cross-sectional
 regression model}.
 
 \textbf{Cross-sectional charitable donations result}: The coefficient
@@ -1501,7 +1476,7 @@ for religious service on annual charitable donations suggests a change
 in expected donation amount per unit increase in attendance is b = 451;
 (95\% CI 408, 494). When adjusted to a monthly rate by multiplying by
 4.2, this value equals NZ Dollars 1894.45. It is 2.89 percent greater
-than our causal contrast estimate, again indicating an overstatement in
+than our causal contrast estimate, again revealing an overstatement in
 the cross-sectional regression model.
 
 For Studies 2 and 3, which focus on community help received, we adjusted
@@ -1516,7 +1491,7 @@ exponentiated change in expectation for a one-unit change in religious
 service attendance is b = 1.17; (95\% CI 1.14, 1.19) approximate risk
 rate ratio. The monthly rate ratio derived by multiplying this
 coefficient by 4.2 is 1.921. This estimate is 1.39 percent greater than
-the `regular vs.~zero' causal estimate, pointing to an overstatement in
+the `regular vs.~zero' causal estimate, revealing an overstatement in
 the cross-sectional regression model.
 
 \textbf{Cross-sectional community assistance received result: Money}:
@@ -1526,15 +1501,15 @@ risk ratio, after adjustment, is 1.996. This rate ratio is 1.45 percent
 greater than the causal estimate, again revealing an overstatement in
 the cross-sectional regression model.
 
-\emph{These findings underscore that the results of cross-sectional
-regressions, although suggestive, can considerably diverge from those
-obtained from the causal analysis of panel data.}
+These findings indicate that while cross-sectional regression results
+may be suggestive, they can differ substantially from those obtained
+through causal analysis of panel data.
 
 \newpage{}
 
-\subsubsection{Economic Effect of Religious Service Attendance on
+\subsubsection{Economic Effects of Religious Service Attendance on
 Charitable
-Donations}\label{economic-effect-of-religious-service-attendance-on-charitable-donations}
+Donations}\label{economic-effects-of-religious-service-attendance-on-charitable-donations}
 
 We next leverage results to estimate the approximate economic value of
 religious service attendance under different scenarios---`Regular
@@ -1595,11 +1570,10 @@ in which New Zealand experiences a complete cessation of religious
 service attendance, does not reliably distinguishable from the one year
 projection in the status quo condition.
 
-However, it is important to emphasise that these population-wide
-estimates for aggregated one-year effects reflect short-term behavioural
-changes and do not address the broader, longer-term implications of
-gaining or losing religious institutions --- an issue we revisit in the
-discussion.
+We emphasise that these population-wide estimates for aggregated
+one-year effects reflect short-term behavioural changes. They do not
+address the broader, long-term implications of gaining or losing
+religious institutions, a topic we revisit in the discussion.
 
 \subsection{Discussion}\label{discussion}
 
@@ -1676,15 +1650,13 @@ community members could then answer. Similarly, religious giving and
 volunteering might disproportionately benefit religious elites,
 potentially at the expense of broader public goods. Although these
 scenarios may seem extreme, our data do not exclude them, as our panel
-does not capture the network structure of charitable giving.
-
-However, we can gain insights into the role of religious charities by
-examining other data sources. In New Zealand, religious organisations
-operate as public charities, and their financial records are
-transparent. Public data show that religious institutions account for
-40\% of the charitable sector in New Zealand
-(\citeproc{ref-McLeod2020}{McLeod 2020 p. 17}), with similar or even
-higher proportions observed in other countries
+does not capture the network structure of charitable giving. However, we
+can gain insights into the role of religious charities by examining
+other data sources. In New Zealand, religious organisations operate as
+public charities, and their financial records are transparent. Public
+data show that religious institutions account for 40\% of the charitable
+sector in New Zealand (\citeproc{ref-McLeod2020}{McLeod 2020 p. 17}),
+with similar or even higher proportions observed in other countries
 (\citeproc{ref-brooks2004faith}{Brooks 2004};
 \citeproc{ref-monsma2007religion}{Monsma 2007};
 \citeproc{ref-woodyard2014doing}{Woodyard and Grable 2014}).
@@ -1697,7 +1669,7 @@ dismiss the possibility that, in some cases, religious leaders pocket a
 notable share of the benefits of religious giving. However, given that
 charities in New Zealand require open books, and given published
 institutional salaries, such instances are likely to be relatively rare,
-and of course secular charities are not immune to the same issue.
+and of course secular charities are not immune to corruption.
 
 Despite the strengths of our study, several limitations persist. We
 should not confuse the precision of our causal workflow with the
@@ -1728,24 +1700,25 @@ stone. Again, precise causal methods do not necessarily produce
 correspondingly precise causal answers. We do not claim to have a
 magical crystal ball. Here, we provide signals, not certainties.
 
-Finally, the generalisability of our findings beyond New Zealand remains
-to be investigated. Although our results apply to the New Zealand
-population, further research is needed to determine whether these
-findings hold in other cultural or national contexts. Initiatives such
-as the Global Flourish Study (\citeproc{ref-johnson2022global}{Johnson
-and VanderWeele 2022}), and others, will eventually provide
-opportunities to apply causal methods across diverse cultures.
+The generalisability of our findings beyond New Zealand is yet to be
+explored, as are the causal effects of prolonged exposure to religious
+services over many years. Although our results pertain to the New
+Zealand population, further research is needed to determine whether they
+hold in other cultural or national contexts. Initiatives such as the
+Global Flourish Study (\citeproc{ref-johnson2022global}{Johnson and
+VanderWeele 2022}), and similar efforts will eventually provide
+opportunities to apply causal methods across diverse cultural settings.
 
 In conclusion, by integrating robust causal methods with longitudinal
 panel data, we provide clear quantitative evidence that religious
-service attendance causally affects prosocial behaviours. Beyond the
-significance of these findings, we hope this study encourages
+service attendance has a causal effect on prosocial behaviours. Beyond
+the importance of these findings, we hope this study encourages
 psychological scientists to adopt causal methods, which remain
-underutilised in the discipline. Most psychological questions are
-inherently causal. To understand the effects of interventions, something
-beyond the associational methods that dominate observational psychology
-is required (\citeproc{ref-bulbulia2024swigstime}{Bulbulia 2024d};
-\citeproc{ref-rohrer2022PATH}{Rohrer \emph{et al.} 2022};
+underutilised within the discipline. Most psychological questions are
+inherently causal. To address causal questions, we need methods that
+improve upon the associational approaches that presently dominate
+observational psychology (\citeproc{ref-bulbulia2024swigstime}{Bulbulia
+2024d}; \citeproc{ref-rohrer2022PATH}{Rohrer \emph{et al.} 2022};
 \citeproc{ref-vanderweele2021can}{VanderWeele 2021}).
 
 Recent advances in computer science, epidemiology, and economics have
@@ -2572,7 +2545,7 @@ effect). See VanderWeele \emph{et al.}
 
 \centering{
 
-\includegraphics{24_no_name_lmtp_coop_church_files/figure-pdf/fig-match_1-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{24_no_name_lmtp_coop_church_files/figure-pdf/fig-match_1-1.pdf}}
 
 }
 
@@ -2682,19 +2655,20 @@ doi:\href{https://doi.org/10.5281/zenodo.10907724}{10.5281/zenodo.10907724}.
 
 \bibitem[\citeproctext]{ref-bulbulia2023}
 Bulbulia, JA (2024c) Methods in causal inference part 1: Causal diagrams
-and confounding. \emph{Evolutionary Human Sciences}, \textbf{6}.
-Retrieved from \url{https://osf.io/b23k7}
+and confounding. \emph{Evolutionary Human Sciences}, \textbf{6}, e40.
+doi:\href{https://doi.org/10.1017/ehs.2024.35}{10.1017/ehs.2024.35}.
 
 \bibitem[\citeproctext]{ref-bulbulia2024swigstime}
 Bulbulia, JA (2024d) Methods in causal inference part 2: Interaction,
 mediation, and time-varying treatments. \emph{Evolutionary Human
-Sciences}, \textbf{6}. Retrieved from
-\url{https://osf.io/preprints/psyarxiv/vr268}
+Sciences}, \textbf{6}, e41.
+doi:\href{https://doi.org/10.1017/ehs.2024.32}{10.1017/ehs.2024.32}.
 
 \bibitem[\citeproctext]{ref-bulbulia2024wierd}
 Bulbulia, JA (2024e) Methods in causal inference part 3: Measurement
 error and external validity threats. \emph{Evolutionary Human Sciences},
-\textbf{6}. Retrieved from \url{https://osf.io/preprints/psyarxiv/kj7rv}
+\textbf{6}, e42.
+doi:\href{https://doi.org/10.1017/ehs.2024.33}{10.1017/ehs.2024.33}.
 
 \bibitem[\citeproctext]{ref-Bulbulia_2015}
 Bulbulia, JA, Shaver, JH, Greaves, L, Sosis, R, and Sibley, CG (2015)
@@ -2991,7 +2965,7 @@ Sciences}, Vol. 282, The Royal Society, 20142556.
 Watts, J, Sheehan, O, Bulbulia, Joseph A, Gray, RD, and Atkinson, QD
 (2018) Christianity spread faster in small, politically structured
 societies. \emph{Nature Human Behaviour}, \textbf{2}(8), 559--564.
-doi:\href{https://doi.org/gdvnjn}{gdvnjn}.
+doi:\href{https://doi.org/10/gdvnjn}{10/gdvnjn}.
 
 \bibitem[\citeproctext]{ref-westreich2010}
 Westreich, D, and Cole, SR (2010) Invited commentary: positivity in
