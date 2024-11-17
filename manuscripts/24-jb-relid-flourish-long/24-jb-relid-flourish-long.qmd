@@ -1,0 +1,2986 @@
+---
+title: "The Causal Effects of Religious Identification on Multi-Dimensional Flourishing: Evidence from a Five Wave Panel Study In New Zealand"
+abstract: |
+  
+
+
+  **KEYWORDS**: *Causal Inference*; *Cross-validation*; *Machine Learning*; *Religion*; *Semi-parametric*; *Targeted Learning*; *Well-Being*.
+  
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+  - name: Don E Davis
+    affiliation: Georgia State University, Matheny Center for the Study of Stress, Trauma, and Resilience
+    orcid: 0000-0003-3169-6576 
+  - name: Kenneth G. Rice
+    affiliation: Georgia State University, Matheny Center for the Study of Stress, Trauma, and Resilience
+    orcid: 0000-0002-0558-2818
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland
+    orcid: 0000-0002-4064-8800
+  - name: Geoffrey Troughton
+    affiliation: School of Social and Cultural Studies, Victoria University of Wellington
+    orcid: 0000-0001-7423-0640
+keywords: [Use, use]
+editor_options: 
+  chunk_output_type: console
+format:
+  docx:
+   default: false
+  pdf:
+    pdf-engine: lualatex
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: false
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+# pull_path <-
+#   fs::path_expand(
+#     #"/Users/joseph/v-project\ Dropbox/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs_refactor/nzavs_data_23"
+#     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
+#   )
+# 
+print(sessionInfo())
+print(search())
+
+
+push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-relid-flourishing")
+# import untransformed data
+original_df <- margot::here_read_qs("df_wide_impute", push_mods)
+
+
+# import measures
+measures_path_cursor <- here::here("models", "boilerplate", "data")
+measure_data <- readRDS(here::here(measures_path_cursor, "merged_db.rds"))
+# measures_path_rstudio <- here::here("manuscripts", "24-inkuk-pol-env")
+# measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+
+
+#tinytext::tlmgr_update()
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+library("tidyverse")
+library("kableExtra")
+library(margot)
+
+loadfonts(device = "all")
+
+
+## Read in data from analysis 
+# imports
+n_total <-  margot::here_read("n_total")
+
+transition_matrix <- margot::here_read("transition_matrix")
+
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+n_participants <- summary_tables$n_participants
+
+
+nice_exposure_name <- glue::glue("Religious Identification Level")
+
+# load the glue package
+library(glue)
+
+name_exposure <- margot::here_read("name_exposure")
+# name_exposure_binary <- margot::here_read("name_exposure_binary")
+
+# read exposure vars
+t0_name_exposure <- here_read("t0_name_exposure")
+t1_name_exposure <- here_read("t1_name_exposure")
+t2_name_exposure <- here_read("t2_name_exposure")
+t3_name_exposure <- here_read("t3_name_exposure")
+
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_var <- margot::here_read("exposure_var")
+outcome_vars <- margot::here_read("outcome_vars")
+
+# baseline_exposure_cat <- margot::here_read("baseline_exposure_cat")
+baseline_wave <- margot::here_read("baseline_wave")
+exposure_waves <- margot::here_read("exposure_waves")
+outcome_wave <- margot::here_read("outcome_wave")
+extra_vars <- margot::here_read("extra_vars")
+all_vars <- margot::here_read("all_vars")
+continuous_columns_keep <- margot::here_read("continuous_columns_keep")
+ordinal_columns <- margot::here_read("ordinal_columns")
+
+# read waves
+all_waves <- margot::here_read("all_waves")
+baseline_and_exposure_waves <- margot::here_read("baseline_and_exposure_waves")
+baseline_and_outcome_waves <- margot::here_read("baseline_and_outcome_waves")
+
+# # get table/graphs
+# summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+#
+# # n_total
+# n_total <- here_read("n_total")
+#
+# # n_this study
+# n_participants <- summary_tables$n_participants
+
+# nice labels
+scale_exposure <- glue::glue("(1-7)")
+exposure_lower_bound <- glue::glue("1")
+exposure_upper_bound <- glue::glue("7")
+# shift =   glue::glue('two points')
+nice_baseline_wave <- glue::glue("NZAVS time 10, years 2018-2019")
+nice_exposure_waves <- glue::glue("NZAVS time 11-13, years 2019-2022")
+nice_outcome_wave <- glue::glue("NZAVS time 14, years 2022-2023")
+
+
+# labels
+# # outcome vars
+# t4_outcome_vars_z <- paste0("t4_", outcome_vars, "_z")
+
+
+# read health outcomes
+raw_outcomes_health <- here_read("raw_outcomes_health")
+t4_outcome_health_z <- paste0("t4_", raw_outcomes_health, "_z")
+t4_outcome_health_z
+
+# read raw outcomes
+raw_outcomes_psych <- here_read("raw_outcomes_psych")
+t4_outcome_psych_z <- paste0("t4_", raw_outcomes_psych, "_z")
+t4_outcome_psych_z
+
+# read raw outcomes
+raw_outcomes_present <- here_read("raw_outcomes_present")
+t4_outcome_present_z <- paste0("t4_", raw_outcomes_present, "_z")
+t4_outcome_present_z
+
+# read raw outcomes
+raw_outcomes_life <- here_read("raw_outcomes_life")
+t4_outcome_life_z <- paste0("t4_", raw_outcomes_life, "_z")
+t4_outcome_life_z
+
+# read raw outcomes
+raw_outcomes_social <- here_read("raw_outcomes_social")
+t4_outcome_social_z <- paste0("t4_", raw_outcomes_social, "_z")
+t4_outcome_social_z
+
+# label mappings for health outcomes
+label_mapping_health <- list(
+  "t4_hlth_bmi_z" = "BMI",
+  "t4_hlth_sleep_hours_z" = "Sleep",
+  "t4_log_hours_exercise_z" = "Hours of Exercise (log)",
+  "t4_short_form_health_z" = "Short Form Health"
+)
+
+# label mappings for psychological well-being outcomes
+label_mapping_psych <- list(
+  "t4_hlth_fatigue_z" = "Fatigue",
+  "t4_kessler_latent_anxiety_z" = "Anxiety",
+  "t4_kessler_latent_depression_z" = "Depression",
+  "t4_rumination_z" = "Rumination"
+)
+
+# label mappings for present reflective outcomes
+label_mapping_present <- list(
+  "t4_bodysat_z" = "Body Satisfaction",
+  "t4_foregiveness_z" = "Forgiveness",
+  "t4_perfectionism_z" = "Perfectionism",
+  "t4_pwb_standard_living_z" = "PWB Standard Living",
+  "t4_pwb_your_future_security_z" = "PWB Your Future Security",
+  "t4_pwb_your_health_z" = "PWB Your Health",
+  "t4_pwb_your_relationships_z" = "PWB Your Relationships",
+  "t4_self_control_have_lots_z" = "Self Control Have Lots",
+  "t4_self_control_wish_more_reversed_z" = "Self Control Wish More Reversed",
+  "t4_self_esteem_z" = "Self Esteem",
+  "t4_sexual_satisfaction_z" = "Sexual Satisfaction"
+)
+
+# label mappings for life reflective outcomes
+label_mapping_life <- list(
+  "t4_gratitude_z" = "Gratitude",
+  "t4_lifesat_z" = "Life Satisfaction",
+  "t4_meaning_purpose_z" = "Meaning: Purpose",
+  "t4_meaning_sense_z" = "Meaning: Sense"
+)
+
+# label mappings for social outcomes
+label_mapping_social <- list(
+  "t4_belong_z" = "Belonging",
+  "t4_neighbourhood_community_z" = "Community",
+  "t4_support_z" = "Support"
+)
+# get table/graphs
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+
+# n_total
+n_total <- here_read("n_total")
+
+# n_this study
+n_participants <- summary_tables$n_participants
+
+# nice labels
+nice_exposure_name <-  glue::glue("Political Conservativism")
+shift <- glue::glue("one unit")
+scale_exposure <- glue::glue("(1-7)")
+nice_scale_exposure <- glue::glue("on the exposure unit scale from one to seven")
+
+scale_exposure <- glue::glue("(1-7)")
+exposure_lower_bound <- glue::glue("1")
+exposure_upper_bound <- glue::glue("7")
+# shift =   glue::glue('two points')
+nice_baseline_wave <- glue::glue("NZAVS time 10, years 2018-2019")
+nice_exposure_waves <- glue::glue("NZAVS time 11-13, years 2019-2022")
+nice_outcome_wave <- glue::glue("NZAVS time 14, years 2022-2023")
+
+percent_missing_baseline <- here_read("percent_missing_baseline")
+percentage_missing_baseline <- glue::glue(round(percent_missing_baseline,2))
+percentage_missing_baseline
+
+# create the titles with automatic exposure insertion
+title_done <- glue("Shift {nice_exposure_name} to {exposure_lower_bound} in the first treatment, then shift {exposure_upper_bound} for the next two treatments.")
+title_secular <- glue("Shift {nice_exposure_name} to {exposure_lower_bound} for all each sequential treatment.")
+title_religious <- glue("Shift {nice_exposure_name} to {exposure_upper_bound} for all each sequential treatment.")
+title_convert <- glue("Shift {nice_exposure_name} to {exposure_lower_bound} in the first treatment, then shift {exposure_upper_bound} for the next two treatments.")
+title <- glue::glue("Causal Effects of Shift Interventions on {nice_exposure_name} on Multi-Dimensional Well-Being")
+
+contrast_done_vs_religious <- glue::glue("Contrast Done Intervention with Religious (control)")
+contrast_done_vs_secular  <- glue::glue("Contrast Done Intervention with Secular (control)")
+contrast_done_vs_convert  <- glue::glue("Contrast Done Intervention with Convert (control)")
+contrast_religious_vs_secular  <- glue::glue("Contrast Religious Intervention with Secular (control)")
+contrast_religious_vs_convert  <- glue::glue("Contrast Religious Intervention with Convert (control)")
+contrast_secular_vs_convert  <- glue::glue("Contrast Secular Intervention with Convert (control)")
+
+
+
+
+# read results
+
+# plot options ------------------------------------------------------------
+options_base <- list(
+  type = "RD",
+  title = title,
+  order = "alphabetical",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  text_size = 4,
+  linewidth = 0.4,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 3,
+  title_size = 20,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10
+)
+
+
+options_health_done_vs_religious <- margot_plot_create_options(
+  subtitle = "Health: Done vs Religious (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "health_done_vs_religious"
+)
+
+
+options_health_done_vs_secular <- margot_plot_create_options(
+  subtitle = "Health: Done vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "health_done_vs_secular"
+)
+
+options_health_done_vs_convert <- margot_plot_create_options(
+  subtitle = "Health: Done vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "health_done_vs_convert"
+)
+
+
+options_health_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Health: Religious vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "health_religious_vs_secular"
+)
+
+options_health_religious_vs_convert <- margot_plot_create_options(
+  subtitle = "Health: Religious vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "health_religious_vs_convert"
+)
+
+
+options_health_secular_vs_convert <- margot_plot_create_options(
+  subtitle = "Health: Secular vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "health_secular_vs_convert"
+)
+
+
+
+# psych options -----------------------------------------------------------------
+options_psych_done_vs_religious <- margot_plot_create_options(
+  subtitle = "Psychological Well-Being: Done vs Religious (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "psych_done_vs_religious"
+)
+
+
+options_psych_done_vs_secular <- margot_plot_create_options(
+  subtitle = "Psychological Well-Being: Done vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "psych_done_vs_secular"
+)
+
+options_psych_done_vs_convert <- margot_plot_create_options(
+  subtitle = "Psychological Well-Being: Done vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "psych_done_vs_convert"
+)
+
+
+options_psych_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Psychological Well-Being: Religious vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "psych_religious_vs_secular"
+)
+
+options_psych_religious_vs_convert <- margot_plot_create_options(
+  subtitle = "Psychological Well-Being: Religious vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "psych_religious_vs_convert"
+)
+
+
+options_psych_secular_vs_convert <- margot_plot_create_options(
+  subtitle = "Psychological Well-Being: Secular vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "psych_secular_vs_convert"
+)
+
+
+
+
+# present options -----------------------------------------------------------------
+options_present_done_vs_religious <- margot_plot_create_options(
+  subtitle = "Present Well-Being: Done vs Religious (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "present_done_vs_religious"
+)
+
+
+options_present_done_vs_secular <- margot_plot_create_options(
+  subtitle = "Present Well-Being: Done vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "present_done_vs_secular"
+)
+
+options_present_done_vs_convert <- margot_plot_create_options(
+  subtitle = "Present Well-Being: Done vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "present_done_vs_convert"
+)
+
+
+options_present_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Present Well-Being: Religious vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "present_religious_vs_secular"
+)
+
+options_present_religious_vs_convert <- margot_plot_create_options(
+  subtitle = "Present Well-Being: Religious vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "present_religious_vs_convert"
+)
+
+
+options_present_secular_vs_convert <- margot_plot_create_options(
+  subtitle = "Present Well-Being: Secular vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "present_secular_vs_convert"
+)
+
+
+
+# life options ------------------------------------------------------------
+options_life_done_vs_religious <- margot_plot_create_options(
+  subtitle = "Life Well-Being: Done vs Religious (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "life_done_vs_religious"
+)
+
+
+options_life_done_vs_secular <- margot_plot_create_options(
+  subtitle = "Life Well-Being: Done vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "life_done_vs_secular"
+)
+
+options_life_done_vs_convert <- margot_plot_create_options(
+  subtitle = "Life Well-Being: Done vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "life_done_vs_convert"
+)
+
+
+options_life_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Life Well-Being: Religious vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "life_religious_vs_secular"
+)
+
+options_life_religious_vs_convert <- margot_plot_create_options(
+  subtitle = "Life Well-Being: Religious vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "life_religious_vs_convert"
+)
+
+
+options_life_secular_vs_convert <- margot_plot_create_options(
+  subtitle = "Life Well-Being: Secular vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "life_secular_vs_convert"
+)
+
+
+
+
+# social options ------------------------------------------------------------
+options_social_done_vs_religious <- margot_plot_create_options(
+  subtitle = "Social Well-Being: Done vs Religious (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "social_done_vs_religious"
+)
+
+
+options_social_done_vs_secular <- margot_plot_create_options(
+  subtitle = "Social Well-Being: Done vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "social_done_vs_secular"
+)
+
+options_social_done_vs_convert <- margot_plot_create_options(
+  subtitle = "Social Well-Being: Done vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "social_done_vs_convert"
+)
+
+options_social_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Social Well-Being: Religious vs Secular (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "social_religious_vs_secular"
+)
+
+options_social_religious_vs_convert <- margot_plot_create_options(
+  subtitle = "Social Well-Being: Religious vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "social_religious_vs_convert"
+)
+
+options_social_secular_vs_convert <- margot_plot_create_options(
+  subtitle = "Social Well-Being: Secular vs Convert (control)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "social_secular_vs_convert"
+)
+
+################################################################################################
+# make graphs 
+forest_health_lmtp_output <- here_read_qs("forest_health_lmtp_output", push_mods)
+forest_health_lmtp_output$combined_tables
+
+
+# done vs religious: health
+health_done_vs_religious <- margot_plot(forest_health_lmtp_output$combined_tables$combined_outcomes_done_vs_religious,
+                                              options = options_health_done_vs_religious,
+                                              save_output = TRUE,
+                                              label_mapping = label_mapping_health,
+                                              save_path = here::here(push_mods),
+                                              original_df = original_df
+                                              )
+
+
+
+# done vs secular: health
+health_done_vs_secular <- margot_plot(forest_health_lmtp_output$combined_tables$combined_outcomes_done_vs_secular,
+                                                                options = options_health_done_vs_secular,
+                                                                save_output = TRUE,
+                                                                label_mapping = label_mapping_health,
+                                                                save_path = here::here(push_mods),
+                                                                original_df = original_df
+)
+
+
+# done vs convert: health
+health_done_vs_convert <- margot_plot(forest_health_lmtp_output$combined_tables$combined_outcomes_done_vs_convert,
+                                                              options = options_health_done_vs_convert,
+                                                              save_output = TRUE,
+                                                              label_mapping = label_mapping_health,
+                                                              save_path = here::here(push_mods),
+                                                              original_df = original_df
+)
+# religion vs secular: health
+health_religious_vs_secular <- margot_plot(forest_health_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+                                                                   options = options_health_religious_vs_secular,
+                                                                   save_output = TRUE,
+                                                                   label_mapping = label_mapping_health,
+                                                                   save_path = here::here(push_mods),
+                                                                   original_df = original_df
+)
+
+
+# religion vs convert: health
+health_religious_vs_convert <- margot_plot(forest_health_lmtp_output$combined_tables$combined_outcomes_religious_vs_convert,
+                                                                   options = options_health_religious_vs_convert,
+                                                                   save_output = TRUE,
+                                                                   label_mapping = label_mapping_health,
+                                                                   save_path = here::here(push_mods),
+                                                                   original_df = original_df
+)
+
+
+
+# secular vs convert: health
+health_secular_vs_convert <- margot_plot(forest_health_lmtp_output$combined_tables$combined_outcomes_secular_vs_convert,
+                                                                   options = options_health_secular_vs_convert,
+                                                                   save_output = TRUE,
+                                                                   label_mapping = label_mapping_health,
+                                                                   save_path = here::here(push_mods),
+                                                                   original_df = original_df
+)
+
+
+
+# done vs convert: health
+health_done_vs_secular <- margot_plot(forest_health_lmtp_output$combined_tables$combined_outcomes_done_vs_secular,
+                                                              options = options_health_done_vs_secular,
+                                                              save_output = TRUE,
+                                                              label_mapping = label_mapping_health,
+                                                              save_path = here::here(push_mods),
+                                                              original_df = original_df
+)
+
+
+# PSYCH
+forest_psych_lmtp_output <- here_read_qs("forest_psych_lmtp_output", push_mods)
+forest_psych_lmtp_output$combined_tables
+
+# done vs religious: psych
+psych_done_vs_religious <- margot_plot(forest_psych_lmtp_output$combined_tables$combined_outcomes_done_vs_religious,
+                                                                options = options_psych_done_vs_religious,
+                                                                save_output = TRUE,
+                                                                label_mapping = label_mapping_psych,
+                                                                save_path = here::here(push_mods),
+                                                                original_df = original_df
+)
+
+# done vs secular: psych
+psych_done_vs_secular <- margot_plot(forest_psych_lmtp_output$combined_tables$combined_outcomes_done_vs_secular,
+                                                              options = options_psych_done_vs_secular,
+                                                              save_output = TRUE,
+                                                              label_mapping = label_mapping_psych,
+                                                              save_path = here::here(push_mods),
+                                                              original_df = original_df
+)
+
+# done vs convert: health
+psych_done_vs_convert <- margot_plot(forest_psych_lmtp_output$combined_tables$combined_outcomes_done_vs_convert,
+                                                              options = options_psych_done_vs_convert,
+                                                              save_output = TRUE,
+                                                              label_mapping = label_mapping_psych,
+                                                              save_path = here::here(push_mods),
+                                                              original_df = original_df
+)
+
+# religion vs secular: psych
+psych_religious_vs_secular <- margot_plot(forest_psych_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+                                                                   options = options_psych_religious_vs_secular,
+                                                                   save_output = TRUE,
+                                                                   label_mapping = label_mapping_psych,
+                                                                   save_path = here::here(push_mods),
+                                                                   original_df = original_df
+)
+
+
+# religion vs convert: psych
+psych_religious_vs_convert <- margot_plot(forest_psych_lmtp_output$combined_tables$combined_outcomes_religious_vs_convert,
+                                                                   options = options_psych_religious_vs_convert,
+                                                                   save_output = TRUE,
+                                                                   label_mapping = label_mapping_psych,
+                                                                   save_path = here::here(push_mods),
+                                                                   original_df = original_df
+)
+
+
+# secular vs convert: psych
+psych_secular_vs_convert <- margot_plot(forest_psych_lmtp_output$combined_tables$combined_outcomes_secular_vs_convert,
+                                                                 options = options_psych_secular_vs_convert,
+                                                                 save_output = TRUE,
+                                                                 label_mapping = label_mapping_psych,
+                                                                 save_path = here::here(push_mods),
+                                                                 original_df = original_df
+)
+
+plot_forest_psych_lmtp_output_secular_vs_convert$plot
+
+
+# present
+
+forest_present_lmtp_output <- here_read_qs("forest_present_lmtp_output", push_mods)
+forest_present_lmtp_output$combined_tables
+
+
+# done vs religious: present
+present_done_vs_religious <- margot_plot(forest_present_lmtp_output$combined_tables$combined_outcomes_done_vs_religious,
+                                                               options = options_present_done_vs_religious,
+                                                               save_output = TRUE,
+                                                               label_mapping = label_mapping_present,
+                                                               save_path = here::here(push_mods),
+                                                               original_df = original_df
+)
+
+# done vs secular: present
+present_done_vs_secular <- margot_plot(forest_present_lmtp_output$combined_tables$combined_outcomes_done_vs_secular,
+                                                             options = options_present_done_vs_secular,
+                                                             save_output = TRUE,
+                                                             label_mapping = label_mapping_present,
+                                                             save_path = here::here(push_mods),
+                                                             original_df = original_df
+)
+
+# done vs convert: present
+present_done_vs_convert <- margot_plot(forest_present_lmtp_output$combined_tables$combined_outcomes_done_vs_convert,
+                                                             options = options_present_done_vs_convert,
+                                                             save_output = TRUE,
+                                                             label_mapping = label_mapping_present,
+                                                             save_path = here::here(push_mods),
+                                                             original_df = original_df
+)
+
+# religion vs secular: present
+present_religious_vs_secular <- margot_plot(forest_present_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+                                                                  options = options_present_religious_vs_secular,
+                                                                  save_output = TRUE,
+                                                                  label_mapping = label_mapping_present,
+                                                                  save_path = here::here(push_mods),
+                                                                  original_df = original_df
+)
+
+# religion vs convert: present
+present_religious_vs_convert <- margot_plot(forest_present_lmtp_output$combined_tables$combined_outcomes_religious_vs_convert,
+                                                                  options = options_present_religious_vs_convert,
+                                                                  save_output = TRUE,
+                                                                  label_mapping = label_mapping_present,
+                                                                  save_path = here::here(push_mods),
+                                                                  original_df = original_df
+)
+
+
+# secular vs convert: present
+present_secular_vs_convert <- margot_plot(forest_present_lmtp_output$combined_tables$combined_outcomes_secular_vs_convert,
+                                                                options = options_present_secular_vs_convert,
+                                                                save_output = TRUE,
+                                                                label_mapping = label_mapping_present,
+                                                                save_path = here::here(push_mods),
+                                                                original_df = original_df
+)
+
+
+
+forest_life_lmtp_output <- here_read_qs("forest_life_lmtp_output", push_mods)
+forest_life_lmtp_output$combined_tables
+
+
+# done vs religious: life
+life_done_vs_religious <- margot_plot(
+  forest_life_lmtp_output$combined_tables$combined_outcomes_done_vs_religious,
+  options = options_life_done_vs_religious,
+  save_output = TRUE,
+  label_mapping = label_mapping_life,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+# done vs secular: life
+life_done_vs_secular <- margot_plot(
+  forest_life_lmtp_output$combined_tables$combined_outcomes_done_vs_secular,
+  options = options_life_done_vs_secular,
+  save_output = TRUE,
+  label_mapping = label_mapping_life,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+life_done_vs_religious$plot
+life_done_vs_secular$plot
+
+
+
+# done vs convert: life
+life_done_vs_convert <- margot_plot(
+  forest_life_lmtp_output$combined_tables$combined_outcomes_done_vs_convert,
+  options = options_life_done_vs_convert,
+  save_output = TRUE,
+  label_mapping = label_mapping_life,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+# religion vs secular: life
+life_religious_vs_secular <- margot_plot(
+  forest_life_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+  options = options_life_religious_vs_secular,
+  save_output = TRUE,
+  label_mapping = label_mapping_life,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+# religion vs convert: life
+life_religious_vs_convert <- margot_plot(
+  forest_life_lmtp_output$combined_tables$combined_outcomes_religious_vs_convert,
+  options = options_life_religious_vs_convert,
+  save_output = TRUE,
+  label_mapping = label_mapping_life,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+# secular vs convert: life
+life_secular_vs_convert <- margot_plot(
+  forest_life_lmtp_output$combined_tables$combined_outcomes_secular_vs_convert,
+  options = options_life_secular_vs_convert,
+  save_output = TRUE,
+  label_mapping = label_mapping_life,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+## SOCIAL
+forest_social_lmtp_output <- here_read_qs("forest_social_lmtp_output", push_mods)
+forest_social_lmtp_output$combined_tables
+
+# done vs religious: life
+social_done_vs_religious <- margot_plot(
+  forest_social_lmtp_output$combined_tables$combined_outcomes_done_vs_religious,
+  options = options_social_done_vs_religious,
+  save_output = TRUE,
+  label_mapping = label_mapping_social,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+# done vs secular: life
+social_done_vs_secular <- margot_plot(
+  forest_social_lmtp_output$combined_tables$combined_outcomes_done_vs_secular,
+  options =  options_social_done_vs_secular,
+  save_output = TRUE,
+  label_mapping = label_mapping_social,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+
+# done vs convert: life
+social_done_vs_convert <- margot_plot(
+  forest_social_lmtp_output$combined_tables$combined_outcomes_done_vs_convert,
+  options =  options_social_done_vs_convert,
+  save_output = TRUE,
+  label_mapping = label_mapping_social,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+# religion vs secular: life
+social_religious_vs_secular <- margot_plot(
+  forest_social_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+  options =  options_social_religious_vs_secular,
+  save_output = TRUE,
+  label_mapping = label_mapping_social,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+# religion vs convert: life
+social_religious_vs_convert <- margot_plot(
+  forest_social_lmtp_output$combined_tables$combined_outcomes_religious_vs_convert,
+  options =  options_social_religious_vs_convert,
+  save_output = TRUE,
+  label_mapping = label_mapping_social,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+# secular vs convert: life
+social_secular_vs_convert <- margot_plot(
+  forest_social_lmtp_output$combined_tables$combined_outcomes_secular_vs_convert,
+  options =  options_social_secular_vs_convert,
+  save_output = TRUE,
+  label_mapping = label_mapping_social,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+
+health_done_vs_religious$plot
+health_done_vs_secular$plot
+health_done_vs_convert$plot
+health_religious_vs_secular$plot
+health_religious_vs_convert$plot
+health_secular_vs_convert$plot
+
+psych_religious_vs_secular$plot
+psych_done_vs_religious$plot
+psych_done_vs_secular$plot
+psych_done_vs_convert$plot
+psych_religious_vs_convert$plot
+psych_secular_vs_convert$plot
+
+
+
+
+present_done_vs_convert$plot
+present_done_vs_religious$plot
+present_done_vs_secular$plot
+present_religious_vs_secular$plot
+present_religious_vs_convert$plot
+present_secular_vs_convert$plot
+
+
+
+life_done_vs_religious$plot
+life_done_vs_secular$plot
+life_done_vs_convert$plot
+life_religious_vs_secular$plot
+life_religious_vs_convert$plot
+life_secular_vs_convert$plot
+
+social_done_vs_religious$plot
+social_done_vs_secular$plot
+social_done_vs_convert$plot
+social_religious_vs_secular$plot
+social_religious_vs_convert$plot
+social_secular_vs_convert$plot
+
+
+
+# set measures
+# outcomes, perhaps defined by domains
+
+raw_outcomes_present
+
+# options 1
+outcome_vars_all <- c(
+  biological_health = raw_outcomes_health,
+  pyschological_health = raw_outcomes_psych,
+  person_focussed_well_being = raw_outcomes_present,
+  life_focussed_well_being = raw_outcomes_life,
+  social_well_being = raw_outcomes_social)
+
+```
+
+
+
+
+## Introduction
+
+
+A central question in the scientific study of religion is whether religion fosters health [citations]. However, quantifying causal effects for religion presents significant challenges [@major2023exploring]. Investigators have limited scope to randomise supernatural beliefs, community worship, and personal prayer. On the other hand, valid causal inferences from non-experimental, "real world" data must combine high-resolution repeated-measures time-series data with robust methods for causal inference. Few studies meet this standard. 
+
+Here, to obtain causal inferences from time-series data, we leverage comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study from 2018-2021 and quantify the effects of clearly defined interventions in reliousity across the population of New Zealanders assessed on XXX outcome domains of well-being. We obtain causal inferences by contrasting inferred population averages under different sequential treatment regimes [@haneuse2013estimation; @diaz2023lmtp; @díaz2021; @hoffman2023]. 
+
+For each outcome domain we estimate the following quantities, controlling for baseline religious identification in wave 0 (the start of study), and measuring well-being at one-year following the final treatment (wave 4). We define "secular" to mean not being identified with religion. We define "highly religious" to mean fully identified with religion.
+
+1. Continuous Secular Treatment (Secular): what would be the population average well-being if everyone started out secular at wave 1, and remained secular in wave 2 and 3?
+
+2. Continuous Religious Treatment (Religious):  what would be the population average well-being if everyone started out highly religious at wave 1, and remained highly religious in wave 2 and 3?
+
+3. Convert to Secularism (Done): what would be the population average well-being if everyone started out religious at wave 1, but became secular in wave 2 and 3?
+
+4. Convert to Religious (Convert): what would be the population average well-being if everyone started out seci;ar at wave 1, but became highly religious in wave 2 and 3?
+
+
+These questions simulates a hypothetical experiment with random assignment to regular or non-attendance, emulating the scientifically interesting all/none contrast that is common in experimental designs [@hernán2016].
+
+Although the set of causal contrasts analysts might consider is unbounded, those we have selected address these specific scientific and policy interests.
+
+Note that our approach does not focus on testing specific hypotheses; instead, we aim to accurately and consistently compute our pre-specified causal contrasts [@hernan2024stating].
+
+
+## Method
+
+
+### Sample
+
+
+Data were collected as part of the New Zealand Attitudes and Values Study (NZAVS), an annual longitudinal national probability panel assessing New Zealand residents’ social attitudes, personality, ideology, and health outcomes. The panel began in 2009 and has since expanded to include over fifty researchers, with responses from `r n_total` participants to date. The study operates independently of political or corporate funding and is based at a university. Data summaries for all measures used in this study are provided in **Supplemental Appendices B-D**. For more information about the NZAVS, see: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB). The data for this study were obtained from the NZAVS waves 10-12 cohort, covering 2018-2021. Although this cohort is a national probability sample, we weighted responses by New Zealand 2018 Census estimates (age, gender, ethnicity) to produce results that better reflect the New Zealand population. Information on these survey weights can be found in the NZAVS documentation, see: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB).
+
+
+### Treatment Indicator
+
+
+We assessed religious service attendance using the following question:
+
+```{r}
+#| eval: false
+#| include: false
+
+exposure_measure <- boilerplate::boilerplate_report_measures(
+  outcome_vars = exposure_var,
+  measure_data = measure_data
+)
+
+cat(exposure_measure)
+
+```
+
+
+Responses were rounded to the nearest whole number. Because few participants reported attending more than eight times, we capped responses above eight at eight (see Appendix B, variable `religion_church_round`). In the regular church service condition, we did not intervene on responses greater than four to reduce computational burdens during estimation.
+
+
+### Outcomes
+
+
+```{r}
+#| eval: false
+#| include: false
+
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  outcome_vars = outcome_vars_all,
+  measure_data = measure_data
+)
+
+cat(outcome_measures)
+
+```
+
+### Measures of Well-being
+
+### Causal Contrasts
+
+
+As mentioned we define four causal intervention, yeilding six causal contrasts. 
+
+
+### Identification Assumptions
+
+
+To consistently estimate a causal effect, investigators must satisfy three assumptions (refer to @bulbulia2023):
+
+
+1.	Causal Consistency: potential outcomes correspond to the observed outcomes under the treatments in our data. We assume that conditional on measured covariates, potential outcomes do not depend on how the treatment was administered [@vanderweele2009; @vanderweele2013].
+
+
+2.	Conditional Exchangeability: conditional on observed covariates, treatment assignment is independent of the potential outcomes being compared (i.e. there is no unmeasured confounding) [@hernan2024WHATIF; @chatton2020].
+
+
+3.	Positivity: every individual has a non-zero probability of receiving each treatment level, regardless of their covariate values. We evaluated this by examining changes in religious service attendance from baseline to the treatment wave [@westreich2010].
+
+
+### Target Population
+
+
+Our target population comprises New Zealand residents represented in the baseline wave of the NZAVS during 2018–2019, weighted by 2018 New Zealand Census data for age, gender, and ethnicity [@sibley2021]. Although the NZAVS is a national probability study designed to reflect the broader New Zealand population, it tends to under-sample males and individuals of Asian descent and over-sample females and Māori (the indigenous people of New Zealand). To address these disparities and enhance the accuracy of our findings, we applied survey weights adjusting for age, gender, and ethnicity. Survey weights were integrated into our statistical models using the weights option in `lmtp` [@williams2021], following protocols described in @bulbulia2024PRACTICAL.  Note that the sample in this study is a single cohort, enrolled in the New Zealand Attitudes and Values Study in NZAVS wave 10 and NZAVS wave 11, and which may have been lost-to-follow up in NZAVS wave 12.
+
+
+### Eligibility Criteria
+
+
+Participants were included in the analysis if they:
+
+
+1. Were enrolled in the 2018 wave of the NZAVS (Time 10).
+2. Provided responses to the religious identification question at Time 10. 
+
+
+Participants with missing covariate data at baseline were included, with missing data imputed using information available at baseline. Participants may have been lost to follow-up at any point after baseline.
+
+
+A total of `r n_participants` individuals met these criteria and were included in the study.
+
+
+### Missing Data
+
+
+We adopted the following strategies for handling missing data:
+
+**Baseline Missingness:**: we used the predictive mean matching algorithm from the mice package in R [@vanbuuren2018] to impute missing baseline data (<2% of covariate values). We performed single imputation, using only baseline data for imputation [@zhang2023shouldMultipleImputation].
+
+**Outcome Missingness:** to account for confounding and selection bias from missing responses and panel attrition, we applied censoring weights obtained using nonparametric machine learning ensembles via the `lmtp` package in R [@williams2021].
+
+
+
+### Confounding Control
+
+To address confounding in our analysis, we implement [@vanderweele2019]'s *modified disjunctive cause criterion* by following these steps:
+
+1. **Identify all common causes** of both the treatment and outcomes.
+2. **Exclude instrumental variables** that affect the exposure but not the outcome. Instrumental variables do not contribute to controlling confounding and can reduce the efficiency of the estimates.
+3. **Include proxies for unmeasured confounders** affecting both exposure and outcome. According to the principles of d-separation @pearl2009a, using proxies allows us to control for their associated unmeasured confounders indirectly.
+4. **Control for baseline `r nice_exposure_name`** and all outcome variables (refer to @vanderweele2020.)
+
+[Appendix B](#appendix-demographics) details the covariates we included for confounding control. These methods adhere to the guidelines provided in [@bulbulia2024PRACTICAL] and were pre-specified in our study protocol [https://osf.io/ce4t9/](https://osf.io/ce4t9/).
+
+
+
+ @tbl-swig a schematic of our confounding control strategy. A Single World Intervention Template is a causal graph used to generate multiple counterfactual graphs, illustrating potential outcomes under an intervention [@richardson2013swigsprimer; @robins2010alternative; @richardson2023potential; @bulbulia2024swigstime]. This table presents the confounding control strategy adopted in our five-wave panel study.
+
+  - $U$ represents unmeasured confounders.
+  - Numerical subscripts denote time, where $0$ is baseline, $1$ is the treatment wave, and $\tau$ is the outcome wave (end of study). This study includes three measurement intervals.
+  - $L_0$ represents all confounders measured at baseline, while $A_1$ denotes the first exposure or treatment. This set includes $A_0$ (baseline treatment) and all baseline outcomes, $Y_0$.
+  - $A_{1:\tau - 1}$ denotes subsequent treatments. In this study, we intervene on `r {nice_exposure_name}` at $A_1$, $A_2$, and $A_3$.
+  - $Y_4$ represents outcomes measured at the end of the study.
+
+Solid arrows indicate assumed causal influences. The grey arrow reflects the assumption that unmeasured confounding is controlled. $L_{t-k}$ denotes time-varying confounders that might affect both the next wave's exposure and final outcome variables. After controlling for baseline confounders, baseline measures of exposure, and all baseline outcomes, we assume no further time-varying confounding [@bulbulia2024swigstime].
+
+Baseline values of the treatment ($A_0$) and outcome ($Y_0$) are included to reduce unmeasured confounding. Including these ensures that any unmeasured confounders influencing $A_1$ and $Y_2$ would need to affect them independently of their baseline states, namely $A_0$ and $Y_0$.
+
+
+::: {#tbl-swig}
+```{=latex}
+\tvfour
+```
+A Single World Intervention Template is a causal graph that allows us to generate multiple counterfactual graphs showing the potential outcomes under an intervention [@richardson2013swigsprimer; @robins2010alternative; @richardson2023potential]. By including the baseline measure of the exposure and all outcomes, for unmeasured confounders to bias the estimate of the causal effect of the exposures and outcomes they would need to do so independently of their measured states at baseline [@vanderweele2020].
+:::
+
+
+### Missing Data
+
+
+To mitigate bias from missing data, we implement the following strategies:
+
+**Baseline missingness**: we employed the `ppm` algorithm from the `mice` package in R [@vanbuuren2018] to impute missing baseline data (wave NZAVS time 12, years 2020-2021). This method allowed us to reconstruct incomplete datasets by estimating a plausible value for missing observation. Because we could only pass one data set to the lmtp, we employed single imputation. Approximately 1.2% of covariate values were missing at NZAVS time 12, years 2020-2021. We only used baseline data to impute baseline wave missingness (refer to @zhang2023shouldMultipleImputation).
+
+**Exposure wave missingness**: even if the population in the baseline wave corresponds to the target population, attrition between `r {nice_baseline_wave}` and `r {nice_exposure_waves}` may threaten generalisations to the target population. To address potential bias from loss-to-follow up in the exposure wave we employed non-parametric inverse-probability of censoring weights.
+
+**Outcome missingness**: to address confounding and selection bias arising from missing responses and panel attrition at the end of study NZAVS time 14, years 2022-2023, we applied censoring weights obtained using nonparametric machine learning ensembles afforded by the `lmtp` package (and its dependencies) in R [@williams2021].
+
+### Statistical Estimator
+  
+#### Longitudinal Modified Treatment Policy (LMTP) Estimator
+
+We perform statistical estimation using a Sequential Doubly-Robust Estimator from the `lmtp` package, which is multiply robust for repeated treatments across multiple waves [@diaz2023lmtp; @hoffman2023]. This estimator is robust to misspecification in either the outcome or treatment model over time. The lmtp package relies on the SuperLearner library, integrating diverse machine learning algorithms [@SuperLearner2023]. Given the high-dimensionality of the data, we used the Ranger estimator, a non-parametric causal forest method known for its resistance to overfitting [Ranger2017]. All statistical models implemented a 10-fold cross-validation. SDR robust method for estimating causal effects while providing valid statistical uncertainty measures [@van2014targeted; @van2012targeted]. For further information on targeted learning using the `lmtp` package, see [@hoffman2022; @hoffman2023; @díaz2021]. Graphs, tables, and output reports are created using the `margot` package [@margot2024].
+    
+
+### Sensitivity Analysis Using the E-value
+
+To assess the sensitivity of results to unmeasured confounding, we report VanderWeele and Ding's E-value in all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE]. To evaluate the strength of evidence, we use the bound of the E-value 95% confidence interval closest to 1. This provides an approximate metric for understanding the robustness of our findings in the presence of potential unmeasured confounding.
+
+### Changes in Religious Service Attendance
+
+@tbl-transition shows the transitions in religious service attendance from baseline to the treatment wave. Assessing changes in the treatment variable is essential for evaluating the positivity assumption of causal inference, which, as stated above,  requires that every individual has a non-zero probability of receiving each treatment level, regardless of their covariate values [@vanderweele2020; @danaei2012; @hernan2024WHATIF]. Although causal inference does not rely on the assumption that every combination of covariate and exposure is realised, where such observations are absent, stronger modelling assumptions are required. @tbl-transition clarifies the overall frequency of state transitions in the data.  We observe that attendance levels at 0 (no attendance) and 4 (weekly attendance) were the most common, and furthermore that there was indeed change in attendance over time.  That is, at the population level, we find changes in reported attendance between the baseline wave and the exposure wave occurred in the data.
+
+
+```{r}
+#| label: tbl-transition
+#| tbl-cap: "This transition matrix captures stability and change in religious service between the baseline and treatment wave. Each cell in the matrix represents the count of individuals transitioning from one state to another. The rows correspond to the state at baseline (From), and the columns correspond to the state at the treatment wave (To). **Diagonal entries** (in **bold**) signify the number of individuals who remained in their initial state across both waves. **Off-diagonal entries** signify the transitions of individuals from their baseline state to a different state in the treatment wave. A higher number on the diagonal relative to the off-diagonal entries in the same row indicates greater stability in a state. Conversely, higher off-diagonal numbers suggest more frequent shifts in the sample from the baseline state to other states."
+#| echo: false
+#| include: true
+#| eval: true
+
+
+transition_matrix$table
+```
+
+
+{{< pagebreak >}}
+
+
+
+
+## Results
+
+### Study 1a: `r {contrast_religious_vs_secular}`
+
+#### Biological Health
+
+```{r}
+#| label: fig-health-religious-secular
+#| fig-cap: "Biological Health: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+health_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-health-religious-secular
+#| tbl-cap: "Biological Health: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+health_religious_vs_secular$transformed_table
+```
+
+
+@tbl-health-religious-secular and @fig-health-religious-secular present the comparison of the intervention: `r {contrast_religious_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(health_religious_vs_secular$interpretation)
+```
+
+
+
+### Study 1b: `r {contrast_religious_vs_secular}`
+
+#### Psychological Well-Being
+```{r}
+#| label: fig-psych-religious-secular
+#| fig-cap: "Psychological Well-Being: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+psych_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-psych-religious-secular
+#| tbl-cap: "Psychological Well-Being: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+psych_religious_vs_secular$transformed_table
+```
+
+
+@tbl-psych-religious-secular and @fig-psych-religious-secular present the comparison of the intervention: `r {contrast_religious_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(psych_religious_vs_secular$interpretation)
+```
+
+### Study 1c: `r {contrast_religious_vs_secular}`
+
+#### Self-Focussed Well-Being
+```{r}
+#| label: fig-present-religious-secular
+#| fig-cap: "Self-Focussed Well-Being: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+present_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-present-religious-secular
+#| tbl-cap: "Self-Focussed Well-Being: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+present_religious_vs_secular$transformed_table
+```
+
+
+@tbl-present-religious-secular and @fig-present-religious-secular present the comparison of the intervention: `r {contrast_religious_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(present_religious_vs_secular$interpretation)
+```
+
+
+### Study 1d: `r {contrast_religious_vs_secular}`
+
+#### Life-Focussed Well-Being
+```{r}
+#| label: fig-life-religious-secular
+#| fig-cap: "Life-Focussed Well-Being: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+life_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-life-religious-secular
+#| tbl-cap: "Life-Focussed Well-Being: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+life_religious_vs_secular$transformed_table
+```
+
+
+@tbl-life-religious-secular and @fig-life-religious-secular present the comparison of the intervention: `r {contrast_religious_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(life_religious_vs_secular$interpretation)
+```
+
+
+### Study 1e: `r {contrast_religious_vs_secular}`
+
+#### Social Well-Being
+```{r}
+#| label: fig-social-religious-secular
+#| fig-cap: "Social Well-Being: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+social_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-social-religious-secular
+#| tbl-cap: "Social Well-Being: Religious vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+social_religious_vs_secular$transformed_table
+```
+
+
+@tbl-life-social-secular and @fig-life-social-secular present the comparison of the intervention: `r {contrast_religious_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(social_religious_vs_secular$interpretation)
+```
+
+
+
+### Study 2a: `r {contrast_done_vs_religious}`
+
+#### Biological Health
+
+```{r}
+#| label: fig-health-done-religious
+#| fig-cap: "Biological Health: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+health_done_vs_religious$plot
+```
+
+```{r}
+#| label: tbl-health-done-religious
+#| tbl-cap: "Biological Health: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+health_done_vs_religious$transformed_table
+```
+
+
+@tbl-health-done-religious and @fig-health-done-religious present the comparison of the intervention: `r {contrast_done_vs_religious}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(health_done_vs_religious$interpretation)
+```
+
+
+
+### Study 2b: `r {contrast_done_vs_religious}`
+
+#### Psychological Well-Being
+```{r}
+#| label: fig-psych-done-religious
+#| fig-cap: "Psychological Well-Being: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+psych_done_vs_religious$plot
+```
+
+```{r}
+#| label: tbl-psych-done-religious
+#| tbl-cap: "Psychological Well-Being: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+psych_done_vs_religious$transformed_table
+```
+
+
+@tbl-psych-done-religious and @fig-psych-done-religious present the comparison of the intervention: `r {contrast_done_vs_religious}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(psych_done_vs_religious$interpretation)
+```
+
+### Study 2c: `r {contrast_done_vs_religious}`
+
+#### Self-Focussed Well-Being
+```{r}
+#| label: fig-present-done-religious
+#| fig-cap: "Self-Focussed Well-Being: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+present_done_vs_religious$plot
+```
+
+```{r}
+#| label: tbl-present-done-religious
+#| tbl-cap: "Self-Focussed Well-Being: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+present_done_vs_religious$transformed_table
+```
+
+
+@tbl-present-done-religious and @fig-present-done-religious present the comparison of the intervention: `r {contrast_done_vs_religious}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(present_done_vs_religious$interpretation)
+```
+
+
+### Study 2d: `r {contrast_done_vs_religious}`
+
+#### Life-Focussed Well-Being
+```{r}
+#| label: fig-life-done-religious
+#| fig-cap: "Life-Focussed Well-Being: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+life_done_vs_religious$plot
+```
+
+```{r}
+#| label: tbl-life-done-religious
+#| tbl-cap: "Life-Focussed Well-Being: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+life_done_vs_religious$transformed_table
+```
+
+
+@tbl-life-done-religious and @fig-life-done-religious present the comparison of the intervention: `r {contrast_done_vs_religious}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(life_done_vs_religious$interpretation)
+```
+
+
+### Study 2e: `r {contrast_done_vs_religious}`
+
+#### Social Well-Being
+```{r}
+#| label: fig-social-done-religious
+#| fig-cap: "Social Well-Being: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+social_done_vs_religious$plot
+```
+
+```{r}
+#| label: tbl-social-done-religious
+#| tbl-cap: "Social Well-Being: Done vs Religious."
+#| eval: true
+#| include: true
+#| echo: false
+social_done_vs_religious$transformed_table
+```
+
+
+@tbl-life-done-religious and @fig-life-done-religious present the comparison of the intervention: `r {contrast_religious_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(social_done_vs_religious$interpretation)
+```
+
+
+
+### Study 3a: `r {contrast_done_vs_secular}`
+
+#### Biological Health
+
+```{r}
+#| label: fig-health-done-secular
+#| fig-cap: "Biological Health: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+health_done_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-health-done-secular
+#| tbl-cap: "Biological Health: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+health_done_vs_secular$transformed_table
+```
+
+
+@tbl-health-done-secular and @fig-health-done-secular present the comparison of the intervention: `r {contrast_done_vs_religious}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(health_done_vs_secular$interpretation)
+```
+
+
+
+### Study 3b: `r {contrast_done_vs_secular}`
+
+#### Psychological Well-Being
+```{r}
+#| label: fig-psych-done-secular
+#| fig-cap: "Psychological Well-Being: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+psych_done_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-psych-done-secular
+#| tbl-cap: "Psychological Well-Being: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+psych_done_vs_secular$transformed_table
+```
+
+
+@tbl-psych-done-secular and @fig-psych-done-secular present the comparison of the intervention: `r {contrast_done_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(psych_done_vs_secular$interpretation)
+```
+
+### Study 3c: `r {contrast_done_vs_secular}`
+
+#### Self-Focussed Well-Being
+```{r}
+#| label: fig-present-done-secular
+#| fig-cap: "Self-Focussed Well-Being: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+present_done_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-present-done-secular
+#| tbl-cap: "Self-Focussed Well-Being: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+present_done_vs_secular$transformed_table
+```
+
+
+@tbl-present-done-secular and @fig-present-done-secular present the comparison of the intervention: `r {contrast_done_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(present_done_vs_secular$interpretation)
+```
+
+
+### Study 3d: `r {contrast_done_vs_secular}`
+
+#### Life-Focussed Well-Being
+```{r}
+#| label: fig-life-done-secular
+#| fig-cap: "Life-Focussed Well-Being: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+life_done_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-life-done-secular
+#| tbl-cap: "Life-Focussed Well-Being: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+life_done_vs_secular$transformed_table
+```
+
+
+@tbl-life-done-secular and @fig-life-done-secular present the comparison of the intervention: `r {contrast_done_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(life_done_vs_secular$interpretation)
+```
+
+
+### Study 3e: `r {contrast_done_vs_secular}`
+
+#### Social Well-Being
+```{r}
+#| label: fig-social-done-secular
+#| fig-cap: "Social Well-Being: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+social_done_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-social-done-secular
+#| tbl-cap: "Social Well-Being: Done vs Secular."
+#| eval: true
+#| include: true
+#| echo: false
+social_done_vs_secular$transformed_table
+```
+
+
+@tbl-life-done-secular and @fig-life-done-secular present the comparison of the intervention: `r {contrast_done_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(social_done_vs_secular$interpretation)
+```
+
+
+### Study 4a: `r {contrast_done_vs_convert}`
+
+#### Biological Health
+
+```{r}
+#| label: fig-health-done-convert
+#| fig-cap: "Biological Health: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+health_done_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-health-done-convert
+#| tbl-cap: "Biological Health: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+health_done_vs_convert$transformed_table
+```
+
+
+@tbl-health-done-convert and @fig-health-done-convert present the comparison of the intervention: `r {contrast_done_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(health_done_vs_convert$interpretation)
+```
+
+
+
+### Study 4b: `r {contrast_done_vs_convert}`
+
+#### Psychological Well-Being
+```{r}
+#| label: fig-psych-done-convert
+#| fig-cap: "Psychological Well-Being: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+psych_done_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-psych-done-convert
+#| tbl-cap: "Psychological Well-Being: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+psych_done_vs_convert$transformed_table
+```
+
+
+@tbl-psych-done-convert and @fig-psych-done-convert present the comparison of the intervention: `r {contrast_done_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(psych_done_vs_convert$interpretation)
+```
+
+### Study 4c: `r {contrast_done_vs_convert}`
+
+#### Self-Focussed Well-Being
+```{r}
+#| label: fig-present-done-convert
+#| fig-cap: "Self-Focussed Well-Being: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+present_done_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-present-done-convert
+#| tbl-cap: "Self-Focussed Well-Being: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+present_done_vs_convert$transformed_table
+```
+
+
+@tbl-present-done-convert and @fig-present-done-convert present the comparison of the intervention: `r {contrast_done_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(present_done_vs_convert$interpretation)
+```
+
+
+### Study 4d: `r {contrast_done_vs_convert}`
+
+#### Life-Focussed Well-Being
+```{r}
+#| label: fig-life-done-convert
+#| fig-cap: "Life-Focussed Well-Being: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+life_done_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-life-done-convert
+#| tbl-cap: "Life-Focussed Well-Being: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+life_done_vs_convert$transformed_table
+```
+
+
+@tbl-life-done-convert and @fig-life-done-convert present the comparison of the intervention: `r {contrast_done_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(life_done_vs_convert$interpretation)
+```
+
+
+### Study 4e: `r {contrast_done_vs_convert}`
+
+#### Social Well-Being
+```{r}
+#| label: fig-social-done-convert
+#| fig-cap: "Social Well-Being: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+social_done_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-social-done-convert
+#| tbl-cap: "Social Well-Being: Done vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+social_done_vs_convert$transformed_table
+```
+
+
+@tbl-life-done-convert and @fig-life-done-convert present the comparison of the intervention: `r {contrast_done_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(social_done_vs_convert$interpretation)
+```
+
+
+### Study 5a: `r {contrast_religious_vs_convert}`
+
+#### Biological Health
+
+```{r}
+#| label: fig-health-religious-convert
+#| fig-cap: "Biological Health: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+health_religious_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-health-religious-convert
+#| tbl-cap: "Biological Health: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+health_religious_vs_convert$transformed_table
+```
+
+
+@tbl-health-religious-convert and @fig-health-religious-convert present the comparison of the intervention: `r {contrast_religious_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(health_religious_vs_convert$interpretation)
+```
+
+
+
+### Study 5b: `r {contrast_religious_vs_convert}`
+
+#### Psychological Well-Being
+```{r}
+#| label: fig-psych-religious-convert
+#| fig-cap: "Psychological Well-Being: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+psych_religious_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-psych-religious-convert
+#| tbl-cap: "Psychological Well-Being: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+psych_religious_vs_convert$transformed_table
+```
+
+
+@tbl-psych-religious-convert and @fig-psych-religious-convert present the comparison of the intervention: `r {contrast_religious_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(psych_religious_vs_convert$interpretation)
+```
+
+### Study 5c: `r {contrast_religious_vs_convert}`
+
+#### Self-Focussed Well-Being
+```{r}
+#| label: fig-present-religious-convert
+#| fig-cap: "Self-Focussed Well-Being: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+present_religious_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-present-religious-convert
+#| tbl-cap: "Self-Focussed Well-Being: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+present_religious_vs_convert$transformed_table
+```
+
+
+@tbl-present-religious-convert and @fig-present-religious-convert present the comparison of the intervention: `r {contrast_religious_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(present_religious_vs_convert$interpretation)
+```
+
+
+### Study 5d: `r {contrast_religious_vs_convert}`
+
+#### Life-Focussed Well-Being
+```{r}
+#| label: fig-life-religious-convert
+#| fig-cap: "Life-Focussed Well-Being: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+life_religious_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-life-religious-convert
+#| tbl-cap: "Life-Focussed Well-Being: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+life_religious_vs_convert$transformed_table
+```
+
+
+@tbl-life-religious-convert and @fig-life-religious-convert present the comparison of the intervention: `r {contrast_religious_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(life_religious_vs_convert$interpretation)
+```
+
+
+### Study 5e: `r {contrast_religious_vs_convert}`
+
+#### Social Well-Being
+```{r}
+#| label: fig-social-religious-convert
+#| fig-cap: "Social Well-Being: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+social_religious_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-social-religious-convert
+#| tbl-cap: "Social Well-Being: Religious vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+social_religious_vs_convert$transformed_table
+```
+
+
+@tbl-life-religious-convert and @fig-life-religious-convert present the comparison of the intervention: `r {contrast_religious_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(social_religious_vs_convert$interpretation)
+```
+
+
+### Study 6a: `r {contrast_secular_vs_convert}`
+
+#### Biological Health
+
+```{r}
+#| label: fig-health-secular-convert
+#| fig-cap: "Biological Health: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+health_secular_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-health-secular-convert
+#| tbl-cap: "Biological Health: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+health_secular_vs_convert$transformed_table
+```
+
+
+@tbl-health-secular-convert and @fig-health-secular-convert present the comparison of the intervention: `r {contrast_secular_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(health_secular_vs_convert$interpretation)
+```
+
+
+
+### Study 6b: `r {contrast_secular_vs_convert}`
+
+#### Psychological Well-Being
+```{r}
+#| label: fig-psych-secular-convert
+#| fig-cap: "Psychological Well-Being: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+psych_secular_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-psych-secular-convert
+#| tbl-cap: "Psychological Well-Being: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+psych_secular_vs_convert$transformed_table
+```
+
+
+@tbl-psych-secular-convert and @fig-psych-secular-convert present the comparison of the intervention: `r {contrast_secular_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(psych_secular_vs_convert$interpretation)
+```
+
+### Study 6c: `r {contrast_secular_vs_convert}`
+
+#### Self-Focussed Well-Being
+```{r}
+#| label: fig-present-secular-convert
+#| fig-cap: "Self-Focussed Well-Being: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+present_secular_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-present-secular-convert
+#| tbl-cap: "Self-Focussed Well-Being: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+present_secular_vs_convert$transformed_table
+```
+
+
+@tbl-present-secular-convert and @fig-present-secular-convert present the comparison of the intervention: `r {contrast_secular_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(present_secular_vs_convert$interpretation)
+```
+
+
+### Study 6d: `r {contrast_secular_vs_convert}`
+
+#### Life-Focussed Well-Being
+```{r}
+#| label: fig-life-secular-convert
+#| fig-cap: "Life-Focussed Well-Being: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+life_secular_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-life-secular-convert
+#| tbl-cap: "Life-Focussed Well-Being: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+life_secular_vs_convert$transformed_table
+```
+
+
+@tbl-life-secular-convert and @fig-life-secular-convert present the comparison of the intervention: `r {contrast_secular_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(life_secular_vs_convert$interpretation)
+```
+
+
+### Study 6e: `r {contrast_secular_vs_convert}`
+
+#### Social Well-Being
+```{r}
+#| label: fig-social-secular-convert
+#| fig-cap: "Social Well-Being: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+social_secular_vs_convert$plot
+```
+
+```{r}
+#| label: tbl-social-secular-convert
+#| tbl-cap: "Social Well-Being: Secular vs Convert."
+#| eval: true
+#| include: true
+#| echo: false
+social_secular_vs_convert$transformed_table
+```
+
+
+@tbl-life-secular-convert and @fig-life-secular-convert present the comparison of the intervention: `r {contrast_secular_vs_convert}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(social_secular_vs_convert$interpretation)
+```
+
+
+
+## Discussion
+
+These findings underscore the importance of careful causal inquiry for examining the effects of religious identification on multi-dimensional well-being. The broad question, 'Does religion cause well-being?' is too vague to yield meaningful insights. Proper investigation requires specifying causal contrasts on well-defined treatments, selecting relevant measures of religious-identification, defining the target population, and collecting appropriate repeated-measures data in sufficiently large samples over time. Next, only after satisfying fundamental causal assumptions and identification criteria can we derive reliable statistical estimates that relate to our questions. Employing flexible statistical estimators further mitigates the risk of model misspecification [@hoffman2023; @vanderlaan2018;@wager2018]. After statistical estimation, sensitivity analyses help gauge the robustness of our quantitative estimates to confounding bias [@hernan2024WHATIF; @vanderweele2020].
+
+Here, we defined clear causal contrasts from interventions that either increased or decreased religious identification. Our statistical models accounted for baseline confounders, including measures of baseline treatment and baseline outcomes. To reduce reliance on modelling assumptions, we used flexible, doubly robust machine learning ensembles with cross-validation. We then compared expected average outcomes under different treatments from clearly stated three year interventions, ensuring that estimation of the data follows a temporal order in which causes precede effects.
+
+....
+
+Despite the strengths of our study, several limitations persist. We should not confuse the precision of our causal workflows with the precision of the estimates we that we obtain from them. Direct and correlated measurement errors can skew findings by inflating or reducing the estimated magnitudes of true effects [@vanderweele2012MEASUREMENT; @bulbulia2024wierd].  Here, we provide signals, not certainties.
+
+The generalisability of our findings beyond New Zealand is yet to be explored, as are the causal effects of prolonged exposure to religious services over more years, and fewer years.  Although our results pertain to the New Zealand population, further research is needed to determine whether they hold in other cultural or national contexts, and whether longer-term interventions on religious service attendance would cause different magnitudes of response. Initiatives such as the Global Flourish Study [@johnson2022global], and similar efforts will eventually provide opportunities to apply causal methods across diverse cultural settings. And causal estimation over multiple waves is already possible with New Zealand Attitudes and Values data, a matter for future investigation.
+
+In conclusion, by integrating robust causal methods with longitudinal data, we provide clear quantitative evidence that shifts in religious identification affects well-being. Beyond the interests of our findings, we hope this study encourages psychological scientists to adopt causal methods. Psychological questions are inherently causal. However, effectively addressing these questions requires methods that transcend the associational approaches currently dominating the field [@bulbulia2024swigstime; @vanderweele2021can; @rohrer2022PATH]. We hope this study inspires others to build upon our early efforts.
+
+<!-- 
+
+Ultimately, advancing psychological science will depend on moving beyond purely associational methods. The ability to rigorously assess causal relationships opens new avenues for understanding behaviour, intervention, and policy relevance -- opportunities that the field can no longer afford to overlook. 
+
+
+ -->
+
+<!-- First, it is essential to notice that "Does religion cause prosociality?" lacks specificity. To refine this question, we must articulate clear causal contrasts and their scale, select specific measures of "prosociality," define our target population, gather appropriate time-series data, and, only after causal assumptions and identification criteria are satisfied and threats made explicit, calculate statistical estimates. Having obtained these estimates, which rely on assumptions, we must evaluate robustness using sensitivity analyses [@hernan2024WHATIF; @ogburn2021; @bulbulia2022; @linden2020EVALUE; @vanderweele2020].
+
+
+Here, we obtain statistical estimates for the causal effects of religious service on charity and volunteering by (1) stating contrasts for specific interventions that increase and decrease religious service attendance across the population; (2) balancing the interventions to be compared on baseline confounders measured one year before treatment (including baseline measures of the treatment and outcomes) using flexible doubly robust machine learning ensembles with cross-validation; and (3) evaluating contrasts in expected average outcomes under different treatments one year after treatment.
+
+
+In the scientifically interesting contrast condition, 'Regular vs Zero', we find considerable social benefits of regular religious attendance for charitable donations and volunteering. Moreover, we also find that regular religious service enacted in contemporary New Zealand would strongly enhance charity and volunteering above the status quo, a point that may inform discussions among critics of religion. Conversely, the overall social effects of altogether ceasing religious services are minimal compared with the status quo. Were New Zealand society to entirely forgo regular religious attendance, differences in charitable donations and volunteering one year later are unreliable. Although we did not investigate the long-term effects of the interventions considered here, this finding should alleviate some concerns among those wary of New Zealand's longstanding secular trend. Looking ahead, **we recommend that future research distinguish between treatment-gain and treatment-loss models** (as exemplified by [@vantongeren2020]).
+
+
+Second, we caution that **classical measures of effect, such as Cohen's *D* or $R^2$, may present a misleading indication of practical significance.** Our study computed standardised differences in the continuous charity and volunteering outcomes. The contrast between regular religious service and no service yields an effect size of 0.132 [0.102, 0.161]. This effect would be categorised as a "small" effect by contemporary experimental conventions. Nonetheless, we project that the difference in annual charitable donations between the regular service condition and the status quo amounts to NZD `r mean_donations_gain` versus NZD `r mean_donations_null`. Not only is this effect practically significant at the individual level, but summed over the population, the difference amounts to 4% of New Zealand's Annual Government Budget (2021). **We recommend using causal inference to prioritise, evaluate, and communicate practical effect sizes. Conventional statistical measures should not be mistaken for metrics of practical significance.**
+
+
+Third, our novel measures of prosociality—**assistance and financial support received from one's community**—align with the expectations of self-reported data on charitable donations and volunteering. We detect marginal causal effects of religious service attendance on **measures of prosocial benefit and dependence**. Notice that just as our measures of prosocial actions (charity/volunteering) do not capture the targets of prosocial help, our measures of community help received (time/money) do not capture the specific sources of help beyond the categories of "community," "friends," and "family". Nevertheless, the evolutionary theories of religious prosociality that motivate this study are grounded on within-group cooperative benefits [@sosis2003cooperation; @johnson2015; @bulbulia2012spreading; @whitehouse2023; @schloss2011evolutionary]. This consistency between self-reported giving and help received aligns with public data in New Zealand;[^charities] where religious institutional charity accounts for 40% of the charitable sector (refer to [@McLeod2020, p.17], and also [@brooks2004faith; @woodyard2014doing; @monsma2007religion]). Additionally, religious institutions appear particularly efficient owing to low administrative costs and high volunteer engagement [@khanna1995charity; @bekkers2011literature; @McLeod2020, p.26]. We note that the community signals of religious giving are consistent with the theory that religion promotes altruism outside families, friendships, and even among strangers [@mccullough2020kindness]. **In contexts where investigators are concerned about self-presentation biases when surveying charitable donations and volunteering, we recommend piloting and deploying measures that capture community-received assistance.**
+
+
+[^charities]: [https://www.charities.govt.nz/view-data/](https://www.charities.govt.nz/view-data/)
+
+
+Fourth, our secondary analysis reveals that standard cross-sectional regressions overstate the causal effects estimates obtained from a conscientious application of causal methods to time-series data. Importantly, associational models might also *understate* true causal relationships, especially if adjustments involve mediators [@westreich2013; @mcelreath2020]. Despite their effectiveness and relevance, causal inference methods remain uncommon in many human sciences, including the psychological sciences, where traditional associational methods still dominate. Transitioning to causal data science might seem daunting. Yet, causation inherently unfolds in time, with causes preceding effects. Estimating average causal effects involves multi-stepped workflows and robust time-series data [@neal2020introduction; @bulbulia2023]. Although the need for researchers to develop new skills imposes considerable demands, it is encouraging that methods for causal inference have become standard in epidemiology [@lash2020] and are rapidly gaining traction in economics [@angrist2009mostly; @athey2019; @athey2021] and political science [@montgomery2018].
+
+
+Moreover, a global panel study suited for researching religion [@johnson2022global] offers exciting opportunities for psychological scientists to apply causal methods to those psychological questions at the heart of our discipline.
+
+
+Also encouraging, well-designed panel studies investigating the causal effects of religious service attendance on health that capitalise on the affordances of time-series data provide models for studies that may investigate the social consequences of religion (refer to [@chen2020religious, @pawlikowski2019religious, @vanderweelechurchmortality, @vanderweele2021effectsReligiousServiceMetanalysis, @kim2019mediators]). At present, then, the intellectual benefits of retooling would seem considerable (refer to [@major2023exploring]).
+
+
+Setting intellectual benefits aside, it is vital to remember that investigators should be able to evaluate the practical interest of their findings coherently. Such evaluation relies on quantifying the effects of interventions. However, associational methods cannot deliver this understanding where causal inferential workflows are absent because association is not guaranteed to be causation [@westreich2013]. What might be called a **practical significance gap** arises from associational models because we cannot interpret associations as causation unless we have obtained balance on the treatments to be compared, know that causes in our data precede effects in time, and ensure that identification conditions have been met. Notably, the **practical significance gap remains for associational methods even when they are applied to time-series data**, and even when the associational methods are sophisticated—as in the statistical structural equation and multilevel modelling traditions (refer to [@vanderweele2021can; @hazlett2022understanding]). Yet, because investigators typically seek both scientific knowledge and practical understanding, **we strongly recommend the broader adoption of causal inferential methods in the psychological sciences.**
+
+
+Fifth, and finally, we frame this study's contribution in light of future horizons. This study combined robust causal methods with national panel data to quantitatively investigate the social consequences of religious behaviour. Using both stated and revealed indicators, we provide evidence that religious service attendance causally affects charitable donations and volunteering. These findings offer insights into *how much* religious service affects charity and volunteering in New Zealand and possibly in similar cultures. We hope this research will serve as a guide for studies in other settings.
+
+
+However, even within New Zealand, much remains to be discovered. We have not attempted to elucidate heterogeneity in the treatment effects we observe. Nor have we investigated the pathways by which religious service attendance affects social behaviours. A substantial body of research has examined the psychological and cultural features through which religious behaviours affect individuals [@norenzayan2016; @shaver2020church; @watts2016; @mccullough2016christian; @konvalinka2011synchronized; @lang2015effects; @cristofori2016neural; @shaver2015evolution; @sosis2005does]. Yet obtaining a causal understanding presents conceptual, modelling, and data challenges [@robins1992; @vanderweele2015; @Diaz2023; @diaz2021nonparametric]. In the years ahead, **we recommend the wider development and application of causal inferential methods employing repeated measurements over more than three years to investigate variation, interaction, and causal mediation**. -->
+
+
+{{< pagebreak >}}
+
+
+### Ethics
+
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+
+
+### Data Availability
+
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: [https://github.com/go-bayes/models/blob/main/scripts/24-bulbulia-church-prosocial.R](https://github.com/go-bayes/models/blob/main/scripts/24-bulbulia-church-prosocial.R). 
+
+
+
+
+### Acknowledgements
+
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+
+
+### Author Statement
+
+
+JB conceived the study and approach. CS led NZAVS data collection. All authors contributed to the manuscript.
+
+
+
+
+{{< pagebreak >}}
+
+
+## Appendix A: Measures {#appendix-measures}
+
+
+#### Age (waves: 1-15)
+
+
+We asked participants' ages in an open-ended question ("What is your age?" or "What is your date of birth?").
+
+
+
+
+#### Born in New Zealand
+
+
+
+
+#### Charitable Donations  (Study 1 outcome)
+
+
+Using one item from @hoverd_religious_2010, we asked participants, "How much money have you donated to charity in the last year?". 
+
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+
+
+
+#### Charitable Volunteering  (Study 1 outcome)
+
+
+
+
+We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work."
+
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+
+#### Children Number (waves: 1-3, 4-15)
+
+
+We measured the number of children using one item from @Bulbulia_2015. We asked participants, "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15).
+
+
+<!-- Here, we used responses to create a binary indicator for parenthood: Parent Yes = 1/ No = 0.  -->
+
+
+
+
+
+
+<!-- #### Community: Sense of Community (Study 2 outcome) -->
+
+
+<!-- We measured a sense of community with a single item from @sengupta2013: "I feel a sense of community with others in my local neighbourhood." Participants answered on a scale of 1 (strongly disagree) to 7 (strongly agree). -->
+
+
+
+
+<!-- #### Community: Felt Belongingness  (Study 2 outcome) -->
+
+
+<!-- We assessed felt belongingness with three items adapted from the Sense of Belonging Instrument [@hagerty1995]: (1) "Know that people in my life accept and value me"; (2) "Feel like an outsider"; (3) "Know that people around me share my attitudes and beliefs". Participants responded on a scale from 1 (Very Inaccurate) to 7 (Very Accurate). The second item was reversely coded. -->
+
+
+<!-- #### Community: Social Support (Study 2 outcome) -->
+
+
+<!-- Participants perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated how much they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+
+#### Disability
+
+
+We assessed disability with a one-item indicator adapted from @verbrugge1997. It asks, "Do you have a health condition or disability that limits you and that has lasted for 6+ months?" (1 = Yes, 0 = No).
+
+
+
+
+#### Education Attainment (waves: 1, 4-15)
+
+
+We asked participants, "What is your highest level of qualification?". We coded participants' highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
+
+
+#### Employment (waves: 1-3, 4-11)
+
+
+We asked participants, "Are you currently employed? (This includes self-employed or casual work)".
+
+
+<!-- #### European (waves: 1-15) -->
+
+
+<!-- Participants were asked, "Which ethnic group do you belong to (NZ census question)?" or "Which ethnic group(s) do you belong to? (Open-ended)" (wave: 3). Europeans were coded as 1, whereas other ethnicities were coded as 0. -->
+
+
+#### Ethnicity
+
+
+Based on the New Zealand Census, we asked participants, "Which ethnic group(s) do you belong to?". The responses were: (1) New Zealand European; (2) Māori; (3) Samoan; (4) Cook Island Māori; (5) Tongan; (6) Niuean; (7) Chinese; (8) Indian; (9) Other such as DUTCH, JAPANESE, TOKELAUAN. Please state:. We coded their answers into four groups: Maori, Pacific, Asian, and Euro (except for Time 3, which used an open-ended measure).
+
+
+
+
+#### Fatigue
+
+
+We assessed subjective fatigue by asking participants, "During the last 30 days, how often did ... you feel exhausted?" Responses were collected on an ordinal scale (0 = None of The Time, 1 = A little of The Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time).
+
+
+
+
+#### Honesty-Humility-Modesty Facet (waves: 10-14)
+
+
+Participants indicated the extent to which they agree with the following four statements from @campbell2004 , and @sibley2011 (1 = Strongly Disagree to 7 = Strongly Agree)
+
+i.  I want people to know that I am an important person of high status, (Waves: 1, 10-14)
+ii. I am an ordinary person who is no better than others.
+iii. I wouldn't want people to treat me as though I were superior to them.
+iv. I think that I am entitled to more respect than the average person is.
+
+
+<!-- #### Has Siblings -->
+
+
+<!-- "Do you have siblings?" [@stronge2019onlychild] -->
+
+
+#### Hours of Childcare
+
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Hours of Housework
+
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Exercise
+
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+<!-- #### Hours Volunteering -->
+
+
+<!-- We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work." -->
+
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+
+#### Hours of Childcare
+
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Hours of Exercise
+
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Hours of Housework
+
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Hours of Sleep
+
+
+Participants were asked, "During the past month, on average, how many hours of *actual sleep* did you get per night?".
+
+
+
+
+#### Hours of Work
+
+
+We measured work hours using one item from @sibley2011: "Hours spent … working in paid employment."
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Income (waves: 1-3, 4-15)
+
+
+Participants were asked, "Please estimate your total household income (before tax) for the year XXXX". To stabilise this indicator, we first took the natural log of the response + 1, and then centred and standardised the log-transformed indicator.
+
+
+<!-- #### Job Security (waves: 1-3,4-7,9-15) -->
+
+
+<!-- Participants indicated their feeling of job security by answering "How secure do you feel in your current job?" on a scale from 1 (not secure) to 7 (very secure). -->
+
+
+
+
+#### Kessler-6: Psychological Distress  (waves: 2-3,4-15)
+
+
+We measured psychological distress using the Kessler-6 scale (kessler2002?), which exhibits
+strong diagnostic concordance for moderate and severe psychological distress in large, crosscultural
+samples (kessler2010?; prochaska2012?). Participants rated during the past 30
+days, how often did… (1) “… you feel hopeless”; (2) “… you feel so depressed that nothing
+could cheer you up”; (3) “… you feel restless or fidgety”; (4)“… you feel that everything was
+an effort”; (5) “… you feel worthless”; (6) ” you feel nervous?” Ordinal response alternatives
+for the Kessler-6 are: “None of the time”; “A little of the time”; “Some of the time”; “Most of
+the time”; “All of the time.”
+
+
+
+
+#### Male Gender (waves: 1-15)
+
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male as 1, and gender diverse coded as 3 [@fraser_coding_2020]. (or 0.5 = neither female nor male)
+
+
+Here, we coded all those who responded as Male as 1, and those who did not as 0.
+
+
+
+
+#### Mini-IPIP 6 (waves: 1-3,4-15)
+
+
+We measured participants' personalities with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011], which consists of six dimensions and each dimension is measured with four items:
+
+
+1.  agreeableness,
+
+
+    i.  I sympathize with others' feelings.
+    ii. I am not interested in other people's problems. (r)
+    iii. I feel others' emotions.
+    iv. I am not really interested in others. (r)
+
+
+2.  conscientiousness,
+
+
+    i.  I get chores done right away.
+    ii. I like order.
+    iii. I make a mess of things. (r)
+    iv. I often forget to put things back in their proper place. (r)
+
+
+3.  extraversion,
+
+
+    i.  I am the life of the party.
+    ii. I don't talk a lot. (r)
+    iii. I keep in the background. (r)
+    iv. I talk to a lot of different people at parties.
+
+
+4.  honesty-humility,
+
+
+    i.  I feel entitled to more of everything. (r)
+    ii. I deserve more things in life. (r)
+    iii. I would like to be seen driving around in a very expensive car. (r)
+    iv. I would get a lot of pleasure from owning expensive luxury goods. (r)
+
+
+5.  neuroticism, and
+
+
+    i.  I have frequent mood swings.
+    ii. I am relaxed most of the time. (r)
+    iii. I get upset easily.
+    iv. I seldom feel blue. (r)
+
+
+6.  openness to experience
+
+
+    i.  I have a vivid imagination.
+    ii. I have difficulty understanding abstract ideas. (r)
+    iii. I do not have a good imagination. (r)
+    iv. I am not interested in abstract ideas. (r)
+
+
+Each dimension was assessed with four items and participants rated the accuracy of each item as it applies to them from 1 (Very Inaccurate) to 7 (Very Accurate). Items marked with (r) are reverse coded.
+
+
+
+
+#### NZ-Born (waves: 1-2,4-15)
+
+
+We asked participants, "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).
+
+
+
+
+#### NZ Deprivation Index (waves: 1-15)
+
+
+We used the NZ Deprivation Index to assign each participant a score based on where they live [@atkinson2019]. This score combines data such as income, home ownership, employment, qualifications, family structure, housing, and access to transport and communication for an area into one deprivation score.
+
+
+
+
+#### NZSEI Occupational Prestige and Status (waves: 8-15)
+
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017a]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant an NZSEI-13 score based on their occupation.
+
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant an NZSEI-13 score based on their occupation.
+
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?". -->
+<!-- #### Parent (waves: 5-15) -->
+
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. --> 
+
+
+
+
+
+
+
+
+#### Opt-in
+
+
+The New Zealand Attitudes and Values Study allows opt-ins to the study. Because the opt-in population may differ from those sampled randomly from the New Zealand electoral roll; although the opt-in rate is low, we include an indicator (yes/no) for this variable.
+
+
+
+
+
+
+#### Partner (No/Yes)
+
+
+"What is your relationship status?" (e.g., single, married, de-facto, civil union, widowed, living together, etc.)
+
+
+
+
+#### Politically Conservative 
+
+
+We measured participants' political conservative orientation using a single item adapted from @jost_end_2006-1.
+
+
+"Please rate how politically liberal versus conservative you see yourself as being."
+
+
+(1 = Extremely Liberal to 7 = Extremely Conservative)
+
+
+
+
+##### Religious Service Attendance
+
+
+If participants answered *yes* to "Do you identify with a religion and/or spiritual group?" we measured their frequency of church attendence using one item from @sibley2012: "how many times did you attend a church or place of worship in the last month?". Those participants who were not religious were imputed a score of "0".
+
+
+#### Rural/Urban Codes
+
+
+Participants residence locations were coded according to a five-level ordinal categorisation ranging from "Urban" to Rural, see @sibley2021.
+
+
+<!-- #### Politically Right Wing  -->
+
+
+<!-- We measured participants' political right-wing orientation using a single item adapted from @jost_end_2006-1. -->
+
+
+<!-- "Please rate how politically left-wing versus right-wing you see yourself as being." -->
+
+
+<!-- (1 = Extremely left-wing to 7 = Extremely right-wing) -->
+
+
+
+
+<!-- #### Religion Affiliation -->
+
+
+<!-- Participants were asked to indicate their religion identification ("Do you identify with a religion and/or spiritual group?") on a binary response (1 = Yes, 0 = No). We then asked, "What religion or spiritual group?" These questions are used in the New Zealand Census -->
+
+
+
+
+<!-- #### Support -->
+
+
+<!-- Participants' perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated how much they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+
+#### Short-Form Health
+
+
+Participants' subjective health was measured using one item ("Do you have a health condition or disability that limits you, and that has lasted for 6+ months?"; 1 = Yes, 0 = No) adapted from @verbrugge1997.
+
+
+
+
+#### Sample Origin
+
+
+Wave enrolled in NZAVS, see @sibley2021.
+
+
+<!-- #### Socialising (time 10, time 11) -->
+
+
+<!-- As part of the time usage measures, participants were asked to state how many hour the spent in activities related to socialising with the following groups: -->
+
+
+<!--   - Hours spent … socialising with family -->
+<!--   - Hours spent … socialising with friends -->
+<!--   - Hours spent … socialising with community groups -->
+
+
+<!--   <!-- - Hours spent … socialising with religious groups -->
+
+
+
+
+#### Support received: money (waves 10-12) (Study 4 outcomes)
+
+
+The NZAVS has a 'revealed' measure of received help and support measured in hours of support in the previous week. The items are: 
+
+
+
+
+*Please estimate how much help you have received from the following sources in the last week?*
+
+
+- *family...MONEY (hours)*
+- *friends...MONEY (hours)*
+- *members of my community...MONEY (hours)*
+
+
+
+
+Because this measure is highly variable, we convert responses to binary indicators: *0 = none/1 any*
+
+
+
+
+#### Support received: time (waves 10-13) (Study 3 outcomes)
+
+
+*Please estimate how much help you have received from the following sources in the last week.*
+
+
+- *family...TIME (hours)*
+- *friends...TIME (hours)*
+- *members of my community...TIME (hours)*
+
+
+Because this measure is highly variable, we convert responses to binary indicators: *0 = none/1 any*
+  
+
+
+#### Total Siblings
+
+
+Participants were asked the following questions related to sibling counts: 
+ 
+ - Were you the 1st born, 2nd born, or 3rd born, etc, child of your mother?
+ - Do you have siblings?
+ - How many older sisters do you have?
+ - How many younger sisters do you have?
+ - How many older brothers do you have?
+ - How many younger brothers do you have?
+
+
+A single score was obtained from sibling counts by summing responses to the "How many..." items. From these scores, an ordered factor was created ranging from 0 to 7, where participants with more than 7 siblings were grouped into the highest category. 
+
+
+
+
+<!-- #### Volunteers -->
+
+
+<!-- We asked participants,"Please estimate how many hours you spent doing each of the following things last week" and responded to an item ("voluntary/charitable work") from [@sibley2011]. -->
+
+
+
+
+{{< pagebreak >}}
+
+
+## Appendix B. Baseline Demographic Statistics {#appendix-demographics}
+
+
+
+
+```{r}
+#| label: tbl-table-demography
+#| tbl-cap: "Baseline demographic statistics"
+#| eval: true
+#| include: true
+#| echo: false
+table_baseline |>  kbl(format = "markdown")
+```
+
+
+
+
+@tbl-table-demography baseline demographic statistics for couples who met inclusion criteria.
+
+
+{{< pagebreak >}}
+
+
+
+
+##  Appendix C: Treatment Statistics {#appendix-exposures}
+
+
+
+
+```{r}
+#| label: tbl-table-exposures-code
+#| tbl-cap: "Exposures at baseline and baseline + 1 (treatment) wave"
+#| eval: true
+#| include: true
+#| echo: false
+
+
+table_exposures |>  kbl(format = "latex",  booktabs = TRUE)
+```
+
+
+
+
+
+
+tbl-table-exposures-code presents baseline (NZAVS time 10) and exposure wave (NZAVS time 11) statistics for the exposure variable: religious service attendance (range 0-8). Responses coded as eight or above were coded as "8". This decision to avoid spare treatments was based on theoretical grounds, namely, that daily exposure would be similar in its effects to more than daily exposure. We note that causal contrasts were obtained for projects with either no attendance or four or more visits per month. Hence this simplification of the measure is unlikely to affect theoretical and practical inferences. All models adjusted for the pandemic alert level because the treatment wave (NZAVS time 11) occurred during New Zealand's COVID-19 pandemic. The pandemic is not a "confounder" because a confounder must be related to the treatment and the outcome. At the end of the study, all participants had been exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. Because COVID affected the ability or willingness of individuals to attend religious service, we included the lockdown condition as a covariate [@sibley2021]. To better enable conditional independence within levels of the treatment variable, we conditioned on the lead value of COVID-alert level at baseline. To mitigate systematic biases arising from attrition and missingness, the `lmtp` package uses inverse probability of censoring weights, which were used when estimating the causal effects of the exposure on the outcome. 
+
+
+
+
+
+
+### Binary Transition Table for The Treatment
+
+
+```{r}
+#| label: tbl-transition-tablegain
+#| tbl-cap: "Transition table for stability and change in regular religious service (4x per month) between baseline and treatment wave."
+#| eval: true
+#| include: true
+#| echo: false
+transition_table_binary_gain$table
+```
+
+
+@tbl-transition-tablegain presents a transition matrix to evaluate treatment shifts between baseline and treatment wave. Here, we focus on the shift from/to monthly attendance at four or more visits per month. Entries along the diagonal (in bold) indicate the number of individuals who **stayed** in their initial state. By contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off diagonal). Thus the cell located at the intersection of row $i$ and column $j$, where $i \neq j$, gives us the counts of individuals moving from state $i$ to state $j$.
+
+
+
+
+
+
+
+
+
+
+```{r}
+#| label: tbl-transition-tableloss
+#| tbl-cap:  "Transition table for stability and change in zero religious service (0 x per month) between baseline and treatment wave."
+#| eval: true
+#| include: true
+#| echo: false
+transition_table_binary_zero$table
+```
+
+
+@tbl-transition-tableloss presents a transition matrix to evaluate treatment shifts between baseline and treatment wave. Here, we focus on the shift from/to zero religious service attendance. Again, entries along the diagonal (in bold) indicate the number of individuals who **stayed** in their initial state. By contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off diagonal). Thus the cell located at the intersection of row $i$ and column $j$, where $i \neq j$, gives us the counts of individuals moving from state $i$ to state $j$.
+
+
+
+
+### Imbalance of Confounding Covariates Treatments 
+
+
+@fig-match_1 shows imbalance of covariates on the treatment at the treatment wave. The variable on which there is strongest imbalance is the baseline measure of religious service attendance. It is important to adjust for this measure both for confounding control and to better estimate an incident exposure effect for the religious service at the treatment wave (in contrast to merely estimating a prevalence effect). See @vanderweele2020.
+
+
+```{r}
+#| label: fig-match_1
+#| fig-cap: "This figure shows the imbalance in covariates on the treatment"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+love_plot_one
+```
+
+
+
+
+##  Appendix D: Baseline and End of Study Outcome Statistics {#appendix-outcomes}
+
+
+
+
+```{r}
+#| label: tbl-table-outcomes
+#| tbl-cap: "Outcomes at baseline and end-of-study"
+#| eval: true
+#| include: true
+#| echo: false
+table_outcomes |>  kbl(format = "latex", booktabs = TRUE)
+```
+
+
+
+
+
+
+@tbl-table-outcomes presents baseline and end-of-study descriptive statistics for the outcome variables.  
+
+
+
+
+{{< pagebreak >}}
+
+
+
+
+
+
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
