@@ -1,0 +1,989 @@
+---
+title: "Does Religious Disaffiliation Causally Affect a Sense of Meaning and Purpose?: Evidence from a National Panel Study in New Zealand"
+abstract: |
+  **Question**: Does religious disaffiliation affect a sense of meaning in life and purpose in life?
+
+  **Method**: We analyse five waves of cohort panel data from the New Zealand Attitudes and Values Study (N = 47,202) to estimate the causal effects of religious disaffiliation on meaning and purpose in life.
+  
+  **Eligibility**: Participants were included if they completed the baseline wave (time 0) of the New Zealand Attitudes and Values Study Wave 10 (years 2018-2019). They may have been loss to follow-up at any wave before the end of study NZAVS wave 14 (years 2022-2023). 
+  
+  **Treatment Regimes**: We estimated population average well-being at the end of study (time 4) under three scenarios:  
+      
+    1. *Steady Religious*: Start religiously affiliated at time 1 and remaining affiliated through times 2 and 3.  
+      
+    2. *Steady Secular*: Start religiously unaffiliated at time 1 and remaining unaffiliated through times 2 and 3.  
+      
+    3. *Done*: Start religiously affiliated at time 1 but becoming unaffiliated at times 2 and 3.  
+  
+  **Causal contrasts**:  
+      
+    1. *Done vs Steady Religious*:  Would those who disaffiliate have experienced higher meaning and purpose if they remained religiously affiliated?  
+      
+    2. *Done vs Steady Secular*: How do disaffiliates compare to those who were consistently secular?  
+      
+    3. *Steady Religious vs Steady Secular*: How do those who remain religious compare to those who remain secular?  
+
+  **Statistical Estimation**: We used semi-parametric machine learning, controlling for time-varying confounding, and using inverse probability of censoring weights for attrition. 
+
+  **Results**: Religious disaffiliation (*Done*) resulted in lower meaning and purpose compared to *Steady Religious* but was similar to *Steady Secular*.
+  
+  **Importance**: These findings suggest that religious disaffiliation may lower meaning and purpose, but levels are not worse than those observed among individuals already unaffiliated.
+  
+  **KEYWORDS**: *Causal Inference*; *Cross-validation*; *Done*; *Machine Learning*; *Religion*; *Semi-parametric*; *Targeted Learning*; *Well-Being*
+author: 
+  - name: Daryl Van Tongeren
+    affiliation: Hope College
+    corresponding: yes
+  - name: Don E Davis
+    affiliation: Georgia State University
+    orcid_id: 0000-0003-3169-6576
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland
+    orcid_id: 0000-0002-4064-8800
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid_id: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+keywords: [Use, use]
+editor_options: 
+  chunk_output_type: console
+format:
+  docx:
+   default: false
+  pdf:
+    pdf-engine: lualatex
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: false
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+  # docx:
+  #  default: false
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+# pull_path <-
+#   fs::path_expand(
+#     #"/Users/joseph/v-project\ Dropbox/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs_refactor/nzavs_data_23"
+#     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
+#   )
+# 
+# print(sessionInfo())
+# print(search())
+library("margot")
+library("glue")
+library("patchwork")
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+library("boilerplate")
+library("tinytex")
+library("extrafont")
+library("tidyverse")
+library("kableExtra")
+library("margot")
+library("readr")
+push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-done-meaning-long")
+
+# import untransformed data
+original_df <- margot::here_read_qs("df_wide_impute", push_mods)
+
+here::here()
+# import measures
+#measures_path_cursor <- here::here("models", "boilerplate", "data")
+#measure_data <- readRDS(here::here(measures_path_cursor, "merged_db.rds"))
+ 
+measure_data <- readRDS(here::here("database", "merged_db.rds"))
+# measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_var <- margot::here_read("exposure_var")
+outcome_vars <- margot::here_read("outcome_vars")
+
+#tinytext::tlmgr_update()
+# for latex graphs
+# for making graphs
+
+
+loadfonts(device = "all")
+
+
+## Read in data from analysis 
+# imports
+n_total <-  margot::here_read("n_total")
+
+transition_matrix <- margot::here_read("transition_matrix")
+
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+n_participants <- summary_tables$n_participants
+
+
+nice_exposure_name <- glue::glue("Religious Affiliation")
+nice_exposure_name_down <- glue::glue("Secular Affiliation")
+
+
+shift <- glue::glue("binary")
+scale_exposure <- glue::glue("0-1")
+
+nice_baseline_wave <- glue::glue("NZAVS time 10, years 2018-2019")
+nice_exposure_waves <- glue::glue("NZAVS time 11-13, years 2019-2022")
+nice_outcome_wave <- glue::glue("NZAVS time 14, years 2022-2023")
+nice_all_waves <- glue::glue("NZAVS time 10-14, years 2018-2023")
+percent_missing_baseline <- here_read("percent_missing_baseline")
+percentage_missing_baseline <- glue::glue(round(percent_missing_baseline,2))
+percentage_missing_baseline
+
+# create the titles with automatic exposure insertion
+title_done <- glue("Shift {nice_exposure_name} to {nice_exposure_name_down} in the first treatment, then maintain {nice_exposure_name_down} for the next two treatments.")
+title_secular <- glue("Shift {nice_exposure_name} to {nice_exposure_name_down} steadily for each of the three sequential treatments.")
+title_religious <- glue("Shift {nice_exposure_name} to {nice_exposure_name} steadily each of the three sequential treatments.")
+title <- glue::glue("Contrasts of Effect")
+
+contrast_done_vs_religious <- glue::glue("Contrast Done Intervention with Steady Religiously Affiliated (control)")
+contrast_done_vs_secular  <- glue::glue("Contrast Done Intervention with Steady Secular Affiliation (control)")
+contrast_secular_vs_religious  <- glue::glue("Contrast Steady Secular Affiliation with Steady Religious Affiliation")
+
+
+
+# load the glue package
+library(glue)
+
+name_exposure <- margot::here_read("name_exposure")
+# name_exposure_binary <- margot::here_read("name_exposure_binary")
+name_exposure
+# read exposure vars
+t0_name_exposure <- here_read("t0_name_exposure")
+t1_name_exposure <- here_read("t1_name_exposure")
+t2_name_exposure <- here_read("t2_name_exposure")
+t3_name_exposure <- here_read("t3_name_exposure")
+
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_var <- margot::here_read("exposure_var")
+outcome_vars <- margot::here_read("outcome_vars")
+
+# baseline_exposure_cat <- margot::here_read("baseline_exposure_cat")
+baseline_wave <- margot::here_read("baseline_wave")
+exposure_waves <- margot::here_read("exposure_waves")
+outcome_wave <- margot::here_read("outcome_wave")
+extra_vars <- margot::here_read("extra_vars")
+all_vars <- margot::here_read("all_vars")
+continuous_columns_keep <- margot::here_read("continuous_columns_keep")
+ordinal_columns <- margot::here_read("ordinal_columns")
+
+# read waves
+all_waves <- margot::here_read("all_waves")
+baseline_and_exposure_waves <- margot::here_read("baseline_and_exposure_waves")
+baseline_and_outcome_waves <- margot::here_read("baseline_and_outcome_waves")
+
+# # get table/graphs
+# summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+#
+# # n_total
+# n_total <- here_read("n_total")
+#
+# # n_this study
+# n_participants <- summary_tables$n_participants
+
+# nice labels
+scale_exposure <- glue::glue("(0-1)")
+exposure_lower_bound <- glue::glue("0")
+exposure_upper_bound <- glue::glue("1")
+# shift =   glue::glue('two points')
+nice_baseline_wave <- glue::glue("NZAVS time 10, years 2018-2019")
+nice_exposure_waves <- glue::glue("NZAVS time 11-13, years 2019-2022")
+nice_outcome_wave <- glue::glue("NZAVS time 14, years 2022-2023")
+nice_waves <- glue::glue("NZAVS time 10-time 14, years 2022-2023")
+
+
+# labels
+# # outcome vars
+# t4_outcome_vars_z <- paste0("t4_", outcome_vars, "_z")
+
+# label mappings for social outcomes
+label_mapping <- list(
+  "t4_meaning_purpose_z" = "Meaning: Purpose",
+  "t4_meaning_sense_z" = "Meaning: Sense"
+)
+
+# graph options
+options_base <- list(
+  type = "RD",
+  title = title,
+  order = "alphabetical",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -.5,
+  # will be set based on type
+  x_lim_lo = -.5,
+  # will be set based on type
+  x_lim_hi = .25,
+  text_size = 5,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 18,
+  point_size = 4,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10
+)
+
+
+
+
+# life options ------------------------------------------------------------
+
+options_meaning_done_vs_religious <- margot_plot_create_options(
+  subtitle = "Done (contrast) vs Religious (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "meaning_done_vs_religious"
+)
+
+
+options_meaning_done_vs_secular <- margot_plot_create_options(
+  subtitle = "Done (contrast) vs Secular (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "meaning_done_vs_secular"
+)
+
+
+options_meaning_secular_vs_religious <- margot_plot_create_options(
+  subtitle = "Secular (contrast) vs Religious (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "meaning_secular_vs_religious"
+)
+
+
+
+
+# read results
+# read if needed
+done_meaning_use_lmtp_output <- here_read_qs("done_meaning_use_lmtp_output", push_mods)
+
+done_vs_religious <- margot_plot(done_meaning_use_lmtp_output$combined_tables$combined_outcomes_done_vs_religious,
+  options = options_meaning_done_vs_religious,
+  save_output = FALSE,
+  save_path = here::here(push_mods),
+  original_df = original_df,
+)
+
+done_vs_secular <- margot_plot(
+  done_meaning_use_lmtp_output$combined_tables$combined_outcomes_done_vs_secular,
+  options = options_meaning_done_vs_secular,
+  save_output = FALSE,
+  save_path = here::here(push_mods),
+  base_filename = "plot_done_vs_religious",
+  original_df = original_df
+)
+
+
+secular_vs_religious <- margot_plot(done_meaning_use_lmtp_output$combined_tables$combined_outcomes_secular_vs_religious,
+                                      options = options_meaning_secular_vs_religious,
+                                      save_output = FALSE,
+                                      save_path = here::here(push_mods),
+                                      original_df = original_df,
+                                      label_mapping = label_mapping
+)
+# margot::margot_save_png(secular_vs_religious,
+#                         save_path = push_mods,
+#                         base_filename = "secular_vs_religious")
+
+# margot::margot_save_png(done_vs_religious,
+#                         save_path = push_mods,
+#                         base_filename = "done_vs_religious")
+
+# margot::margot_save_png(done_vs_secular,
+#                         save_path = push_mods,
+#                         base_filename = "done_vs_secular")
+
+```
+
+
+
+
+## Introduction
+
+Religious disaffiliation, described by Max Weber as "The Disenchantment of the World" [@wilson2014differences], defines most industrial societies [@weber1946science]. But does such disenchantment manifest as a diminished sense of meaning and purpose among those who disaffiliate?
+
+Evaluating whether religious disaffiliation causes changes in meaning and purpose requires more than tracking disaffiliates over time. Common causes may drive both disaffiliation and shifts in meaning. Since randomising individuals to affiliation or disaffiliation is ethically infeasible, methods for causal inference in observational settings offer an alternative [@hernan2024WHATIF; @vanderweele2015].
+
+We use five waves of data from the New Zealand Attitudes and Values Study (`r nice_all_waves`, N = `r n_participants`), a longitudinal national probability sample, to estimate the causal effects of religious and secular affiliation. Our target population includes New Zealand residents from 2018–2022. By applying methods from the health sciences, we contrast population averages under three sequential treatment regimes [@haneuse2013estimation; @diaz2023lmtp; @díaz2021; @hoffman2023]:  
+
+1. **Steady Religious**: Start religiously affiliated at time 1 and remaining affiliated through times 2 and 3.  
+2. **Steady Secular**: Start unaffiliated at time 1 and remaining unaffiliated through times 2 and 3.  
+3. **Done**: Start affiliated at time 1 but becoming unaffiliated at times 2 and 3.  
+
+From these regimes, we consider three theoretically interesting causal contrasts:  
+
+1. **Done vs Steady Religious**: Would those who disaffiliate have experienced higher meaning and purpose if they remained religiously affiliated?  
+2. **Done vs Steady Secular**: How do disaffiliates compare to those who were consistently secular?  
+3. **Steady Religious vs Steady Secular**: How do those who remain religious compare to those who remain secular?  
+
+Our primary interest is in the first contrast: whether disaffiliates (*Dones*) experience lower meaning and purpose compared to if they had stayed religiously affiliated. The second contrast frames these results: do disaffiliates resemble the steadily secular? The third contrast compares steady religious and steady secular groups to assess the overall influence of stable religious affiliation.
+
+These questions simulate hypothetical experiments with random assignment to religious affiliation conditions [@hernán2016]. They aim to quantify how interventions on religious affiliation might impact population averages in meaning and purpose.
+
+Although numerous contrasts could be considered—such as effects of converting to or returning to religion, or short-term effects of affiliation—this study focuses on stable interventions. We simplify the analysis by examining religious affiliation, a widely reported indicator, and its causal effects on meaning and purpose.
+
+
+## Method
+
+
+### Sample
+
+
+Data were collected as part of the New Zealand Attitudes and Values Study (NZAVS), an annual longitudinal national probability panel assessing New Zealand residents’ social attitudes, personality, ideology, and health outcomes. The panel began in 2009 and has since expanded to include over fifty researchers, with responses from `r n_total` participants to date. The study operates independently of political or corporate funding and is based at a university. Data summaries for all measures used in this study are provided in **Supplemental Appendices A**. For more information about the NZAVS, see: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB). The data for this study were obtained from the NZAVS waves 10-14 cohort, covering 2018-2023. We selected these waves because the afford the great possible sample size. 
+
+
+### Treatment Indicator
+
+
+We assessed religious service attendance using the following question:
+
+```{r}
+#| eval: false
+#| include: false
+
+exposure_measure <- boilerplate::boilerplate_report_measures(
+  outcome_vars = exposure_var,
+  measure_data = measure_data
+)
+
+cat(exposure_measure)
+
+```
+
+#### Religious Affiliation (Binary)
+
+*Do you identify with a religion and/or spiritual group?*
+
+Binary response: (0 = No, 1 = Yes) (Statistics NZ Census Question).
+
+
+
+### Outcomes
+
+
+```{r, results = 'asis'}
+#| eval: false
+#| include: false
+
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+
+cat(outcome_measures)
+
+```
+
+#### Meaning Purpose
+
+*My life has a clear sense of purpose*
+
+Ordinal response (1 = Strongly Disagree to 7 = Strongly Agree) [@steger_meaning_2006].
+
+#### Meaning Sense
+
+*I have a good sense of what makes my life meaningful.*
+
+Ordinal response (1 = Strongly Disagree to 7 = Strongly Agree) [@steger_meaning_2006].
+
+
+### Identification Assumptions
+
+
+To consistently estimate a causal effect, investigators must satisfy three assumptions (refer to @bulbulia2023):
+
+
+1.	Causal Consistency: potential outcomes correspond to the observed outcomes under the treatments in our data. We assume that conditional on measured covariates, potential outcomes do not depend on how the treatment was administered [@vanderweele2009; @vanderweele2013].
+
+
+2.	Conditional Exchangeability: conditional on observed covariates, treatment assignment is independent of the potential outcomes being compared (i.e. there is no unmeasured confounding) [@hernan2024WHATIF; @chatton2020].
+
+
+3.	Positivity: every individual has a non-zero probability of receiving each treatment level, regardless of their covariate values. We evaluated this by examining changes in religious service attendance from baseline to the treatment wave [@westreich2010].
+
+
+### Target Population
+
+
+Our target population comprises New Zealand residents represented in the baseline wave of the NZAVS during 2018–2019, weighted by 2018 New Zealand Census data for age, gender, and ethnicity [@sibley2021]. Although the NZAVS is a national probability study designed to reflect the broader New Zealand population, it tends to under-sample males and individuals of Asian descent and over-sample females and Māori (the indigenous people of New Zealand). To address these disparities and enhance the accuracy of our findings, we applied survey weights adjusting for age, gender, and ethnicity. Survey weights were integrated into our statistical models using the weights option in `lmtp` [@williams2021], following protocols described in @bulbulia2024PRACTICAL.
+
+
+### Eligibility Criteria
+
+
+Participants were included in the analysis if they were enrolled in the 2018 wave of the NZAVS (Time 10). Participants with missing covariate data at baseline were included, with missing data imputed using information available at baseline. Participants may have been lost to follow-up at any point after baseline. To obtain valid inference for the population of New Zealand we included survey weights in our statistical models. Information about these survey weights can be found in the NZAVS documentation, see: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB).
+
+A total of `r n_participants` individuals met these criteria and were included in the study.
+
+
+### Missing Data
+
+
+We adopted the following strategies for handling missing data:
+
+**Baseline Missingness:**: We employed the `ppm` algorithm from the `mice` package in R [@vanbuuren2018] to impute missing baseline data in `r nice_baseline_wave`. Missing data in this wave to `r percentage_missing_baseline` percent of the total observations. We used only baseline data for imputation, following [@zhang2023shouldMultipleImputation]. Because we could only pass one data set to the `lmtp,` we employed single imputation. Because we use semi-parametric estimation, we were able to include indicators for each column with missing values, to further reduce bias. This method allowed us to reconstruct an incomplete dataset by estimating a plausible value for missing observation at baseline. 
+
+**Exposure wave missingness**: even if the population in the baseline wave corresponds to the target population, attrition between `r {nice_baseline_wave}` and `r {nice_exposure_waves}` may threaten generalisations to the target population. To address potential bias from loss-to-follow up in the exposure wave we employed non-parametric inverse-probability of censoring weights. We also included indicators for time-varying confounders. Were any not observed, but the exposure variable observed, we imputed the observation using the previous observed value and included an missing indicator column, so that our non-parametric machine learning algothrims could learn the values. 
+
+**Outcome Missingness:** to account for confounding and selection bias from missing responses and panel attrition in `r nice_outcome_wave`, we applied censoring weights obtained using nonparametric machine learning ensembles via the `lmtp` package in R [@williams2021].
+
+
+
+### Confounding Control
+
+To address confounding in our analysis, we implement [@vanderweele2019]'s *modified disjunctive cause criterion* by following these steps:
+
+2. **Exclude instrumental variables** that affect the exposure but not the outcome. Instrumental variables do not contribute to controlling confounding and can reduce the efficiency of the estimates.
+3. **Include proxies for unmeasured confounders** affecting both exposure and outcome. According to the principles of d-separation @pearl2009a, using proxies allows us to control for their associated unmeasured confounders indirectly.
+4. **Control for baseline `r nice_exposure_name`** and all outcome variables (refer to @vanderweele2020.)
+
+Additionally, because the measures are repeated, there is a prospect for time-varying confounders, which may arise after baseline control, and associate sequential treatment variables with the outcomes at the end of study. For each sequential treatment indicator we included measures of parenting status, romantic partnership, employment, and health disability, on the assumption such events might affect both religious affiliation and indicators of meaning of purpose, or be proxies for such common causes [@robins1986; @hernan2024WHATIF; @bulbulia2024swigstime]
+
+[Appendix B](#appendix-demographics) presents the covariates we included for confounding control. These methods adhere to the guidelines provided in [@bulbulia2024PRACTICAL].
+
+
+
+### Statistical Estimator
+  
+#### Longitudinal Modified Treatment Policy (LMTP) Estimator
+
+We perform statistical estimation using a Sequential Doubly-Robust Estimator from the `lmtp` package, which is multiply robust for repeated treatments across multiple waves [@diaz2023lmtp; @hoffman2023]. This estimator is robust to misspecification in either the outcome or treatment model over time. The lmtp package relies on the SuperLearner library, integrating diverse machine learning algorithms [@SuperLearner2023]. Given the high-dimensionality of the data, we used the Ranger estimator, a non-parametric causal forest method known for its resistance to overfitting [@Ranger2017]. We also employed the `SL.glment` [@glmnet_use_2010]. All statistical models implemented a 10-fold cross-validation. SDR robust method for estimating causal effects while providing valid statistical uncertainty measures [@van2014targeted; @van2012targeted]. For further information on targeted learning using the `lmtp` package, see [@hoffman2022; @hoffman2023; @díaz2021]. Graphs, tables, and output reports are created using the `margot` package [@margot2024].
+    
+
+### Sensitivity Analysis Using the E-value
+
+To assess the sensitivity of results to unmeasured confounding, we report VanderWeele and Ding's E-value in all analyses [@vanderweele2017]. The E-value quantifies the minimum strength of association (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and the outcome (after considering the measured covariates) to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE]. To evaluate the strength of evidence, we use the bound of the E-value 95% confidence interval closest to 1. This provides an approximate metric for understanding the robustness of our findings in the presence of potential unmeasured confounding.
+
+### Changes in Religious Affiliation
+
+@tbl-transition shows total transitions in religious service attendance from baseline to the treatment waves. Assessing changes in the treatment variable is essential for evaluating the positivity assumption of causal inference, which, as stated above,  requires that every individual has a non-zero probability of receiving each treatment level, regardless of their covariate values [@vanderweele2020; @danaei2012; @hernan2024WHATIF].
+
+
+```{r}
+#| label: tbl-transition
+#| tbl-cap: "This transition matrix captures stability and change in religious affiliation between states of religious affiliation over time. Each cell in the matrix represents the count of individuals remaining or transitioning between states, where \"0\" denotes secular affiliation and \"1\" denotes religious affiliation. The rows correspond to these states at baseline (From), and the columns correspond to the state at the treatment waves (To). **Diagonal entries** (in **bold**) denote the number of instances where individuals remained in their initial state. **Off-diagonal entries** describe the transitions of individuals one state to another from the baseline states through the following treatment waves."
+#| echo: false
+#| include: true
+#| eval: true
+
+
+transition_matrix$table
+```
+
+
+{{< pagebreak >}}
+
+
+
+
+## Results
+
+### Conrast 1: `r {contrast_done_vs_religious}`
+
+```{r}
+#| label: fig-done_vs_religious
+#| fig-cap: "Contrast of religious disaffiliation (done) with steady religious affiliation on meaning and purpose."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+done_vs_religious$plot
+```
+
+```{r}
+#| label: tbl-done_vs_religious
+#| tbl-cap: "Contrast of religious disaffiliation (done) with steady religious affiliation on meaning and purpose."
+#| eval: true
+#| include: true
+#| echo: false
+done_vs_religious$transformed_table
+```
+
+
+@tbl-done_vs_religious and @fig-done_vs_religious present the comparison of the intervention: `r {contrast_done_vs_religious}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(done_vs_religious$interpretation)
+```
+
+
+### Contrast 2: `r {contrast_done_vs_secular}`
+
+```{r}
+#| label: fig-done-secular
+#| fig-cap: "Contrast of religious affiliation (done) with steady secular affiliation on meaning and purpose."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+done_vs_secular$plot
+```
+
+
+```{r}
+#| label: tbl-done-secular
+#| tbl-cap: "Contrast of religious disaffiliation (done) with steady secular affiliation on meaning and purpose."
+#| eval: true
+#| include: true
+#| echo: false
+done_vs_secular$transformed_table
+```
+
+
+@tbl-done-secular and @fig-done-secular present the comparison of the intervention: `r {contrast_done_vs_secular}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(done_vs_secular$interpretation)
+```
+
+
+### Conrast 3: `r {contrast_secular_vs_religious}`
+
+```{r}
+#| label: fig-secular_vs_religious
+#| fig-cap: "Contrast of steady secular affiliation with steady religious affiliation on meaning and purpose."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 16
+#| fig-height: 16
+
+secular_vs_religious$plot
+```
+
+```{r}
+#| label: tbl-secular_vs_religious
+#| tbl-cap: "Contrast of steady secular affiliation with steady religious affiliation on meaning and purpose."
+#| eval: true
+#| include: true
+#| echo: false
+secular_vs_religious$transformed_table
+```
+
+
+@tbl-secular_vs_religious and @fig-secular_vs_religious present the comparison of the intervention: `r {contrast_done_vs_religious}`
+
+```{r, results = 'asis'}
+#| include: true
+#| echo: false
+cat(secular_vs_religious$interpretation)
+```
+
+{{< pagebreak >}}
+## Discussion
+
+The question, "Does religious disaffiliation affect meaning and purpose?" requires specificity. To interpret this question, we must define the intervention, the time period, the outcome measures, and the target population. We also need to assess whether the assumptions of positivity, causal consistency, and conditional exchangeability are plausible before conducting statistical estimation and sensitivity analyses.
+
+Here, we estimate New Zealand population-average responses to measures of meaning and purpose from interventions on religious affiliation using data from `r nice_waves` of the New Zealand Attitudes and Values Study. Our analysis relies on the assumption that the modelled changes in religious affiliation status are conditionally independent of the measured outcomes. We further assume that such changes are possible for everyone in the study population (positivity). Finally, we assume that -- conditional on baseline demographic measures, religious affiliation, meaning and purpose, and time-varying factors such as employment, parental, relationship, and disability status -- the sequential treatment regimes are independent of potential outcomes, and that treatment assignment in our analysis is "as good as random."
+
+Under these assumptions, we find quantitative evidence supporting Max Weber's concept of "disenchantment" following religious disaffiliation [@weber1946science]. Disaffiliation is *causally associated* with lower levels of meaning and purpose compared to remaining religiously affiliated. However,  when measured three years after disaffiliation, disaffiliates ("dones") do not reliably differ from their secular counterparts. Although religious affiliation is associated with slightly higher levels of meaning and purpose than secular affiliation, the observed effect sizes are modest, around $0.1$ in each comparison.
+
+Our analysis does not account for treatment effect heterogeneity. It is plausible that the effects of religious disaffiliation vary across individuals. Furthermore, religious affiliation is only one dimension of religiosity. Future research should examine the effects of religious stability, loss, and gain across different aspects of religiosity, such as spiritual identification, belief in a higher power, or religious service attendance.
+
+Although the observed effect sizes are small, their cumulative effect at the population level might be more substantial. However, caution is warranted in interpreting practical significance from our results. This is a question for future research. For now, our findings align with sociological theories of religious loss but do not suggest a widespread disenchantment at the population level caused by disaffiliation.
+
+Overall, although religious disaffiliation appears to diminish a sense of meaning and purpose, disaffiliation does not suggest a crisis of meaning across the target population. The world, as Weber described, may indeed experience some disenchantment, but our findings indicate that the effects are modest and far from alarming in New Zealand.
+
+
+{{< pagebreak >}}
+
+
+### Ethics
+
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+
+
+### Data Availability
+
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: [https://github.com/go-bayes/models/blob/main/scripts/24-bulbulia-church-prosocial.R](https://github.com/go-bayes/models/blob/main/scripts/24-bulbulia-church-prosocial.R). 
+
+
+
+
+### Acknowledgements
+
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Planck Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+
+
+### Author Statement
+
+
+DVT suggested the topic, and developed the measures with CGS.  JB developed the analytic approach and did the analysis.
+All authors contributed to the manuscript.
+
+
+
+
+{{< pagebreak >}}
+
+
+## Appendix A: Measures {#appendix-measures}
+
+
+```{r}
+#| eval: false
+#| include: false
+appendix_text_version_1 <- boilerplate::boilerplate_report_measures(
+  baseline_vars = baseline_vars,
+  exposure_var = exposure_var,
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+
+cat(appendix_text_version_1)
+```
+
+### All Measures
+
+#### Age
+
+*What is your date of birth?*
+
+We asked participants' ages in an open-ended question ("What is your age?" or "What is your date of birth").. Developed for the NZAVS.
+
+#### Agreeableness
+
+*I sympathize with others' feelings.*
+*I am not interested in other people's problems.*
+*I feel others' emotions.*
+*I am not really interested in others (reversed).*
+
+Mini-IPIP6 Agreeableness dimension: (i) I sympathize with others' feelings. (ii) I am not interested in other people's problems. (r) (iii) I feel others' emotions. (iv) I am not really interested in others. (r) [@sibley2011].
+
+#### Alcohol Frequency
+
+*"How often do you have a drink containing alcohol?"*
+
+Participants could chose between the following responses: '(1 = Never - I don't drink, 2 = Monthly or less, 3 = Up to 4 times a month, 4 = Up to 3 times a week, 5 = 4 or more times a week, 6 = Don't know)' [@Ministry_of_Health_2013].
+
+#### Alcohol Intensity
+
+*"How many drinks containing alcohol do you have on a typical day when drinking alcohol? (number of drinks on a typical day when drinking)"*
+
+Participants responded using an open-ended box [@Ministry_of_Health_2013].
+
+#### Belong
+
+*Know that people in my life accept and value me.*
+*Feel like an outsider.*
+*Know that people around me share my attitudes and beliefs.*
+
+We assessed felt belongingness with three items adapted from the Sense of Belonging Instrument (Hagerty & Patusky, 1995): (1) "Know that people in my life accept and value me"; (2) "Feel like an outsider"; (3) "Know that people around me share my attitudes and beliefs". Participants responded on a scale from 1 (Very Inaccurate) to 7 (Very Accurate). The second item was reversely coded [@hagerty1995].
+
+#### Born Nz (Binary)
+
+We asked participants, "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).. Developed for the NZAVS.
+
+#### Conscientiousness
+
+*I get chores done right away.*
+*I like order.*
+*I make a mess of things.*
+*I often forget to put things back in their proper place.*
+
+Mini-IPIP6 Conscientiousness dimension: (i) I get chores done right away. (ii) I like order. (iii) I make a mess of things. (r) (iv) I often forget to put things back in their proper place. (r) [@sibley2011].
+
+#### Education Level Coarsen
+
+*What is your highest level of qualification?*
+
+We asked participants, "What is your highest level of qualification?". We coded participans highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school qualifications coded as Level 3, and all other ancillary categories coded as missing). Developed for the NZAVS.
+
+#### Employed (Binary)
+
+*Are you currently employed (This includes self-employed of casual work)?*
+
+Binary response: (0 = No, 1 = Yes). Stats NZ Census Question.
+
+#### Eth Cat (Categorical)
+
+*Which ethnic group(s) do you belong to?*
+
+Coded string: (1 = New Zealand European; 2 = Māori; 3 = Pacific; 4 = Asian). NZ Census coding.
+
+#### Extraversion
+
+*I am the life of the party.*
+*I don't talk a lot (reversed).*
+*I keep in the background (reversed).*
+*I talk to a lot of different people at parties.*
+
+Mini-IPIP6 Extraversion dimension: (i) I am the life of the party. (ii) I don't talk a lot. (r) (iii) I keep in the background. (r) (iv) I talk to a lot of different people at parties [@sibley2011].
+
+#### Hlth Disability (Binary)
+
+We assessed disability with a one-item indicator adapted from Verbrugge (1997). It asks, "Do you have a health condition or disability that limits you and that has lasted for 6+ months?" (1 = Yes, 0 = No) [@verbrugge1997].
+
+#### Honesty Humility
+
+*I feel entitled to more of everything (reversed).*
+*I deserve more things in life (reversed).*
+*I deserve more things in life (reversed).*
+*I would get a lot of pleasure from owning expensive luxury goods (reversed).*
+
+Mini-IPIP6 Honesty-Humility dimension: (i) I feel entitled to more of everything. (r) (ii) I deserve more things in life. (r) (iii) I would like to be seen driving around in a very expensive car. (r) (iv) I would get a lot of pleasure from owning expensive luxury goods. (r) [@sibley2011].
+
+#### Kessler Latent Anxiety
+
+*During the past 30 days, how often did...you feel restless or fidgety?*
+*During the past 30 days, how often did...you feel that everything was an effort?*
+*During the past 30 days, how often did...you feel nervous?*
+
+Ordinal response: (0 = None Of The Time; 1 = A Little Of The Time; 2= Some Of The Time; 3 = Most Of The Time; 4 = All Of The Time) [@kessler2002].
+
+#### Kessler Latent Depression
+
+*During the past 30 days, how often did...you feel hopeless?*
+*During the past 30 days, how often did...you feel so depressed that nothing could cheer you up?*
+*During the past 30 days, how often did...you feel you feel restless or fidgety?*
+
+Ordinal response: (0 = None Of The Time; 1 = A Little Of The Time; 2= Some Of The Time; 3 = Most Of The Time; 4 = All Of The Time) [@kessler2002].
+
+#### Log Hours Children
+
+*Hours spent...looking after children.*
+
+We took the natural log of the response + 1 [@sibley2011].
+
+#### Log Hours Commute
+
+*Hours spent...travelling/commuting.*
+
+We took the natural log of the response + 1.. Developed for the NZAVS.
+
+#### Log Hours Exercise
+
+*Hours spent...exercising/physical activity.*
+
+We took the natural log of the response + 1 [@sibley2011].
+
+#### Log Hours Housework
+
+*Hours spent...housework/cooking.*
+
+We took the natural log of the response + 1 [@sibley2011].
+
+#### Log Household Inc
+
+*Please estimate your total household income (before tax) for the year XXXX.*
+
+We took the natural log of the response + 1.. Developed for the NZAVS.
+
+#### Male (Binary)
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male was coded as 1, and gender diverse coded as 3 (Fraser et al., 2020). (or 0.5 = neither female nor male). Here, we coded all those who responded as Male as 1, and those who did not as 0 [@fraser_coding_2020].
+
+#### Neuroticism
+
+*I have frequent mood swings.*
+*I am relaxed most of the time (reversed).*
+*I get upset easily.*
+*I seldom feel blue (reversed).*
+
+Mini-IPIP6 Neuroticism dimension: (i) I have frequent mood swings. (ii) I am relaxed most of the time. (r) (iii) I get upset easily. (iv) I seldom feel blue. (r) [@sibley2011].
+
+#### Not Heterosexual (Binary)
+
+*How would you describe your sexual orientation? (e.g., heterosexual, homosexual, straight, gay, lesbian, bisexual, etc.)*
+
+Open-ended question, coded as binary (not heterosexual = 1) [@greaves2017diversity].
+
+#### Nz Dep2018
+
+*New Zealand Deprivation - Decile Index - Using 2018 Census Data*
+
+Numerical: (1-10) [@atkinson2019].
+
+#### Nzsei 13 l
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) (Fahy et al., 2017). This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant a NZSEI-13 score based on their occupation [@fahy2017].
+
+#### Openness
+
+*I have a vivid imagination.*
+*I have difficulty understanding abstract ideas (reversed).*
+*I do not have a good imagination (reversed).*
+*I am not interested in abstract ideas (reversed).*
+
+Mini-IPIP6 Openness to Experience dimension: (i) I have a vivid imagination. (ii) I have difficulty understanding abstract ideas. (r) (iii) I do not have a good imagination. (r) (iv) I am not interested in abstract ideas. (r) [@sibley2011].
+
+#### Parent (Binary)
+
+We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-current). Parents were coded as 1, while the others were coded as 0.. Developed for the NZAVS.
+
+#### Partner (Binary)
+
+*What is your relationship status? (e.g., single, married, de-facto, civil union, widowed, living together, etc.)*
+
+Coded as binary (has partner = 1).. Developed for the NZAVS.
+
+#### Political Conservative
+
+*Please rate how politically liberal versus conservative you see yourself as being.*
+
+Ordinal response: (1 = Extremely Liberal, 7 = Extremely Conservative) [@jost_end_2006-1].
+
+#### Power No Control Composite
+
+*I do not have enough power or control over important parts of my life.*
+*Other people have too much power or control over important parts of my life.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@overall2016power].
+
+#### Rural Gch 2018 l
+
+*High Urban Accessibility = 1, Medium Urban Accessibility = 2, Low Urban Accessibility  = 3, Remote = 4, Very Remote = 5.*
+
+"Participants residence locations were coded according to a five-level ordinal categorisation ranging from Urban to Rural." [@whitehead2023unmasking].
+
+#### Sample Frame Opt in (Binary)
+
+*Participant was not randomly sampled from the New Zealand Electoral Roll.*
+
+Code string (Binary): (0 = No, 1 = Yes). Developed for the NZAVS.
+
+#### Short Form Health
+
+*In general, would you say your health is...*
+
+Ordinal response: (1 = Poor, 7 = Excellent) [@instrument1992mos].
+
+#### Smoker (Binary)
+
+*Do you currently smoke tobacco cigarettes?*
+
+Binary smoking indicator (0 = No, 1 = Yes).. Developed for NZAVS.
+
+#### Support
+
+*There are people I can depend on to help me if I really need it.*
+*There is no one I can turn to for guidance in times of stress (reversed).*
+*I know there are people I can turn to when I need help.*
+
+Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@cutrona1987].
+
+#### Religion Religious (Binary)
+
+*Do you identify with a religion and/or spiritual group?*
+
+Binary response: (0 = No, 1 = Yes). Stats NZ Census Question.
+
+#### Meaning Purpose
+
+*My life has a clear sense of purpose*
+
+Ordinal response (1 = Strongly Disagree to 7 = Strongly Agree) [@steger_meaning_2006].
+
+#### Meaning Sense
+
+*I have a good sense of what makes my life meaningful.*
+
+Ordinal response (1 = Strongly Disagree to 7 = Strongly Agree) [@steger_meaning_2006].
+
+{{< pagebreak >}}
+
+## Appendix B. Baseline Demographic Statistics {#appendix-demographics}
+
+
+```{r, results = 'asis'}
+#| label: tbl-table-demography
+#| tbl-cap: "Baseline demographic statistics"
+#| eval: true
+#| include: true
+#| echo: false
+summary_tables$baseline_table |>  kbl(format = "markdown")
+```
+
+
+
+
+@tbl-table-demography baseline demographic statistics for participants who met inclusion criteria.
+
+
+{{< pagebreak >}}
+
+
+
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
