@@ -1,8 +1,41 @@
 ---
-title: "The Causal Effects of Religious Identification on Multi-Dimensional Flourishing: Evidence from a Five Wave Panel Study In New Zealand"
+title: "Does Religious Identification Affect Multi-Dimensional Flourishing? Evidence from a Five Wave Panel Study In New Zealand"
 abstract: |
+  **Question**: Does religious identificaton affect multi-dimensional well-being?  If so, which aspects of well-being, and by how much? 
+
+  **Method**: We analyse five waves of cohort panel data from the New Zealand Attitudes and Values Study (N = 46,672) to estimate the causal effects of two treatment regimes for religious disaffiliation and obtain causal contrasts on the additive scale.
   
+  **Eligibility**: Participants were included if they completed the baseline wave (Wave 10) of the New Zealand Attitudes and Values Study (Wave 10, the largest wave). They may have been loss to follow-up at any wave before the end of study NZAVS wave 14 (NZAVS Waves 10-14, years 2022-2023). We denote these waves as time 0 (baseline), treatment waves (times 1-3), end of study wave (time 4).
   
+  **Treatment Regimes**: Controlling for time 0, we compared end of study multi-dimensional well-being measures at time 4, estimated for the population under four treatment regimes:  
+      
+    1. *Steady Religious*: start with high religious identification at time 1 and retain high religious identification through times 2 and 3.  
+      
+    2. *Steady Secular*: Start with secular identification at time 2 and remain secular identification through times 2 and 3.  
+      
+    3. *Done*: Start with high religiously identification at time 1 and shift to to secular at times 2 and 3.  
+    
+    4. *Convert*: Start with high religiously identification at time 1 and become secular at times 2 and 3.  
+
+  
+  **Causal contrasts for the average well-being of everyone the target population (New Zealanders)**:  
+      
+    1. *Done vs Steady Religious*:  If everyone were religious and then dis-identified, how would multi-dimensional well-being differ compared with if everyone had been religious from the start?   
+      
+    2. *Done vs Steady Secular*: If everyone were religious and then dis-identified, how would multi-dimensional well-being differ compared with if everyone had been secular from the start? 
+      
+    3. *Steady Religious vs Steady Secular*: If everyone were religious from the start, how would their well-being differ compared with if everyone had been secular from the start?    
+    
+    4. *Convert vs Steady Religious*:  If everyone started secular and then converted to high religious identification, how would multi-dimensional well-being differ compared with if everyone had been religious from the start?   
+    
+    5. *Convert vs Secular*:  If everyone started secular and then converted to high religious identification, how would multi-dimensional well-being differ compared with if everyone had been religious from the start? 
+
+  **Statistical Estimation**: We used semi-parametric machine learning, controlling for time-varying confounding, and using inverse probability of censoring weights for attrition and non-response. 
+
+  **Results**: Religious identification tends to affect high-order sense of meaning and purpose in life, and life satisfaction...
+  
+  **Importance**: These findings suggest that religious promotes well-being, on average, but the magnitudes of difference, on average, are not large.
+
   **KEYWORDS**: *Causal Inference*; *Cross-validation*; *Machine Learning*; *Religion*; *Semi-parametric*; *Targeted Learning*; *Well-Being*.
 author: 
   - name: Joseph A. Bulbulia
@@ -77,7 +110,7 @@ csl: /Users/joseph/GIT/templates/csl/camb-a.csl
 #     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
 #   )
 # 
-print(sessionInfo())
+#print(sessionInfo())
 print(search())
 
 
@@ -87,20 +120,25 @@ original_df <- margot::here_read_qs("df_wide_impute", push_mods)
 
 
 # import measures
-measures_path_cursor <- here::here("models", "boilerplate", "data")
-measure_data <- readRDS(here::here(measures_path_cursor, "merged_db.rds"))
-# measures_path_rstudio <- here::here("manuscripts", "24-inkuk-pol-env")
+#measures_path_cursor <- here::here("models", "boilerplate", "data")
+measure_data <- readRDS(here::here("database", "merged_db.rds"))
 # measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
 
 
 #tinytext::tlmgr_update()
 # for latex graphs
 # for making graphs
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+library("boilerplate")
 library("tinytex")
 library("extrafont")
 library("tidyverse")
 library("kableExtra")
-library(margot)
+library("margot")
+library("readr")
 
 loadfonts(device = "all")
 
@@ -113,8 +151,7 @@ transition_matrix <- margot::here_read("transition_matrix")
 
 summary_tables <- margot::here_read_qs("summary_tables", push_mods)
 n_participants <- summary_tables$n_participants
-
-
+n_participants
 nice_exposure_name <- glue::glue("Religious Identification Level")
 
 # load the glue package
@@ -273,7 +310,7 @@ title_done <- glue("Shift {nice_exposure_name} to {exposure_lower_bound} in the 
 title_secular <- glue("Shift {nice_exposure_name} to {exposure_lower_bound} for all each sequential treatment.")
 title_religious <- glue("Shift {nice_exposure_name} to {exposure_upper_bound} for all each sequential treatment.")
 title_convert <- glue("Shift {nice_exposure_name} to {exposure_lower_bound} in the first treatment, then shift {exposure_upper_bound} for the next two treatments.")
-title <- glue::glue("Causal Effects of Shift Interventions on {nice_exposure_name} on Multi-Dimensional Well-Being")
+title <- glue::glue("Causal Contrasts")
 
 contrast_done_vs_religious <- glue::glue("Contrast Done Intervention with Religious (control)")
 contrast_done_vs_secular  <- glue::glue("Contrast Done Intervention with Secular (control)")
@@ -297,12 +334,17 @@ options_base <- list(
     "not reliable" = "grey50",
     "negative" = "#56B4E9"
   ),
-  text_size = 4,
-  linewidth = 0.4,
+  x_offset = -1.05,
+  # will be set based on type
+  x_lim_lo = -1,
+  # will be set based on type
+  x_lim_hi = .5,
+  text_size = 5,
+  linewidth = 0.5,
   estimate_scale = 1,
   base_size = 18,
-  point_size = 3,
-  title_size = 20,
+  point_size = 4,
+  title_size = 18,
   subtitle_size = 18,
   legend_text_size = 10,
   legend_title_size = 10
@@ -773,10 +815,6 @@ life_done_vs_secular <- margot_plot(
   save_path = here::here(push_mods),
   original_df = original_df
 )
-life_done_vs_religious$plot
-life_done_vs_secular$plot
-
-
 
 # done vs convert: life
 life_done_vs_convert <- margot_plot(
@@ -952,20 +990,22 @@ outcome_vars_all <- c(
 ## Introduction
 
 
-A central question in the scientific study of religion is whether religion fosters health [citations]. However, quantifying causal effects for religion presents significant challenges [@major2023exploring]. Investigators have limited scope to randomise supernatural beliefs, community worship, and personal prayer. On the other hand, valid causal inferences from non-experimental, "real world" data must combine high-resolution repeated-measures time-series data with robust methods for causal inference. Few studies meet this standard. 
+A central question in the scientific study of religion is whether religion fosters health, and by how much [citations]. However, the question as stated, is unclear. For 
 
 Here, to obtain causal inferences from time-series data, we leverage comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study from 2018-2021 and quantify the effects of clearly defined interventions in reliousity across the population of New Zealanders assessed on XXX outcome domains of well-being. We obtain causal inferences by contrasting inferred population averages under different sequential treatment regimes [@haneuse2013estimation; @diaz2023lmtp; @díaz2021; @hoffman2023]. 
 
 For each outcome domain we estimate the following quantities, controlling for baseline religious identification in wave 0 (the start of study), and measuring well-being at one-year following the final treatment (wave 4). We define "secular" to mean not being identified with religion. We define "highly religious" to mean fully identified with religion.
 
-1. Continuous Secular Treatment (Secular): what would be the population average well-being if everyone started out secular at wave 1, and remained secular in wave 2 and 3?
+1. **Continuous Secular Treatment (Secular):** what would be the population average well-being if everyone started out secular at time 1, and remained secular in time 2 and 3?
 
-2. Continuous Religious Treatment (Religious):  what would be the population average well-being if everyone started out highly religious at wave 1, and remained highly religious in wave 2 and 3?
+2. **Continuous Religious Treatment (Religious)**:  what would be the population average well-being if everyone started out highly religious at time 1, and remained highly religious in time 2 and 3?
 
-3. Convert to Secularism (Done): what would be the population average well-being if everyone started out religious at wave 1, but became secular in wave 2 and 3?
+3. **Convert to Secularism (Done):** what would be the population average well-being if everyone started out religious at time 1, but became secular in time 2 and 3?
 
-4. Convert to Religious (Convert): what would be the population average well-being if everyone started out seci;ar at wave 1, but became highly religious in wave 2 and 3?
+4. **Convert to Religious (Convert):** what would be the population average well-being if everyone started out secul;ar at time 1, but became highly religious in time 2 and 3?
 
+
+These
 
 These questions simulates a hypothetical experiment with random assignment to regular or non-attendance, emulating the scientifically interesting all/none contrast that is common in experimental designs [@hernán2016].
 
@@ -1029,19 +1069,17 @@ cat(outcome_measures)
 As mentioned we define four causal intervention, yeilding six causal contrasts. 
 
 
-### Identification Assumptions
+### Causal Assumptions
 
-
-To consistently estimate a causal effect, investigators must satisfy three assumptions (refer to @bulbulia2023):
-
+To interpret our statistical models causally requires the following assumptions.
 
 1.	Causal Consistency: potential outcomes correspond to the observed outcomes under the treatments in our data. We assume that conditional on measured covariates, potential outcomes do not depend on how the treatment was administered [@vanderweele2009; @vanderweele2013].
 
 
-2.	Conditional Exchangeability: conditional on observed covariates, treatment assignment is independent of the potential outcomes being compared (i.e. there is no unmeasured confounding) [@hernan2024WHATIF; @chatton2020].
+2.	Conditional Exchangability: conditional on observed covariates, treatment assignment is independent of the potential outcomes being compared (i.e. there is no unmeasured confounding) [@hernan2024WHATIF; @chatton2020].
 
 
-3.	Positivity: every individual has a non-zero probability of receiving each treatment level, regardless of their covariate values. We evaluated this by examining changes in religious service attendance from baseline to the treatment wave [@westreich2010].
+3.	Positivity: Each individual has a non-zero probability of receiving each treatment level, regardless of their covariate values. We evaluated this by examining changes in religious service attendance from baseline to the treatment wave [@westreich2010].
 
 
 ### Target Population
