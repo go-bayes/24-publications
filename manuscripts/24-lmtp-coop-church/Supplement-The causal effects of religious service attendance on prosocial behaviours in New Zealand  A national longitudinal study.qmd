@@ -1,0 +1,1538 @@
+---
+title: "Supplemental Materials For: The Causal Effects of Religious Service Attendance on Prosocial Behaviours in New Zealand: A National Longitudinal Study"
+abstract: |
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+  - name: Don E Davis
+    affiliation: Georgia State University, Matheny Center for the Study of Stress, Trauma, and Resilience
+    orcid: 0000-0003-3169-6576 
+  - name: Kenneth G. Rice
+    affiliation: Georgia State University, Matheny Center for the Study of Stress, Trauma, and Resilience
+    orcid: 0000-0002-0558-2818
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland
+    orcid: 0000-0002-4064-8800
+  - name: Geoffrey Troughton
+    affiliation: School of Social and Cultural Studies, Victoria University of Wellington
+    orcid: 0000-0001-7423-0640
+keywords: [Use, use]
+editor_options: 
+  chunk_output_type: console
+format:
+  docx:
+   default: false
+  pdf:
+    pdf-engine: lualatex
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: false
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+
+## WARNING SET THIS PATH TO YOUR DATA ON YOUR SECURE MACHINE. 
+# pull_path <-
+#   fs::path_expand(
+#     #"/Users/joseph/v-project\ Dropbox/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs_refactor/nzavs_data_23"
+#     "/Users/joseph/Library/CloudStorage/Dropbox-v-project/Joseph\ Bulbulia/00Bulbulia\ Pubs/DATA/nzavs-current/r-data/nzavs_data_qs"
+#   )
+# 
+print(sessionInfo())
+print(search())
+
+
+push_mods <-  fs::path_expand(
+  "/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/nzvs_mods/24/church-prosocial-v7"
+)
+
+
+
+
+#tinytext::tlmgr_update()
+
+
+# WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+#source("/Users/joseph/GIT/templates/functions/libs2.R")
+# # WARNING:  COMMENT THIS OUT. JB DOES THIS FOR WORKING WITHOUT WIFI
+# source("/Users/joseph/GIT/templates/functions/funs.R")
+
+
+#ALERT: UNCOMMENT THIS AND DOWNLOAD THE FUNCTIONS FROM JB's GITHUB
+
+
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/experimental_funs.R"
+# )
+# 
+# source(
+#   "https://raw.githubusercontent.com/go-bayes/templates/main/functions/funs.R"
+# )
+
+
+# check path:is this correct?  check so you know you are not overwriting other directors
+#push_mods
+
+
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+library("tidyverse")
+library("kableExtra")
+
+
+loadfonts(device = "all")
+
+
+## Read in data from analysis 
+# imports
+n_participants <- readRDS(here::here(push_mods, "n_participants"))
+n_total <-  margot::here_read("n_total")
+
+
+# make pretty number
+
+
+
+
+n_participants<- prettyNum(n_participants,big.mark=",")
+n_total<- prettyNum(n_total,big.mark=",")
+
+
+
+
+library(margot)
+conflicted::conflicts_prefer(dplyr::filter)
+
+
+# propensity score graph 
+love_plot_one <- margot::here_read("love_plot_one")
+# love_plot
+
+
+# # summary of matching
+# summary_match_ebal_base <- margot::here_read("summary_match_ebal")
+# # summary_match_ebal$summary_match_ebal_base
+# 
+# summary_match_ebal <- margot::here_read("summary_match_ebal")
+# summary_match_ebal$effective.sample.size
+
+
+# verify positivity 
+#church
+transition_table <- margot::here_read("transition_table")
+#transition_table
+# binary
+transition_table_binary_gain <- margot::here_read("transition_table_binary_gain")
+transition_table_binary_zero <- margot::here_read("transition_table_binary_zero")
+
+
+#transition_table_binary
+# 
+# # ordinary regressions
+fit_church_on_hours_charity<- margot::here_read('fit_church_on_hours_charity')
+fit_church_on_charity_donate<-margot::here_read('fit_church_on_charity_donate')
+
+
+
+
+# fit_church_on_community_time_binary<- margot::here_read('fit_church_on_community_time_binary')
+# fit_church_on_community_money_binary<- margot::here_read('fit_church_on_community_money_binary')
+library(gtsummary)
+library(glue)
+library(margot)
+
+
+# lm_fit_church_on_hours_charity <- tbl_regression(fit_church_on_hours_charity)
+# 
+# # 
+#b_church_on_hours_charity <-inline_text(lm_fit_church_on_hours_charity,
+                                        # variable = religion_church_round,
+                                        # pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+#b_church_on_hours_charity
+# here_save(b_church_on_hours_charity, "b_church_on_hours_charity")
+
+
+b_church_on_hours_charity<-margot::here_read("b_church_on_hours_charity")
+
+
+# 
+# 
+#lm_coef_fit_church_on_charity_donate <- tbl_regression(fit_church_on_charity_donate)
+#b_church_on_charity_donate <-inline_text(lm_coef_fit_church_on_charity_donate, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+#b_church_on_charity_donate
+#here_save(b_church_on_charity_donate, "b_church_on_charity_donate")
+b_church_on_charity_donate<-margot::here_read("b_church_on_charity_donate")
+#b_church_on_charity_donate
+
+
+#push_mods
+# # lm_coef_fit_church_on_community_time_binary <- tbl-regression(fit_church_on_community_time_binary)
+# # b_church_on_community_time_binary <-inline_text(lm_coef_fit_church_on_community_time_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+# # here_save(b_church_on_community_time_binary, "b_church_on_community_time_binary")
+# b_church_on_community_time_binary<-margot::here_read("b_church_on_community_time_binary")
+# #b_church_on_community_time_binary
+# 
+# # lm_coef_fit_church_on_community_money_binary <- tbl-regression(fit_church_on_community_money_binary)
+# # b_church_on_community_money_binary <-inline_text(lm_coef_fit_church_on_community_money_binary, variable = religion_church_round, pattern = "b = {estimate}; (95% CI {conf.low}, {conf.high})")
+# # 
+# # here_save(b_church_on_community_money_binary, "b_church_on_community_money_binary")
+# b_church_on_community_money_binary<-margot::here_read("b_church_on_community_money_binary")
+# 
+
+
+library(margot)
+library(glue)
+library(tidyverse)
+# works but not used
+#testlm_coef_church_on_donate <- glue("b = {fit_church_on_donate_x[2, 1]}, SE = {fit_church_on_donate_x[2, 3]}")
+# not this table is too long in most instance 
+# table_baseline<-margot::here_read("table_baseline")
+
+
+# baseline
+table_baseline <-margot::here_read("table_baseline")
+table_exposures <-margot::here_read("table_exposures")
+table_outcomes <-margot::here_read("table_outcomes")
+# density of the exposure 
+graph_density_of_exposure_up<-margot::here_read("graph_density_of_exposure_up")
+graph_density_of_exposure_down<-margot::here_read("graph_density_of_exposure_down")
+graph_density_of_exposure_both<-margot::here_read("graph_density_of_exposure_both")
+
+
+
+
+# examples
+mean_volunteer <- margot::here_read("mean_volunteer")
+
+
+# sample mean at end of study (won't be population mean)
+mean_donations <- margot::here_read("mean_donations")
+
+
+#n_participants
+# read standard deviations units of outcome (volunteering/donations) in 2020
+sd_donations <- margot::here_read("sd_donations")
+sd_volunteer <- margot::here_read("sd_volunteer")
+
+
+# import models
+
+
+# population mean
+t2_charity_donate_z_null <- margot::here_read("t2_charity_donate_z_null")
+
+
+# individual models
+t2_charity_donate_z_zero <- margot::here_read("t2_charity_donate_z_zero")
+t2_charity_donate_z_gain <- margot::here_read("t2_charity_donate_z_gain")
+t2_hours_charity_z_gain <-  margot::here_read("t2_hours_charity_z_gain")
+t2_hours_charity_z_zero <- margot::here_read("t2_hours_charity_z_zero")
+t2_hours_charity_z_null<- margot::here_read("t2_hours_charity_z_null")
+
+
+
+
+
+
+# results
+# import to manuscript -------------------------------------------------------
+
+
+tab_all_prosocial <- margot::here_read("tab_all_prosocial")
+tab_all_prosocial_null <- margot::here_read("tab_all_prosocial_null")
+tab_all_prosocial_null_zero <- margot::here_read("tab_all_prosocial_null_zero")
+tab_all_prosocial
+tab_all_prosocial_null
+tab_all_prosocial_null_zero
+
+
+
+
+group_tab_all_prosocial<- margot::here_read("group_tab_all_prosocial")
+group_tab_all_prosocial_null<- margot::here_read("group_tab_all_prosocial_null")
+group_tab_all_prosocial_null_zero<- margot::here_read("group_tab_all_prosocial_null_zero")
+
+
+group_tab_all_prosocial
+group_tab_all_prosocial_null
+group_tab_all_prosocial_null_zero
+
+
+
+
+tab_received_time <- margot::here_read( "tab_received_time")
+tab_received_time_null <- margot::here_read( "tab_received_time_null")
+tab_received_time_null_zero <- margot::here_read( "tab_received_time_null_zero")
+push_mods
+
+
+group_tab_received_time <- margot::here_read( "group_tab_received_time")
+group_tab_received_time_null <- margot::here_read( "group_tab_received_time_null")
+group_tab_received_time_null_zero <- margot::here_read( "group_tab_received_time_null_zero")
+
+
+tab_received_time
+group_tab_received_time
+group_tab_received_time
+
+
+tab_all_received_money <- margot::here_read( "tab_all_received_money")
+tab_all_received_money_null <- margot::here_read( "tab_all_received_money_null")
+tab_all_received_money_null_zero <- margot::here_read( "tab_all_received_money_null_zero")
+
+
+
+
+group_tab_all_received_money <- margot::here_read( "group_tab_all_received_money")
+group_tab_all_received_money_null <- margot::here_read( "group_tab_all_received_money_null")
+group_tab_all_received_money_null_zero <- margot::here_read( "group_tab_all_received_money_null_zero")
+
+
+# Compute for manuscript
+diff_charity <- round( ( sd_donations *  tab_all_prosocial[1,1]), 2)
+diff_volunteer <- round(  60 * (sd_volunteer *  tab_all_prosocial[2,1]), 2)
+
+
+loss_charity <- round( ( sd_donations *  tab_all_prosocial_null_zero[1,1]), 2)
+loss_volunteer <- round(  60 * (sd_volunteer *  tab_all_prosocial_null_zero[2,1]), 2)
+
+
+
+
+# make pretty numbers for prosocial outcomes
+diff_charity<- prettyNum(diff_charity,big.mark=",")
+diff_volunteer <- prettyNum(diff_volunteer,big.mark=",")
+loss_charity <- prettyNum(loss_charity,big.mark=",")
+loss_volunteer <- prettyNum(loss_volunteer,big.mark=",")
+
+
+charity_null <- round( ( sd_donations * tab_all_prosocial_null[1,1]), 2)
+charity_null<- prettyNum(charity_null,big.mark=",")
+volunteer_null <- round( sd_volunteer * tab_all_prosocial_null[2,1] * 60, 2)
+volunteer_null<- prettyNum(volunteer_null,big.mark=",")
+
+
+charity_null_zero <- round( ( sd_donations * tab_all_prosocial_null_zero[1,1]), 2)
+charity_null_zero <- prettyNum(charity_null_zero,big.mark=",")
+volunteer_null_zero <- round( sd_volunteer * tab_all_prosocial_null_zero[2,1] * 60, 2)
+volunteer_null_zero<- prettyNum(volunteer_null_zero,big.mark=",")
+
+
+# read data
+df_wide_censored <- margot::here_read("df_wide_censored")
+# graphs ------------------------------------------------------------------
+title = "Weekly Religious Service vs. No Religious Service"
+title_null = "Weekly Religious Service vs. Status Quo"
+title_null_zero = "No Religious Service vs. Status Quo"
+group_tab_all_prosocial
+head(df_wide_censored)
+plot_group_tab_all_prosocial <- margot::margot_plot(
+  tab_all_prosocial,
+  original_df = df_wide_censored,
+  type = "RD",
+  title = title,
+  # subtitle = "Self-Reported Prosociality",
+  estimate_scale = 3,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 14,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset = -.15,
+  x_lim_lo = -.5,
+  x_lim_hi =  .5
+)
+
+
+
+
+plot_group_tab_all_prosocial_null <- margot::margot_plot(
+  tab_all_prosocial_null,
+original_df = df_wide_censored, 
+  type = "RD",
+  title = title_null,
+  # subtitle = "Self-Reported Prosociality",
+  estimate_scale = 3,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 14,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset = -.15,
+  x_lim_lo = -.5,
+  x_lim_hi =  .5
+)
+
+
+plot_group_tab_all_prosocial_null
+
+
+
+
+plot_group_tab_all_prosocial_null_zero <- margot::margot_plot(
+  tab_all_prosocial_null_zero,
+  original_df = df_wide_censored, 
+  type = "RD",
+  title = title_null_zero,
+  # subtitle = "Self-Reported Prosociality",
+  #"Self-Reported Prosociality",
+  estimate_scale = 3,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 14,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset = -.15,
+  x_lim_lo = -.5,
+  x_lim_hi =  .5
+) 
+
+
+plot_group_tab_all_prosocial_null_zero
+
+
+# ggsave(
+#   plot_group_tab_all_prosocial_null_zero,
+#   path = here::here(here::here(push_mods)),
+#   width = 16,
+#   height = 9,
+#   units = "in",
+#   filename = "plot_group_tab_all_prosocial_null_zero.png",
+#   device = 'png',
+#   limitsize = FALSE,
+#   dpi = 300
+# )
+
+
+
+
+
+
+# pathwork
+library(patchwork)
+library(ggplot2)
+plot_group_tab_all_prosocial
+study_1 <- plot_group_tab_all_prosocial$plot /
+plot_group_tab_all_prosocial_null$plot/
+  plot_group_tab_all_prosocial_null_zero$plot + 
+  plot_annotation(title = "Study 1: Self-Reported Prosociality", tag_levels = 'A',
+             theme = theme(plot.title = element_text(size = 16, face = "bold")))
+
+ggsave(
+  study_1,
+  filename = "figure_study_1.png",
+  width = 10,
+  height = 14,
+  device = 'png',
+  limitsize = FALSE,
+  dpi = 600,
+  units = "in",
+  path = here::here(here::here(push_mods, "figs")),
+)
+
+
+
+tab_received_time
+plot_group_tab_all_received_time <- margot::margot_plot(
+  tab_received_time,
+    original_df = df_wide_censored, 
+  type = "RR",
+  title = title,
+  # subtitle = "Support Received From Others: Time",
+  estimate_scale = 6,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 16,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset =  0,
+  x_lim_lo = -.05,
+  x_lim_hi =  2
+)
+plot_group_tab_all_received_time
+
+
+
+
+plot_group_tab_all_received_time_null <- margot::margot_plot(
+  tab_received_time_null,
+    original_df = df_wide_censored, 
+  type = "RR",
+  title = title_null,
+  # subtitle = "Support Received From Others: Time",
+  estimate_scale = 6,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 16,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset =  0,
+  x_lim_lo = -.05,
+  x_lim_hi =  2
+)
+
+
+plot_group_tab_all_received_time_null
+
+
+
+
+plot_group_tab_all_received_time_null_zero <- margot::margot_plot(
+  tab_received_time_null_zero,
+    original_df = df_wide_censored, 
+  type = "RR",
+  title = title_null_zero,
+  # subtitle = "Support Received From Others: Time",
+  estimate_scale = 6,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 16,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset =  0,
+  x_lim_lo = -.05,
+  x_lim_hi =  2
+)
+
+
+plot_group_tab_all_received_time_null_zero
+
+
+
+
+study_2 <- plot_group_tab_all_received_time$plot /
+plot_group_tab_all_received_time_null$plot/
+  plot_group_tab_all_received_time_null_zero$plot + 
+  plot_annotation(title = "Study 2: Relative Risk of Help Received Last Week: Time", tag_levels = 'A',
+                  theme = theme(plot.title = element_text(size = 16, face = "bold")))
+study_2
+
+
+ggsave(
+  study_2,
+  filename = "figure_study_2.png",
+  width = 10,
+  height = 14,
+  device = 'png',
+  limitsize = FALSE,
+  dpi = 600,
+  units = "in",
+  path = here::here(here::here(push_mods, "figs")),
+)
+
+
+
+
+
+
+plot_group_tab_all_received_money<- margot::margot_plot(
+  group_tab_all_received_money,
+    original_df = df_wide_censored, 
+  type = "RR",
+  title = title,
+  # subtitle = "Support Received From Others: Money",
+  estimate_scale = 6,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 16,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset =  0,
+  x_lim_lo = -.05,
+  x_lim_hi =  2
+)
+plot_group_tab_all_received_money
+
+
+
+
+plot_group_tab_all_received_money_null <- margot::margot_plot(
+  tab_all_received_money_null,
+      original_df = df_wide_censored, 
+  type = "RR",
+  title = title_null,
+  # subtitle = "Support Received From Others: Money",
+  estimate_scale = 6,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 16,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset =  0,
+  x_lim_lo = -.05,
+  x_lim_hi =  2
+)
+
+
+plot_group_tab_all_received_money_null
+
+
+
+
+plot_group_tab_all_received_money_null_zero <- margot::margot_plot(
+  tab_all_received_money_null_zero,
+    original_df = df_wide_censored, 
+  type = "RR",
+  title = title_null_zero,
+  # subtitle = "Support Received From Others: Money",
+  estimate_scale = 6,
+  base_size = 14,
+  text_size = 4,
+  point_size = 2,
+  title_size = 12,
+  subtitle_size = 16,
+  legend_text_size = 10,
+  legend_title_size = 10,
+  x_offset =  0,
+  x_lim_lo = -.05,
+  x_lim_hi =  2
+)
+
+
+plot_group_tab_all_received_money_null_zero
+
+
+
+
+study_3<- plot_group_tab_all_received_money$plot /
+plot_group_tab_all_received_money_null$plot/
+  plot_group_tab_all_received_money_null_zero$plot + 
+  plot_annotation(title = "Study 3: Relative Risk of Help Received Last Week: Money", tag_levels = 'A',
+                  theme = theme(plot.title = element_text(size = 16, face = "bold")))
+study_3
+
+ggsave(
+  study_3,
+  filename = "figure_study_3.png",
+  width = 10,
+  height = 14,
+  device = 'png',
+  limitsize = FALSE,
+  dpi = 600,
+  units = "in",
+  path = here::here(here::here(push_mods, "figs")),
+)
+
+
+
+
+
+### Regressions
+
+
+
+
+contrast_charity <-
+  lmtp::lmtp_contrast(t2_charity_donate_z_gain , ref =  t2_charity_donate_z_zero, type = "additive")
+contrast_volunteer <-
+  lmtp::lmtp_contrast(t2_hours_charity_z_gain , ref =  t2_hours_charity_z_zero, type = "additive")
+
+
+
+
+b_church_on_hours_charity<-margot::here_read("b_church_on_hours_charity")
+b_church_on_charity_donate<-margot::here_read("b_church_on_charity_donate")
+
+
+#b_church_on_hours_charity
+
+
+fit_church_on_hours_charity<-margot::here_read("fit_church_on_hours_charity")
+fit_church_on_hours_charity
+fit_church_on_charity_donate<-margot::here_read("fit_church_on_charity_donate")
+fit_church_on_charity_donate
+
+
+# community time
+b_church_on_community_time_binary_exp_false <- here_read("b_church_on_community_time_binary_exp_false")
+
+
+
+
+regression_regular_church_charity <- round( (fit_church_on_charity_donate$coefficients[2]  *  4.2), 2) # monthly
+regression_regular_church_charity
+
+
+regression_regular_church_volunteer_minutes <- round( (fit_church_on_hours_charity$coefficients[2]  *  4.2  * 60), 2) # monthly
+regression_regular_church_volunteer_minutes
+
+
+# donate data scale 
+donate_lmtp <- round( contrast_charity$vals$theta* sd_donations, 2)
+donate_lmtp
+# voluneer_data scale
+volunteer_lmtp_mins = round( (contrast_volunteer$vals$theta * sd_volunteer * 60), 2)
+volunteer_lmtp_mins
+# perc greater
+
+
+percent_greater_regression_donate  <- round( (regression_regular_church_charity/donate_lmtp), 2) 
+percent_greater_regression_volunteer <- round( (regression_regular_church_volunteer_minutes/volunteer_lmtp_mins), 2) 
+percent_greater_regression_donate
+percent_greater_regression_volunteer
+
+
+
+
+## Ratio
+t2_community_time_binary_gain <- here_read("t2_community_time_binary_gain")
+t2_community_time_binary_zero <- here_read("t2_community_time_binary_zero")
+t2_community_money_binary_gain<- here_read("t2_community_money_binary_gain")
+t2_community_money_binary_zero <- here_read("t2_community_money_binary_zero")
+
+
+contrast_community_time <-
+  lmtp::lmtp_contrast(t2_community_time_binary_gain,
+                ref =  t2_community_time_binary_zero,
+                type = "rr")
+
+
+community_time_rr <- contrast_community_time$vals$theta
+
+
+contrast_community_money <-
+  lmtp::lmtp_contrast(t2_community_money_binary_gain,
+                ref = t2_community_money_binary_zero ,
+                type = "rr")
+
+
+community_money_rr <- contrast_community_money$vals$theta
+
+
+
+
+fit_church_on_community_time_binary<- margot::here_read('fit_church_on_community_time_binary')
+fit_church_on_community_money_binary<- margot::here_read('fit_church_on_community_money_binary')
+
+
+community_time_risk_ratio <- round( exp( fit_church_on_community_time_binary$coefficients[2]  *  4.2 ), 3)
+community_time_risk_ratio
+
+
+community_money_risk_ratio <- round( exp( fit_church_on_community_money_binary$coefficients[2]  *  4.2 ), 3)
+community_money_risk_ratio
+
+
+
+
+
+
+percent_greater_rr_community_money  <- round( (community_money_risk_ratio/community_money_rr), 2) 
+percent_greater_rr_community_time <- round( (community_time_risk_ratio/community_time_rr), 2) 
+
+
+percent_greater_rr_community_money
+percent_greater_rr_community_time
+
+
+percent_greater_regression_volunteer <- round( (regression_regular_church_volunteer_minutes/volunteer_lmtp_mins), 2) 
+percent_greater_regression_donate
+percent_greater_regression_volunteer
+
+
+b_church_on_community_time_binary_exp_false <- here_read("b_church_on_community_time_binary_exp_false")
+b_church_on_community_money_binary_exp_false <- here_read("b_church_on_community_money_binary_exp_false")
+
+
+b_church_on_community_time_binary_exp_true <- here_read("b_church_on_community_time_binary_exp_true")
+b_church_on_community_money_binary_exp_true <- here_read("b_church_on_community_money_binary_exp_true")
+
+
+
+
+
+
+# key values
+
+
+b_church_on_community_time_binary_exp_false
+b_church_on_community_money_binary_exp_false
+percent_greater_rr_community_money
+percent_greater_rr_community_time
+
+
+
+
+# make pretty numbers
+regression_regular_church_volunteer_minutes <- prettyNum(regression_regular_church_volunteer_minutes,big.mark=",")
+
+
+# graphs
+graph_density_of_exposure_both <- margot::here_read("graph_density_of_exposure_both")
+
+
+# transition table
+transition_table <- margot::here_read("transition_table")
+
+
+# supplement
+transition_table_binary_gain <-margot::here_read("transition_table_binary_gain")
+transition_table_binary_zero <-margot::here_read("transition_table_binary_zero")
+love_plot_one <- margot::here_read("love_plot_one")
+table_baseline <- margot::here_read("table_baseline")
+table_outcomes <-margot::here_read("table_outcomes")
+table_exposures <-margot::here_read("table_exposures")
+
+
+
+
+```
+
+
+## Appendix A: Measures {#appendix-measures}
+
+
+#### Age (waves: 1-15)
+
+
+We asked participants' ages in an open-ended question ("What is your age?" or "What is your date of birth?").
+
+
+
+
+#### Born in New Zealand
+
+
+
+
+#### Charitable Donations  (Study 1 outcome)
+
+
+Using one item from @hoverd_religious_2010, we asked participants, "How much money have you donated to charity in the last year?". 
+
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+
+
+
+#### Charitable Volunteering  (Study 1 outcome)
+
+
+
+
+We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work."
+
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+
+#### Children Number (waves: 1-3, 4-15)
+
+
+We measured the number of children using one item from @Bulbulia_2015. We asked participants, "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, or adopted?" or "How many children have you given birth to, fathered, or adopted. How many children have you given birth to, fathered, and/or parented?" (waves: 12-15).
+
+
+<!-- Here, we used responses to create a binary indicator for parenthood: Parent Yes = 1/ No = 0.  -->
+
+
+
+
+
+
+<!-- #### Community: Sense of Community (Study 2 outcome) -->
+
+
+<!-- We measured a sense of community with a single item from @sengupta2013: "I feel a sense of community with others in my local neighbourhood." Participants answered on a scale of 1 (strongly disagree) to 7 (strongly agree). -->
+
+
+
+
+<!-- #### Community: Felt Belongingness  (Study 2 outcome) -->
+
+
+<!-- We assessed felt belongingness with three items adapted from the Sense of Belonging Instrument [@hagerty1995]: (1) "Know that people in my life accept and value me"; (2) "Feel like an outsider"; (3) "Know that people around me share my attitudes and beliefs". Participants responded on a scale from 1 (Very Inaccurate) to 7 (Very Accurate). The second item was reversely coded. -->
+
+
+<!-- #### Community: Social Support (Study 2 outcome) -->
+
+
+<!-- Participants perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated how much they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+
+#### Disability
+
+
+We assessed disability with a one-item indicator adapted from @verbrugge1997. It asks, "Do you have a health condition or disability that limits you and that has lasted for 6+ months?" (1 = Yes, 0 = No).
+
+
+
+
+#### Education Attainment (waves: 1, 4-15)
+
+
+We asked participants, "What is your highest level of qualification?". We coded participants' highest finished degree according to the New Zealand Qualifications Authority. Ordinal-Rank 0-10 NZREG codes (with overseas school quals coded as Level 3, and all other ancillary categories coded as missing) See:https://www.nzqa.govt.nz/assets/Studying-in-NZ/New-Zealand-Qualification-Framework/requirements-nzqf.pdf
+
+
+#### Employment (waves: 1-3, 4-11)
+
+
+We asked participants, "Are you currently employed? (This includes self-employed or casual work)".
+
+
+<!-- #### European (waves: 1-15) -->
+
+
+<!-- Participants were asked, "Which ethnic group do you belong to (NZ census question)?" or "Which ethnic group(s) do you belong to? (Open-ended)" (wave: 3). Europeans were coded as 1, whereas other ethnicities were coded as 0. -->
+
+
+#### Ethnicity
+
+
+Based on the New Zealand Census, we asked participants, "Which ethnic group(s) do you belong to?". The responses were: (1) New Zealand European; (2) Māori; (3) Samoan; (4) Cook Island Māori; (5) Tongan; (6) Niuean; (7) Chinese; (8) Indian; (9) Other such as DUTCH, JAPANESE, TOKELAUAN. Please state:. We coded their answers into four groups: Maori, Pacific, Asian, and Euro (except for Time 3, which used an open-ended measure).
+
+
+
+
+#### Fatigue
+
+
+We assessed subjective fatigue by asking participants, "During the last 30 days, how often did ... you feel exhausted?" Responses were collected on an ordinal scale (0 = None of The Time, 1 = A little of The Time, 2 = Some of The Time, 3 = Most of The Time, 4 = All of The Time).
+
+
+
+
+#### Honesty-Humility-Modesty Facet (waves: 10-14)
+
+
+Participants indicated the extent to which they agree with the following four statements from @campbell2004 , and @sibley2011 (1 = Strongly Disagree to 7 = Strongly Agree)
+
+i.  I want people to know that I am an important person of high status, (Waves: 1, 10-14)
+ii. I am an ordinary person who is no better than others.
+iii. I wouldn't want people to treat me as though I were superior to them.
+iv. I think that I am entitled to more respect than the average person is.
+
+
+<!-- #### Has Siblings -->
+
+
+<!-- "Do you have siblings?" [@stronge2019onlychild] -->
+
+
+#### Hours of Childcare
+
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Hours of Housework
+
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+#### Hours of Exercise
+
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+<!-- #### Hours Volunteering -->
+
+
+<!-- We measured hours of volunteering using one item from @sibley2011: "Hours spent … voluntary/charitable work." -->
+
+
+<!-- To stabilise this indicator, we took the natural log of the response + 1. -->
+
+
+#### Hours of Childcare
+
+
+We measured hours of exercising using one item from @sibley2011: 'Hours spent … looking after children."
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Hours of Exercise
+
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … exercising/physical activity" 
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Hours of Housework
+
+
+We measured hours of exercising using one item from @sibley2011: "Hours spent … housework/cooking"
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Hours of Sleep
+
+
+Participants were asked, "During the past month, on average, how many hours of *actual sleep* did you get per night?".
+
+
+
+
+#### Hours of Work
+
+
+We measured work hours using one item from @sibley2011: "Hours spent … working in paid employment."
+
+
+To stabilise this indicator, we took the natural log of the response + 1.
+
+
+
+
+#### Income (waves: 1-3, 4-15)
+
+
+Participants were asked, "Please estimate your total household income (before tax) for the year XXXX". To stabilise this indicator, we first took the natural log of the response + 1, and then centred and standardised the log-transformed indicator.
+
+
+<!-- #### Job Security (waves: 1-3,4-7,9-15) -->
+
+
+<!-- Participants indicated their feeling of job security by answering "How secure do you feel in your current job?" on a scale from 1 (not secure) to 7 (very secure). -->
+
+
+
+
+#### Kessler-6: Psychological Distress  (waves: 2-3,4-15)
+
+
+We measured psychological distress using the Kessler-6 scale (kessler2002?), which exhibits
+strong diagnostic concordance for moderate and severe psychological distress in large, crosscultural
+samples (kessler2010?; prochaska2012?). Participants rated during the past 30
+days, how often did… (1) “… you feel hopeless”; (2) “… you feel so depressed that nothing
+could cheer you up”; (3) “… you feel restless or fidgety”; (4)“… you feel that everything was
+an effort”; (5) “… you feel worthless”; (6) ” you feel nervous?” Ordinal response alternatives
+for the Kessler-6 are: “None of the time”; “A little of the time”; “Some of the time”; “Most of
+the time”; “All of the time.”
+
+
+
+
+#### Male Gender (waves: 1-15)
+
+
+We asked participants' gender in an open-ended question: "what is your gender?" or "Are you male or female?" (waves: 1-5). Female was coded as 0, Male as 1, and gender diverse coded as 3 [@fraser_coding_2020]. (or 0.5 = neither female nor male)
+
+
+Here, we coded all those who responded as Male as 1, and those who did not as 0.
+
+
+
+
+#### Mini-IPIP 6 (waves: 1-3,4-15)
+
+
+We measured participants' personalities with the Mini International Personality Item Pool 6 (Mini-IPIP6) [@sibley2011], which consists of six dimensions and each dimension is measured with four items:
+
+
+1.  agreeableness,
+
+
+    i.  I sympathize with others' feelings.
+    ii. I am not interested in other people's problems. (r)
+    iii. I feel others' emotions.
+    iv. I am not really interested in others. (r)
+
+
+2.  conscientiousness,
+
+
+    i.  I get chores done right away.
+    ii. I like order.
+    iii. I make a mess of things. (r)
+    iv. I often forget to put things back in their proper place. (r)
+
+
+3.  extraversion,
+
+
+    i.  I am the life of the party.
+    ii. I don't talk a lot. (r)
+    iii. I keep in the background. (r)
+    iv. I talk to a lot of different people at parties.
+
+
+4.  honesty-humility,
+
+
+    i.  I feel entitled to more of everything. (r)
+    ii. I deserve more things in life. (r)
+    iii. I would like to be seen driving around in a very expensive car. (r)
+    iv. I would get a lot of pleasure from owning expensive luxury goods. (r)
+
+
+5.  neuroticism, and
+
+
+    i.  I have frequent mood swings.
+    ii. I am relaxed most of the time. (r)
+    iii. I get upset easily.
+    iv. I seldom feel blue. (r)
+
+
+6.  openness to experience
+
+
+    i.  I have a vivid imagination.
+    ii. I have difficulty understanding abstract ideas. (r)
+    iii. I do not have a good imagination. (r)
+    iv. I am not interested in abstract ideas. (r)
+
+
+Each dimension was assessed with four items and participants rated the accuracy of each item as it applies to them from 1 (Very Inaccurate) to 7 (Very Accurate). Items marked with (r) are reverse coded.
+
+
+
+
+#### NZ-Born (waves: 1-2,4-15)
+
+
+We asked participants, "Which country were you born in?" or "Where were you born? (please be specific, e.g., which town/city?)" (waves: 6-15).
+
+
+
+
+#### NZ Deprivation Index (waves: 1-15)
+
+
+We used the NZ Deprivation Index to assign each participant a score based on where they live [@atkinson2019]. This score combines data such as income, home ownership, employment, qualifications, family structure, housing, and access to transport and communication for an area into one deprivation score.
+
+
+
+
+#### NZSEI Occupational Prestige and Status (waves: 8-15)
+
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017a]. This index uses the income, age, and education of a reference group, in this case the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant an NZSEI-13 score based on their occupation.
+
+
+We assessed occupational prestige and status using the New Zealand Socio-economic Index 13 (NZSEI-13) [@fahy2017]. This index uses the income, age, and education of a reference group, in this case, the 2013 New Zealand census, to calculate a score for each occupational group. Scores range from 10 (Lowest) to 90 (Highest). This list of index scores for occupational groups was used to assign each participant an NZSEI-13 score based on their occupation.
+
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?". -->
+<!-- #### Parent (waves: 5-15) -->
+
+
+<!-- We asked participants, "If you are a parent, what is the birth date of your eldest child?" or "If you are a parent, in which year was your eldest child born?" (waves: 10-15). Parents were coded as 1, while the others were coded as 0. --> 
+
+
+
+
+
+
+
+
+#### Opt-in
+
+
+The New Zealand Attitudes and Values Study allows opt-ins to the study. Because the opt-in population may differ from those sampled randomly from the New Zealand electoral roll; although the opt-in rate is low, we include an indicator (yes/no) for this variable.
+
+
+
+
+
+
+#### Partner (No/Yes)
+
+
+"What is your relationship status?" (e.g., single, married, de-facto, civil union, widowed, living together, etc.)
+
+
+
+
+#### Politically Conservative 
+
+
+We measured participants' political conservative orientation using a single item adapted from @jost_end_2006-1.
+
+
+"Please rate how politically liberal versus conservative you see yourself as being."
+
+
+(1 = Extremely Liberal to 7 = Extremely Conservative)
+
+
+
+
+##### Religious Service Attendance
+
+
+If participants answered *yes* to "Do you identify with a religion and/or spiritual group?" we measured their frequency of church attendence using one item from @sibley2012: "how many times did you attend a church or place of worship in the last month?". Those participants who were not religious were imputed a score of "0".
+
+
+#### Rural/Urban Codes
+
+
+Participants residence locations were coded according to a five-level ordinal categorisation ranging from "Urban" to Rural, see @sibley2021.
+
+
+<!-- #### Politically Right Wing  -->
+
+
+<!-- We measured participants' political right-wing orientation using a single item adapted from @jost_end_2006-1. -->
+
+
+<!-- "Please rate how politically left-wing versus right-wing you see yourself as being." -->
+
+
+<!-- (1 = Extremely left-wing to 7 = Extremely right-wing) -->
+
+
+
+
+<!-- #### Religion Affiliation -->
+
+
+<!-- Participants were asked to indicate their religion identification ("Do you identify with a religion and/or spiritual group?") on a binary response (1 = Yes, 0 = No). We then asked, "What religion or spiritual group?" These questions are used in the New Zealand Census -->
+
+
+
+
+<!-- #### Support -->
+
+
+<!-- Participants' perceived social support was measured using three items from @cutrona1987 and @williams_cyberostracism_2000: (1) "There are people I can depend on to help me if I really need it"; (2) "There is no one I can turn to for guidance in times of stress"; (3) "I know there are people I can turn to when I need help." Participants indicated how much they agreed with those items (1 = Strongly Disagree to 7 = Strongly Agree). The second item was negatively worded, so we reversely recorded the responses to this item. -->
+
+
+#### Short-Form Health
+
+
+Participants' subjective health was measured using one item ("Do you have a health condition or disability that limits you, and that has lasted for 6+ months?"; 1 = Yes, 0 = No) adapted from @verbrugge1997.
+
+
+
+
+#### Sample Origin
+
+
+Wave enrolled in NZAVS, see @sibley2021.
+
+
+<!-- #### Socialising (time 10, time 11) -->
+
+
+<!-- As part of the time usage measures, participants were asked to state how many hour the spent in activities related to socialising with the following groups: -->
+
+
+<!--   - Hours spent … socialising with family -->
+<!--   - Hours spent … socialising with friends -->
+<!--   - Hours spent … socialising with community groups -->
+
+
+<!--   <!-- - Hours spent … socialising with religious groups -->
+
+
+
+
+#### Support received: money (waves 10-12) (Study 4 outcomes)
+
+
+The NZAVS has a 'revealed' measure of received help and support measured in hours of support in the previous week. The items are: 
+
+
+
+
+*Please estimate how much help you have received from the following sources in the last week?*
+
+
+- *family...MONEY (hours)*
+- *friends...MONEY (hours)*
+- *members of my community...MONEY (hours)*
+
+
+
+
+Because this measure is highly variable, we convert responses to binary indicators: *0 = none/1 any*
+
+
+
+
+#### Support received: time (waves 10-13) (Study 3 outcomes)
+
+
+*Please estimate how much help you have received from the following sources in the last week.*
+
+
+- *family...TIME (hours)*
+- *friends...TIME (hours)*
+- *members of my community...TIME (hours)*
+
+
+Because this measure is highly variable, we convert responses to binary indicators: *0 = none/1 any*
+  
+
+
+#### Total Siblings
+
+
+Participants were asked the following questions related to sibling counts: 
+ 
+ - Were you the 1st born, 2nd born, or 3rd born, etc, child of your mother?
+ - Do you have siblings?
+ - How many older sisters do you have?
+ - How many younger sisters do you have?
+ - How many older brothers do you have?
+ - How many younger brothers do you have?
+
+
+A single score was obtained from sibling counts by summing responses to the "How many..." items. From these scores, an ordered factor was created ranging from 0 to 7, where participants with more than 7 siblings were grouped into the highest category. 
+
+
+
+
+<!-- #### Volunteers -->
+
+
+<!-- We asked participants,"Please estimate how many hours you spent doing each of the following things last week" and responded to an item ("voluntary/charitable work") from [@sibley2011]. -->
+
+
+
+
+{{< pagebreak >}}
+
+
+## Appendix B. Baseline Demographic Statistics {#appendix-demographics}
+
+
+
+
+```{r}
+#| label: tbl-table-demography
+#| tbl-cap: "Baseline demographic statistics"
+#| eval: true
+#| include: true
+#| echo: false
+table_baseline |>  kbl(format = "markdown")
+```
+
+
+
+
+@tbl-table-demography baseline demographic statistics for couples who met inclusion criteria.
+
+
+{{< pagebreak >}}
+
+
+
+
+##  Appendix C: Treatment Statistics {#appendix-exposures}
+
+
+
+
+```{r}
+#| label: tbl-table-exposures-code
+#| tbl-cap: "Exposures at baseline and baseline + 1 (treatment) wave"
+#| eval: true
+#| include: true
+#| echo: false
+
+
+table_exposures |>  kbl(format = "latex",  booktabs = TRUE)
+```
+
+
+
+
+
+
+tbl-table-exposures-code presents baseline (NZAVS time 10) and exposure wave (NZAVS time 11) statistics for the exposure variable: religious service attendance (range 0-8). Responses coded as eight or above were coded as "8". This decision to avoid spare treatments was based on theoretical grounds, namely, that daily exposure would be similar in its effects to more than daily exposure. We note that causal contrasts were obtained for projects with either no attendance or four or more visits per month. Hence this simplification of the measure is unlikely to affect theoretical and practical inferences. All models adjusted for the pandemic alert level because the treatment wave (NZAVS time 11) occurred during New Zealand's COVID-19 pandemic. The pandemic is not a "confounder" because a confounder must be related to the treatment and the outcome. At the end of the study, all participants had been exposed to the pandemic.  However, to satisfy the causal consistency assumption, all treatments must be conditionally equivalent within levels of all covariates [@vanderweele2013]. Because COVID affected the ability or willingness of individuals to attend religious service, we included the lockdown condition as a covariate [@sibley2021]. To better enable conditional independence within levels of the treatment variable, we conditioned on the lead value of COVID-alert level at baseline. To mitigate systematic biases arising from attrition and missingness, the `lmtp` package uses inverse probability of censoring weights, which were used when estimating the causal effects of the exposure on the outcome. 
+
+
+
+
+
+
+### Binary Transition Table for The Treatment
+
+
+```{r}
+#| label: tbl-transition-tablegain
+#| tbl-cap: "Transition table for stability and change in regular religious service (4x per month) between baseline and treatment wave."
+#| eval: true
+#| include: true
+#| echo: false
+transition_table_binary_gain$table
+```
+
+
+@tbl-transition-tablegain presents a transition matrix to evaluate treatment shifts between baseline and treatment wave. Here, we focus on the shift from/to monthly attendance at four or more visits per month. Entries along the diagonal (in bold) indicate the number of individuals who **stayed** in their initial state. By contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off diagonal). Thus the cell located at the intersection of row $i$ and column $j$, where $i \neq j$, gives us the counts of individuals moving from state $i$ to state $j$.
+
+
+
+
+
+
+
+
+
+
+```{r}
+#| label: tbl-transition-tableloss
+#| tbl-cap:  "Transition table for stability and change in zero religious service (0 x per month) between baseline and treatment wave."
+#| eval: true
+#| include: true
+#| echo: false
+transition_table_binary_zero$table
+```
+
+
+@tbl-transition-tableloss presents a transition matrix to evaluate treatment shifts between baseline and treatment wave. Here, we focus on the shift from/to zero religious service attendance. Again, entries along the diagonal (in bold) indicate the number of individuals who **stayed** in their initial state. By contrast, the off-diagonal shows the transitions from the initial state (bold) to another state in the following wave (off diagonal). Thus the cell located at the intersection of row $i$ and column $j$, where $i \neq j$, gives us the counts of individuals moving from state $i$ to state $j$.
+
+
+
+
+### Imbalance of Confounding Covariates Treatments 
+
+
+@fig-match_1 shows imbalance of covariates on the treatment at the treatment wave. The variable on which there is strongest imbalance is the baseline measure of religious service attendance. It is important to adjust for this measure both for confounding control and to better estimate an incident exposure effect for the religious service at the treatment wave (in contrast to merely estimating a prevalence effect). See @vanderweele2020.
+
+
+```{r}
+#| label: fig-match_1
+#| fig-cap: "This figure shows the imbalance in covariates on the treatment"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+love_plot_one
+```
+
+
+
+
+##  Appendix D: Baseline and End of Study Outcome Statistics {#appendix-outcomes}
+
+
+
+
+```{r}
+#| label: tbl-table-outcomes
+#| tbl-cap: "Outcomes at baseline and end-of-study"
+#| eval: true
+#| include: true
+#| echo: false
+table_outcomes |>  kbl(format = "latex", booktabs = TRUE)
+```
+
+
+
+
+
+
+@tbl-table-outcomes presents baseline and end-of-study descriptive statistics for the outcome variables.  
+
+
+
+
+{{< pagebreak >}}
+
+
+
+
+
+
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
