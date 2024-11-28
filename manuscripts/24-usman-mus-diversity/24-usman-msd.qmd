@@ -1,0 +1,288 @@
+---
+title: "The Muslim Diversity Study: Wave 1 Descriptive Information)"
+abstract: |
+  
+   **KEYWORDS**: 
+author: 
+  - name: M. Usman Afzali
+    affiliation: University of Otago New Zealand
+    orcid: 0000-0003-3169-6576 
+  - name: Kumar Yogeswaaran
+    affiliation: University of Canterbury New Zealand
+    orcid: 0000-0002-1978-5077
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland, New Zealand
+    orcid: 0000-0002-4064-8800
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+editor_options: 
+    chunk_output_type: console
+format:
+  pdf:  
+    bibliography: /Users/joseph/GIT/templates/bib/references.bib
+    pdf-engine: lualatex
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+      - \let\oldtabular\tabular
+      - \renewcommand{\tabular}{\small\oldtabular}
+      - \setlength{\tabcolsep}{4pt}  % Adjust this value as needed
+
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+# detach("package:margot", unload = TRUE)
+# devtools::install_github("go-bayes/margot")
+# for making graphs
+library("tinytex")
+library("extrafont")
+loadfonts(device = "all")
+
+# reproducibility
+set.seed(123)
+
+# rendering document
+library("margot")
+library("glue")
+library("patchwork")
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+library("parameters")
+library("table1")
+packageVersion(pkg = 'margot')
+
+# path to data folder (set to path on your computer) - for pushing and pulling model results
+push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-muslims")
+
+
+# exposure_var = "muslim_binary"
+# name_exposure = "muslim_binary"
+
+# table for muslim on religion
+table_religion_kbl <- here_read("table_religion_kbl")
+table_religion <- here_read("table_religion")
+table_demographics <- here_read("table_demographics")
+table_demographics_kbl <- here_read("table_demographics_kbl")
+table_wellbeing_kbl <- here_read("table_wellbeing_kbl")
+table_wellbeing <- here_read("table_wellbeing")
+prop_miss_case <- here_read("prop_miss_case")
+results_religion <- here_read_qs("results_religion", push_mods)
+results_life <- here_read_qs("results_life", push_mods)
+results_psych <- here_read_qs("results_psych", push_mods)
+
+n_total <- here_read("n_total")
+n_15 <- here_read("n_15")
+n_mus_pre<- here_read("n_mus_pre")
+
+n_participants<- here_read("n_participants")
+# varaibles
+exposure_var = "religion_bigger_denominations"
+name_exposure = "religion_bigger_denominations"
+
+baseline_vars <- here_read("baseline_vars")
+outcome_vars <- here_read("outcome_vars")
+baseline_vars
+outcome_vars
+# joseph.bulbulia@gmail.com (joseph.bulbulia@vuw.ac.nz)
+set.seed(123)
+prop_miss_case<- here_read("prop_miss_case")
+
+
+# read data (use 01 script to data wrangle)
+# dat_long_imputed_bounds_ordinal <- margot::here_read_qs("dat_long_imputed_bounds_ordinal", push_mods)
+
+
+measures_path_rstudio <- here::here("manuscripts", "24-usman-mus-diversity")
+measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+```
+
+
+The New Zealand Attitudes and Values Study (NZAVS) is a nationally representative panel study of New Zealanders started in 2009. It has measured `r n_total` participants annually, and is presently tracking `r n_15` participants, about 1% of New Zealand's adult population. 
+
+Despite strong NZAVS coverage of New Zealand's denominations, in the largest NZAVS cohort, less than .01% of New Zealand's Muslims were participating (n = `r n_mus_pre`). That is, the New Zealand Attitudes and Values Study was under-representing Muslims by an order of magnitude below the New Zealand census estimates. 
+
+The Muslim Diversity Study, led by Usman Afzali (UA), has been built through partnership with the Muslim community partnerships to boost the New Zealand Attitudes and Values Muslim sample by ~600 participants to obtain coverage of about 1% of the New Zealand Census estimate of New Zealand Muslim Community.
+
+The premise of this study has been to enable extend national longitudinal science of the study of Muslim diversity and flourishing over the lifespan, to understand the scope of such diversity and the challenges to such flourishing, and to clarify the affordances through which Muslims overcome adversity that has been previously documented in other research (refs.)
+
+The Muslim Diversity Study is important first, because the lifelong dynamics of Muslim flourishing are poorly understood; this project addresses an urgent scientific need.
+
+Second, our work with the Muslim community revealed a strong community interest in Muslim flourishing science; this project is an attempt to address this interest by involving Muslims in this science. 
+
+Third, this project serves as a model for developing panel studies of under-represented groups in Aoteoroa New Zealand and in other countries. 
+
+
+## Method
+
+
+
+
+```{r}
+#| eval: false
+#| include: false
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  baseline_vars = baseline_vars,
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+cat(outcome_measures)
+
+```
+
+
+{{< pagebreak >}}
+
+### Sample
+
+The New Zealand Attitudes and Values Study is a national probability study designed to accurately reflect the broader New Zealand population. It uses prize draws to incentivise participation. Although the New Zealand Attitudes and Values Study has good demographic representation of the country as a whole, it tends to under-sample males and individuals of Asian descent and over-sample females and Māori (the indigenous peoples of New Zealand). To address enhance the accuracy of our findings for the target population, we apply 2018 New Zealand Census survey weights to the sample data. These weights adjust for variations in age, gender, and ethnicity to better approximate the national demographic composition [@sibley2021]. 
+
+MORE HERE ABOUT THE MDS
+
+
+### Design 
+
+First, we report descriptive demographic information about the Muslim sample.  We do so by comparing it to the secular sample and to other religious groups. 
+
+Second, we model the expected average responses to the religion-related indicators in the New Zealand Attitudes and Values Study, as well prejudice-related indicators. These statistical models are also descriptive. 
+
+
+### Eligibility Criteria
+
+To be eligible, participants needed to respond to the 2023 wave of the New Zealand Attitudes Study, and to have complete information about religious identification (yes or no). A total of `r n_participants` individuals met these criteria and were included in the study. 
+
+<!-- The proportion of missing data for each variable by wave is describe in [Appendix A](#appendix-a) @tbl-baseline. -->
+
+
+
+### Missing Data
+
+
+To mitigate bias from missing data, we employed the `ppm` algorithm from the `mice` package in R [@vanbuuren2018] to impute missing responses.  Overall missingness reponses accounted for less than 1% of total responses (`r prop_miss_case`).
+
+
+## Results 
+
+Demographic data are presented in @tab-demography
+
+
+
+{{< pagebreak >}}
+
+\begin{landscape}
+
+```{r, results = 'asis'}
+library(kableExtra)
+# as.data.frame(table_demographics) |>
+#   kbl(format="latex", booktabs = TRUE) |> 
+#   kable_styling(font_size = 8)
+# as.data.frame(table_demographics) |>
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     longtable = TRUE  # Enable longtable format
+#   ) |>
+#   kable_styling(
+#     font_size = 8,
+#     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
+#   )
+
+as.data.frame(table_demographics) |>
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    longtable = TRUE,
+    caption = "Demographic Data Overview"
+  ) |>
+  kable_styling(
+    font_size = 5,
+    latex_options = c("striped", "hold_position", "repeat_header", "longtable")
+  ) |>
+  kable_styling(latex_options = "scale_down")
+```
+\end{landscape}
+
+
+
+{{< pagebreak >}}
+
+### Ethics
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+### Data Availability
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: OSF-lINK TBA. 
+
+
+### Acknowledgements
+
+**TBA** 
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Plank Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+### Author Statement
+
+**TBA**:  
+
+
+{{< pagebreak >}}
+
+
+
+
+## Appendix A: Sample Descriptive Statistics {#appendix-a}
+
+@tbl-baseline presents descriptive statistics for the sample.
+
+
+
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
