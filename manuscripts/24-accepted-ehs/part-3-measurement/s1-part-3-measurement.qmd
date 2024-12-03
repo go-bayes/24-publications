@@ -1,5 +1,5 @@
 ---
-title: 'Supplementary files for "Methods in Causal Inference Part 2: Interaction, Mediation, and Time-Varying Treatments"'
+title: 'Supplementary files for "Methods in Causal Inference Part 3: Measurement Error and External Validity Threats"'
 author: 
   - name: Joseph A. Bulbulia
     affiliation: Victoria University of Wellington, New Zealand
@@ -33,7 +33,7 @@ format:
       - /Users/joseph/GIT/templates/quarto/title.tex
     header-includes:
       - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
-date: last-modified
+date: 2024-06-10
 pdf-engine: lualatex
 execute:
   echo: true
@@ -69,7 +69,7 @@ Suppose we sample randomly from the target population, where:
 Assuming the rest of the causal inference workflow goes to plan (randomisation succeeds, there is no measurement error, no model misspecification, etc.), as the random sample size $n_S$ increases, the estimated treatment effect in the analytic sample $S$ converges in probability to the true treatment effect in the target population $T$:
 
 $$
-\lim_{n_S \to N_T} P(|\widehat{ATE}_{n_S} - ATE_{T}| < \epsilon) = 1
+\lim_{n_S \to \infty} P(|\widehat{ATE}_{n_S} - ATE_{T}| < \epsilon) = 1
 $$
 
 for any small positive value of $\epsilon$.
@@ -83,7 +83,11 @@ $\widehat{ATE}_{T}$ as the estimated average treatment effect in the target popu
 $f(n_S, R)$ as the mapping function that adjusts the estimated effect in the analytic sample using a set of measured covariates $R$, allowing for valid projection from the source population to the target population.
 
 The transportability assumption is that there exists a function $f$ such that:
-$$ \widehat{ATE}_{T} = f(n_S, R) $$
+$$
+\widehat{ATE}_{T} = f(\widehat{ATE}_S, R)
+$$
+
+Here, $\widehat{ATE}_S$ is the estimated average treatment effect from the source population, and $R$ represents the set of covariates used for adjustment.
 
 Finding a suitable function $f$ is the central challenge in adjusting for sampling bias and achieving transportability [@bareinboim2013general; @westreich2017transportability; @dahabreh2019generalizing; @deffner2022].
 
@@ -119,10 +123,10 @@ $$ \Delta_{\text{censored}} = \mathbb{E}[Y \mid A=a^*, C=1] - \mathbb{E}[Y \mid 
 
 Applying the Law of Total Probability, we can weight the average treatment effects by the conditional probability of the effect modifier $F$:
 
-$$ \Delta_{\text{uncensored}} = \sum_{f} \left\{\mathbb{E}[Y \mid A=a^*, F=f, C=0] - \mathbb{E}[Y \mid A=a, F=f, C=0]\right\} \times \Pr(F=f \mid C=0) $$
+$$ \Delta_{\text{uncensored}} = \sum_{f} \Big\{\mathbb{E}[Y \mid A=a^*, F=f, C=0] - \mathbb{E}[Y \mid A=a, F=f, C=0]\Big\} \times \Pr(F=f \mid C=0) $$
 
 $$ 
-\Delta_{\text{censored}} = \sum_{f} \left\{\mathbb{E}[Y \mid A=a^*, F=f, C=1] - \mathbb{E}[Y \mid A=a, F=f, C=1]\right\} \times \Pr(F=f \mid C=1) 
+\Delta_{\text{censored}} = \sum_{f} \Big\{\mathbb{E}[Y \mid A=a^*, F=f, C=1] - \mathbb{E}[Y \mid A=a, F=f, C=1]\Big\} \times \Pr(F=f \mid C=1) 
 $$
 
 #### Assumption of Informative Censoring:

@@ -1,8 +1,8 @@
 ---
-title: "The Muslim Diversity Study: Wave 1 Descriptive Information)"
+title: "The New Zealand Muslim Diversity Study: Baseline Sample Information 2023-2024"
 abstract: |
-  
-   **KEYWORDS**: 
+  In this study, we present demographic statistics from the first wave of the New Zealand Muslim Diversity Study (MSD 2023-2024). We describe patterns of religious identity and behaviour within the MDS cohort and examine self-reported multi-dimensional well-being. By comparing Muslim demographic, religious, and psychological diversity with that of the broader New Zealand population, we discover patterns of variation within and between religious groups that are not evident from group affiliations alone. Our findings uncover new commonalities between Muslims and other highly religious groups in New Zealand, and clarify that group-level averages do not capture the full spectrum of individual religious differences.
+   **KEYWORDS**: Diversity; Longitudinal; Muslim, Panel; Religion
 author: 
   - name: M. Usman Afzali
     affiliation: University of Otago New Zealand
@@ -89,6 +89,7 @@ library("ggplot2")
 library("ggeffects")
 library("parameters")
 library("table1")
+library("printr")
 packageVersion(pkg = 'margot')
 
 # path to data folder (set to path on your computer) - for pushing and pulling model results
@@ -99,15 +100,15 @@ push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/da
 # name_exposure = "muslim_binary"
 
 # table for muslim on religion
-table_religion <- here_read("table_religion")
 table_demographics <- here_read("table_demographics")
-table_wellbeing <- here_read("table_wellbeing")
+table_health <- here_read("table_health")
+table_psych <- here_read("table_psych")
+table_present<- here_read("table_present")
 
-# table religion
-table_religion_mus <- here_read("table_religion")
-table_demographics_mus <- here_read("table_demographics")
-table_wellbeing_mus <- here_read("table_wellbeing")
-
+table_social<- here_read("table_social")
+table_life <- here_read("table_life")
+table_religion <- here_read("table_religion")
+table_discrim <- here_read("table_discrim")
 
 prop_miss_case <- here_read("prop_miss_case")
 results_religion <- here_read_qs("results_religion", push_mods)
@@ -139,50 +140,231 @@ results_discrim <- here_read_qs("results_discrim", push_mods)
 results_life <- here_read_qs("results_life", push_mods)
 results_psych<- here_read_qs("results_psych", push_mods)
 results_social<- here_read_qs("results_social", push_mods)
+results_present<- here_read_qs("results_present", push_mods)
+
+
+#predictions
+present_forgive <- results_present$plots$Forgiveness+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+present_perfect <- results_present$plots$Perfectionism+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+
+present_esteem <- results_present$plots$`Self Esteem`+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+
+present_pwb_a <- results_present$plots$`PWB Standard Living` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+present_pwb_b <- results_present$plots$`PWB Standard Living` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+present_pwb_c <- results_present$plots$`PWB Your Health` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+present_pwb_d  <- results_present$plots$`PWB Your Relationships`+ scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
 
 
 # access individual plots Religion
-results_religion$plots$`Religious Identification Level`
-results_religion$plots$`Spiritual Identification Level`
-results_religion$plots$`Belief in God` + scale_y_continuous(limits = c(-0,1.1))
-results_religion$plots$`Belief in Spirit`+ scale_y_continuous(limits = c(-0,1.1))
+religion_relid <- results_religion$plots$`Religious Identification Level`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+  )
+religion_spirid <- results_religion$plots$`Spiritual Identification Level`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+  )
 
-results_religion$plots$`Monthly Religious Service Attendance`+ scale_y_continuous(limits = c(0,35))
-results_religion$plots$`Weekly Scripture`  + scale_y_continuous(limits = c(-.4,35))
-results_religion$plots$`Weekly Prayer`  + scale_y_continuous(limits = c(-.4,30))
+religion_church <- results_religion$plots$`Monthly Religious Service Attendence` + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-1,30))
+   
+religion_scripture <- results_religion$plots$`Weekly Scripture`  + scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+
+religion_scripture <- results_religion$plots$`Weekly Scripture`  + scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+
+religion_prayer <- results_religion$plots$`Weekly Prayer`+ scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+
+religion_god <- results_religion$plots$`Belief in God`+ scale_y_continuous(limits = c(-0,1.1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+religion_spirit <- results_religion$plots$`Belief in Spirit`+ scale_y_continuous(limits = c(-0,1.1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+
 
 # access individual plots discrimination
 
-results_discrim$plots$`Perceived Ethnic Discrimination`
-results_discrim$plots$`Perceived Religious Discrimination`
-results_discrim$plots$`Perceived Gender Discrimination`
-results_discrim$plots$`Perceived Age Discrimination`
+
+discrim_ethnic <- results_discrim$plots$`Perceived Ethnic Discrimination`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+discrim_religious <- results_discrim$plots$`Perceived Religious Discrimination`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+discrim_gender<- results_discrim$plots$`Perceived Gender Discrimination`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+discrim_age <- results_discrim$plots$`Perceived Age Discrimination`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+    
+    
 
 # access individual plots psychological wellbeing
-results_life$plots$Gratitude
-results_life$plots$`Life Satisfaction`
-results_life$plots$`Meaning: Purpose`
-results_life$plots$`Meaning: Sense`
-
-
+life_grd <- results_life$plots$Gratitude+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+life_sat<- results_life$plots$`Life Satisfaction`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+life_mp <- results_life$plots$`Meaning: Purpose`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+life_ms <- results_life$plots$`Meaning: Sense`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
 
 # access individual plots life-reflective wellbeing
-results_psych$plots$Anxiety+ scale_y_continuous(limits = c(-.5,5))
-results_psych$plots$Depression + scale_y_continuous(limits = c(-.5,5))
-results_psych$plots$Fatigue+ scale_y_continuous(limits = c(-.5,5))
-results_psych$plots$Rumination+ scale_y_continuous(limits = c(-.5,5))
+results_psych$plots$Anxiety+ scale_y_continuous(limits = c(-.5,5))+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+results_psych$plots$Depression + scale_y_continuous(limits = c(-.5,5))+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+results_psych$plots$Fatigue+ scale_y_continuous(limits = c(-.5,5))+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+results_psych$plots$Rumination+ scale_y_continuous(limits = c(-.5,5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
 
-results_social$plots$`Belonging - Acceptance`
-results_social$plots$`Belonging - Shared Beliefs`
-results_social$plots$`Belonging - Outsider (Reversed)`
-results_social$plots$`Neighbourhood Community`
-results_social$plots$`Support - Help Availability`
-results_social$plots$`Support - No Guidance (Reversed)`
-results_social$plots$`Support - Someone to Turn To`
+social_belong_a <- results_social$plots$`Belonging - Acceptance` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+    
+    
+social_belong_b <- results_social$plots$`Belonging - Shared Beliefs` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+  
+social_belong_c  <-
+  results_social$plots$`Belonging - Outsider (Reversed)` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+social_neighbourhood <- results_social$plots$`Neighbourhood Community`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+social_support_a <- results_social$plots$`Support - Help Availability`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+social_support_b <- results_social$plots$`Support - No Guidance (Reversed)`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+social_support_c <- results_social$plots$`Support - Someone to Turn To`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
 
 
+# combo plots
+
+plot_belief <- religion_god + religion_spirit + plot_annotation(title = "Religious Beliefs",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_practice <- religion_church / (religion_prayer + religion_scripture)+ plot_annotation(title = "Religious Practice",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_id <- religion_relid + religion_spirid + plot_annotation(title = "Religious and Spiritual Identification",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_life <- life_grd + life_sat + life_mp + life_ms + plot_annotation(title = "Life-Reflective Well-Being",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_descrim <- discrim_age  + discrim_gender + discrim_ethnic + discrim_religious +
+  plot_annotation(title = "Perceived Dicrimination",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
 
 
+plot_social_belong <- social_belong_a  + social_belong_b + social_belong_c  +social_neighbourhood +
+  plot_annotation(title = "Social Belonging and Neighbourhood Community",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_social_support <- social_belong_a  + social_belong_b + social_belong_c   +
+  plot_annotation(title = "Social Belonging",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+plot_social_support <- social_belong_a  + social_belong_b + social_belong_c   +
+  plot_annotation(title = "Social Belonging",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_present_a <- present_esteem + present_forgive + present_perfect +
+  plot_annotation(title = "Personal Well-Being Indicators",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_present_b <- present_pwb_a + present_pwb_b + present_pwb_c + present_pwb_d +
+  plot_annotation(title = "Personal Well-Being Index",subtitle = "Adjusted for Age, Born in NZ, Education, Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+# checks
+plot_belief
+plot_id
+plot_practice
+plot_descrim
+plot_present_a
+plot_present_b
+plot_life
+plot_social_belong
+plot_social_support
 
 # read data (use 01 script to data wrangle)
 # dat_long_imputed_bounds_ordinal <- margot::here_read_qs("dat_long_imputed_bounds_ordinal", push_mods)
@@ -232,31 +414,43 @@ cat(outcome_measures)
 
 The New Zealand Attitudes and Values Study is a national probability study designed to accurately reflect the broader New Zealand population. It uses prize draws to incentivise participation. Although the New Zealand Attitudes and Values Study has good demographic representation of the country as a whole, it tends to under-sample males and individuals of Asian descent and over-sample females and Māori (the indigenous peoples of New Zealand). To address enhance the accuracy of our findings for the target population, we apply 2018 New Zealand Census survey weights to the sample data. These weights adjust for variations in age, gender, and ethnicity to better approximate the national demographic composition [@sibley2021]. 
 
-MORE HERE ABOUT THE MDS
+**OFFICIAL NZAVS DOCUMENTATION HERE**
 
 
 ### Design 
 
 First, we report descriptive demographic information about the Muslim sample.  We do so by comparing it to the secular sample and to other religious groups. 
 
-Second, we model the expected average responses to the religion-related indicators in the New Zealand Attitudes and Values Study, as well prejudice-related indicators. These statistical models are also descriptive. 
+Second, we model religion related features, adjusting for demongraphic variables that cannot be, or are unlikely to be, causal affected by religious affiliation: age, born in New Zealand, ethnicity, education, and gender (male, not male). 
+
+Third, we model perceived prejduce, adjusting for these same demongraphic indicators 
+
+Forth, we model multi-demonional well-being, again adjusting for demographic indicators, along the following dimensions: 
+
+  a. Biological Health
+  b. Psychological Health
+  c. Self-Related Well-Being
+  d. Life-Related Well-Being
+  e. Social Well-Being.
+
+We emphasise that our models are discriptive. They are meant to describe features of the population from whom we sampled. Causality cannot be, and should not be, inferred from these cross-sectional associations. 
 
 
 ### Eligibility Criteria
 
 To be eligible, participants needed to respond to the 2023 wave of the New Zealand Attitudes Study, and to have complete information about religious identification (yes or no). A total of `r n_participants` individuals met these criteria and were included in the study. 
 
-<!-- The proportion of missing data for each variable by wave is describe in [Appendix A](#appendix-a) @tbl-baseline. -->
 
 
 
 ### Missing Data
 
-
 To mitigate bias from missing data, we employed the `ppm` algorithm from the `mice` package in R [@vanbuuren2018] to impute missing responses.  Overall missingness reponses accounted for less than 1% of total responses (`r prop_miss_case`).
 
 
 ## Results 
+
+### Demographic Statistics
 
 Demographic data religious denominations are presented in @tbl-demography. 
 
@@ -279,18 +473,17 @@ library(kableExtra)
 #     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
 #   )
 
-as.data.frame(table_demographics) |>
-  kbl(
-    format = "latex",
-    booktabs = TRUE,
-    longtable = TRUE#,
-   # caption = "Demographic Data Overview"
-  ) |>
+table_demographics_x <- t1kable(
+  table_demographics,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE,
+) 
+
+table_demographics_x|> 
   kable_styling(
-    font_size = 6,
-    latex_options = c("striped", "hold_position", "repeat_header", "longtable")
-  ) |>
-  kable_styling(latex_options = "scale_down")
+    font_size = 7,
+    latex_options = c("hold_position","striped", "repeat_header", "longtable") )
 ```
 \end{landscape}
 Demographic statistics by "Muslim
@@ -298,9 +491,155 @@ Demographic statistics by "Muslim
 {{< pagebreak >}}
 
 
+::: {#tbl-religion}
+\begin{landscape}
+```{r, results = 'asis'}
+library(kableExtra)
+# as.data.frame(table_demographics) |>
+#   kbl(format="latex", booktabs = TRUE) |> 
+#   kable_styling(font_size = 8)
+# as.data.frame(table_demographics) |>
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     longtable = TRUE  # Enable longtable format
+#   ) |>
+#   kable_styling(
+#     font_size = 8,
+#     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
+#   )
+table_religion_x <- t1kable(
+  table_religion,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE,
+) 
+
+table_religion_x |> 
+  kable_styling(
+    font_size = 7,
+    latex_options = c("hold_position", "repeat_header", "longtable")
+  )
+
+```
+\end{landscape}
+Sample statistics by Religious Denomination.
+:::
+
+{{< pagebreak >}}
+@tbl-health presents sample response-statistics for biological health.
+
+::: {#tbl-health}
+\begin{landscape}
+```{r, results = 'asis'}
+library(kableExtra)
+# as.data.frame(table_demographics) |>
+#   kbl(format="latex", booktabs = TRUE) |> 
+#   kable_styling(font_size = 8)
+# as.data.frame(table_demographics) |>
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     longtable = TRUE  # Enable longtable format
+#   ) |>
+#   kable_styling(
+#     font_size = 8,
+#     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
+#   )
+
+table_health_x <- t1kable(
+  table_health,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE,
+) 
+
+table_health_x |> 
+  kable_styling(
+    font_size = 7,
+    latex_options = c("hold_position", "repeat_header", "longtable")
+   ) 
+```
+\end{landscape}
+Sample Biological Health Statistics.
+:::
 {{< pagebreak >}}
 
-@tbl-life presents sample response-statistics for multi-dimensional well-being.
+@tbl-psych presents sample response-statistics for psychological health.
+
+::: {#tbl-pysch}
+\begin{landscape}
+```{r, results = 'asis'}
+library(kableExtra)
+# as.data.frame(table_demographics) |>
+#   kbl(format="latex", booktabs = TRUE) |> 
+#   kable_styling(font_size = 8)
+# as.data.frame(table_demographics) |>
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     longtable = TRUE  # Enable longtable format
+#   ) |>
+#   kable_styling(
+#     font_size = 8,
+#     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
+#   )
+
+table_psych_x <- t1kable(
+  table_psych,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE,
+) 
+
+table_psych_x |>
+  kable_styling(
+    font_size = 7,
+    latex_options = c("hold_position", "repeat_header", "longtable")
+   ) 
+```
+\end{landscape}
+Sample Psychological Health Statistics.
+:::
+{{< pagebreak >}}
+@tbl-present presents sample response-statistics for self-related well-being
+
+::: {#tbl-present}
+\begin{landscape}
+```{r, results = 'asis'}
+library(kableExtra)
+# as.data.frame(table_demographics) |>
+#   kbl(format="latex", booktabs = TRUE) |> 
+#   kable_styling(font_size = 8)
+# as.data.frame(table_demographics) |>
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     longtable = TRUE  # Enable longtable format
+#   ) |>
+#   kable_styling(
+#     font_size = 8,
+#     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
+#   )
+
+table_present_x <- t1kable(
+  table_present,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE,
+) 
+table_present_x|>
+  kable_styling(
+    font_size = 7,
+    latex_options = c("hold_position", "repeat_header", "longtable")
+   ) 
+```
+\end{landscape}
+Sample Self-Related Well-Being Statistics.
+:::
+{{< pagebreak >}}
+
+@tbl-life presents sample response-statistics for life-related well-being
 
 ::: {#tbl-life}
 \begin{landscape}
@@ -319,19 +658,95 @@ library(kableExtra)
 #     font_size = 8,
 #     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
 #   )
-table_wellbeing
-as.data.frame(table_wellbeing) |>
-  kbl(
-    format = "latex",
-    booktabs = TRUE,
-    longtable = TRUE#,
-   # caption = "Demographic Data Overview"
-  ) |>
+table_life_x <- t1kable(
+  table_life,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE,
+) 
+table_life_x|>
   kable_styling(
-    font_size = 6,
-    latex_options = c("striped", "hold_position", "repeat_header", "longtable")
-  ) |>
-  kable_styling(latex_options = "scale_down")
+    font_size = 7,
+    latex_options = c("hold_position", "repeat_header", "longtable")
+   ) 
+```
+\end{landscape}
+Sample Life-Related Well-Being Statistics.
+:::
+{{< pagebreak >}}
+
+{{< pagebreak >}}
+
+@tbl-social presents sample response-statistics for social well-being
+
+::: {#tbl-social}
+\begin{landscape}
+```{r, results = 'asis'}
+library(kableExtra)
+# as.data.frame(table_demographics) |>
+#   kbl(format="latex", booktabs = TRUE) |> 
+#   kable_styling(font_size = 8)
+# as.data.frame(table_demographics) |>
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     longtable = TRUE  # Enable longtable format
+#   ) |>
+#   kable_styling(
+#     font_size = 8,
+#     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
+#   )
+table_social_x <- t1kable(
+  table_social,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE,
+) 
+table_social_x|>
+  kable_styling(
+    font_size = 7,
+    latex_options = c("hold_position", "repeat_header", "longtable")
+   ) 
+```
+\end{landscape}
+Sample Life-Related Well-Being Statistics.
+:::
+{{< pagebreak >}}
+
+
+@tbl-life presents sample response-statistics for multi-dimensional well-being.
+
+::: {#tbl-discrim}
+\begin{landscape}
+```{r, results = 'asis'}
+library(kableExtra)
+# as.data.frame(table_demographics) |>
+#   kbl(format="latex", booktabs = TRUE) |> 
+#   kable_styling(font_size = 8)
+# as.data.frame(table_demographics) |>
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     longtable = TRUE  # Enable longtable format
+#   ) |>
+#   kable_styling(
+#     font_size = 8,
+#     latex_options = c("striped", "hold_position", "repeat_header", "longtable")
+#   )
+table_discrim_x <- t1kable(
+  table_discrim,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = TRUE
+) 
+table_discrim_x|>
+  kable_styling(
+    font_size = 7,
+    latex_options = c("hold_position", "repeat_header", "longtable")
+   ) 
+   # kable_styling(latex_options = "striped", stripe_index = c(1,2, 5:6), stripe_color = "yellow")
+  # kable_styling(latex_options = c("stripe_index" = c(2:3)))
+  # kable_styling(latex_options = "scale_down")
 ```
 \end{landscape}
 Sample Religion Statistics.
@@ -368,9 +783,10 @@ as.data.frame(table_religion) |>
   ) |>
   kable_styling(
     font_size = 6,
-    latex_options = c("striped", "hold_position", "repeat_header", "longtable")
-  ) |>
-  kable_styling(latex_options = "scale_down")
+    latex_options = c("hold_position", "repeat_header", "longtable")
+  ) 
+ #|>
+ # kable_styling(latex_options = "scale_down")
 ```
 \end{landscape}
 Sample Religion Statistics.
