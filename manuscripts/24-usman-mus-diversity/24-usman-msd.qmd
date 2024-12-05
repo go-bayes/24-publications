@@ -112,8 +112,8 @@ table_discrim <- here_read("table_discrim")
 
 prop_miss_case <- here_read("prop_miss_case")
 results_religion <- here_read_qs("results_religion", push_mods)
-results_life <- here_read_qs("results_life", push_mods)
-results_psych <- here_read_qs("results_psych", push_mods)
+results_life <- margot::here_read_qs("results_life", push_mods)
+results_psych <- margot::here_read_qs("results_psych", push_mods)
 
 n_total <- here_read("n_total")
 n_15 <- here_read("n_15")
@@ -132,7 +132,7 @@ outcome_vars
 set.seed(123)
 prop_miss_case<- here_read("prop_miss_case")
 
-
+results_life
 
 # read models
 results_religion<- here_read_qs("results_religion", push_mods)
@@ -142,6 +142,42 @@ results_psych<- here_read_qs("results_psych", push_mods)
 results_social<- here_read_qs("results_social", push_mods)
 results_present<- here_read_qs("results_present", push_mods)
 results_health<- here_read_qs("results_health", push_mods)
+
+
+
+# plots
+psy_fatigue = results_psych$plots$Fatigue + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-0.5, 4.5))
+
+
+
+psy_anxiety = results_psych$plots$Anxiety + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-0.5, 4.5))
+
+
+psy_depression = results_psych$plots$Depression + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-0.5, 4.5))
+
+
+
+psy_rumination = results_psych$plots$Rumination + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-0.5, 4.5))
+
+
+
+
 
 
 #predictions
@@ -157,15 +193,12 @@ present_perfect <- results_present$plots$Perfectionism+ theme(axis.text.x = elem
   vjust = 1
 ))
 
-
 present_esteem <- results_present$plots$`Self Esteem`+ theme(axis.text.x = element_text(
   angle = 20,
   hjust = 1,
   vjust = 1
-))
-
-
-present_pwb_a <- results_present$plots$`PWB Standard Living` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+)) 
+present_pwb_a <- results_present$plots$`PWB Your Future Security` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
   angle = 20,
   hjust = 1,
   vjust = 1
@@ -185,6 +218,7 @@ present_pwb_d  <- results_present$plots$`PWB Your Relationships`+ scale_y_contin
   hjust = 1,
   vjust = 1
 ))
+
 
 
 # access individual plots Religion
@@ -361,12 +395,11 @@ plot_descrim <- discrim_age  + discrim_gender + discrim_ethnic + discrim_religio
 plot_social_belong <- social_belong_a  + social_belong_b + social_belong_c  +social_neighbourhood +
   plot_annotation(title = "Social Belonging and Neighbourhood Community",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
 
-plot_social_support <- social_belong_a  + social_belong_b + social_belong_c   +
-  plot_annotation(title = "Social Belonging",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
 
 
-plot_social_support <- social_belong_a  + social_belong_b + social_belong_c   +
-  plot_annotation(title = "Social Belonging",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+plot_social_support <- social_support_a + social_support_b + social_support_c   +
+  plot_annotation(title = "Social Support",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
 
 plot_present_a <- present_esteem + present_forgive + present_perfect +
   plot_annotation(title = "Personal Well-Being Indicators",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
@@ -378,18 +411,25 @@ plot_present_b <- present_pwb_a + present_pwb_b + present_pwb_c + present_pwb_d 
 plot_health <- health_short_form_health  + (health_exercise /  health_sleep) +
   plot_annotation(title = "Biological Health",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
 
-plot_health
+
+plot_psych <- psy_anxiety + psy_depression + psy_fatigue + psy_rumination + plot_annotation(title = "Psychological Well-Being",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+
+
 
 # checks
-plot_belief
-plot_id
-plot_practice
-plot_descrim
-plot_present_a
-plot_present_b
-plot_life
-plot_social_belong
-plot_social_support
+# plot_belief
+# plot_id
+# plot_practice
+# plot_descrim
+# plot_present_a
+# plot_present_b
+# plot_life
+# plot_social_belong
+# plot_social_support
+# plot_psych
+# plot_health
 
 # read data (use 01 script to data wrangle)
 # dat_long_imputed_bounds_ordinal <- margot::here_read_qs("dat_long_imputed_bounds_ordinal", push_mods)
@@ -406,20 +446,23 @@ outcome_measures <- boilerplate::boilerplate_report_measures(
 
 ```
 
+The New Zealand Attitudes and Values Study (NZAVS) is a nationally representative panel study of New Zealanders, initiated in 2009. It has measured responses from `r n_total` participants annually and is currently tracking `r n_15` participants, approximately 1% of New Zealand’s adult population.
 
-The New Zealand Attitudes and Values Study (NZAVS) is a nationally representative panel study of New Zealanders started in 2009. It has measured `r n_total` participants annually, and is presently tracking `r n_15` participants, about 1% of New Zealand's adult population. 
+Despite strong coverage of the country’s religious diversity, less than 0.01% of New Zealand’s Muslims were participating in the NZAVS prior to the launch of the Muslim Diversity Study (n = `r n_mus_pre`). To put this into perspective, Muslims were under-represented by nearly an order of magnitude compared to major Christian denominations.
 
-Despite strong NZAVS coverage of New Zealand's denominations, in the largest NZAVS cohort, less than .01% of New Zealand's Muslims were participating (n = `r n_mus_pre`). That is, the New Zealand Attitudes and Values Study was under-representing Muslims by an order of magnitude below the New Zealand census estimates. 
+The Muslim Diversity Study was established in partnership with the Muslim community to enhance representation within the NZAVS. This initiative boosted the Muslim sample by almost 600 participants, achieving coverage of about 1% of the New Zealand Census estimate of the Muslim population.
 
-The Muslim Diversity Study, led by Usman Afzali (UA), has been built through partnership with the Muslim community partnerships to boost the New Zealand Attitudes and Values Muslim sample by ~600 participants to obtain coverage of about 1% of the New Zealand Census estimate of New Zealand Muslim Community.
+The purpose of the Muslim Diversity Study study is to extend national longitudinal research to explore Muslim diversity and flourishing over the lifespan. It seeks to document the scope of this diversity, identify challenges to flourishing, and examine how Muslims overcome adversity. While previous NZAVS findings have highlighted instances of Muslim adversity (refs), how these experiences shape and affect Muslim communities remains unclear.
 
-The premise of this study has been to enable extend national longitudinal science of the study of Muslim diversity and flourishing over the lifespan, to understand the scope of such diversity and the challenges to such flourishing, and to clarify the affordances through which Muslims overcome adversity that has been previously documented in other research (refs.)
+Equally significant, the Muslim Diversity Study aims to contribute to the consultable historical record that the NZAVS is building. By amplifying the voices of Muslim diversity in New Zealand, we hope to enable a richer understanding of this community’s experiences during our time.
 
-The Muslim Diversity Study is important first, because the lifelong dynamics of Muslim flourishing are poorly understood; this project addresses an urgent scientific need.
+This article presents a comprehensive examination of well-being among Muslims in New Zealand, situated within a comparative framework that includes other religious and secular groups. We begin with a descriptive analysis of the sample (Study 1). Subsequently, Studies 2 through 7 explore the relationships between religious beliefs and practices, perceived discrimination across multiple domains—including religious, ethnic, gender, and age discrimination—and various facets of well-being. These facets encompass biological health, psychological well-being, self-related well-being, life-related well-being, and social well-being. To isolate the relationship of religious or secular affiliation to these domains, our statistical models control for demographic indicators unlikely to be influenced by religious identification: age, gender, New Zealand birth status, and ethnicity. This approach allows us to clarify distinct patterns of well-being associated with religious and secular group membership, independent of demographic differences. Our work is descriptive and aims to document these patterns without inferring causality, providing a foundational understanding of well-being among Muslims and other groups in New Zealand.
 
-Second, our work with the Muslim community revealed a strong community interest in Muslim flourishing science; this project is an attempt to address this interest by involving Muslims in this science. 
+<!-- The Muslim Diversity Study is important first, because the lifelong dynamics of Muslim flourishing are poorly understood; this project addresses an urgent scientific need. -->
 
-Third, this project serves as a model for developing panel studies of under-represented groups in Aoteoroa New Zealand and in other countries. 
+<!-- Second, our work with the Muslim community revealed a strong community interest in Muslim flourishing science; this project is an attempt to address this interest by involving Muslims in this science.  -->
+
+<!-- Third, this project serves as a model for developing panel studies of under-represented groups in Aoteoroa New Zealand and in other countries.  -->
 
 
 ## Method
@@ -433,31 +476,9 @@ The New Zealand Attitudes and Values Study is a national probability study desig
 **OFFICIAL NZAVS DOCUMENTATION HERE**
 
 
-### Design 
-
-We compare and contrast the Muslim sample with other religious groups, including those secular people who do not identify as religious. This research is descriptive an exploratory. 
-
-Study 1 reports religious beliefs, identity, and practices of Muslims and other religious groups.
-
-Study 2 reports perceived religious, ethnic, gender, and age-based prejudice.
-
-Study 3 reports indicators related to biological health
-
-Study 4 reports self-related well-being
-
-Study 5 reports life-related well-being
-
-Study 6 reports social well-being. 
-
-
-In studies 2-7, our models adjust for the following demographic indicators that are unlikely to be affected by religious (or secular affiliation): age, gender, whether someone is New Zealand Born, and ethnicity.  Such adjustments allow us to focus on those features of multi-dimensional well-being that associated with religious (and secular) affiliation. 
-
-
- 
 ### Eligibility Criteria
 
 Participants needed to respond to the 2023 wave of the New Zealand Attitudes Study, and to have complete information about religious identification (yes or no). A total of `r n_participants` individuals met these criteria and were included in the study. 
-
 
 
 ### Missing Data
@@ -496,6 +517,7 @@ table_demographics_x <- t1kable(
   booktabs = TRUE,
   longtable = TRUE,
 ) 
+table_demographics_x
 
 table_demographics_x|> 
   kable_styling(
@@ -791,6 +813,9 @@ plot_id
 ```
 
 
+{{< pagebreak >}}
+
+
 ::: {#tbl-religion-id}
 ```{r, results= 'asis'}
 library(dplyr)
@@ -814,6 +839,8 @@ results_religion$predictions$religion_identification_level |>
 ```
 Adjusted means and 95% confidence intervals for religious identification by religious denomination.
 :::
+
+{{< pagebreak >}}
 
 
 ::: {#tbl-spiritual-id}
@@ -856,6 +883,7 @@ Adjusted means and 95% confidence intervals for spiritual identification by reli
 plot_belief
 ```
 
+{{< pagebreak >}}
 
 ::: {#tbl-religion-belief}
 ```{r, results= 'asis'}
@@ -921,6 +949,8 @@ Adjusted means and 95% confidence intervals for sbelief in a Spirit or Life Forc
 plot_practice
 ```
 
+{{< pagebreak >}}
+
 
 ::: {#tbl-religion-church}
 ```{r, results= 'asis'}
@@ -944,6 +974,7 @@ results_religion$predictions$religion_church |>
 Adjusted means and 95% confidence intervals for monthly religious service attendance by religious denomination.
 :::
 
+{{< pagebreak >}}
 
 ::: {#tbl-religion-prayer}
 ```{r, results= 'asis'}
@@ -967,6 +998,7 @@ results_religion$predictions$religion_prayer |>
 Adjusted means and 95% confidence intervals for weekly prayer by religious denomination.
 :::
 
+{{< pagebreak >}}
 
 ::: {#tbl-religion-scripture}
 ```{r, results= 'asis'}
@@ -990,12 +1022,12 @@ results_religion$predictions$religion_scripture |>
 Adjusted means and 95% confidence intervals for weekly prayer by religious denomination.
 :::
 
-
 {{< pagebreak >}}
+
 ## Study 2: Comparative Models of Perceived Prejudice
 
 
-@fig-discrim presents models for perceived discrimination, adjusting for age, New Zealand born, ethnicity, and gender. The expected means and confidence intervals for these models are presented in @tbl-discrim-age, @tbl-discrim-gender,   @tbl-discrim-ethnicity, and @tbl-discrim-religion, 
+@fig-discrim presents models for perceived discrimination, adjusting for age, New Zealand born, ethnicity, and gender. The expected means and confidence intervals for these models are presented in @tbl-discrim-age, @tbl-discrim-gender,  @tbl-discrim-ethnicity, and @tbl-discrim-religion, 
 
 ```{r}
 #| label: fig-discrim
@@ -1008,6 +1040,9 @@ Adjusted means and 95% confidence intervals for weekly prayer by religious denom
 
 plot_descrim
 ```
+
+
+{{< pagebreak >}}
 
 ::: {#tbl-discrim-age}
 ```{r, results= 'asis'}
@@ -1031,7 +1066,6 @@ results_discrim$predictions$perc_age_discrim|>
 Adjusted means and 95% confidence intervals for perceived age discrimination.
 :::
 
-
 ::: {#tbl-discrim-gender}
 ```{r, results= 'asis'}
 
@@ -1054,6 +1088,7 @@ results_discrim$predictions$perc_gend_discrim|>
 Adjusted means and 95% confidence intervals for perceived gender discrimination.
 :::
 
+{{< pagebreak >}}
 
 ::: {#tbl-discrim-ethnicity}
 ```{r, results= 'asis'}
@@ -1103,7 +1138,7 @@ Adjusted means and 95% confidence intervals for perceived religious discriminati
 {{< pagebreak >}}
 ## Study 3: Comparative Models of Biological Health
 
-@fig-health presents models for indicators related to biological health, adjusting for age, New Zealand born, ethnicity, and gender.
+@fig-health presents models for indicators related to biological health, adjusting for age, New Zealand born, ethnicity, and gender. The expected means and confidence intervals for these models are presented in @tbl-health-ex, @tbl-health-sleep, and @tbl-health-sfh.   
 
 ```{r}
 #| label: fig-health
@@ -1116,13 +1151,196 @@ Adjusted means and 95% confidence intervals for perceived religious discriminati
 
 plot_health
 ```
+
+{{< pagebreak >}}
+
+::: {#tbl-health-ex}
+```{r, results= 'asis'}
+
+#  table
+results_health$predictions$log_hours_exercise |>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for log hours of weekly exercise.
+:::
+
+{{< pagebreak >}}
+
+::: {#tbl-health-sleep}
+```{r, results= 'asis'}
+
+#  table
+results_health$predictions$hlth_sleep_hours |>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for weekly hours of sleep.
+:::
+
+{{< pagebreak >}}
+
+::: {#tbl-health-sfh}
+```{r, results= 'asis'}
+
+#  table
+results_health$predictions$short_form_health |>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for subjective health.
+:::
+
+{{< pagebreak >}}
+
+## Study 4: Comparative Models of Psychological Well-being
+
+@fig-psych presents models for indicators related to psychological well-being, adjusting for age, New Zealand born, ethnicity, and gender. The expected means and confidence intervals for these models are presented in @tbl-psych-anxiety, @tbl-psych-depression, @tbl-psych-fatigue, and @tbl-psych-rumination. 
+
+```{r}
+#| label: fig-psych
+#| fig-cap: "Psychological Health"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 16
+#| fig-width: 16
+
+plot_psych
+```
+
+{{< pagebreak >}}
+
+::: {#tbl-psych-anxiety}
+```{r, results= 'asis'}
+
+#  table
+results_psych$predictions$kessler_latent_anxiety |>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate 
+  )
+```
+Adjusted means and 95% confidence intervals for psychological anxiety.
+:::
+
+::: {#tbl-psych-depression}
+```{r, results= 'asis'}
+
+#  table
+results_psych$predictions$kessler_latent_depression |>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for psychological depression.
+:::
+
+{{< pagebreak >}}
+
+::: {#tbl-psych-fatigue}
+```{r, results= 'asis'}
+
+#  table
+results_psych$predictions$hlth_fatigue |>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for fatigue.
+:::
+
+::: {#tbl-psych-rumination}
+```{r, results= 'asis'}
+
+#  table
+results_psych$predictions$rumination|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for rumination.
+:::
+
 {{< pagebreak >}}
 
 
-## Study 4: Comparative Models of Self-Related Well-Being
+## Study 5: Comparative Models of Self-Related Well-Being
 
 
-@fig-self-a presents models for personal well-being in dimensions of self-esteem, forgiveness, and perfectionism, adjusting for age, New Zealand born, ethnicity, and gender.
+@fig-self-a presents models for personal well-being in dimensions of self-esteem, forgiveness, and perfectionism, adjusting for age, New Zealand born, ethnicity, and gender. The expected means and confidence intervals for these models are presented in @tbl-selfesteem, @tbl-forgive, and @tbl-perfect.
 
 ```{r}
 #| label: fig-self-a
@@ -1134,14 +1352,84 @@ plot_health
 #| fig-width: 16
 
 plot_present_a
-
 ```
+
 {{< pagebreak >}}
-@fig-self-b presents models for personal well-being, adjusting for age, New Zealand born, ethnicity, and gender.
+
+::: {#tbl-selfesteem}
+```{r, results= 'asis'}
+#  table
+results_present$predictions$self_esteem|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for self esteem.
+:::
+
+{{< pagebreak >}}
+
+::: {#tbl-forgive}
+```{r, results= 'asis'}
+#  table
+results_present$predictions$forgiveness|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for forgiveness.
+:::
+
+{{< pagebreak >}}
+
+::: {#tbl-perfect}
+```{r, results= 'asis'}
+#  table
+results_present$predictions$perfectionism|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for perfectionism.
+:::
+
+{{< pagebreak >}}
+
+@fig-self-b presents models for personal item-level responses to the personal well-being index. The expected means and confidence intervals for these models are presented in @tbl-pwb-fs,  @tbl-pwb-sl, @tbl-pwb-yh, @tbl-pwb-yr.
 
 ```{r}
 #| label: fig-self-b
-#| fig-cap: "Personal Well-Being"
+#| fig-cap: "Personal Well-Being Index"
 #| eval: true
 #| include: true
 #| echo: false
@@ -1149,17 +1437,105 @@ plot_present_a
 #| fig-width: 16
 
 plot_present_b
-
 ```
+
+
 {{< pagebreak >}}
 
-## Study 5: Comparative Models of Life-Related Well-Being
+::: {#tbl-pwb-fs}
+```{r, results= 'asis'}
+#  table
+results_present$predictions$pwb_your_future_security|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for personal well-being: your future security.
+:::
 
-@fig-life presents models for personal well-being, adjusting for age, New Zealand born, ethnicity, and gender.
+::: {#tbl-pwb-sl}
+```{r, results= 'asis'}
+#  table
+results_present$predictions$pwb_standard_living|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for personal well-being: your standard of living.
+:::
 
+{{< pagebreak >}}
+
+::: {#tbl-pwb-yh}
+```{r, results= 'asis'}
+#  table
+results_present$predictions$pwb_your_health|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for personal well-being: your health.
+:::
+
+::: {#tbl-pwb-yr}
+```{r, results= 'asis'}
+#  table
+results_present$predictions$pwb_your_relationships|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for personal well-being: your relationships.
+:::
+
+{{< pagebreak >}}
+
+## Study 6: Comparative Models of Life-Related Well-Being
+
+@fig-life presents models for personal well-being, adjusting for age, New Zealand born, ethnicity, and gender. The expected means and confidence intervals for these models are presented in @tbl-gratitude, @tbl-ls, @tbl-purpose,  @tbl-sense.
 ```{r}
 #| label: fig-life
-#| fig-cap: "Personal Well-Being"
+#| fig-cap: "Life Related Well-Being"
 #| eval: true
 #| include: true
 #| echo: false
@@ -1169,16 +1545,107 @@ plot_present_b
 plot_life
 
 ```
+
 {{< pagebreak >}}
 
-## Study 6: Comparative Models of Social Well-Being
+::: {#tbl-gratitude}
+```{r, results= 'asis'}
+#  table
+results_life$predictions$gratitude|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for gratitude.
+:::
 
 
-@fig-social-support presents models for social belonging, adjusting for age, New Zealand born, ethnicity, and gender.
+::: {#tbl-ls}
+```{r, results= 'asis'}
+#  table
+results_life$predictions$lifesat|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for life satisfaction.
+:::
+
+
+{{< pagebreak >}}
+
+::: {#tbl-purpose}
+```{r, results= 'asis'}
+#  table
+results_life$predictions$meaning_purpose|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for sense of purpose in life.
+:::
+
+::: {#tbl-sense}
+```{r, results= 'asis'}
+#  table
+results_life$predictions$meaning_sense|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for an understanding what makes life meaningful.
+:::
+{{< pagebreak >}}
+
+## Study 7: Comparative Models of Social Well-Being
+
+
+@fig-social-support presents models for social support, adjusting for age, New Zealand born, ethnicity, and gender.  The expected means and confidence intervals for these models are presented in @tbl-support-help, @tbl-support-guide, @tbl-support-turn.
+
 
 ```{r}
 #| label: fig-social-support
-#| fig-cap: "Personal Well-Being"
+#| fig-cap: "Social Support"
 #| eval: true
 #| include: true
 #| echo: false
@@ -1188,11 +1655,81 @@ plot_life
 plot_social_support
 ```
 {{< pagebreak >}}
-@fig-social-belong presents models for social belonging, adjusting for age, New Zealand born, ethnicity, and gender.
+
+::: {#tbl-support-help}
+```{r, results= 'asis'}
+#  table
+results_social$predictions$support_help|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for social support: help.
+:::
+
+{{< pagebreak >}}
+
+::: {#tbl-support-guide}
+```{r, results= 'asis'}
+#  table
+results_social$predictions$support_noguidance_reversed|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for social support: guidance.
+:::
+
+
+{{< pagebreak >}}
+
+::: {#tbl-support-turn}
+```{r, results= 'asis'}
+#  table
+results_social$predictions$support_turnto|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for social support: have someone to turn to.
+:::
+{{< pagebreak >}}
+
+@fig-social-belong presents models for social belonging, adjusting for age, New Zealand born, ethnicity, and gender.  The expected means and confidence intervals for these models are presented in @tbl-accept, @tbl-sharedbeliefs, @tbl-outsider,  @tbl-neighbourhood, 
 
 ```{r}
 #| label: fig-social-belong
-#| fig-cap: "Personal Well-Being"
+#| fig-cap: "Social Belonging"
 #| eval: true
 #| include: true
 #| echo: false
@@ -1204,10 +1741,271 @@ plot_social_belong
 ```
 {{< pagebreak >}}
 
+::: {#tbl-accept}
+```{r, results= 'asis'}
+#  table
+results_social$predictions$belong_accept|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for belonging: feels accepted.
+:::
 
-### Conclusions 
+::: {#tbl-sharedbeliefs}
+```{r, results= 'asis'}
+#  table
+results_social$predictions$belong_accept|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for belonging: others share my beliefs.
+:::
+
+{{< pagebreak >}}
+
+::: {#tbl-outsider}
+```{r, results= 'asis'}
+#  table
+results_social$predictions$belong_routside_reversed|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for belonging: feel like outsider (reversed).
+:::
+
+::: {#tbl-neighbourhood}
+```{r, results= 'asis'}
+#  table
+results_social$predictions$neighbourhood_community|>
+  as.data.frame() %>%                      # ensure it's a data frame
+  dplyr::select(-group) %>%                # remove the 'group' column
+  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 11,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Adjusted means and 95% confidence intervals for sense of neighbourhood community.
+:::
+
+{{< pagebreak >}}
+
+{{< pagebreak >}}
+
+## Conclusions 
+
+### Demographic and Sample Statistics
+
+Several notable similarities and differences emerge between Muslims and other religious and secular groups in New Zealand. Most immediately, Age stands out as a significant differentiator: Muslims in the study have a mean age of 33.8 years, substantially younger than the Not Religious group (51.6 years) and other religious affiliations such as Anglicans (63.3 years) and Catholics (56.4 years). This younger demographic is further reflected in the lower parental status among Muslims (45.9%) compared to Anglicans (84.6%) and Catholics (76.5%). Additionally, only 23% of Muslims were born in New Zealand, a stark contrast to the Not Religious group (79.4%) and other Christian denominations, indicating a higher proportion of first-generation immigrants within the Muslim community. Ethnically, 60.6% of Muslims identify as Asian, whereas the majority of the Not Religious group (83%) and other religious groups are of European descent, indicating cultural diversity within the Muslim population.
+
+In terms of lifestyle and attitudes, Muslims report a markedly lower frequency of alcohol consumption (mean 0.112) compared to the Not Religious group (2.05) and other religious groups, aligning with Islamic prohibitions on alcohol. Interestingly, Muslims exhibit higher scores in Right-Wing Authoritarianism (mean 4.53) than the Not Religious group (2.88) and even other religious groups such as Anglicans (3.84) and Catholics (3.80), suggesting distinct socio-political orientations. The New Zealand Deprivation Index reveals that Muslims have higher Deprivation scores (mean 5.65) compared to the Not Religious group (4.68). Regarding personality traits, Muslims score a little lower on Honesty-Humility (mean 4.87) than other groups, but similar in Agreeableness and Conscientiousness. Patterns of missing data are notable; for example, Muslims have a higher rate of missing responses in Non-Heterosexual Orientation (18.8% missing) and Household Income (34% missing), which may reflect cultural sensitivities, a reluctance to disclose personal information on these topics, or simply a lack of familiarity with this question. The patterns of missing data in sensitive areas merits attention.
+
+An analysis of adjusted models for religious and spiritual identification, beliefs, and practices reveals distinct patterns among Muslims compared to other religious and secular groups in New Zealand. By controlling for age, gender, New Zealand birth status, and ethnicity, the findings highlight intrinsic differences in religious engagement rather than demographic influences.
+
+### Comments on Study 1: Religion 
+
+#### Religious Identification and Spirituality
+
+Muslims exhibit the highest level of religious identification, with a predicted score of 6.21 (although note that over 11% of Muslims in the sample did not respond to this question). This strong religious identity is paralleled by a high level of spiritual identification (predicted score of 5.07), closely aligning with Buddhists and participants from Other Religions, who also report elevated spiritual identification. However, spiritual identification among Muslims is somewhat lower than among Christian No Faith Declared and Christian "Others" (smaller denominations).
+
+##### Beliefs in God and Spirits
+
+Belief in God is nearly universal among Muslims, with a predicted probability of 0.89, comparable to Christian groups like Christian (NFD) (0.94) and Christian (Others) (0.87). This contrasts with the Not Religious group, which has a low probability of 0.14. Regarding belief in spirits or life forces, Muslims have a predicted probability of 0.61, which is substantial but lower than that of Hindus (0.90) and participants from Other Religions (0.87). This hints at theological diversity among Muslims in spirit/life force beliefs.
+
+##### Religious Practices
+
+The frequency of religious practices among Muslims is markedly higher than in other groups. Muslims attend religious services with a predicted frequency of 5.43 times per month, considerably surpassing Christian denominations such as Christian (Others) (3.23) and Catholics (2.02). The Not Religious group shows negligible attendance (-0.04). Moreover, Muslims engage in prayer with an exceptionally high predicted frequency of 20.01, reflecting the centrality of daily prayers in Islam. This frequency is substantially higher than that of Christian (NFD) (8.73) and Christian (Others) (10.09), indicating a distinctive pattern of religious observance.
+
+Scripture reading is also more prevalent among Muslims, with a predicted frequency of 4.59 times per week. This is comparable to devout Christian groups like Christian (Others) (4.19) but higher than mainstream denominations such as Anglicans (0.86) and Catholics (1.28). These findings suggest a strong engagement with religious texts within the Muslim community.
 
 
+### Comments on Study 2: Perceived Discrimination
+
+An analysis of discrimination across domains (age, gender, ethnic, and religion-specific) reveals that Muslims in New Zealand report do not report high levels of perceived discrimination on age and gender. Muslims report higher ethnic discrimination at levels comparable to Hindus. However, perceived religious discrimination is markedly higher. 
+
+#### Age Discrimination
+
+Muslims report an average perceived age discrimination score of 3.28, which is only marginally higher than the Not Religious group (3.17) and Catholics (3.27). Other groups, such as Anglicans (3.04) and Christian (Others) (3.12), exhibit slightly lower perceptions of age discrimination. The overall differences across groups are small.
+
+#### Gender Discrimination
+
+Perceived gender discrimination among Muslims is 2.48, similar to the Not Religious group (2.50) and Catholics (2.42). Interestingly, Buddhists report a higher score (2.75), whereas Presbyterians report the lowest (2.24). This suggests that Muslims’ experiences of gender discrimination are comparable to other groups.
+
+#### Ethnic Discrimination
+
+For ethnic discrimination, Muslims report a score of 2.22, higher than the Not Religious group (1.70) and most Christian groups, but similar to Hindus (2.16).
+
+#### Religious Discrimination
+
+Religious discrimination reveals the most pronounced disparities. Muslims report the highest perceived score (3.57), significantly higher than the Not Religious group (1.66) and Anglicans (2.14). Christian (NFD) (3.08) and Christian (Others) (2.99) also report elevated religious discrimination, reflecting similar experiences with religion-centric bias.
+
+The findings indicate that although Muslims perceive similar levels of age and gender discrimination to other groups, they report higher experiences of ethnic and markedly higher levels of religious discrimination. This finding underscores the religion-specific discrimination that Muslims face in New Zealand, and is consistent with previous research revealing taht Muslims are the least accepted minority group in New Zealand for which the NZAVS has measures.
+
+### Comments on Study 3: Biological Health 
+
+Biological Health indicators, specifically sleep duration and overall health status, reveals minimal differences between Muslims and other religious and secular groups in New Zealand. Again adjusted models account for age, gender, New Zealand birth status, and ethnicity, ensuring that the comparisons are independent of these demographic factors.
+
+#### Sleep Duration
+
+The predicted average sleep duration for Muslims is 6.85 hours, which is slightly less than the Not Religious group at 7.01 hours. Other religious groups show similar patterns: Anglicans at 7.05 hours, Buddhists at 7.01 hours, and Catholics at 6.89 hours. The variations among all groups are minimal, suggesting that sleep habits are consistent across religious affiliations.
+
+#### Short Form Reported Health Status
+
+As measured by the Short Form Scale, Muslims have a predicted health score of 4.93, marginally higher than the Not Religious group at 4.77. Anglicans and Christian (NFD) participants have scores of 4.89 and 4.86, respectively, while Catholics score 4.77. Buddhists have a slightly lower predicted score of 4.68. These differences are modest, indicating that overall health status is relatively uniform across religious and secular groups.
+
+The findings suggest that Muslims are largely similar to other religious and secular groups in terms of biological health indicators. 
+
+
+### Comments on Study 4: Psychological Health 
+
+The data suggest that Muslims in New Zealand exhibit better-adjusted psychological well-being on certain dimensions compared to other groups, whereas depression levels are comparable. 
+
+#### Anxiety
+Adjusted scores for anxiety among Muslims are lower (1.30) compared to Not Religious individuals (1.39) and most Christian groups, with the exception of Anglicans (1.34) and Christian NFD (1.34). This finding indicates a relative buffering against anxiety in the Muslim population.
+
+#### Fatigue
+
+Muslims report lower fatigue (1.71) compared to Not Religious individuals (1.83) and most other groups. This pattern suggests resilience in managing psychological and physical stressors.
+
+#### Rumination
+
+Rumination scores for Muslims (0.90) are slightly lower than the Not Religious group (0.99) and align closely with Anglicans (0.90). Rumination, often a precursor to mental distress, appears to be less pronounced among Muslims.
+
+#### Depression
+
+Depression scores for Muslims (0.73) are comparable to those of other groups, such as Catholics (0.65) and Anglicans (0.64). This parity indicates that while Muslims fare better in anxiety and fatigue, depression remains similar to other populations.
+
+Overall, these findings imply that Muslim psychological adapation is robust, raising an intriguing question: do religion-specific practices, beliefs, or the sense of community inherent to Muslim identity act as buffers against the damaging psychological effects of anti-Muslim prejudice? -- A question for future longitudinal inquiry.
+
+### Comments on Study 5: Self-Related Well-Being 
+
+Muslims in New Zealand exhibit distinctive patterns on personal well-being indicators, particularly in self-esteem, personal relationships, and forgiveness. These results raise interesting questions about whether religion-specific practices, beliefs, or community factors enhance personal well-being.
+
+#### Self-Esteem
+
+Muslims report significantly higher self-esteem (5.46) compared to Not Religious individuals (5.00) and most other religious groups, including Anglicans (5.03) and Catholics (5.11). This elevated self-esteem may reflect the role of religious identity and community support in fostering personal confidence and self-worth, a matter for future investigations.
+
+#### Forgiveness
+
+While forgiveness scores for Muslims (4.89) are slightly lower than for Not Religious individuals (4.99) and Anglicans (5.03), they remain comparable across religious groups.
+
+#### Perfectionism
+
+Muslims report slightly higher perfectionism (3.32) than Not Religious individuals (3.26) and align closely with groups such as Buddhists (3.33) and Catholics (3.28). These similarities in group means again mask variation above and below the means, among individuals in all groups.
+
+#### Future Security
+
+Muslims have a strong sense of future security (6.07), comparable to Anglicans (6.12) and Catholics (5.97), and higher than Not Religious individuals (5.79). This might stem from community and religious frameworks providing stability and hope for the future.
+
+#### Standard of Living and Health
+
+Muslims report slightly lower satisfaction with their standard of living (7.17) compared to Anglicans (7.58) and Catholics (7.36) but maintain relatively high ratings of health (6.69), comparable to Anglicans (6.72) and higher than Not Religious individuals (6.49). (Recall that Muslims exhibit higher deprivation.)
+
+#### Personal Relationships
+
+Muslims exhibit the highest scores for satisfaction with personal relationships (7.90), surpassing Not Religious individuals (7.46) and other groups, including Anglicans (7.78) and Catholics (7.72). This finding highlights the centrality of strong interpersonal bonds in Muslim communities.
+
+
+Overall the data raise the question of whether religious identity, community, and practices act both as buffers for prejudice and enhancers of personal well-being. The high self-esteem and relationship satisfaction among Muslims are particularly notable and warrant future longitudinal investigations.
+
+### Comments on Study 6: Life-Focussed Well-Being
+
+Religious groups exhibit consistently higher ratings across four dimensions of life-related well-being, namely, gratitude, life satisfaction, meaning and purpose, and a sense of meaning when compared with secular people. Notably, Muslims exhibit an exceptionally strong sense of Meaning and Purpose.
+
+#### Gratitude
+
+Muslims report higher levels of gratitude (6.01) than Not Religious individuals (5.80) and Anglicans (5.89), aligning closely with Catholics (5.99) and Christian NFD (6.09). Gratitude is a cornerstone of religious faith, which may explain the elevated sense of thankfulness highly Muslims, however, it is important to acknowledge that secular people in New Zealand typically exhibit high levels of gratitude, and there is variation in gratitude across all religious groups.
+
+#### 	Life Satisfaction
+
+Muslims demonstrate higher average life satisfaction (5.32) compared to Not Religious individuals (5.00) and most religious groups, such as Anglicans (5.17) and Catholics (5.08).
+
+#### Meaning and Purpose
+Muslims report the highest levels of meaning and purpose (5.83) across all groups, significantly surpassing Not Religious individuals (4.76) and aligning closely with Christian Others (5.45) and Christian NFD (5.41). 
+
+####	Sense of Meaning
+Muslims also rank highly in their sense of meaning (6.03), exceeding Not Religious individuals (5.47) and most religious groups, such as Catholics (5.66) and Anglicans (5.58). This sense of coherence and understanding in life may be linked to Islamic teachings and a strong sense of community.
+
+Overall, Muslims consistently score higher than the population average across these Life-focussed well-being. Whether a sense of meaning and purpose buffers Muslims from the slings and arrows of anti-Muslim prejudice suggests yet another pathway for future investigations.
+
+
+### Comments on Study 7: Social Well-Being 
+
+
+Muslims resemble other religious groups in perceived social support and social belonging, and express higher levels of perceived neighbourhood community.
+
+#### Social Support
+
+**Help from Others**:  Muslims report moderate support for receiving help (5.87), slightly lower than Not Religious (5.99) and Christians (NFD: 6.12, Others: 6.12), and comparable to Buddhists (5.88).
+
+**No Guidance (reversed)**: Muslims score lower (5.72) in perceiving guidance availability compared to Anglicans (6.01) and Catholics (5.99), but align closely with Hindus (6.00) and Buddhists (5.74).
+
+**Turning to Others** Muslims score (5.73), slightly below Anglicans (5.97) and Catholics (5.96), but comparable to Hindus (5.94) and higher than Buddhists (5.61).
+
+#### Belonging
+
+**Acceptance**: Muslims exhibit moderate levels of feeling accepted (5.60), aligning with Anglicans (5.58) and Buddhists (5.55), though slightly lower than Catholics (5.71) and Christian NFD (5.67).
+
+**Outsider Rejection Reversed**: Muslims score moderately (4.96), higher than Not Religious (4.88) and similar to Anglicans (5.11), reflecting a positive perception of belonging.
+
+**Neighbourhood Community**: Muslims score highest among groups (4.80) in neighbourhood community, surpassing Anglicans (4.49), Catholics (4.38), and Not Religious individuals (4.19), and similar (but higher than) Hindus (4.73). Do experiences of prejudice build stronger neighbhourhoods?  Do Muslims tend to migrate to neighbourhoods with higher densities of other Muslims? Relatively higher scores in neighbourhood integration suggest additional avenues for future research. 
+
+### Final Comment
+
+In the Varieties of Religious Experience, William James makes the following observation about classification.
+
+> The first thing the intellect does with an object is to class it along with something else. But any object that is infinitely important to us and awakens our devotion feels to us also as if it must be sui generis and unique. Probably a crab would be filled with a sense of personal outrage if it could hear us class it without ado or apology as a crustacean, and thus dispose of it. "I am no such thing," it would say; "I am MYSELF, MYSELF alone."
+
+In reflecting on patterns of variation within and across religious denominations in New Zealand we are immediately struck by the uniqueness of each individual.  Muslims are not cast from a cookie cutter, nor are those who identify with other religious and secular groups. 
+
+Overall, the data indicate that Muslims maintain a strong level of religious commitment, both in identity and practice. This high degree of religious engagement underscores the importance of religion as a core component of Muslim identity in New Zealand.
+
+Nevertheless, as shown in @fig-religion-id, @fig-religion-belief, and @fig-religion-practice, there is considerable variation among Muslims in these patterns of religious commitment. A minority of Muslims do not identify strongly with their faith, do not profess beliefs in God or a Spirit, and do not partake in religious practices.
+
+@fig-religion-id, @fig-religion-belief, and @fig-religion-practice also reveal variation above the mean, with some Muslims expressing exceptionally strong religious commitments -- "super-Muslims". Such patterns of variation indeed hold across all denominations, including among secular people who express spiritual commitments, spiritual beliefs, and occasionally even religious practices such as prayer and religious service attendance.
+
+In general, it is notable that Muslims are more similar to the Christian No Faith Declared and Christian Others groups than are these evangelical Christian groups to other denominations such as Anglicans and (to a lesser extent) Catholics. Thus, not only do we find heterogeneity between Christian groups in the expression of religious faith, but these patterns of similarity and difference reveal certain affinities between evangelical Christians and Muslims in the central role that religion plays in their lives.
+
+One of the most striking findings is that, despite significant evidence of anti-religious prejudice, Muslim self-esteem remains high. Generally, Muslims possess a strong sense of what makes their lives meaningful and maintain a clear sense of purpose. Although future research is needed to examine the causes and consequences of these orientations toward self and life, it is worth pausing to reflect on these exceptional qualities that embody Muslim dignity.
 
 ### Ethics
 
@@ -1227,7 +2025,7 @@ The New Zealand Attitudes and Values Study is supported by a grant from the Temp
 
 ### Author Statement
 
-**TBA**:  UA led the MSD and led the interpretation of the analysis. CGS led data collection. JB prepared the tables and graphs.  All authors contributed to the writing of this manuscript.
+**TBA**:  UA led the MSD and community outreach. CGS led New Zealand Attitudes and Values Study data collection. JB prepared the models, tables and graphs.  All authors contributed to the writing of this manuscript.
 
 
 {{< pagebreak >}}

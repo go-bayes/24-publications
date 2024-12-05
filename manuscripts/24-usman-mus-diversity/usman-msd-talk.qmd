@@ -1,0 +1,497 @@
+---
+title: "The New Zealand Muslim Diversity Study: Baseline Sample Information 2023-2024"
+subtitle: ""
+format:
+  revealjs: 
+    embed-resources: false
+    slide-number: true
+    smaller: true
+    scrollable: true
+    incremental: false
+    chalkboard: false 
+    buttons: false
+    preview-links: auto
+    theme: default
+    code-fold: true
+    code-overflow: scroll
+    code-line-numbers: true
+    auto-stretch: true
+    html-math-method: katex
+    progress: true
+    highlight-style: kate
+    monofont: "Fira Code"
+    mainfont: "Fira Code"
+    titlefont: "Fira Code"
+    font-family: "Fira Code"
+    bibliography: /Users/joseph/GIT/templates/bib/references.bib
+    css: ~/Users/joseph/GIT/models/css/styles.css
+author: 
+  - name: M. Usman Afzali
+    affiliation: University of Otago New Zealand
+    orcid: 0000-0003-3169-6576 
+  - name: Aarif Rasheed
+    affiliation:  University of Otago New Zealand
+    orcid: 0000-0000-0000-0000
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland, New Zealand
+    orcid: 0000-0002-4064-8800
+  - name: Kumar Yogeswaaran
+    affiliation: University of Canterbury New Zealand
+    orcid: 0000-0002-1978-5077
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+extra_dependencies:
+  - tikz-cd
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+# format:
+#   revealjs: 
+#     embed-resources: true
+#     slide-number: true
+#     smaller: true
+#     scrollable: true
+#     incremental: false
+#     chalkboard: false 
+#     buttons: false
+#     preview-links: auto
+#     theme: default
+#     code-fold: true
+#     code-overflow: scroll
+#     code-line-numbers: true
+#     auto-stretch: true
+#     html-math-method: katex
+#     progress: true
+#     highlight-style: kate
+#     monofont: "Fira Code"
+#     mainfont: "Fira Code"
+#     titlefont: "Fira Code"
+#     font-family: "Fira Code"
+#     bibliography: /Users/joseph/GIT/templates/bib/references.bib
+#     css: ~/Users/joseph/GIT/models/css/styles.css
+
+# detach("package:margot", unload = TRUE)
+# devtools::install_github("go-bayes/margot")
+# for making graphs
+library("tinytex")
+library("extrafont")
+loadfonts(device = "all")
+
+# reproducibility
+set.seed(123)
+
+# rendering document
+library("margot")
+library("glue")
+library("patchwork")
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+library("parameters")
+library("table1")
+library("printr")
+packageVersion(pkg = 'margot')
+
+# path to data folder (set to path on your computer) - for pushing and pulling model results
+push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-muslims")
+
+
+# exposure_var = "muslim_binary"
+# name_exposure = "muslim_binary"
+
+# table for muslim on religion
+table_demographics <- here_read("table_demographics")
+table_health <- here_read("table_health")
+table_psych <- here_read("table_psych")
+table_present<- here_read("table_present")
+
+table_social<- here_read("table_social")
+table_life <- here_read("table_life")
+table_religion <- here_read("table_religion")
+table_discrim <- here_read("table_discrim")
+
+prop_miss_case <- here_read("prop_miss_case")
+results_religion <- here_read_qs("results_religion", push_mods)
+results_life <- margot::here_read_qs("results_life", push_mods)
+results_psych <- margot::here_read_qs("results_psych", push_mods)
+
+n_total <- here_read("n_total")
+n_15 <- here_read("n_15")
+n_mus_pre<- here_read("n_mus_pre")
+
+n_participants<- here_read("n_participants")
+# varaibles
+exposure_var = "religion_bigger_denominations"
+name_exposure = "religion_bigger_denominations"
+
+baseline_vars <- here_read("baseline_vars")
+outcome_vars <- here_read("outcome_vars")
+baseline_vars
+outcome_vars
+# joseph.bulbulia@gmail.com (joseph.bulbulia@vuw.ac.nz)
+set.seed(123)
+prop_miss_case<- here_read("prop_miss_case")
+
+results_life
+
+# read models
+results_religion<- here_read_qs("results_religion", push_mods)
+results_discrim <- here_read_qs("results_discrim", push_mods)
+results_life <- here_read_qs("results_life", push_mods)
+results_psych<- here_read_qs("results_psych", push_mods)
+results_social<- here_read_qs("results_social", push_mods)
+results_present<- here_read_qs("results_present", push_mods)
+results_health<- here_read_qs("results_health", push_mods)
+
+
+
+# plots
+psy_fatigue = results_psych$plots$Fatigue + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-0.5, 4.5))
+
+
+
+psy_anxiety = results_psych$plots$Anxiety + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-0.5, 4.5))
+
+
+psy_depression = results_psych$plots$Depression + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-0.5, 4.5))
+
+
+
+psy_rumination = results_psych$plots$Rumination + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-0.5, 4.5))
+
+
+
+
+
+
+#predictions
+present_forgive <- results_present$plots$Forgiveness+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+present_perfect <- results_present$plots$Perfectionism+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+present_esteem <- results_present$plots$`Self Esteem`+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+present_pwb_a <- results_present$plots$`PWB Your Future Security` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+present_pwb_b <- results_present$plots$`PWB Standard Living` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+present_pwb_c <- results_present$plots$`PWB Your Health` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+present_pwb_d  <- results_present$plots$`PWB Your Relationships`+ scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+
+
+# access individual plots Religion
+religion_relid <- results_religion$plots$`Religious Identification Level`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+  
+religion_spirid <- results_religion$plots$`Spiritual Identification Level`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+  
+
+religion_church <- results_religion$plots$`Monthly Religious Service Attendence` + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) +  scale_y_continuous(limits = c(-1,30))
+   
+religion_scripture <- results_religion$plots$`Weekly Scripture`  + scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+
+religion_scripture <- results_religion$plots$`Weekly Scripture`  + scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+
+religion_prayer <- results_religion$plots$`Weekly Prayer`+ scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+
+religion_god <- results_religion$plots$`Belief in God`+ scale_y_continuous(limits = c(-0,1.1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+religion_spirit <- results_religion$plots$`Belief in Spirit`+ scale_y_continuous(limits = c(-0,1.1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+)) 
+
+
+# access individual plots discrimination
+
+
+discrim_ethnic <- results_discrim$plots$`Perceived Ethnic Discrimination`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+discrim_religious <- results_discrim$plots$`Perceived Religious Discrimination`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+discrim_gender<- results_discrim$plots$`Perceived Gender Discrimination`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+discrim_age <- results_discrim$plots$`Perceived Age Discrimination`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+    
+
+# access individual plots health
+
+health_sleep <- results_health$plots$Sleep+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) +  scale_y_continuous(limits = c(.5,15))
+health_sleep
+
+health_exercise <- results_health$plots$`Hours of Exercise (log)`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) +  scale_y_continuous(limits = c(0,6))
+health_exercise
+
+exp(1)-1
+exp(2)-1
+exp(3)-1
+exp(4)-1
+
+health_short_form_health <- results_health$plots$`Short Form Health`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))  +  scale_y_continuous(limits = c(.5,7))
+    
+health_short_form_health
+# access individual plots psychological wellbeing
+life_grd <- results_life$plots$Gratitude+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+life_sat<- results_life$plots$`Life Satisfaction`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+life_mp <- results_life$plots$`Meaning: Purpose`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+life_ms <- results_life$plots$`Meaning: Sense`+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+
+# access individual plots life-reflective wellbeing
+results_psych$plots$Anxiety+ scale_y_continuous(limits = c(-.5,5))+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+results_psych$plots$Depression + scale_y_continuous(limits = c(-.5,5))+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+results_psych$plots$Fatigue+ scale_y_continuous(limits = c(-.5,5))+ theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+results_psych$plots$Rumination+ scale_y_continuous(limits = c(-.5,5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
+  )
+
+social_belong_a <- results_social$plots$`Belonging - Acceptance` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+    
+    
+social_belong_b <- results_social$plots$`Belonging - Shared Beliefs` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+  
+social_belong_c  <-
+  results_social$plots$`Belonging - Outsider (Reversed)` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+social_neighbourhood <- results_social$plots$`Neighbourhood Community`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+social_support_a <- results_social$plots$`Support - Help Availability`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+social_support_b <- results_social$plots$`Support - No Guidance (Reversed)`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+social_support_c <- results_social$plots$`Support - Someone to Turn To`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
+  angle = 20,
+  hjust = 1,
+  vjust = 1
+))
+
+
+# combo plots
+
+plot_belief <- religion_god + religion_spirit + plot_annotation(title = "Religious Beliefs",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_practice <- religion_church / (religion_prayer + religion_scripture)+ plot_annotation(title = "Religious Practice",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_id <- religion_relid + religion_spirid + plot_annotation(title = "Religious and Spiritual Identification",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_life <- life_grd + life_sat + life_mp + life_ms + plot_annotation(title = "Life-Reflective Well-Being",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_descrim <- discrim_age  + discrim_gender + discrim_ethnic + discrim_religious +
+  plot_annotation(title = "Perceived Dicrimination",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+plot_social_belong <- social_belong_a  + social_belong_b + social_belong_c  +social_neighbourhood +
+  plot_annotation(title = "Social Belonging and Neighbourhood Community",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+
+plot_social_support <- social_support_a + social_support_b + social_support_c   +
+  plot_annotation(title = "Social Support",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+plot_present_a <- present_esteem + present_forgive + present_perfect +
+  plot_annotation(title = "Personal Well-Being Indicators",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+plot_present_b <- present_pwb_a + present_pwb_b + present_pwb_c + present_pwb_d +
+  plot_annotation(title = "Personal Well-Being Index",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+plot_health <- health_short_form_health  + (health_exercise /  health_sleep) +
+  plot_annotation(title = "Biological Health",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+plot_psych <- psy_anxiety + psy_depression + psy_fatigue + psy_rumination + plot_annotation(title = "Psychological Well-Being",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
+
+
+
+
+
+# checks
+# plot_belief
+# plot_id
+# plot_practice
+# plot_descrim
+# plot_present_a
+# plot_present_b
+# plot_life
+# plot_social_belong
+# plot_social_support
+# plot_psych
+# plot_health
+
+# read data (use 01 script to data wrangle)
+# dat_long_imputed_bounds_ordinal <- margot::here_read_qs("dat_long_imputed_bounds_ordinal", push_mods)
+
+
+measures_path_rstudio <- here::here("manuscripts", "24-usman-mus-diversity")
+measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+
+outcome_measures <- boilerplate::boilerplate_report_measures(
+  baseline_vars = baseline_vars,
+  outcome_vars = outcome_vars,
+  measure_data = measure_data
+)
+
+```
+
+## Sample Life-Related Well-Being Statistics.
+
+```{r}
+table_social
+```
+
+
+## 
+
+```{r}
+#| label: fig-religion-id
+#| fig-cap: "Religious and Spiritual Identity"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-height: 9
+#| fig-width: 16
+
+plot_id
+```
+
+
+
+
+
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
