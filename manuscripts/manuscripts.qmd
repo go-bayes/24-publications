@@ -1,26 +1,12 @@
 ---
-title: "The New Zealand Muslim Diversity Study: Baseline Sample Information 2023-2024"
+title: "Evidence for Declining Trust in Science From A Large National Panel Study in New Zealand (years 2019-2024)"
 abstract: |
-  In this study, we present demographic statistics from the first wave of the New Zealand Muslim Diversity Study (MSD 2023-2024). We describe patterns of religious identity and behaviour within the MDS cohort and examine self-reported multi-dimensional well-being. By comparing Muslim demographic, religious, and psychological diversity with that of the broader New Zealand population, we discover patterns of variation within and between religious groups that are not evident from group affiliations alone. Our findings uncover new commonalities between Muslims and other highly religious groups in New Zealand, and clarify that group-level averages do not capture the full spectrum of individual religious differences.
-   **KEYWORDS**: Diversity; Longitudinal; Muslim, Panel; Religion
+   The public's perception of science has wide-ranging effects, from the adoption public health behaviours to climate action. This study uses nationally representative panel data from New Zealand to assess changes in trust in science and trust in scientists between late 2019 and late 2024. We draw on a large cohort (N = 42,681, New Zealand Attitudes and Values Study). Study 1 uses multiple imputation to address biases from systematic attrition, ensuring more accurate population estimates of trust. Study 2 models average trust responses over time, showing that trust in science and scientists rose following New Zealand’s Covid-19 response, but later declined. We also find evidence for variation above and below the mean. Study 3 assesses proportional shifts across low, medium, and high levels of trust, revealing rising mistrust at both the lower and higher ends. Considering these shifts at a population level suggests that nearly 60,000 New Zealanders who once held moderate trust may now exhibit low trust in science.
+   **KEYWORDS**: *Conservativism*; *Institutional Trust*; *Longitudinal*; *Panel*; *Political*; *Science*.
 author: 
-  - name: M. Usman Afzali
-    affiliation: University of Otago New Zealand
+  - name: Authors 
+    affiliation: New Zealand
     orcid: 0000-0003-3169-6576 
-  - name: Aarif Rasheed
-    affiliation:  University of Otago New Zealand
-    orcid: 0000-0000-0000-0000
-  - name: Chris G. Sibley
-    affiliation: School of Psychology, University of Auckland, New Zealand
-    orcid: 0000-0002-4064-8800
-  - name: Kumar Yogeswaaran
-    affiliation: University of Canterbury New Zealand
-    orcid: 0000-0002-1978-5077
-  - name: Joseph A. Bulbulia
-    affiliation: Victoria University of Wellington, New Zealand
-    orcid: 0000-0002-5861-2056
-    email: joseph.bulbulia@vuw.ac.nz
-    corresponding: yes
 editor_options: 
     chunk_output_type: console
 format:
@@ -70,13 +56,20 @@ csl: /Users/joseph/GIT/templates/csl/camb-a.csl
 
 # detach("package:margot", unload = TRUE)
 # devtools::install_github("go-bayes/margot")
+library(margot)
+packageVersion(pkg = "margot")
+library(boilerplate)
+
 # for making graphs
 library("tinytex")
 library("extrafont")
 loadfonts(device = "all")
 
-# reproducibility
-set.seed(123)
+# combo_marginal_graph_ord
+# combo_pols_graph_ord
+# combo_eth_graph_ord
+# combo_male_graph_ord
+
 
 # rendering document
 library("margot")
@@ -87,380 +80,458 @@ library("stringr")
 library("ggplot2")
 library("ggeffects")
 library("parameters")
-library("table1")
-library("printr")
-packageVersion(pkg = 'margot')
+library("tinytable")
+# set seed
+options(tinytable_tt_digits = 3)
 
-# path to data folder (set to path on your computer) - for pushing and pulling model results
-push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-muslims")
-
-
-# exposure_var = "muslim_binary"
-# name_exposure = "muslim_binary"
-
-# table for muslim on religion
-table_demographics <- here_read("table_demographics")
-table_health <- here_read("table_health")
-table_psych <- here_read("table_psych")
-table_present<- here_read("table_present")
-
-table_social<- here_read("table_social")
-table_life <- here_read("table_life")
-table_religion <- here_read("table_religion")
-table_discrim <- here_read("table_discrim")
-
-prop_miss_case <- here_read("prop_miss_case")
-results_religion <- here_read_qs("results_religion", push_mods)
-results_life <- here_read_qs("results_life", push_mods)
-results_psych <- here_read_qs("results_psych", push_mods)
-
-n_total <- here_read("n_total")
-n_15 <- here_read("n_15")
-n_mus_pre<- here_read("n_mus_pre")
-
-n_participants<- here_read("n_participants")
-# varaibles
-exposure_var = "religion_bigger_denominations"
-name_exposure = "religion_bigger_denominations"
-
-baseline_vars <- here_read("baseline_vars")
-outcome_vars <- here_read("outcome_vars")
-baseline_vars
-outcome_vars
 # joseph.bulbulia@gmail.com (joseph.bulbulia@vuw.ac.nz)
 set.seed(123)
-prop_miss_case<- here_read("prop_miss_case")
 
 
-
-# read models
-results_religion<- here_read_qs("results_religion", push_mods)
-results_discrim <- here_read_qs("results_discrim", push_mods)
-results_life <- here_read_qs("results_life", push_mods)
-results_psych<- here_read_qs("results_psych", push_mods)
-results_social<- here_read_qs("results_social", push_mods)
-results_present<- here_read_qs("results_present", push_mods)
-results_health<- here_read_qs("results_health", push_mods)
-
-
-# #predictions
-# present_forgive <- results_present$plots$Forgiveness+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# present_perfect <- results_present$plots$Perfectionism+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# 
-# present_esteem <- results_present$plots$`Self Esteem`+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# 
-# present_pwb_a <- results_present$plots$`PWB Standard Living` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# present_pwb_b <- results_present$plots$`PWB Standard Living` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# present_pwb_c <- results_present$plots$`PWB Your Health` + scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# present_pwb_d  <- results_present$plots$`PWB Your Relationships`+ scale_y_continuous(limits = c(-0.5,10.5))+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# 
-# # access individual plots Religion
-# religion_relid <- results_religion$plots$`Religious Identification Level`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
-#   
-# religion_spirid <- results_religion$plots$`Spiritual Identification Level`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
-#   
-# 
-# religion_church <- results_religion$plots$`Monthly Religious Service Attendence` + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# )) +  scale_y_continuous(limits = c(-1,30))
-#    
-# religion_scripture <- results_religion$plots$`Weekly Scripture`  + scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# )) 
-# 
-# 
-# religion_scripture <- results_religion$plots$`Weekly Scripture`  + scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# )) 
-# 
-# 
-# religion_prayer <- results_religion$plots$`Weekly Prayer`+ scale_y_continuous(limits = c(-1,100))+ theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# )) 
-# 
-# 
-# religion_god <- results_religion$plots$`Belief in God`+ scale_y_continuous(limits = c(-0,1.1)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# )) 
-# 
-# religion_spirit <- results_religion$plots$`Belief in Spirit`+ scale_y_continuous(limits = c(-0,1.1)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# )) 
-# 
-# 
-# # access individual plots discrimination
-# 
-# 
-# discrim_ethnic <- results_discrim$plots$`Perceived Ethnic Discrimination`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
-# discrim_religious <- results_discrim$plots$`Perceived Religious Discrimination`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
-# discrim_gender<- results_discrim$plots$`Perceived Gender Discrimination`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
-# discrim_age <- results_discrim$plots$`Perceived Age Discrimination`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
-#     
-# 
-# # access individual plots health
-# 
-# health_sleep <- results_health$plots$Sleep+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) +  scale_y_continuous(limits = c(.5,15))
-# health_sleep
-# 
-# health_exercise <- results_health$plots$`Hours of Exercise (log)`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) +  scale_y_continuous(limits = c(0,6))
-# health_exercise
-
-exp(1)-1
-exp(2)-1
-exp(3)-1
-exp(4)-1
-
-# health_short_form_health <- results_health$plots$`Short Form Health`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))  +  scale_y_continuous(limits = c(.5,7))
-#     
-# health_short_form_health
-# # access individual plots psychological wellbeing
-# life_grd <- results_life$plots$Gratitude+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
-#   )
-# life_sat<- results_life$plots$`Life Satisfaction`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
-#   )
-# life_mp <- results_life$plots$`Meaning: Purpose`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
-#   )
-# life_ms <- results_life$plots$`Meaning: Sense`+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
-#   )
-# 
-# # access individual plots life-reflective wellbeing
-# results_psych$plots$Anxiety+ scale_y_continuous(limits = c(-.5,5))+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
-#   )
-# results_psych$plots$Depression + scale_y_continuous(limits = c(-.5,5))+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
-#   )
-# results_psych$plots$Fatigue+ scale_y_continuous(limits = c(-.5,5))+ theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
-#   )
-# results_psych$plots$Rumination+ scale_y_continuous(limits = c(-.5,5)) + theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)
-#   )
-# 
-# social_belong_a <- results_social$plots$`Belonging - Acceptance` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-#     
-#     
-# social_belong_b <- results_social$plots$`Belonging - Shared Beliefs` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-#   
-# social_belong_c  <-
-#   results_social$plots$`Belonging - Outsider (Reversed)` + scale_y_continuous(limits = c(.5,7.5)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# social_neighbourhood <- results_social$plots$`Neighbourhood Community`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# social_support_a <- results_social$plots$`Support - Help Availability`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# social_support_b <- results_social$plots$`Support - No Guidance (Reversed)`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# social_support_c <- results_social$plots$`Support - Someone to Turn To`+ scale_y_continuous(limits = c(.5,7.5)) + theme(
-#     axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1)) + theme(axis.text.x = element_text(
-#   angle = 20,
-#   hjust = 1,
-#   vjust = 1
-# ))
-# 
-# 
-# # combo plots
-# 
-# plot_belief <- religion_god + religion_spirit + plot_annotation(title = "Religious Beliefs",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# plot_practice <- religion_church / (religion_prayer + religion_scripture)+ plot_annotation(title = "Religious Practice",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# plot_id <- religion_relid + religion_spirid + plot_annotation(title = "Religious and Spiritual Identification",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# plot_life <- life_grd + life_sat + life_mp + life_ms + plot_annotation(title = "Life-Reflective Well-Being",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# plot_descrim <- discrim_age  + discrim_gender + discrim_ethnic + discrim_religious +
-#   plot_annotation(title = "Perceived Dicrimination",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# 
-# plot_social_belong <- social_belong_a  + social_belong_b + social_belong_c  +social_neighbourhood +
-#   plot_annotation(title = "Social Belonging and Neighbourhood Community",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# plot_social_support <- social_belong_a  + social_belong_b + social_belong_c   +
-#   plot_annotation(title = "Social Belonging",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# 
-# plot_social_support <- social_belong_a  + social_belong_b + social_belong_c   +
-#   plot_annotation(title = "Social Belonging",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# plot_present_a <- present_esteem + present_forgive + present_perfect +
-#   plot_annotation(title = "Personal Well-Being Indicators",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# plot_present_b <- present_pwb_a + present_pwb_b + present_pwb_c + present_pwb_d +
-#   plot_annotation(title = "Personal Well-Being Index",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-# 
-# plot_health <- health_short_form_health  + (health_exercise /  health_sleep) +
-#   plot_annotation(title = "Biological Health",subtitle = "Adjusted for Age, Born in NZ,Ethnicity, and Gender", tag_levels = "A") + plot_layout(guides = 'collect')
-# 
-
-# checks
-# plot_belief
-# plot_id
-# plot_practice
-# plot_descrim
-# plot_present_a
-# plot_present_b
-# plot_life
-# plot_social_belong
-# plot_social_support
+# path to data folder (set to path on your computer) - for pushing and pulling model results
+push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-john-kerr-trust-science-growth-simple")
 
 # read data (use 01 script to data wrangle)
 # dat_long_imputed_bounds_ordinal <- margot::here_read_qs("dat_long_imputed_bounds_ordinal", push_mods)
 
+measures_path_rstudio <- here::here("manuscripts", "24-john-kerr-growth-trust-science")
+measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+
+
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_vars <- margot::here_read("exposure_vars")
+outcome_vars <- margot::here_read("outcome_vars")
+n_participants <-here_read("n_participants")
+# read waves
+all_waves <- c(2019:2023)
+
+# get table/graphs
+summary_vars <- margot::here_read_qs("summary_vars", push_mods)
+
+# hist outcomes
+histogram_outcomes <- here_read_qs("histogram_trust_science_trust_scientists_by_wave", push_mods)
+
+# get range of pol conservative
+max_pol <- here_read('max_pol')
+min_pol<- here_read('min_pol')
+
+max_pol <- round(max_pol,2)
+min_pol <- round(min_pol,2)
+#outcome table means
+
+# # read cat
+# tbl_combined_cat <- here_read_qs("tbl_combined_cat", push_mods)
 # 
-# measures_path_rstudio <- here::here("manuscripts", "24-usman-mus-diversity")
-# measure_data <- readRDS(here::here(measures_path_rstudio, "merged_db.rds"))
+# # first model
+# tbl_combined_cat
+# # first imputed dataset
+# tbl_combined_imp <- here_read_qs("tbl_combined_imp", push_mods)
+# tbl_combined_imp
 # 
-# outcome_measures <- boilerplate::boilerplate_report_measures(
-#   baseline_vars = baseline_vars,
-#   outcome_vars = outcome_vars,
-#   measure_data = measure_data
-# )
+# # mean
+# summary_table_mean <- here_read_qs("summary_table_mean", push_mods)
+# summary_table_mean_imp <- here_read_qs("summary_table_mean_imp", push_mods)
+# 
+# summary_table_mean
+# summary_table_mean_imp
+
+tt_summary_mean_response_sample <- here_read("tt_summary_mean_response_sample")
+tt_summary_mean_response_sample
+tt_summary_mean_response_sample_imp <- here_read("tt_summary_mean_response_sample_imp")
+tt_summary_mean_response_sample_imp
+
+
+# alluvial plots
+# tba
+sankey_plot_science_sample<-  here_read_qs("sankey_plot_science_sample", push_mods)
+sankey_plot_st_sample <-  here_read_qs("sankey_plot_st_sample", push_mods)
+sankey_plot_science_imp<-  here_read_qs("sankey_plot_science_imp", push_mods)
+sankey_plot_st_imp<-  here_read_qs("sankey_plot_st_imp", push_mods)
+tt_summary_table_cat<- here_read("tt_summary_table_cat")
+tt_summary_table_cat_imp <- here_read("tt_summary_table_cat_imp")
+tt_summary_table_cat
+# tt_summary_table_cat_imp |> print("markdown")
+
+# n_total
+n_total <- here_read("n_total")
+
+scale_outcome <- glue::glue("(1-7)")
+outcome_lower_bound <- glue::glue("1")
+outcome_upper_bound <- glue::glue("7")
+# shift =   glue::glue('two points')
+nice_baseline_wave <- glue::glue("New Zealand Attitudes and Values Study Time 11, years 2019-2024")
+nice_all_waves <- glue::glue("New Zealand Attitudes and Values Study Time Time 11-14, years 2019-2024")
+nice_end_of_study_wave <- glue::glue("Zealand Attitudes and Values Study Time 14, years 2022-2024")
+
+# not used
+prop_missing_baseline <- here_read("prop_missing_baseline")
+# percentage_missing_baseline <- glue::glue(round(percent_missing_baseline,2))
+# percentage_missing_baseline
+# labels
+#
+
+# read models
+
+# read models -------------------------------------------------------------
+# nnet. 
+# trust_science_marginal <- here_read("trust_science_marginal")
+# trust_scientists_marginal <- here_read("trust_scientists_marginal")
+# trust_science_pols <- here_read("trust_science_pols")
+# trust_scientists_pols <- here_read("trust_scientists_pols")
+# trust_science_eth <- here_read("trust_science_eth")
+# trust_scientists_eth <- here_read("trust_scientists_eth")
+# trust_science_male <- here_read("trust_science_male")
+# trust_scientists_male <- here_read("trust_scientists_male")
+# trust_science_marginal
+
+# gee
+# trust_science_marginal_gee <- here_read("trust_science_marginal_gee")
+# trust_scientists_marginal_gee <- here_read("trust_scientists_marginal_gee")
+# trust_science_pols_gee <- here_read("trust_science_pols_gee")
+# trust_scientists_pols_gee <- here_read("trust_scientists_pols_gee")
+# trust_science_eth_gee <- here_read("trust_science_eth_gee")
+# trust_scientists_eth_gee <- here_read("trust_scientists_eth_gee")
+# trust_science_male_gee <- here_read("trust_science_male_gee")
+# trust_scientists_male_gee <- here_read("trust_scientists_male_gee")
+
+predictions_gee_science_observed <- here_read("predictions_gee_science_observed")
+predictions_gee_scientists_observed <- here_read("predictions_gee_scientists_observed")
+
+
+predictions_gee_science_imputed <- here_read("predictions_gee_science_imputed")
+predictions_gee_scientists_imputed <- here_read("predictions_gee_scientists_imputed")
+
+predictions_gee_science_imputed
+predictions_gee_scientists_observed
+
+# plot ordinal marginal ---------------------------------------------------
+
+plot_trust_science_observed_continuous <- plot (
+  predictions_gee_science_observed,
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .025,
+  show_ci = TRUE,
+  ci_style = "dash",
+  colors = "quadro",
+  limits = c(.5, 7.5),
+  dot_size = 2)+ geom_point(aes(x = x, y = predicted), color = "red", size = .2, alpha =1)  +
+  labs(x = "Years: 2019-2024", y = "Trust in Science (1-7)", title = "Average Trust in Science: Retained Sample") + theme_bw() 
+
+plot_trust_scientists_observed_continuous <- plot (
+  predictions_gee_scientists_observed,
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .025,
+  show_ci = TRUE,
+  ci_style = "dash",
+  colors = "quadro",
+  limits = c(.5, 7.5),
+  dot_size = 2)+ geom_point(aes(x = x, y = predicted), color = "red", size = .2, alpha =1)  +
+  labs(x = "Years: 2019-2024", y = "Trust in Scientists (1-7)", title = "Average Trust in Scientists: Retained Sample") + theme_bw() 
+
+
+plot_trust_science_imputed_continuous <- plot (
+  predictions_gee_science_imputed,
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .025,
+  show_ci = TRUE,
+  ci_style = "dash",
+  colors = "us",
+  limits = c(.5, 7.5),
+  dot_size = 2)+ geom_point(aes(x = x, y = predicted), color = "dodgerblue", size = .2, alpha =1)  +
+  labs(x = "Years: 2019-2024", y = "Trust in Science (1-7)", title = "Trust in Science: Imputed Missing Responses") + theme_bw() 
+
+
+
+plot_trust_scientists_imputed_continuous <- plot (
+  predictions_gee_scientists_imputed,
+  show_data = TRUE,
+  jitter = .4,
+  dot_alpha  = .025,
+  show_ci = TRUE,
+  ci_style = "dash",
+  colors = "us",
+  limits = c(.5, 7.5),
+  dot_size = 2)+ geom_point(aes(x = x, y = predicted), color = "dodgerblue", size = .2, alpha =1)  +
+  labs(x =  "Years: 2019-2024", y = "Trust in Scientists (1-7)", title = "Trust in Scientists: Imputed Missing Responses") + theme_bw()
+
+
+
+# patchwork graph
+combo_science_continuous<-   plot_trust_science_observed_continuous + plot_trust_science_imputed_continuous + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study): ", tag_levels = "A", title = "Trust in Science: Observed vs Imputed Missing Responses") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+
+combo_scientists_continuous <- plot_trust_scientists_observed_continuous + plot_trust_scientists_imputed_continuous   + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science: Observed vs Imputed Continuous Responses") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom') 
+
+
+combo_all_continuous <- (plot_trust_science_observed_continuous + plot_trust_science_imputed_continuous)/ (plot_trust_scientists_observed_continuous + plot_trust_scientists_imputed_continuous) + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science and Scientists over Time: Observed vs Imputed Continuous Responses") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
+
+# margot::margot_save_png(combo_all,base_filename = "trust_science_observed_vs_imputed", save_path = here::here(push_mods), height=20,width=20, dpi = 500)
+
+
+# Categorical-------------------------------------------------------------------
+# 
+observed_trust_science_factor <- here_read("observed_trust_science_factor")
+observed_trust_scientists_factor <- here_read("observed_trust_scientists_factor")
+
+predictions_ord_science_imp <- here_read("predictions_ord_science_imp")
+predictions_ord_scientists_imp <- here_read("predictions_ord_scientists_imp")
+
+observed_trust_science_factor |> print_md()
+
+# plot
+observed_trust_science_factor_plot =  plot(
+  observed_trust_science_factor,
+  jitter = .4,
+  dot_alpha  = .025,
+  alpha = 3,
+  show_ci = TRUE,
+  ci_style = "dash",
+  colors = "quadro",
+  limits = c(0, 1),
+  dot_size = 2
+)+ geom_point(aes(x = x, y = predicted), color = "red", size = .2, alpha =1)  +
+  labs(x =  "Years: 2019-2024", y = "Trust in Science (low = 1-3, med = 4-5, high = 6-7)", title = "Average Trust in Science: Retained Sample", 
+       subtitle = "Predicted Probability of Response: Low = 1-3, Medium = 4-5, High = 6-7") + theme_bw()
+
+observed_trust_scientists_factor_plot =  plot(
+  observed_trust_scientists_factor,
+  alpha = 3,
+  show_ci = TRUE,
+  ci_style = "dash",
+  colors = "quadro",
+  limits = c(0, 1),
+  dot_size = 2
+)+ geom_point(aes(x = x, y = predicted), color = "red", size = .2, alpha =1)  +
+  labs(x =  "Years: 2019-2024", y = "Trust in Scientists (low = 1-3, med = 4-5, high = 6-7)", title = "Average Trust in Scientists: Retained Sample",
+            subtitle = "Predicted Probability of Response: Low = 1-3, Medium = 4-5, High = 6-7") + theme_bw()
+
+
+
+
+imputed_trust_science_factor_plot <- plot(
+  predictions_ord_science_imp,
+  show_ci = TRUE,
+  ci_style = "dash",
+  colors = "us",
+  limits = c(0, 1)
+  )+ geom_point(aes(x = x, y = predicted), color = "dodgerblue", size = .2, alpha =1)  +
+  labs(x =  "Years: 2019-2024", y = "Trust in Science (low = 1-3, med = 4-5, high = 6-7)", title = "Average Trust in Science: Imputed Missing Responses", 
+       subtitle = "Predicted Probability of Response: Low = 1-3, Medium = 4-5, High = 6-7") + theme_bw()
+
+
+imputed_trust_science_factor_plot
+
+imputed_trust_scientists_factor_plot <- plot(
+  predictions_ord_scientists_imp,
+  show_ci = TRUE,
+  ci_style = "dash",
+  colors = "us",
+  limits = c(0, 1)
+)+ geom_point(aes(x = x, y = predicted), color = "dodgerblue", size = .2, alpha =1)  +
+  labs(x =  "Years: 2019-2024", y = "Trust in Science (low = 1-3, med = 4-5, high = 6-7)", title = "Average Trust in Scientists: Imputed Missing Responses",
+            subtitle = "Predicted Probability of Response: Low = 1-3, Medium = 4-5, High = 6-7") + theme_bw()  +   theme(
+    plot.title = element_text(face = "bold", size = 14))
+
+
+combo_science_factor <- observed_trust_science_factor_plot  + imputed_trust_science_factor_plot + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science: Observed vs Imputed Missing Responses: Multinomial Response Model\n'Our Society Places Too Much Emphasis on Science'") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  +   theme(
+    plot.title = element_text(face = "bold", size = 14))
+
+combo_scientists_factor <- observed_trust_scientists_factor_plot  + imputed_trust_scientists_factor_plot + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Scientists: Observed vs Imputed Missing Responses: Multinomial Response Model\n'I have a high degree of confidence in the scientific community'") +
+  plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  +   theme(
+    plot.title = element_text(face = "bold", size = 14))
 
 ```
 
 
-The New Zealand Attitudes and Values Study (NZAVS) is a nationally representative panel study of New Zealanders started in 2009. It has measured `r n_total` participants annually, and is presently tracking `r n_15` participants, about 1% of New Zealand's adult population. 
 
-Despite strong NZAVS coverage of New Zealand's denominations, in the largest NZAVS cohort, less than .01% of New Zealand's Muslims were participating (n = `r n_mus_pre`). That is, the New Zealand Attitudes and Values Study was under-representing Muslims by an order of magnitude below the New Zealand census estimates. 
-
-The Muslim Diversity Study, led by Usman Afzali (UA), has been built through partnership with the Muslim community partnerships to boost the New Zealand Attitudes and Values Muslim sample by ~600 participants to obtain coverage of about 1% of the New Zealand Census estimate of New Zealand Muslim Community.
-
-The premise of this study has been to enable extend national longitudinal science of the study of Muslim diversity and flourishing over the lifespan, to understand the scope of such diversity and the challenges to such flourishing, and to clarify the affordances through which Muslims overcome adversity that has been previously documented in other research (refs.)
-
-The Muslim Diversity Study is important first, because the lifelong dynamics of Muslim flourishing are poorly understood; this project addresses an urgent scientific need.
-
-Second, our work with the Muslim community revealed a strong community interest in Muslim flourishing science; this project is an attempt to address this interest by involving Muslims in this science. 
-
-Third, this project serves as a model for developing panel studies of under-represented groups in Aoteoroa New Zealand and in other countries. 
+## Introduction
 
 
 
-@tbl-religion-id
+<!-- ::: {#tbl-categorical-science-observed} -->
+<!-- ```{r, results='asis'} -->
+<!-- #| eval: true -->
+<!-- #| include: true -->
+<!-- #| echo: false -->
+<!-- observed_trust_science_factor_x <- format(observed_trust_science_factor,  collapse_tables = FALSE, collapse_ci = TRUE, -->
+<!--  digits = 2)  -->
 
-::: {#tbl-religion-id}
-```{r, results= 'asis'}
-library(dplyr)
-library(kableExtra)
+<!-- observed_trust_science_factor_x|>  -->
+<!--      as.data.frame() %>%  -->
+<!--     dplyr::rename(Years = years) %>%     -->
+<!--     dplyr::rename(Response = groups) %>%     -->
+<!--   kbl( -->
+<!--     format = "latex", -->
+<!--     booktabs = TRUE, -->
+<!--     digits = 3, -->
+<!--     row.names = FALSE                      # remove row names to eliminate any unintended columns -->
+<!--   ) |> -->
+<!--   kable_styling( -->
+<!--     font_size = 12, -->
+<!--     latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h] -->
+<!--   ) -->
+<!-- ``` -->
+<!-- Predicted probability of classification for trust in science without adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7). -->
+<!-- ::: -->
 
-# Prepare and style the table
-results_religion$predictions$religion_identification_level |>
-  as.data.frame() %>%                      # ensure it's a data frame
-  dplyr::select(-group) %>%                # remove the 'group' column
-  dplyr::rename(Religion = x) %>%          # rename 'x' to 'Religion'
+
+
+### Study 2: Categorical Mistrust in Science and Scientists over Time
+
+
+```{r}
+#| label: fig-science-categorical
+#| fig-cap: "(A) Predicted probability of classification for trust in science without adjusting for missingness (B) Predicted probability of classification for trust in science adjusting for missingness. Responses categories are low (1-3), medium (4-5), high (6-7) on the 1-7 ordinal scale."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+combo_science_factor
+```
+
+::: {#tbl-categorical-science-observed}
+```{r, results='asis'}
+#| eval: true
+#| include: true
+#| echo: false
+observed_trust_science_factor_x <- format(observed_trust_science_factor,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+
+observed_trust_science_factor_x|> 
+     as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+    dplyr::rename(Response = groups) %>%    
   kbl(
     format = "latex",
     booktabs = TRUE,
-    digits = 2,
-    row.names = FALSE                      # Remove row names to eliminate any unintended columns
+    digits = 3,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
   ) |>
   kable_styling(
-    font_size = 11,
-    latex_options = c("repeat_header", "striped")  # Removed "hold_position" to eliminate [!h]
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
   )
 ```
-Adjusted means and 95% confidence intervals for religious identification by religious denomination.
+Predicted probability of classification for trust in science without adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7).
 :::
 
 
 
+::: {#tbl-categorical-science-imputed}
+```{r}
+#| eval: true
+#| include: true
+#| echo: false
+predictions_ord_science_imp_x <- format(predictions_ord_science_imp,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+
+predictions_ord_science_imp_x |> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+    dplyr::rename(Response = groups) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 3,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+
+
+```
+Predicted probability of classification for trust in science, now adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7).
+:::
+
+
+@fig-science-categorical displays predicted probabilities for being classified as low (1–3), medium (4–5), or high (6–7) in trust in science over time. @tbl-categorical-science-observed presents these probabilities without adjusting for missing responses. Under these conditions, the proportion of respondents in the high category appears to increase from the baseline and remain relatively elevated. However, after adjusting for missingness (see @tbl-categorical-science-imputed), the predicted probabilities show a less stable pattern, with gains in the high category tempered and the medium category becoming more prominent. These differences underscore that ignoring missing responses can create an artificial appearance of stronger sustained trust.
 
 
 
-## References {.appendix}
 
 
+```{r}
+#| label: fig-scientists-categorical
+#| fig-cap: "(A) Predicted probability of classification for trust in scientists without adjusting for missingness (B) Predicted probability of classification for trust in scientists adjusting for missingness. Responses categories are low (1-3), medium (4-5), high (6-7) on the 1-7 ordinal scale."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+combo_scientists_factor
+```
+
+::: {#tbl-categorical-scientists-observed}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+observed_trust_scientists_factor_x <- format(observed_trust_scientists_factor,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+
+observed_trust_scientists_factor_x|> 
+     as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+    dplyr::rename(Response = groups) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 3,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Predicted probability of classification for trust in scientists without adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7).
+:::
 
 
+::: {#tbl-categorical-scientists-imputed}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+predictions_ord_scientists_imp_x <- format(predictions_ord_scientists_imp,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+
+predictions_ord_scientists_imp_x |> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+    dplyr::rename(Response = groups) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 3,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Predicted probability of classification for trust in scientists, now adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7).
+:::
 
 
+A similar pattern emerges for trust in scientists (see @fig-scientists-categorical). Without adjusting for missingness, the results (shown in @tbl-categorical-scientists-observed) suggest that the proportion classified as high in trust remains consistently large. Once we incorporate multiple imputation to address missing responses, as presented in @tbl-categorical-scientists-imputed, the predicted probabilities shift. The high category becomes less dominant over time, and more respondents fall into the medium category than would have been inferred without proper adjustment. In other words, accounting for nonresponse reveals a more nuanced pattern of trust that does not simply trend upward, and this correction prevents inflated estimates of stable or increasing trust in scientists.
 
+## Discussion 
 
+These findings illustrate that failing to adjust for missing responses can systematically distort estimates of public trust in science and scientists. Compared to models that ignore missingness, our imputation-adjusted analyses indicate that the unadjusted models overestimate the proportion of the population with high trust by several hundred thousand New Zealand adults and underestimate the proportion with low trust by tens to hundreds of thousands. For example, when trust in science is not adjusted for missingness, we appear to be underestimating the share of the population with low trust by about 82,000 people, while simultaneously overstating the size of the high-trust group by roughly 330,000. Similarly, for trust in scientists, the discrepancy in the low-trust population is about 165,000 individuals, and the high-trust category may be inflated by about 248,000. These differences represent substantial distortions in population-level estimations.
 
-
+It is important to note that these are minimum bounds of potential misestimation, as we cannot measure trust among individuals who declined participation at the study’s outset. Moreover, we have not established any causal relationships, and our objective is not to identify determinants of changing trust, but rather to describe and characterise differences in trust distributions over time. Still, given that trust in science can influence critical actions related to climate change, vaccine uptake, and following health advice, accurately documenting trust and its temporal shifts is a pressing concern. By accounting for missing data, we gain a clearer and more credible picture of population-level trust in science and scientists, enabling better-informed public health messaging and policy decisions.
 
