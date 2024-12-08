@@ -1,12 +1,38 @@
 ---
-title: "Evidence for Declining Trust in Science From A Large National Panel Study in New Zealand (years 2019-2024)"
+title: "Declining Trust in Science: Longitudinal Evidence From A National Panel Study in New Zealand Years 2019-2024"
 abstract: |
-   The public's perception of science has wide-ranging effects, from the adoption public health behaviours to climate action. This study uses nationally representative panel data from New Zealand to assess changes in trust in science and trust in scientists between late 2019 and late 2024. We draw on a large cohort (N = 42,681, New Zealand Attitudes and Values Study). Study 1 uses multiple imputation to address biases from systematic attrition, ensuring more accurate population estimates of trust. Study 2 models average trust responses over time, showing that trust in science and scientists rose following New Zealand’s Covid-19 response, but later declined. We also find evidence for variation above and below the mean. Study 3 assesses proportional shifts across low, medium, and high levels of trust, revealing rising mistrust at both the lower and higher ends. Considering these shifts at a population level suggests that nearly 60,000 New Zealanders who once held moderate trust may now exhibit low trust in science.
-   **KEYWORDS**: *Conservativism*; *Institutional Trust*; *Longitudinal*; *Panel*; *Political*; *Science*.
+  The public’s perception of science influences a wide range of behaviours, from adherence to public health guidance to support for climate action. This study uses nationally representative panel data from New Zealand to examine changes in the value placed on science and trust in scientists between 2019 and 2024 (*N* = 42,681, New Zealand Attitudes and Values Study). **Study 1** estimates longitudinal trajectories for attitudes to science and scientists, applying multiple imputation to address biases arising from systematic attrition. **Study 2** models trust responses categorically, distinguishing low (1–3), medium (4–5), and high (6–7) trust. Results indicate that the value placed on science and trust in scientists rose after New Zealand’s response to COVID-19, then subsequently declined. Categorical analysis suggests that the proportion reporting low value placed on science remained stable, while the proportion reporting high value decreased. For trust in scientists, low trust increased, and high trust declined. Comparing multiply imputed outcomes with observed data reveals that even a minimum bound of bias leads to misestimations of approximately 2–3% of the population for low valuations and low trust, and 6–8% for high valuations and high trust. These findings underscore the importance of exercising caution when interpreting population-based estimates of trust in science. 
+   **KEYWORDS**: *Institutional Trust*; *Longitudinal*; *Measurement*; *Missing Data*; *Political*.
 author: 
-  - name: Authors 
-    affiliation: New Zealand
-    orcid: 0000-0003-3169-6576 
+  - name: John Kerr
+    affiliation:  University of Otago, New Zealand
+    orcid: 0000-0000-0000-0000
+    email: john.kerr@otago.ac.nz
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland, New Zealand
+    orcid: 0000-0002-4064-8800
+    email: c.sibley@auckland.ac.nz
+  - name: Carla Houkamau 
+    affiliation: University of Auckland, New Zealand
+    orcid: 0000-0002-3449-3726
+    email: c.houkamau@auckland.ac.nz
+  - name: Danny Osborne
+    affiliation: School of Psychology, University of Auckland, New Zealand
+    orcid: 0000-0002-8513-4125
+    email: d.osborne@auckland.ac.nz
+  - name: Marc Wilson
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: marc.wilson@vuw.ac.nz
+  - name: Kumar Yogeswaaran
+    affiliation: University of Canterbury New Zealand
+    orcid: 0000-0002-1978-5077
+    email: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
 editor_options: 
     chunk_output_type: console
 format:
@@ -37,7 +63,6 @@ format:
       - \let\oldtabular\tabular
       - \renewcommand{\tabular}{\small\oldtabular}
       - \setlength{\tabcolsep}{4pt}  % Adjust this value as needed
-
 date: last-modified
 execute:
   echo: false
@@ -55,6 +80,8 @@ csl: /Users/joseph/GIT/templates/csl/camb-a.csl
 #| include: false
 #| eval: true
 
+  # docx:
+  #   default: false
 # detach("package:margot", unload = TRUE)
 # devtools::install_github("go-bayes/margot")
 library(margot)
@@ -107,7 +134,10 @@ n_participants <-here_read("n_participants")
 all_waves <- c(2019:2023)
 
 # get table/graphs
-summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+summary_vars <- margot::here_read_qs("summary_vars", push_mods)
+
+# read timeline
+timeline_histogram <- here_read_qs("timeline_histogram", push_mods)
 
 # hist outcomes
 histogram_outcomes <- here_read_qs("histogram_trust_science_trust_scientists_by_wave", push_mods)
@@ -151,6 +181,8 @@ sankey_plot_st_imp<-  here_read_qs("sankey_plot_st_imp", push_mods)
 tt_summary_table_cat<- here_read("tt_summary_table_cat")
 tt_summary_table_cat_imp <- here_read("tt_summary_table_cat_imp")
 tt_summary_table_cat
+
+
 # tt_summary_table_cat_imp |> print("markdown")
 sankey_plot_science_sample/  sankey_plot_st_sample
 # n_total
@@ -215,7 +247,7 @@ plot_trust_science_observed_continuous <- plot (
   colors = "quadro",
   limits = c(.5, 7.5),
   dot_size = 2)+ geom_point(aes(x = x, y = predicted), color = "red", size = .2, alpha =1)  +
-  labs(x = "Years: 2019-2024", y = "Trust in Science (1-7)", title = "Average Trust in Science: Retained Sample") + theme_bw() 
+  labs(x = "Years: 2019-2024", y = "Social Value of Science (1-7)", title = "Average Value of Science: Retained Sample") + theme_bw() 
 
 plot_trust_scientists_observed_continuous <- plot (
   predictions_gee_scientists_observed,
@@ -240,7 +272,7 @@ plot_trust_science_imputed_continuous <- plot (
   colors = "us",
   limits = c(.5, 7.5),
   dot_size = 2)+ geom_point(aes(x = x, y = predicted), color = "dodgerblue", size = .2, alpha =1)  +
-  labs(x = "Years: 2019-2024", y = "Trust in Science (1-7)", title = "Trust in Science: Imputed Missing Responses") + theme_bw() 
+  labs(x = "Years: 2019-2024", y = "Social Value of Science (1-7)", title = "Value of Science: Imputed Missing Responses") + theme_bw() 
 
 
 
@@ -259,15 +291,15 @@ plot_trust_scientists_imputed_continuous <- plot (
 
 
 # patchwork graph
-combo_science_continuous<-   plot_trust_science_observed_continuous + plot_trust_science_imputed_continuous + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study): ", tag_levels = "A", title = "Trust in Science: Observed vs Imputed Missing Responses") +
+combo_science_continuous<-   plot_trust_science_observed_continuous + plot_trust_science_imputed_continuous + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study): ", tag_levels = "A", title = "Social Value of Science: Observed vs Imputed Missing Responses") +
   plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
 
 
-combo_scientists_continuous <- plot_trust_scientists_observed_continuous + plot_trust_scientists_imputed_continuous   + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science: Observed vs Imputed Continuous Responses") +
+combo_scientists_continuous <- plot_trust_scientists_observed_continuous + plot_trust_scientists_imputed_continuous   + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Social Value of Science: Observed vs Imputed Continuous Responses") +
   plot_layout(guides = "collect") &  theme(legend.position = 'bottom') 
 
 
-combo_all_continuous <- (plot_trust_science_observed_continuous + plot_trust_science_imputed_continuous)/ (plot_trust_scientists_observed_continuous + plot_trust_scientists_imputed_continuous) + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science and Scientists over Time: Observed vs Imputed Continuous Responses") +
+combo_all_continuous <- (plot_trust_science_observed_continuous + plot_trust_science_imputed_continuous)/ (plot_trust_scientists_observed_continuous + plot_trust_scientists_imputed_continuous) + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2023), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Value of Science and Scientists over Time: Observed vs Imputed Continuous Responses") +
   plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  
 
 # margot::margot_save_png(combo_all,base_filename = "trust_science_observed_vs_imputed", save_path = here::here(push_mods), height=20,width=20, dpi = 500)
@@ -295,7 +327,7 @@ observed_trust_science_factor_plot =  plot(
   limits = c(0, 1),
   dot_size = 2
 )+ geom_point(aes(x = x, y = predicted), color = "red", size = .2, alpha =1)  +
-  labs(x =  "Years: 2019-2024", y = "Trust in Science (low = 1-3, med = 4-5, high = 6-7)", title = "Average Trust in Science: Retained Sample", 
+  labs(x =  "Years: 2019-2024", y = "Social Value of Science (low = 1-3, med = 4-5, high = 6-7)", title = "Average Value of Science: Retained Sample", 
        subtitle = "Predicted Probability of Response: Low = 1-3, Medium = 4-5, High = 6-7") + theme_bw()
 
 observed_trust_scientists_factor_plot =  plot(
@@ -318,7 +350,7 @@ imputed_trust_science_factor_plot <- plot(
   colors = "us",
   limits = c(0, 1)
   )+ geom_point(aes(x = x, y = predicted), color = "dodgerblue", size = .2, alpha =1)  +
-  labs(x =  "Years: 2019-2024", y = "Trust in Science (low = 1-3, med = 4-5, high = 6-7)", title = "Average Trust in Science: Imputed Missing Responses", 
+  labs(x =  "Years: 2019-2024", y = "Social Value of Science (low = 1-3, med = 4-5, high = 6-7)", title = "Average Value of Science: Imputed Missing Responses", 
        subtitle = "Predicted Probability of Response: Low = 1-3, Medium = 4-5, High = 6-7") + theme_bw()
 
 imputed_trust_scientists_factor_plot <- plot(
@@ -333,7 +365,7 @@ imputed_trust_scientists_factor_plot <- plot(
     plot.title = element_text(face = "bold", size = 14))
 
 
-combo_science_factor <- observed_trust_science_factor_plot  + imputed_trust_science_factor_plot + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Trust in Science: Observed vs Imputed Missing Responses: Multinomial Response Model\n'Our Society Places Too Much Emphasis on Science'") +
+combo_science_factor <- observed_trust_science_factor_plot  + imputed_trust_science_factor_plot + plot_annotation(subtitle = "NZAVS waves 11-14 (years 2019-2024), N = 42,681 (New Zealand Attitudes and Values Study)", tag_levels = "A", title = "Value of Science: Observed vs Imputed Missing Responses: Multinomial Response Model\n'Our Society Places Too Much Emphasis on Science'") +
   plot_layout(guides = "collect") &  theme(legend.position = 'bottom')  +   theme(
     plot.title = element_text(face = "bold", size = 14))
 
@@ -373,7 +405,7 @@ age_data <- data.frame(
 
 # calculate total population for these age groups
 total_population <- sum(age_data$population)
-
+total_population
 # calc average age
 # average_age <- total_age_years / total_population
 
@@ -459,27 +491,13 @@ high_trust_scientists_difference
 
 ## Introduction
 
-Whether people are growing more sceptical of science is question of considerable interest and concern. 
+Whether people are becoming more sceptical of science is a matter of substantial practical interest and concern [@sturgis2021trust; @kennedy2022americans; @pagliaro2021trust]. Public trust in science helps shapes behaviour from the uptake of vaccination and other public health measures [@rueger2021perception] to support for climate action [@bogert2024effect]. Yet, accurately documenting trends in scientific mistrust is challenging because individuals with lower trust in science are less likely to participate in scientific studies, biasing results [@kreps2020model; @reif2021representative].
 
-Among the challenges for investigating mistrust in science is that people who are mistrusting are less likely to participate in scientific studies. 
+This study draws on five waves of national panel data collected between 2019 and 2024 from `r n_participants` participants in the New Zealand Attitudes and Values Study (NZAVS). Focusing on a 2019 baseline cohort, we estimate annual response trajectories for attitudes towards science and trust in scientists. To address attrition and systematic nonresponse, we apply multiple imputation models. By comparing the results of these adjusted models with unadjusted models in the restricted sample, we obtain a minimum bound for bias from differential attrition. This estimate is useful for gauging bias from cross-sectional data.
 
-To address this question, we leverage for waves of comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study (NZAVS) -- a national probability sample of New Zealanders, spanning the years 2019-2024. We estimate annual response trajectories among the 2019 cohort population, using multiple imputation to adjust for missing responses in the baseline wave and each subsequent wave. Although we cannot estimate mistrust among those who were too mistrusting of science to participate, we can reliably estimate the trust trajectories among those whose skepticism caused them to drop out of the study on the assumption that baseline mistrust, political orientation, age, education, and a host of additional demographic and ideological variables reliably predict missingness. 
+In **Study 1a**, we examine changes in the average value placed on science each year, comparing observed data with results that adjust for missingness. **Study 1b** mirrors this approach for trust in scientists, treating response as continuous variables. In **Study 2a**, we classify responses into low (1–3), medium (4–5), or high (6–7) categories for the value placed on science, and **Study 2b** applies the same categorical approach to trust in scientists, again forcussing on probabilities for classification. These categorical models enable us to capture patterns not evident from mean scores alone, revealing potential social divisions in attitudes toward science and scientists.
 
-Note that each New Zealand and Attitudes Values Study wave typically starts in October and finishing the following year. Thus we consider NZAVS waves 2019-2023, also referred to as NZAVS Times 11-15.  We start with Time 11 because this was the first wave in which attitudes to science and scientists were included in the study.
-
-Study 1 reports expected averages each year in the 2019 cohort in both the observed sample and in the observed sample that includes multiply imputed missing values. The response scale for trust items is 1-7.
-
-Study 2 reports categorical response models for the probability of responding at the low (1-3), medium (4-5), and high (5-6) end of the continuum. These models allow use to estimate patterns of response not captured by average responses. Such models are useful for tracking social divisions. 
-
-The aim of each study is descriptive and exploratory. Our primary objective is to outline and characterise the patterns of change in institutional trust, focusing on indicators of trust in science and trust in scientists. However, by comparing observed patterns that do not adjust for missing responses with those that do, our findings clarify response bias in cross-sectional studies, which, to the extend that science skeptics are unlikely to participate in surveys, will not capture trends as investigators might hope, leading to erroneous inferences about population-wide trajectories of institutional trust in science. 
-
-
-Whether people are increasingly sceptical of science is a question of substantial interest. Among the key challenges in assessing this issue is that those who mistrust science are often less likely to participate in surveys. To address this problem, we examine trust trajectories by using four waves of comprehensive panel data from `r n_participants` participants in the New Zealand Attitudes and Values Study (NZAVS), spanning 2019 to 2024. This national probability sample allows us to estimate annual changes in trust while adjusting for missing responses through multiple imputation. We assume that baseline mistrust, political orientation, age, education, and other demographic and ideological factors predict missingness.
-
-NZAVS waves typically begin in October and finish the following year. Thus, we use NZAVS waves from 2019 to 2023, also known as Times 11 to 15. We begin at Time 11 because this was the first wave that measured trust in science and scientists.
-
-Study 1 reports expected averages each year, comparing observed responses and those adjusted by multiple imputation. The trust items use a 1–7 response scale. Study 2 examines categorical response models. These models estimate probabilities of responses in low (1–4), medium (4–5), and high (5–6) categories. Such models help characterise patterns not revealed by means and may capture important social divisions.  By comparing patterns without and with imputations, we highlight how non-response can bias cross-sectional estimates of population-wide trust. When sceptics are under-represented in surveys, investigators risk forming misleading conclusions about true patterns of public trust in science.
-
+This work is descriptive and exploratory. Our primary objective is to characterise changes in institutional trust over time, focussing on how the value placed on science and trust in scientists evolve. By comparing raw estimates with those adjusted for missing data, we clarify how nonresponse can bias conclusions about trends in public trust. 
 
 ## Method
 
@@ -498,22 +516,17 @@ cat(outcome_measures)
 
 ### Target Population
 
-The target population for this study comprises the cohort New Zealand residents in wave 2019 whose mistrust of science would not have prevent them from participating in New Zealand Attitudes and Values Study that year. Here our task is to infer population dynamics for this cohort uses responses from individuals who participated in the New Zealand Attitudes and Values Study (NZAVS) during 2019 the baseline wave for this study, weighted by New Zealand Census weights for age, gender, and ethnicity (refer to @sibley2021). 
-
+The target population for this study comprises the cohort of New Zealand residents in wave 2019 whose mistrust of science was not so great as to prevent participation in the New Zealand Attitudes and Values Study (NZAVS) that year. Our objective is to infer population dynamics for this cohort by using responses from individuals who took part in the NZAVS during the 2019 baseline wave, applying weights derived from the 2018 New Zealand Census to account for age, gender, and ethnicity distributions [@sibley2021].
 
 ### Sample
 
-The New Zealand Attitudes and Values Study is a national probability study designed to accurately reflect the broader New Zealand population. It uses prize draws to incentivise participation. Although the New Zealand Attitudes and Values Study has good demographic representation of the country as a whole, it tends to under-sample males and individuals of Asian descent and over-sample females and Māori (the indigenous peoples of New Zealand). To address enhance the accuracy of our findings for the target population, we apply 2018 New Zealand Census survey weights to the sample data. These weights adjust for variations in age, gender, and ethnicity (New Zealand European, Asian, Māori, Pacific) to better approximate the national demographic composition [@sibley2021]. The New Zealand Attitudes and Values Study uses randomised prize draws to encourage participation, and thus does not entirely rely on participant motivations to support science.
-
+The NZAVS is a national probability study designed to represent the New Zealand population accurately. Although it employs prize draws to incentivise participation, response rates and demographic balances vary. For example, the NZAVS tends to under-sample males and individuals of Asian descent and to over-sample females and Māori (the Indigenous people of New Zealand). To enhance representativeness of the target population, we apply Census-based survey weights that adjust for age, gender, and ethnicity (New Zealand European, Asian, Māori, Pacific), thus improving the alignment of our sample with the national demographic composition [@sibley2021].
 
 ### Eligibility Criteria
 
-To be eligible for this study, participants needed to respond to the `r nice_baseline_wave`. The cohort were then tracked for tje baseline waves and the following four waves. Missing responses were permitted in the baseline wave and all follow up waves through `r nice_end_of_study_wave`. A total of `r n_participants` individuals met these criteria and were included in the study. 
+To be eligible for inclusion in this study, participants needed to have responded to the `r nice_baseline_wave`. Individuals meeting this criterion were then tracked over the baseline and the subsequent four waves, permitting missing responses in any wave through `r nice_end_of_study_wave`. A total of `r n_participants` individuals satisfied these conditions and were included in the analyses.
 
-[Appendix A](#appendix-a) @tbl-demography presents sample statistics for this cohort, and describes missing data.
-
-[Appendix B](#appendix-b) @fig-timeline presents a histogram of New Zealand Attitudes and Values Study daily data collection for times 11-15 (years 2019-2024).
-
+[Appendix A](#appendix-a) (@tbl-demography) presents demographic characteristics of this cohort and details patterns of missing data. [Appendix B](#appendix-b) (@fig-timeline) illustrates the daily data collection periods for NZAVS waves 11–15 (2019–2024), providing additional context for the timing of responses and potential nonresponse.
 
 ## Measures
 
@@ -526,9 +539,9 @@ outcome_measures <- boilerplate::boilerplate_report_measures(
 )
 ```
 
-We estimated target population average responses for two indicators of trust in science, which for simplicity we call "trust in science" and "trust in scientists."   Wording of these items is as follows.
+We estimated target population average responses for two indicators attitudes to science, one that relates to the social value of science and another that measures trust in scientists (refer to @schoor2021science and @gundersen2022science on the importance of these distinctions). Item wording is as follows.
 
-#### Trust in Science
+#### Social Value of Science
 
 *Our society places too much emphasis on science (reversed).*
 
@@ -541,48 +554,42 @@ Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@hartman2017].
 Ordinal response: (1 = Strongly Disagree, 7 = Strongly Agree) [@nisbet2015].
 
 
-Consider that we use the term "trust in science" as shorthand for the value one places on society's emphasis on science.  It is plausible that at least some who disagree with society's emphasis on science are nevertheless trusting of scientific institutions. That is, we use "trust in science" as a convenient short-hand.
-
-
-### Study Design
-
-Study 1 reports expected averages each year in the 2019 cohort in both the observed sample and in the observed sample that includes multiply imputed missing values. The response scale for trust in science items is 1-7. 
-
-
-Study 2 reports categorical response models for the probability of responding at the low (1-3), medium (4-5), and high (5-6) end of the continuum. These models allow use to estimate patterns of response not captured by average responses. 
-
+Note again that each item addresses a different attitude to science. It is plausible that at least some who disagree with society's emphasis on science are nevertheless trusting of scientific institutions. On the other hand, and notably, the mistrust of scientists is an institutional cornerstone of science. It is the solomn duty of every scientists to doubt.
 
 ### Missing Data
 
-We faced two primary challenges when estimating population-level trends.
+We face two primary challenges when estimating population-level trends.
 
-First, although the NZAVS uses a national probability sampling strategy, only about 10% of those invited participate. It is plausible that the proportion of those who mistrust science is higher among those who declined participation, since the NZAVS is run by scientists aiming to foster scientific understanding.
+First, although the New Zealand Attitudes and Values Study uses a national probability sampling strategy, only about 10% of those invited participate. It is credible that the proportion of those who do not value science or who mistrust scientists are under-represented in the sample. After all, the  New Zealand Attitudes and Values Study is run by scientists aiming to foster scientific understanding. For this reason, it is challenging to estimate mistrust of science using surveys of the general population [@reif2021representative].
 
-Second, although the NZAVS retains between 70–80% of its sample each year, attrition is inevitable. It is credible that participants who become more sceptical of science may drop out, leading to an overestimation of trust in the observed sample.
+Second, although the NZAVS retains between 70–80% of its sample each year, attrition is inevitable. It is credible that the proportion of those who do not value science or who mistrust scientists becames increasingly under-represented in the longitudinal sample. For this reason, it is challenging to estimate mistrust of science in a longitudinal cohort. 
 
-We cannot overcome the first challenge. We lack direct information about mistrust among non-participants. However, for those who participated in 2019 but dropped out later, we can adjust estimates under the assumption that the probability of missing responses is conditionally independent given observed covariates. Multiple imputation methods allow for bias adjustment by incorporating missing data uncertainty into estimates [@blackwell_2017_unified; @bulbulia2023a].
+We cannot overcome the first challenge. We lack direct information about mistrust in the population of non-participants. 
 
-Here, we used the `Amelia` package in R [@amelia_2011] to create ten multiply imputed datasets for the NZAVS 2019 cohort. These cover NZAVS time 11–15 (waves 2019–2023, years 2019-2024). We treated trust in science and trust in scientists as ordinal responses bounded by 1 and 7 on the response scale. The Amelia algorithm is designed for within-unit imputation in repeated-measures time-series data. All covariates in @tbl-demography were included. The time variable (year) was modelled as a cubic spline to capture non-linear trends over four years. The code for the analysis is deposited here: XXXX
+However, for those who participated in 2019 but dropped out later, we can adjust estimates under the assumption that the probability of attrition or missing response is predictable given observed covariates, including previous attitudes to science. Methods for multiple imputation adjust for bias by incorporating missing data uncertainty into estimates [@blackwell_2017_unified; @bulbulia2023a].
+
+Here, we used the `Amelia` package in R [@amelia_2011] to create ten multiply imputed datasets for the NZAVS 2019 cohort. These cover NZAVS time 11–15 (waves 2019–2023, years 2019-2024). We treated attitudes to science and scientists as ordinal responses bounded by 1 and 7 on the response scale. The Amelia algorithm is designed for within-unit imputation in repeated-measures time-series data. All covariates in @tbl-demography were included. The time variable (year) was modelled as a cubic spline to capture non-linear trends over four years. The code for the analysis is deposited here: (**OSF Link HERE**).
 
 
 ### Statistical Estimator
 
-In Study 1, we estimated mean responses for trust in science and trust in scientists over time using generalised estimating equations (GEE). We implemented these models with the geepack package [@geepack_2006]. By specifying participant id as the clustering variable, we adjusted for repeated observations and obtained robust standard errors [@mcneish_2017unnecessary]. We weighted the data using sample weights derived from the 2018 New Zealand Census, ensuring that our estimates reflect population-level trends. We fitted separate models for each of the ten imputed datasets and pooled the results using Rubin's rule, thereby incorporating uncertainty from the missing data process into all population estimates. We generated predicted means and their associated confidence intervals using `ggeffects` [@ggeffects_2018].
+In Study 1a and Study 1b, we estimated mean responses for value placed on science and trust in scientists over time using generalised estimating equations (GEE). We implemented these models with the geepack package [@geepack_2006]. By specifying participant id as the clustering variable, we adjusted for repeated observations and obtained robust standard errors [@mcneish_2017unnecessary]. We weighted the data using sample weights derived from the 2018 New Zealand Census, ensuring that our estimates reflect population-level trends. We fitted separate models for each of the ten imputed datasets and pooled the results using Rubin's rule, thereby incorporating uncertainty from the missing data process into all population estimates. We generated predicted means and their associated confidence intervals using `ggeffects` [@ggeffects_2018].
 
-In Study 2, we examined predicted probabilities of trust responses in three discrete categories: low (1–3), medium (4–5), and high (6–7). For this analysis, we employed neural network models using the `nnet` package [@nnet_2002]. These models provided category-specific probability estimates at each time point. We applied sample weights constructed from the 2018 Census data to ensure population representativeness, and again used Rubin's rule to combine inferences across imputed datasets. We incorporated robust standard errors appropriate for clustered data and produced predictions and confidence intervals with `ggeffects` [@ggeffects_2018]. The final tables and figures were created using `tinytable` [@tinytable_2024], `ggplot2` [@ggplot2_2016], and `margot` [@margot2024].
-
-
-
-#### Trust Scientists: Sample Means in Retained Sample
+In Study 2a and Study 2b, we examined predicted probabilities of attitudes to science and scientists in three discrete categories: low (1–3), medium (4–5), and high (6–7). For these analyses, we employed neural network models using the `nnet` package [@nnet_2002]. These models provided category-specific probability estimates at each time point. We applied sample weights constructed from the 2018 Census data to ensure population representativeness, and again used Rubin's rule to combine inferences across imputed datasets. We incorporated robust standard errors appropriate for clustered data and produced predictions and confidence intervals with `ggeffects` [@ggeffects_2018]. The final tables and figures were created using `tinytable` [@tinytable_2024], `ggplot2` [@ggplot2_2016], and `margot` [@margot2024].
 
 
-@fig-hist-outcomes presents histograms of trust responses for science and scientists over time in the observed sample. As evident in the graphs, there is increasing average trust in science over time, with a large boost in trust in science evident in wave 2020. This boost coincides with the initially popular New Zealand COVID-19 pandemic response [@sibley2020a]. Similarly, in the retained sample trust in science grew, coinciding with New Zealand's COVID-19 pandemic response, and then stabalised.
+
+#### Attitudes to Science and Scientists: Sample Means in Retained Sample
+
+
+@fig-hist-outcomes presents histograms of attitudes to science and scientists over time in the observed sample. As evident in the graphs, there is increasing average value placed on science over time in the retained sample, with a large boost evident in wave 2020 (years 2020-2021). This boost coincides with the initially popular New Zealand COVID-19 pandemic response [@sibley2020a]. Similarly, in the retained sample, trust in scientists grew, coinciding with New Zealand's COVID-19 pandemic response, and then stabalised, before falling in the most recent wave (years 2023-2024).
 
 
 {{< pagebreak >}}
+
 ```{r}
 #| label: fig-hist-outcomes
-#| fig-cap: "Historgram of sample trust responses over time in the retained sample."
+#| fig-cap: "Historgram of sample attitudes to science over time in the retained sample."
 #| eval: true
 #| include: true
 #| echo: false
@@ -593,12 +600,11 @@ histogram_outcomes
 ```
 
 
-Below we present sample average responses and categorical distributions of trust in science and trust in scientists across consecutive waves from 2019 to 2023, along with sample sizes and missing data counts. Although mean trust levels generally increased following New Zealand’s initial response to COVID-19, we also note rising missingness over time. This suggests that straightforward interpretations of sample means may be misleading, as individuals who become more sceptical of science may be less likely to remain in the study.
+@tbl-sample-continuous present sample average responses and categorical distributions of value placed on science and trust in scientists across consecutive waves from 2019 to 2023, along with sample sizes and missing data counts for the wave 2019 cohort that dropped out or did not respond. 
 
+Although average trust levels generally increased following New Zealand’s initial response to COVID-19, we also note rising missingness over time. This suggests that straightforward interpretations of sample averages may be misleading, because, as noted earlier, individuals who become more sceptical of science may be less likely to remain in the study.
 
-### Sample Descriptive Means Over Time
-
-@tbl-sample-continuous shows that mean trust in science rose from 5.56 in 2019 to 5.86 in 2023, while mean trust in scientists increased from 5.30 to 5.55 between 2019 and 2020, stabilised through 2022, and then declined slightly to 5.45 in 2023. These observed increases, particularly for trust in science following the New Zealand COVID-19 response, appear positive. However, missing responses grew markedly, from 563 in 2019 to 20,600 in 2023 for trust in science, and from 1,257 in 2019 to 21,177 in 2023 for trust in scientists. This attrition may reflect systematic nonresponse patterns related to mistrust.
+@tbl-sample-continuous shows that mean value placed on science rose from 5.56 in 2019 to 5.86 in 2023, while mean trust in scientists increased from 5.30 to 5.55 between 2019 and 2020, stabilised through 2022, and then declined slightly to 5.45 in 2023. These observed increases, particularly for value placed on science following the New Zealand COVID-19 response, appear positive. However, missing responses grew markedly, from 563 in 2019 to 20,600 in 2023 for values of science, and from 1,257 in 2019 to 21,177 in 2023 for trust in scientists. Yet, as mentioned, this attrition may reflect systematic non-response related to mistrust.
 
 
 ::: {#tbl-sample-continuous}
@@ -606,27 +612,531 @@ Below we present sample average responses and categorical distributions of trust
 #| eval: true
 #| include: true
 #| echo: false
-tt_summary_mean_response_sample 
+tt_summary_mean_response_sample |> print("markdown")
 ```
 Retained sample average response by wave.
 :::
 
+{{< pagebreak >}}
+
+
 ### Sample Categorical Distributions Over Time
 
+
 ::: {#tbl-sample-cat}
-```{r, results = 'asis'}
+```{r, results='asis'}
 #| eval: true
 #| include: true
 #| echo: false
-tt_summary_table_cat
+tt_summary_table_cat |> print("markdown")
 ```
 Retained sample responses by wave by response category classified as low (1-3), medium (4-5), or high (6-7).
 :::
 
-@tbl-sample-cat categorises responses into low (1–3), medium (4–5), and high (6–7) ranges. For trust in science, the proportion reporting low trust declined from 8.2% in 2019 to 6.7% in 2023, while the proportion reporting high trust rose from 60.5% to 70.1% over the same period.  [Appendix C](#appendix-c) @fig-alluv-science-sample presents these transitions, revealing increasing tendencies in the retained sample to value the institutions science.
+@tbl-sample-cat categorises responses into low (1–3), medium (4–5), and high (6–7) ranges. For value placed on science, the proportion reporting low trust declined from 8.2% in 2019 to 6.7% in 2023, while the proportion reporting high trust rose from 60.5% to 70.1% over the same period.  [Appendix C](#appendix-c) @fig-alluv-science-sample graphically displays these transitions.
 
-Similar patterns emerged for trust in scientists, with initial declines in the low category and increases in the high category, followed by some reversal in later waves. [Appendix C](#appendix-c) @fig-alluv-scientists-sample graphically displays these transitions, suggesting gradually erosion of mistrust in scientists evident the low end of the response scale, in the retained sample. 
+Similar patterns emerged for trust in scientists, with initial declines in the low category and increases in the high category, followed by some reversal in later waves. [Appendix C](#appendix-c) @fig-alluv-scientists-sample graphically displays these transitions.
 
-These shifts might convey a narrative of strengthening trust during early pandemic periods. Yet the steady increase in missing responses across waves underscores the importance of careful interpretation. The observed improvements in trust could be overstated if sceptical individuals disproportionately discontinued their participation. In other words, the rising average trust estimates may in part be an artefact of differential attrition rather than a genuine population-wide trend.
+These shifts might convey a narrative of strengthening value of sceince during early pandemic periods that continued to grow, with no evidence of increasing mistrust of scientists. Yet the steady increase in missing responses over time underscores the importance of careful interpretation. The observed improvements in attidutes towards science and scientists could be overstated if sceptical individuals disproportionately discontinued their participation. 
+
+In other words, the rising average trust estimates may in part be an artefact of differential attrition.
 
 {{< pagebreak >}}
+
+## Results 
+
+
+### Multiply Imputed Full Cohort Means in Full 2019 Cohort 
+
+@tbl-sample-means-imp shows the estimated mean responses for value placed on science and trust in scientists, pooled over multiple imputations to adjust for systematic missingness. Compared with the observed sample means, the imputed estimates suggest moderate trends. For valuing science, the average response is higher in 2020 than in 2019, but then steadily declines from 5.7 in 2021 to 5.66 by 2023. For trust in scientists, the average increases from 5.29 to 5.47 between 2019 and 2020 but then declines to 5.28 by 2023. These imputed estimates reveal a less linear increase in trust than the unadjusted data might suggest, with evidence of gradual erosion in trust in both domains over the later waves.
+
+
+::: {#tbl-sample-means-imp}
+```{r, results='asis'}
+#| eval: true
+#| include: true
+#| echo: false
+tt_summary_mean_response_sample_imp |> print("markdown")
+```
+Imputed average responses for the full 2019 cohort
+:::
+
+
+
+
+::: {#tbl-sample-cat-imp}
+```{r, results='asis'}
+#| eval: true
+#| include: true
+#| echo: false
+tt_summary_table_cat_imp|> print("markdown")
+```
+Cohort proportions classified as low, medium, or high (imputed)
+:::
+
+
+@tbl-sample-cat-imp classifies imputed responses into low, medium, and high categories. For valuing science, the proportion of respondents reporting low trust remains relatively stable, hovering around 8% over time. In contrast, the initially large high-trust category (around 60%) rises to 65.8% in 2020, then recedes to 62.8% by 2023, suggesting that some of the early gains in trust may have been short-lived once nonresponse patterns are accounted for. For trust in scientists, imputation indicates a somewhat different trajectory. Initially, 11.9% reported low trust in 2019, decreasing to 10.1% in 2020, but this figure rises back to 12.8% by 2023. The medium and high categories show corresponding shifts, reflecting a more complex pattern than the non-imputed data suggested.
+
+[Appendix d](#appendix-d) @fig-alluv-science-imp and @fig-alluv-scientists-imp visually present these transitions. Although early gains in high trust appeared promising, shifts over time are not uniformly in one direction. Instead, the imputed data indicate gradual redistributions of respondents across low, medium, and high categories. Such patterns underscore the importance of correcting for missingness before drawing conclusions about population-level changes in trust.
+
+{{< pagebreak >}}
+
+
+### Study 1a: Longitudinal Trajectories for Value Placed on Science: Continuous Analysis
+
+
+```{r}
+#| label: fig-science-continuous
+#| fig-cap: "(A) Predicted value of science without adjusting for missingness (B) Predicted value of science adjusting for missingness, with points averaged over the ten imputed datasets (point alpha = 0.025). Note there is considerable variation of response above and below the mean, and there is slightly higher point density in panel (B) because we have adjusted for missingness."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+combo_science_continuous
+```
+
+
+::: {#tbl-marginal-gee-science-observed}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+predictions_gee_science_observed_x <- format(predictions_gee_science_observed,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+predictions_gee_science_observed_x |> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Predicted population average value placed on science over time, without adjusting for missing data.
+:::
+
+
+::: {#tbl-marginal-gee-science-imputed}
+```{r}
+#| eval: true
+#| include: true
+#| echo: false
+predictions_gee_science_imputed_x <- format(predictions_gee_science_imputed,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+predictions_gee_science_imputed_x |> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Predicted population average value placed on science over time, adjusting for missing data.
+:::
+
+
+@fig-science-continuous presents the predicted population average value place on science over time. Panel **A** shows estimates without adjusting for missing responses. Panel **B** shows estimates that incorporate multiple imputation. These predictions, derived from generalised estimating equations, reflect the estimated population trajectories, either without or with adjustments for missing responses. As shown in @tbl-marginal-gee-science-observed, when missingness is not taken into account, valuing science appears to increase steadily from the baseline period to the final wave. However, after modelling missingness as reported in @tbl-marginal-gee-science-imputed, the predicted trajectory suggests a more modest upward trend that does not continue to climb. This result shows that ignoring missing responses can inflate the perceived value of science in a longitudinal cohort.
+
+
+{{< pagebreak >}}
+
+### Study 1b: Longitudinal Trajectories for Trust in Scientists: Continuous Analysis
+
+
+```{r}
+#| label: fig-scientists-continuous
+#| fig-cap: "(A) Predicted trust in scientists without adjusting for missingness (B) Predicted trust in scientists modelling missingness, with points averaged over the ten imputed datasets. Points are dimmed to alpha = .025. Note there is again considerable variation of response above and below the mean, and again there is slightly higher point density in panel (B) because we have adjusted for missingness."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+combo_scientists_continuous
+```
+
+::: {#tbl-marginal-gee-scientists-observed}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+predictions_gee_scientists_observed_x <- format(predictions_gee_scientists_observed,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+predictions_gee_scientists_observed_x |> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+
+```
+Predicted population average trust in scientists over time, without adjusting for missing data.
+:::
+
+
+::: {#tbl-marginal-gee-scietists-imputed}
+```{r}
+#| eval: true
+#| include: true
+#| echo: false
+
+predictions_gee_scientists_imputed_x <- format(predictions_gee_scientists_imputed,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+predictions_gee_scientists_imputed_x |> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+
+```
+Predicted population average value placed on science over time adjusting for missing data.
+:::
+
+
+A similar pattern emerges for trust in scientists, presented in @fig-scientists-continuous. As shown in @tbl-marginal-gee-scientists-observed, the predicted mean trust increases when missingness is not accounted for. Yet when we adjust for missing data using multiple imputation, as reported in @tbl-marginal-gee-scietists-imputed, the results suggest that the initial gains in trust may be smaller and less sustained than the unadjusted models imply. By properly adjusting for missingness, these analyses provide a clearer picture of true population-wide changes in trust, rather than relying on observed data that may disproportionately represent individuals who remain engaged in the study.
+
+
+{{< pagebreak >}}
+
+
+### Study 2a: Longitudinal Trajectories for Value Placed on Science: Categorical Analysis
+
+
+```{r}
+#| label: fig-science-categorical
+#| fig-cap: "(A) Predicted probability of classification for value placed on science without adjusting for missingness (B) Predicted probability of classification for value placed on science adjusting for missingness. Responses categories are low (1-3), medium (4-5), high (6-7) on the 1-7 ordinal scale."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+combo_science_factor
+```
+
+::: {#tbl-categorical-science-observed}
+```{r, results='asis'}
+#| eval: true
+#| include: true
+#| echo: false
+observed_trust_science_factor_x <- format(observed_trust_science_factor,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+
+observed_trust_science_factor_x|> 
+     as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+    dplyr::rename(Response = groups) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Predicted probability of classification for value placed on science without adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7).
+:::
+
+
+
+::: {#tbl-categorical-science-imputed}
+```{r}
+#| eval: true
+#| include: true
+#| echo: false
+predictions_ord_science_imp_x <- format(predictions_ord_science_imp,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+
+predictions_ord_science_imp_x |> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+    dplyr::rename(Response = groups) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+
+
+```
+Predicted probability of classification for value placed on science, here adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7).
+:::
+
+
+Note that in Studies 1a and 1b, the response distributions are scattered across the response scale 1-7 (refer to @fig-science-continuous).
+
+@fig-science-categorical displays predicted probabilities for classification as low (1–3), medium (4–5), or high (6–7) in the value placed in science over time. @tbl-categorical-science-observed presents these probabilities without adjusting for missing responses. Under these conditions, the proportion of respondents in the high category appears to increase from the baseline and remain relatively elevated. However, after adjusting for missingness (see @tbl-categorical-science-imputed), the predicted probabilities show a less stable pattern, with gains in the high category tempered and the medium category becoming more prominent. These differences underscore that ignoring missing responses can create an artificial appearance of stronger sustained trust.
+
+
+{{< pagebreak >}}
+
+
+### Study 2b: Longitudinal Trajectories for Trust in Scientists: Categorical Analysis
+
+
+```{r}
+#| label: fig-scientists-categorical
+#| fig-cap: "(A) Predicted probability of classification for trust in scientists without adjusting for missingness (B) Predicted probability of classification for trust in scientists adjusting for missingness. Responses categories are low (1-3), medium (4-5), high (6-7) on the 1-7 ordinal scale."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+combo_scientists_factor
+```
+
+::: {#tbl-categorical-scientists-observed}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+observed_trust_scientists_factor_x <- format(observed_trust_scientists_factor,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+
+observed_trust_scientists_factor_x|> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+    dplyr::rename(Response = groups) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Predicted probability of classification for trust in scientists without adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7).
+:::
+
+
+::: {#tbl-categorical-scientists-imputed}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+predictions_ord_scientists_imp_x <- format(predictions_ord_scientists_imp,  collapse_tables = FALSE, collapse_ci = TRUE,
+ digits = 2) 
+
+predictions_ord_scientists_imp_x |> 
+ as.data.frame() %>% 
+    dplyr::rename(Years = years) %>%    
+    dplyr::rename(Response = groups) %>%    
+  kbl(
+    format = "latex",
+    booktabs = TRUE,
+    digits = 2,
+    row.names = FALSE                      # remove row names to eliminate any unintended columns
+  ) |>
+  kable_styling(
+    font_size = 12,
+    latex_options = c("repeat_header", "striped")  # remove "hold_position" to eliminate [!h]
+  )
+```
+Predicted probability of classification for trust in scientists, now adjusting for missing responses. Responses categories are low (1-3), medium (4-5), high (6-7).
+:::
+
+
+A similar pattern emerges for trust in scientists (see @fig-scientists-categorical). Without adjusting for missingness, the results (shown in @tbl-categorical-scientists-observed) suggest that the proportion classified as high in trust remains consistently large. Once we incorporate multiple imputation to address missing responses, as presented in @tbl-categorical-scientists-imputed, the predicted probabilities shift. The high category becomes less dominant over time, and more respondents fall into the medium category than would have been inferred without proper adjustment. In other words, accounting for nonresponse reveals a more nuanced pattern of trust that does not simply trend upward, and this correction prevents inflated estimates of stable or increasing trust in scientists.
+
+## Discussion 
+
+These findings illustrate that failing to adjust for missing responses can systematically distort estimates of public attitudes to science and scientists. Compared to models that ignore missingness, our imputation-adjusted analyses indicate that the unadjusted models overestimate the proportion of the population with high trust by several hundred thousand New Zealand adults and underestimate the proportion with low trust by tens to hundreds of thousands. For example, when the missing attitudes to science are not adjusted, we underestimate the share of the population with low trust by about 82,000 people, and simultaneously overstate the size of the high-trust group by about 330,000. Similarly, for trust in scientists, the discrepancy in the low-trust population is about 165,000 individuals, and the high-trust category may be inflated by about 248,000. These differences represent substantial distortions of attitudes to science and scientists in the general population of 4.1 million adults.
+
+It is important to note, once again, that these are minimum bounds of potential distortion, as we cannot measure trust among the population who declined participation at the study’s outset. Moreover, we have not established any causal relationships. Our objective is not to identify determinants of changing trust, but rather to describe and characterise differences in trust distributions over time in that part of the general population whose attitudes to science did not prevent them from enlisting in a scientific study prior to COVID-19. Still, given that trust in science can influence critical actions related to climate change [@bogert2024effect], vaccine uptake [@pagliaro2021trust], and following health advice [@rueger2021perception], accurately documenting trust and its temporal shifts is a pressing concern. By accounting for missing data, we gain a clearer and more credible picture of population-level trust in science and scientists, enabling better-informed public health messaging and policy decisions.
+
+
+{{< pagebreak >}}
+
+### Ethics
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+### Data Availability
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: OSF-lINK TBA. 
+
+
+### Acknowledgements
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Plank Institute for the Science of Human History. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+### Author Statement
+
+**TBA**: JK suggested the measures and led the study. CGS led data collection. JB developed the analytic approach and did the analysis. JB and CGS obtained the funding. **All authors had input into the manuscript.**
+
+
+{{< pagebreak >}}
+
+
+
+
+## Appendix A: Sample Descriptive Statistics {#appendix-a}
+
+@tbl-demography presents descriptive statistics for the sample.
+
+
+::: {#tbl-demography}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+library(gtsummary)
+library(kableExtra)
+
+# summary_tables$variables |> 
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     digits = 2,
+#     row.names = FALSE                      # remove row names to eliminate any unintended columns
+#   ) 
+summary_vars |> 
+  kable_styling(
+    font_size = 7,
+    latex_options = c("hold_position", "repeat_header", "striped", "longtable")
+   ) 
+
+```
+Demographic statistics for New Zealand Attitudes and Values Cohort waves 2019-2023 (years 2019-2024).
+:::
+
+{{< pagebreak >}}
+
+## Appendix B: New Zealand Attitudes and Values Study Data Collection waves 2019-2023 (years 2019-2024) {#appendix-b}
+
+
+```{r}
+#| label: fig-timeline
+#| fig-cap: "Historgram of New Zealand Attitudes and Values Study Daily Data Collection Wave 2019 (time 11) - Wave 2023 (time 15)."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+#| 
+
+
+timeline_histogram
+```
+
+{{< pagebreak >}}
+
+
+## Appendix C: Alluvial Graph of Showing Categorical Responses to Trust in Science and Trust in Scientists: No Adjustment For Missing Data. {#appendix-c}
+
+
+
+```{r}
+#| label: fig-alluv-science-sample
+#| fig-cap: "Alluvial plot suggests increasing flow of trust in scientists for the retained sample."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+sankey_plot_science_sample
+```
+
+```{r}
+#| label: fig-alluv-scientists-sample
+#| fig-cap: "Alluvial plot suggests increasing flow of trust in science for the retained sample."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+sankey_plot_st_sample
+```
+
+
+{{< pagebreak >}}
+
+
+## Appendix D: Alluvial Graphs of Showing Categorical Responses to Trust in Science and Trust in Scientists: Adjusting For Missing Data. {#appendix-d}
+
+@fig-alluv-science-imp and @g-alluv-scientists-imp depict the dynamics of categorical responses to trust in science and scientists. following 2020, there is a decline in the value placed on scientific institutions and a growth of mistrust in scientists. Our analysis presents the a minimal bound for such mistrust because we cannot account for the mistrust of the population who declined to praticipate in New Zealand Attitudes and Values Study wave 2019 (time 11).
+
+```{r}
+#| label: fig-alluv-science-imp
+#| fig-cap: "Alluvial plot suggests declines in trust in science for the imputed cohort."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+sankey_plot_science_imp
+```
+
+
+
+```{r}
+#| label: fig-alluv-scientists-imp
+#| fig-cap: "Alluvial plot suggests declines in trust in scientists for the imputed cohort"
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+sankey_plot_st_imp
+```
+
+## References {.appendix}
+
+
+
+
+
+
+
+
+
+
+
