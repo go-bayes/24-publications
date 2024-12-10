@@ -1,0 +1,838 @@
+---
+title: "Religious Service Attendance Increases Meaning, Gratitude, and Sexual Satisfaction in Secular New Zealand (But Not Much Else)."
+abstract: |
+  We use longitudinal data from a nationally representative cohort of 46,377 New Zealanders (2018–2023) to estimate the causal effects of religious service attendance on multiple dimensions of well-being. We contrast two four-year scenarios: (a) everyone attends services at least once per month, with (b) no one attends. We control for baseline covariates measured in the year prior to these interventions, and for time-varying factors—employment, disability, relationships, and parenting—that may influence service attendance. Outcomes are mesaured in the year after the sequential treatment regimes. We use cross-validation and doubly robust machine-learning estimators, applying inverse probability-of-censoring weights to handle attrition. Our findings: regular attendance boosts a sense of meaning and purpose, enhances gratitude, and, somewhat surprisingly, improves sexual satisfaction. Effects on mental health are mild; effects on biological health and social well-being are negligible. In a largely secular population, regularly attending religious gatherings enhances purpose, nurtures gratitude, and raises sexual satisfaction, but it delivers little else. 
+  
+  **KEYWORDS**: *Causal Inference*; *Church*; *Cross-validation*; *Distress*; *Health*; *Longitudinal*; *Machine Learning*; *Religion*; *Semi-parametric*; *Targeted Learning*.
+author: 
+  - name: Joseph A. Bulbulia
+    affiliation: Victoria University of Wellington, New Zealand
+    orcid: 0000-0002-5861-2056
+    email: joseph.bulbulia@vuw.ac.nz
+    corresponding: yes
+  - name: Chris G. Sibley
+    affiliation: School of Psychology, University of Auckland
+    orcid: 0000-0002-4064-8800
+  - name: Don E Davis
+    affiliation: Georgia State University, Matheny Center for the Study of Stress, Trauma, and Resilience
+    orcid: 0000-0003-3169-6576 
+  - name: Cyrstal Park
+    affiliation: Univeristy of Conneticut, Department of Psychological Sciences
+    orcid: 0000-0001-6572-7321
+    email: crystal.park@uconn.edu
+  - name: Kenneth G. Rice
+    affiliation: Georgia State University, Matheny Center for the Study of Stress, Trauma, and Resilience
+    orcid: 0000-0002-0558-2818
+  - name: Geoffrey Troughton
+    affiliation: School of Social and Cultural Studies, Victoria University of Wellington
+    orcid: 0000-0001-7423-0640
+  - name: Daryl Van Tongeren
+    affiliation: Hope College
+    orcid: 0000-0002-1810-9448
+keywords: [Use, use]
+editor_options: 
+    chunk_output_type: console
+format:
+  pdf:  
+    bibliography: /Users/joseph/GIT/templates/bib/references.bib
+    pdf-engine: lualatex
+    sanitise: true
+    keep-tex: true
+    link-citations: true
+    colorlinks: true
+    documentclass: article
+    classoption: [single column]
+    lof: false
+    lot: false
+    geometry:
+      - top=30mm
+      - left=25mm
+      - heightrounded
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+    template-partials: 
+      - /Users/joseph/GIT/templates/quarto/title.tex
+    header-includes:
+      - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
+      - \let\oldtabular\tabular
+      - \renewcommand{\tabular}{\small\oldtabular}
+      - \setlength{\tabcolsep}{4pt}  % Adjust this value as needed
+date: last-modified
+execute:
+  echo: false
+  warning: false
+  include: true
+  eval: true
+fontfamily: libertinus
+bibliography: /Users/joseph/GIT/templates/bib/references.bib
+csl: /Users/joseph/GIT/templates/csl/camb-a.csl
+---
+
+```{r}
+#| label: load-libraries
+#| echo: false
+#| include: false
+#| eval: true
+
+# detach("package:margot", unload = TRUE)
+# devtools::install_github("go-bayes/margot")
+# for making graphs
+#   docx:
+#    default: false
+# reproducibility
+set.seed(123)
+
+# for latex graphs
+# for making graphs
+library("tinytex")
+library("extrafont")
+library("tidyverse")
+library("kableExtra")
+library("gtsummary")
+
+
+# fonts
+loadfonts(device = "all")
+
+# rendering document
+library("margot")
+library("glue")
+library("patchwork")
+library("kableExtra")
+library("stringr")
+library("ggplot2")
+library("ggeffects")
+library("parameters")
+library("table1")
+library("printr")
+packageVersion(pkg = 'margot')
+
+# set data paths
+push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-jb-church-fl-long")
+
+# reproducibility
+set.seed(123)
+
+# import untransformed data for graphs
+original_df <- margot::here_read_qs('df_wide_impute', push_mods)
+
+# summary tables
+summary_tables <- margot::here_read_qs("summary_tables", push_mods)
+
+# read nzavs timeline
+timeline_histogram <- margot::here_read_qs("timeline_histogram", push_mods)
+timeline_histogram
+# read latex tables
+latex_table_baseline <- here_read("latex_table_baseline")
+latex_table_exposures <- here_read("latex_table_exposures")
+latex_table_outcomes_health <- here_read("latex_table_outcomes_health")
+latex_table_outcomes_psych <- here_read("latex_table_outcomes_psych")
+latex_table_outcomes_present <- here_read("latex_table_outcomes_present")
+latex_table_outcomes_life <- here_read("latex_table_outcomes_life")
+latex_table_outcomes_social <- here_read("latex_table_outcomes_social")
+
+
+
+# read exposure vars names
+t0_name_exposure <- here_read('t0_name_exposure')
+t1_name_exposure <- here_read('t1_name_exposure')
+t2_name_exposure <- here_read('t2_name_exposure')
+t3_name_exposure <- here_read('t3_name_exposure')
+t4_name_exposure <- here_read('t4_name_exposure')
+
+# names of waves
+baseline_wave <- margot::here_read("baseline_wave")
+exposure_waves <- margot::here_read("exposure_waves")
+outcome_wave <- margot::here_read("outcome_wave")
+
+
+## Read in data from analysis 
+# imports
+n_total <-  margot::here_read("n_total")
+
+# total
+n_total
+
+# participants
+n_participants <- summary_tables$n_participants
+
+# make pretty number
+n_participants<- prettyNum(n_participants,big.mark=",")
+n_total<- prettyNum(n_total,big.mark=",")
+
+# participants
+n_participants
+
+# library
+library(margot)
+
+# verify positivity 
+#church
+#transition_table
+# binary
+transition_matrix <- margot::here_read("transition_matrix")
+
+
+# label mapping
+# label mappings for health outcomes
+label_mapping_health <- list(
+  "t5_hlth_bmi_z" = "BMI", 
+  "t5_hlth_sleep_hours_z" = "Sleep", 
+  "t5_log_hours_exercise_z" = "Hours of Exercise (log)",
+  "t5_short_form_health_z" = "Short Form Health" 
+)
+
+# label mappings for psychological well-being outcomes
+label_mapping_psych <- list(
+  "t5_hlth_fatigue_z" = "Fatigue", 
+  "t5_kessler_latent_anxiety_z" = "Anxiety", 
+  "t5_kessler_latent_depression_z" = "Depression",  
+  "t5_rumination_z" = "Rumination"
+)
+
+# label mappings for present reflective outcomes
+label_mapping_present <- list(
+  "t5_bodysat_z" = "Body Satisfaction",
+  "t5_foregiveness_z" = "Forgiveness",  
+  "t5_perfectionism_z" = "Perfectionism",  
+  "t5_pwb_standard_living_z" = "PWB Standard Living", 
+  "t5_pwb_your_future_security_z" = "PWB Your Future Security", 
+  "t5_pwb_your_health_z" = "PWB Your Health", 
+  "t5_pwb_your_relationships_z" = "PWB Your Relationships",
+  "t5_self_control_have_lots_z" = "Self Control Have Lots", 
+  "t5_self_control_wish_more_reversed_z" = "Self Control Wish More Reversed",  
+  "t5_self_esteem_z" = "Self Esteem", 
+  "t5_sexual_satisfaction_z" = "Sexual Satisfaction"
+)
+
+# label mappings for life reflective outcomes
+label_mapping_life <- list(
+  "t5_gratitude_z" = "Gratitude", 
+  "t5_lifesat_z" = "Life Satisfaction", 
+  "t5_meaning_purpose_z" = "Meaning: Purpose", 
+  "t5_meaning_sense_z" = "Meaning: Sense"
+)
+
+# label mappings for social outcomes
+label_mapping_social <- list(
+  "t5_belong_z" = "Belonging",
+  "t5_neighbourhood_community_z" = "Community", 
+  "t5_support_z" = "Support" 
+)
+
+
+# plot options ------------------------------------------------------------
+nice_exposure_name <- glue::glue("Monthly Religious Service")
+title <- glue::glue("Causal Effects of {nice_exposure_name} on Multi-Dimensional Well-Being")
+
+
+options_base <- list(
+  type = "RD",
+  title = title,
+  order  = "alphabetical",
+  colors = c(
+    "positive" = "#E69F00",
+    "not reliable" = "grey50",
+    "negative" = "#56B4E9"
+  ),
+  x_offset = -1.05, # will be set based on type
+  x_lim_lo = -1, # will be set based on type
+  x_lim_hi = .6, # will be set based on typee
+  text_size = 6,
+  linewidth = 0.5,
+  estimate_scale = 1,
+  base_size = 20,
+  point_size = 5,
+  title_size = 18,
+  subtitle_size = 18,
+  legend_text_size = 10,
+  legend_title_size = 10
+)
+
+
+# plote options
+options_health_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Health: Religious vs Secular (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "health_religious_vs_secular"
+)
+
+options_psych_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Psychological Wellbeing: Religious vs Secular (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "psych_religious_vs_secular"
+)
+
+
+options_present_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Present Wellbeing: Religious vs Secular (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "present_religious_vs_secular"
+)
+
+options_life_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Life Wellbeing: Religious vs Secular (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "life_religious_vs_secular"
+)
+
+
+options_social_religious_vs_secular <- margot_plot_create_options(
+  subtitle = "Social Wellbeing: Religious vs Secular (baseline)",
+  base_defaults = options_base,
+  title = title,
+  filename_prefix = "social_religious_vs_secular"
+)
+
+
+# read models
+health_lmtp_output <- margot::here_read_qs('health_lmtp_output', push_mods)
+psych_lmtp_output <- margot::here_read_qs('psych_lmtp_output', push_mods)
+present_lmtp_output <- margot::here_read_qs('present_lmtp_output', push_mods)
+life_lmtp_output<- margot::here_read_qs('life_lmtp_output', push_mods)
+social_lmtp_output <- margot::here_read_qs('social_lmtp_output', push_mods)
+
+# graphs
+
+# religion vs secular: health
+health_religious_vs_secular <- margot_plot(
+   health_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+   options = options_health_religious_vs_secular,
+   save_output = TRUE,
+   label_mapping = label_mapping_health,
+   save_path = here::here(push_mods),
+   original_df = original_df
+ )
+
+
+
+# religion vs secular: psych
+psych_religious_vs_secular <- margot_plot(
+  psych_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+  options = options_psych_religious_vs_secular,
+  save_output = TRUE,
+  label_mapping = label_mapping_psych,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+
+# religion vs secular: present
+present_religious_vs_secular <- margot_plot(
+  present_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+  options = options_present_religious_vs_secular,
+  save_output = TRUE,
+  label_mapping = label_mapping_present,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+# religion vs secular: life
+life_religious_vs_secular <- margot_plot(
+  life_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+  options = options_life_religious_vs_secular,
+  save_output = TRUE,
+  label_mapping = label_mapping_life,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+# religion vs secular: life
+social_religious_vs_secular <- margot_plot(
+  social_lmtp_output$combined_tables$combined_outcomes_religious_vs_secular,
+  options =  options_social_religious_vs_secular,
+  save_output = TRUE,
+  label_mapping = label_mapping_social,
+  save_path = here::here(push_mods),
+  original_df = original_df
+)
+
+
+# plots
+health_religious_vs_secular$plot
+psych_religious_vs_secular$plot
+present_religious_vs_secular$plot
+life_religious_vs_secular$plot
+social_religious_vs_secular$plot
+```
+
+
+## Introduction
+
+
+## Method
+
+### Sample
+
+
+Data were collected as part of the New Zealand Attitudes and Values Study (NZAVS), an annual longitudinal national probability panel assessing New Zealand residents’ social attitudes, personality, ideology, and health outcomes. The panel began in 2009 and has since expanded to include over fifty researchers, with responses from `r n_total` participants to date. The study operates independently of political or corporate funding and is based at a university. It employs prize draws to incentivise participation. The NZAVS tends to slightly under-sample males and individuals of Asian descent and to over-sample females and Māori (the Indigenous people of New Zealand). To enhance representativeness of the target population, we apply Census-based survey weights that adjust for age, gender, and ethnicity (New Zealand European, Asian, Māori, Pacific) [@sibley2021].
+For more information about the NZAVS, visit: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB). The data for this study were obtained from the NZAVS waves 10-15 cohort, covering years 2018-2024. Although this cohort is a national probability sample, we weighted responses by New Zealand 2018 Census estimates (age, gender, ethnicity) to produce results that better reflect the New Zealand population. Information on these survey weights can be found in the NZAVS documentation, see: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB).
+
+
+### Target Population
+
+The target population for this study comprises the cohort of New Zealand residents in New Zealand Attitudes and Values Study wave 10 (years 2018-2019) [@sibley2021].
+
+### Treatment Indicator
+
+
+We assessed religious service attendance using the following question:
+
+
+- *Do you identify with a religion and/or spiritual group? If yes, how many times did you attend a church or place of worship during the last month?*
+
+
+Responses were rounded to the nearest whole number. Because few participants reported attending more than eight times, we capped responses above eight at eight (see Appendix B, variable `religion_church_round`). In the regular church service condition, we did not intervene on responses greater than four to reduce computational burdens during estimation.
+
+
+### Outcomes
+
+
+
+Data summaries for all measures used in this study are provided in [Appendix A](appendix-measures).
+
+
+### Causal Interventions
+We contrasted two causal interventions. 
+
+**Regular Religious Service Attendance**: At each wave, shift religious service attendance to at lest four times per month. Do not shift otherwise. 
+
+**No Religious Service Attendance**: At each wave, shift religious service attendance to zero. 
+
+We control for a rich set of confounders measured at baseline. These are described in XXXX.  We also adjust for physical disability, employment status, partner status, and parenting status, as time-varying confounders, as these may affect both whether one attends religious service and one's health and well-being.
+
+
+- $A_k$ = intervention of `r nice_exposure_name` in exposure waves $k={1,2,3,4}$
+- $Y$ = outcome measured at the end of study ($k=5$)
+- $W$ = confounders measured at baseline ($k=0$)
+- $L_k$ = time varying confounders measured at $k={1,2,3,4}$
+
+
+We define the regular religious service intervention as:
+
+$$
+a^+ = f(A_k) = 
+\begin{cases}
+4, & \text{if } A_k < 4 \\
+A_k, 
+\end{cases}
+$$
+We define the zero religious service intervention as:
+
+$$
+a^- = f(A_k) = 
+\begin{cases}
+0, & \text{if } A_k > 0 \\
+A_k, 
+\end{cases}
+$$
+
+
+We then assessed the causal contrast: 
+
+**Contrast A: Therapeutic Intervention vs. Status Quo**
+$$
+\text{ATE}^{\text{wellbeing}} = \mathbb{E}\left[Y\left(a_k^+\right) - Y\left(a_k^-\right)\right]
+$$
+
+
+
+
+We assume conditional independence of the potential outcomes and the sequential treatment regimes. 
+
+
+$$
+\big\{ Y(\tilde{a}_k)\big\} \coprod A_k \mid L_k, W
+$$
+
+
+To consistently estimate causal effects, we rely on three assumptions. These assumptions are standard in the literature on causal inference [@hernan2024WHATIF; @bulbulia2023].
+
+1. **Causal Consistency:** potential outcomes must align with observed outcomes under the treatments in our data. Essentially, we assume potential outcomes do not depend on the specific way treatment was administered, as long as we consider measured covariates. 
+
+2. **Conditional Exchangeability:** given the observed covariates, we assume treatment assignment is independent of potential outcomes. In simpler terms, this means "no unmeasured confounding" – any variables that influence both treatment assignment and outcomes are included in our covariate set. That is, conditional on $W$ amd $L_k$, the treatment assignments $A = \tilde{a}$ are 'as good as random.' This allows us to estimate causal effects from observed data.
+
+3. **Positivity:** for unbiased estimation, every subject must have a non-zero chance of receiving the treatment, regardless of their covariate values. We evaluate this assumption in each study by examining changes in psychopathy "treatments" from baseline (NZAVS time 10) to the treatment wave (NZAVS time 11).  [Appendix D](appendix-positivity): Transition matrices shows this observed shifts in the treatment variables from baseline (NZAVS time 10) to exposure waves (NZAVS time 11).
+
+
+### Statistical Estimator
+
+We estimate the causal effect of modified treatment policies over time using a semi-parametric Sequential Doubly-Robust estimator from the `lmtp` package [@williams2021]. The SDR algorithm proceeds in two steps. First, machine learning algorithms flexibly model the relationships among treatments, covariates, and outcomes, allowing SDR to capture complex, high-dimensional covariate structures without strict model assumptions. This step yields an initial set of estimates [@díaz2021]. In the second step, SDR "targets" these initial estimates by incorporating observed data distribution information, improving the accuracy of the causal effect estimate through an iterative process. The SDR estimator is multiply robust for repeated treatments across multiple waves [@diaz2023lmtp; @hoffman2023], improving model robustness to misspecification in either the outcome or treatment model. The `lmtp` package relies on the `SuperLearner` library in R, which integrates diverse machine learning algorithms [@SuperLearner2023]. We used the `SL.ranger`, `SL.glmnet`, and `SL.xgboost` [@polley2023; @xgboost2023; @Ranger2017] learners. **`SL.ranger`**: implements a random forest algorithm that handles non-linear relationships and complex patterns, improving model accuracy but potentially increasing variance. **`SL.glmnet`**: provides regularised linear models that help manage high dimensionality and collinearity, effectively reducing model variance and improving stability. **`SL.xgboost`**: uses gradient boosting to optimize performance and capture complex interactions, balancing the model’s ability to explore data complexities without overfitting [@polley2023]. The ensemble approach of `superlearner` optimally combines predictions from these models. Garphs, tables and output reports were created using the `margot` package [@margot2024]. For further details of the targeted learning using `lmtp` see [@hoffman2022; @hoffman2023; @díaz2021].
+
+
+## Sensitivity Analysis
+
+
+We perform sensitivity analyses using the E-value metric [@vanderweele2017; @linden2020EVALUE]. The E-value represents the minimum association strength (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and outcome—after adjusting for measured covariates—to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE].
+
+
+
+## Results
+
+
+### Health
+
+```{r}
+#| label: fig-health
+#| fig-cap: "Health effects"
+#| eval: true
+#| echo: false
+#| fig-height: 16
+#| fig-width: 16
+
+health_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-health
+#| tbl-cap: "Health effects"
+#| eval: true
+#| echo: false
+
+health_religious_vs_secular$transformed_table|>
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+```{r, results = 'asis'}
+cat(health_religious_vs_secular$interpretation)
+```
+
+{{< pagebreak >}}
+
+### Psychological Well-Being
+
+```{r}
+#| label: fig-psych
+#| fig-cap: "Effects on Psychological Well-Being"
+#| eval: true
+#| echo: false
+#| fig-height: 16
+#| fig-width: 16
+
+psych_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-psych
+#| tbl-cap: "Effects on Psychological Well-Being"
+#| eval: true
+#| echo: false
+
+psych_religious_vs_secular$transformed_table|>
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+```{r, results = 'asis'}
+cat(psych_religious_vs_secular$interpretation)
+```
+
+{{< pagebreak >}}
+### Life-Focussed Well-Being
+
+```{r}
+#| label: fig-present
+#| fig-cap: "Effects on Person-Focussed Well-Being"
+#| eval: true
+#| echo: false
+#| fig-height: 16
+#| fig-width: 16
+
+present_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-present
+#| tbl-cap: "Effects on Person-Focussed Well-Being"
+#| eval: true
+#| echo: false
+
+present_religious_vs_secular$transformed_table|>
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+```{r, results = 'asis'}
+cat(present_religious_vs_secular$interpretation)
+```
+
+
+{{< pagebreak >}}
+### Life-Focussed Well-Being
+
+```{r}
+#| label: fig-life
+#| fig-cap: "Effects on Life-Focussed Well-Being"
+#| eval: true
+#| echo: false
+#| fig-height: 16
+#| fig-width: 16
+
+life_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-life
+#| tbl-cap: "Effects on Life-Focussed Well-Being"
+#| eval: true
+#| echo: false
+
+life_religious_vs_secular$transformed_table|>
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+```{r, results = 'asis'}
+cat(life_religious_vs_secular$interpretation)
+```
+
+
+{{< pagebreak >}}
+### Social-Focussed Well-Being
+
+```{r}
+#| label: fig-social
+#| fig-cap: "Effects on Life-Focussed Well-Being"
+#| eval: true
+#| echo: false
+#| fig-height: 16
+#| fig-width: 16
+
+social_religious_vs_secular$plot
+```
+
+```{r}
+#| label: tbl-social
+#| tbl-cap: "Effects on Social Well-Being"
+#| eval: true
+#| echo: false
+
+social_religious_vs_secular$transformed_table|>
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kbl(format = "markdown")
+```
+
+
+```{r, results = 'asis'}
+cat(social_religious_vs_secular$interpretation)
+```
+
+{{< pagebreak >}}
+## Discussion
+
+
+### Ethics
+
+The University of Auckland Human Participants Ethics Committee reviews the NZAVS every three years. Our most recent ethics approval statement is as follows: The New Zealand Attitudes and Values Study was approved by the University of Auckland Human Participants Ethics Committee on 26/05/2021 for six years until 26/05/2027, Reference Number UAHPEC22576.
+
+
+### Data Availability
+
+The data described in the paper are part of the New Zealand Attitudes and Values Study. Members of the NZAVS management team and research group hold full copies of the NZAVS data. A de-identified dataset containing only the variables analysed in this manuscript is available upon request from the corresponding author or any member of the NZAVS advisory board for replication or checking of any published study using NZAVS data. The code for the analysis can be found at: [OSF link](https://osf.io/wgtz4/). 
+
+
+### Acknowledgements
+
+The New Zealand Attitudes and Values Study is supported by a grant from the Templeton Religious Trust (TRT0196; TRT0418). JB received support from the Max Plank Institute for the Science of Human History. [**To be filled out for all authors**]. The funders had no role in preparing the manuscript or deciding to publish it.
+
+
+### Author Statement
+
+**TBA:** 
+
+JB did the analysis and developed the approach. CGS led data collection. JB, DD, CGS, KR, at GT obtained funding. **All authors had input into the manuscript.**
+
+
+
+
+## Appendix A: Measures  {#appendix-measures}
+
+
+{{< pagebreak >}}
+
+## Appendix B: Sample Demographic Statistics  {#appendix-baseline}
+
+
+::: {#tbl-baseline}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+library(gtsummary)
+library(kableExtra)
+
+# summary_tables$variables |> 
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     digits = 2,
+#     row.names = FALSE                      # remove row names to eliminate any unintended columns
+#   ) 
+
+
+latex_table_baseline |> 
+  kable_styling(
+    font_size = 6,
+    latex_options = c("hold_position", "repeat_header", "striped", "longtable")
+   ) 
+
+```
+Demographic statistics for New Zealand Attitudes and Values Cohort waves 2018.
+:::
+## Appendix E: Confouding Control {#appendix-baseline}
+
+@tbl-baseline presents sample statics information. All indicators in this table, as well as indicators for the baseline measurement of the `r nice_exposure_name` and all outcome variables, were included for confounding control.
+
+
+
+{{< pagebreak >}}
+
+
+
+
+{{< pagebreak >}}
+
+## Appendix C: Exposure Variable  {#appendix-exposure} 
+
+::: {#tbl-sample-exposures}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+# summary_tables$variables |> 
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     digits = 2,
+#     row.names = FALSE                      # remove row names to eliminate any unintended columns
+#   ) 
+
+
+latex_table_exposures |> 
+  kable_styling(
+    font_size = 12,
+    latex_options = c("hold_position", "repeat_header", "striped", "longtable")
+   ) 
+
+```
+Demographic statistics for New Zealand Attitudes and Values Cohort waves 2018.
+:::
+
+{{< pagebreak >}}
+
+## Appendix D Baseline Outcome Variables {#appendix-outcomes} 
+
+
+### Health Outcomes
+
+::: {#tbl-sample-outcomes-health}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+# summary_tables$variables |> 
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     digits = 2,
+#     row.names = FALSE                      # remove row names to eliminate any unintended columns
+#   ) 
+
+
+latex_table_outcomes_health |> 
+  kable_styling(
+    font_size = 12,
+    latex_options = c("hold_position", "repeat_header", "striped", "longtable")
+   ) 
+
+```
+Demographic statistics for New Zealand Attitudes and Values Cohort waves 2018.
+:::
+
+
+
+## Appendix E: Confouding Control 
+
+::: {#tbl-02}
+```{=latex}
+\threewavepaneltwo
+```
+Causal diagrams showing sources of bias in a three wave panel study.
+:::
+
+For confounding control, we employ a modified disjunctive cause criterion [@vanderweele2019], which involves:
+
+
+1.	Identifying all common causes of both the treatment and outcomes.
+2.	Excluding instrumental variables that affect the exposure but not the outcome.
+3.	Including proxies for unmeasured confounders affecting both exposure and outcome.
+4.	Controlling for baseline exposure and baseline outcome, serving as proxies for unmeasured common causes [@vanderweele2020].
+
+
+The covariates included for confounding control are detailed in @table-exposure. This list adheres to the guidelines provided in [@bulbulia2024PRACTICAL] and were pre-specified in our study protocol [https://osf.io/ce4t9/](https://osf.io/ce4t9/). 
+
+Where there are multiple exposures, causal inference may be threatened by time-varying confounding [@bulbulia_2024_swig_time]. 
+
+
+## Appendix F: Daily Data Collection  
+
+{{< pagebreak >}}
+
+## New Zealand Attitudes and Values Study Data Collection (2018 retained cohort) {#appendix-daily} 
+
+```{r}
+#| label: fig-timeline
+#| fig-cap: "Historgram of New Zealand Attitudes and Values Study Daily Data Collection: Time 11 - Time 15."
+#| eval: true
+#| include: true
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+#| 
+
+
+timeline_histogram
+```
+
+{{< pagebreak >}}
+
+
+
+## Appendix E Transition Matrix to Verify Positivity Assumption {#appendix-transition}
+
+
+```{r, results = 'asis'}
+#| label: tbl-transition
+#| tbl-cap: "Transition Matrix Showing Change"
+#| eval: true
+#| include: true
+#| echo: false
+
+transition_matrix$table
+```
+
+```{r, results = 'asis'}
+cat(transition_matrix$explanation)
+```
+
+
+
+
