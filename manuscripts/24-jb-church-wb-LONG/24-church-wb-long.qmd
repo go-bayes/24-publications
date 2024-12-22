@@ -54,6 +54,7 @@ format:
       - ignorefoot
     template-partials: 
       - /Users/joseph/GIT/templates/quarto/title.tex
+      - /Users/joseph/GIT/templates/measures/data
     header-includes:
       - \input{/Users/joseph/GIT/latex/latex-for-quarto.tex}
       - \let\oldtabular\tabular
@@ -77,7 +78,7 @@ csl: /Users/joseph/GIT/templates/csl/camb-a.csl
 #| eval: true
 
 # detach("package:margot", unload = TRUE)
-# devtools::install_github("go-bayes/margot")
+#devtools::install_github("go-bayes/boilerplate")
 # for making graphs
 #   docx:
 #    default: false
@@ -98,6 +99,7 @@ loadfonts(device = "all")
 
 # rendering document
 library("margot")
+library("boilerplate")
 library("glue")
 library("patchwork")
 library("kableExtra")
@@ -109,8 +111,140 @@ library("table1")
 library("printr")
 packageVersion(pkg = 'margot')
 
+# measures path
+measures_path <- fs::path_expand("/Users/joseph/GIT/templates/measures/data/merged_db.rds")
+
+# read measures data
+measures_data <- read_rds(measures_path)
+measures_data
 # set data paths
 push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-jb-church-fl-long")
+
+# read variable names
+baseline_vars <- margot::here_read("baseline_vars")
+exposure_var <- margot::here_read("exposure_var")
+outcome_vars <- margot::here_read("outcome_vars")
+
+
+# read by domain
+raw_outcomes_health <- here_read("raw_outcomes_health")
+raw_outcomes_psych <- here_read("raw_outcomes_psych")
+raw_outcomes_present <- here_read("raw_outcomes_present")
+raw_outcomes_life <- here_read("raw_outcomes_life")
+raw_outcomes_social <- here_read("raw_outcomes_social")
+
+
+# exposure
+raw_exposure_vars = "religion_church"
+
+# baseline vars
+baseline_vars
+
+# exposure
+raw_exposure_vars
+
+#outcomes
+raw_outcomes_health
+
+# labels
+var_labels_baseline <- c(
+  "sdo" = "Social Dominance Orientation",
+  "born_nz_binary" = "Born in NZ",
+  "rural_gch_2018_l" = "Rural Gch 2018 Levels",
+  "education_level_coarsen" = "Education Level",
+  "employed_binary" = "Employed (binary)",
+  "eth_cat" = "Ethnicity",
+  "household_inc" = "Household Income",
+  "log_household_inc" = "Log Household Income",
+  "male_binary" = "Male (binary)",
+  "nz_dep2018" = "NZ Deprevation Index 2018",
+  "nzsei_13_l" = "NZSEI (Occupational Prestige Index)",
+  "parent_binary" = "Parent (binary)",
+  "rwa" = "Right Wing Authoritarianism",
+  "sample_frame_opt_in_binary" = "Sample Frame Opt-In (binary)",
+  "sdo" = "Social Dominance Orientation",
+  "smoker_binary" = "Smoker (binary)",
+  "support" = "Social Support (perceived)"
+)
+
+
+# labels
+label_mapping_raw_exposure = c("religion_church" = "Monthly Religious Service")
+
+
+# labels
+label_mapping_raw_exposure = c("religion_church" = "Monthly Religious Service")
+
+# outcomes
+label_mapping_raw_health <- list(
+  "hlth_bmi" = "BMI", 
+  "hlth_sleep_hours" = "Sleep", 
+  "log_hours_exercise" = "Hours of Exercise (log)",
+  "short_form_health" = "Short Form Health" 
+)
+
+label_mapping_raw_psych<- list(
+  "hlth_fatigue" = "Fatigue", 
+  "kessler_latent_anxiety" = "Anxiety", 
+  "kessler_latent_depression" = "Depression",  
+  "rumination" = "Rumination"
+)
+
+label_mapping_raw_present<- c(
+  "bodysat" = "Body Satisfaction",
+  "foregiveness" = "Forgiveness",
+  "perfectionism" = "Perfectionism",  
+  "pwb_standard_living" = "PWB Standard Living", 
+  "pwb_your_future_security", 
+  "pwb_your_health" = "PWB Your Health", 
+  "pwb_your_relationships" = "PWB Your Relationships",
+  "self_control_have_lots" = "Self Control Have Lots", 
+  "self_control_wish_more_reversed" = "Self Control Wish More Reversed",  
+  "self_esteem" = "Self Esteem", 
+  "sexual_satisfaction" = "Sexual Satisfaction"  )
+
+label_mapping_raw_life <- list(
+  "gratitude" = "Gratitude", 
+  "lifesat" = "Life Satisfaction", 
+  "meaning_purpose" = "Meaning: Purpose", 
+  "meaning_sense" = "Meaning: Sense"
+)
+
+label_mapping_raw_social <- list(
+  "belong" = "Belonging",
+  "neighbourhood_community" = "Community Belonging", 
+  "support" = "Support" 
+)
+
+
+label_mappings <- list(
+  baseline = var_labels_baseline,
+  exposure = label_mapping_raw_exposure,
+  health = label_mapping_raw_health,
+  psychological = label_mapping_raw_psych,
+  present = label_mapping_raw_present,
+  life = label_mapping_raw_life,
+  social = label_mapping_raw_social
+)
+
+
+all_outcomes <- list(
+  health = raw_outcomes_health,
+  psychological = raw_outcomes_psych,
+  present_focused = raw_outcomes_present,
+  life_focused = raw_outcomes_life,
+  social = raw_outcomes_social
+)
+
+appendix_text_version_1 <- boilerplate_measures(
+  baseline_vars = baseline_vars,
+  exposure_var = raw_exposure_vars,
+  outcome_vars = all_outcomes,
+  measure_data = measures_data,
+  label_mappings = label_mappings
+  )
+
+cat(appendix_text_version_1)
 
 # reproducibility
 set.seed(123)
@@ -132,6 +266,7 @@ latex_table_outcomes_psych <- here_read("latex_table_outcomes_psych")
 latex_table_outcomes_present <- here_read("latex_table_outcomes_present")
 latex_table_outcomes_life <- here_read("latex_table_outcomes_life")
 latex_table_outcomes_social <- here_read("latex_table_outcomes_social")
+
 
 
 
@@ -221,6 +356,8 @@ label_mapping_social <- list(
   "t5_neighbourhood_community_z" = "Community", 
   "t5_support_z" = "Support" 
 )
+
+
 
 
 # plot options ------------------------------------------------------------
@@ -478,6 +615,15 @@ A_k, & \text{otherwise.}
 $$
 
 Here, $A_k$ is the observed attendance at Wave $k$. The shift function $\boldsymbol{d}$ 'nudges' $A_k$ to a target level (four times per month or zero) only if the current value is below (for regular attendance) or above (for no attendance) that target. Across the four waves, these shifts form a sequence $\boldsymbol{\bar{d}}$, which defines a complete intervention regime.
+
+
+::: {#tbl-intervention}
+```{=latex}
+\tvtable
+```
+Causal diagrams showing sources of bias in a three wave panel study.
+:::
+
 
 ### Causal Contrast
 
@@ -750,6 +896,12 @@ timeline_histogram
 ## Appendix B: Measures and Demographic Statistics {#appendix-baseline}
 
 
+## Measures 
+
+```{r, results='asis'}
+cat(appendix_text_version_1)
+```
+
 
 
 ### Sample Demographic Statistics
@@ -786,6 +938,8 @@ Demographic statistics for New Zealand Attitudes and Values Cohort waves 2018.
 
 ### Exposure Variable: Religious Service Attendance  {#appendix-exposure} 
 
+@tble-sample-exposures presents sample statistic for the exposure variable, religious service attendance, during the baseline wave and exposure waves. This variable was not measured in part of NZAVS time 12 (years 2020-2021) and part of NZAVS time 13 (years 2021-2022). To address missingness, we carried the previous observation forward, which may result in conservative causal effect estimation, however it would be unlike to bias estimation away from the null because the measurement error is random, and cannot be systematically related to the outcomes.  
+
 ::: {#tbl-sample-exposures}
 ```{r, results = 'asis'}
 #| eval: true
@@ -813,7 +967,7 @@ Demographic statistics for New Zealand Attitudes and Values Cohort waves 2018.
 
 {{< pagebreak >}}
 
-### Baseline and Outcome Variables {#appendix-outcomes} 
+### Outcome Variables {#appendix-outcomes} 
 
 
 ### Health Outcome Variables
@@ -959,12 +1113,12 @@ Life-reflective well-being variables measured at baseline (NZAVS time 10, years 
 :::
 
 
-
+{{< pagebreak >}}
 ## Appendix C: Confouding Control 
 
 ::: {#tbl-02}
 ```{=latex}
-\threewavepaneltwo
+\tvtable
 ```
 Causal diagrams showing sources of bias in a three wave panel study.
 :::
@@ -984,8 +1138,6 @@ Where there are multiple exposures, causal inference may be threatened by time-v
 
 {{< pagebreak >}}
 
-
-
 ## Appendix D Transition Matrix to Verify Positivity Assumption {#appendix-transition}
 
 
@@ -1004,5 +1156,6 @@ cat(transition_matrix$explanation)
 ```
 
 
+{{< pagebreak >}}
 
-
+## References {.appendix-refs}
