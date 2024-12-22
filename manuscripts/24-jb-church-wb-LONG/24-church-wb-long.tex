@@ -268,7 +268,7 @@ University of Wellington
       
 
 
-\date{2024-12-21}
+\date{2024-12-22}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -462,15 +462,14 @@ parenting status, relationship status, religious belonging, and
 health-related behaviours (e.g.~smoking, alcohol use, hours spent
 exercising). We also controlled for all outcome measures and for
 religious service attendance at baseline to minimise reverse causation
-(refer to \href{appendix-measures}{Appendix A}).
+(refer to \href{appendix-baseline}{Appendix B}).
 
 \subsubsection{Exposure}\label{exposure}
 
 The primary exposure was religious service attendance. We assessed how
 often participants attended any church or place of worship during the
 study period, creating an intervention that either shifted attendance to
-at least monthly or set attendance to zero. Further details on the
-measurement and coding of this variable appear in Appendix B.
+at least monthly or set attendance to zero.
 
 \subsubsection{Outcomes}\label{outcomes-1}
 
@@ -484,8 +483,8 @@ standardised where appropriate (i.e.~converted to z-scores) to
 facilitate comparison.
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.2281}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.7719}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.2787}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.7213}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Domain
@@ -505,105 +504,174 @@ Purpose) \\
 Social & Belonging, Support, Community \\
 \end{longtable}
 
-Full variable names, labels, and scales are reported in
-\href{appendix-measures}{Appendix A}, with label mappings provided to
-clarify each outcome's definition.
-
 Data summaries for all measures used in this study are provided in
-\href{appendix-measures}{Appendix A}.
+\href{appendix-baseline}{Appendix B}.
 
-\subsubsection{Causal Interventions}\label{causal-interventions}
+\subsection{Causal Interventions}\label{causal-interventions}
 
-We contrasted two causal interventions.
+When psychologists model time-series data, they often use growth models
+to quantify patterns of change over time. However, many research
+questions are causal: we want to know what would happen if we could
+intervene on certain variables (e.g., religious service attendance). To
+study these questions using observational time-series data, we must
+clearly state our causal question. Here, we ask:
 
-\textbf{Regular Religious Service Attendance}: At each wave, shift
-religious service attendance to at lest four times per month. Do not
-shift otherwise.
+\begin{quote}
+``What if, at each wave, we intervened to set religious service
+attendance to a certain level, and then measured everyone's well-being
+at the final wave?''
+\end{quote}
 
-\textbf{No Religious Service Attendance}: At each wave, shift religious
-service attendance to zero.
-
-We control for a rich set of confounders measured at baseline, following
-protocols describe in (\citeproc{ref-bulbulia2024causal}{Bulbulia
-\emph{et al.} 2024}). We also adjust for physical disability, employment
-status, partner status, and parenting status, as time-varying
-confounders, as these may affect both whether one attends religious
-service and one's health and well-being.
-
-\begin{itemize}
-\tightlist
-\item
-  \(A_k\) = intervention of Monthly Religious Service in exposure waves
-  \(k={1,2,3,4}\)
-\item
-  \(Y\) = outcome measured at the end of study (\(k=5\))
-\item
-  \(W\) = confounders measured at baseline (\(k=0\))
-\item
-  \(L_k\) = time varying confounders measured at \(k={1,2,3,4}\)
-\end{itemize}
-
-We define the regular religious service intervention as:
-
-\[
-a^+ = f(A_k) = 
-\begin{cases}
-4, & \text{if } A_k < 4 \\
-A_k, 
-\end{cases}
-\] We define the zero religious service intervention as:
-
-\[
-a^- = f(A_k) = 
-\begin{cases}
-0, & \text{if } A_k > 0 \\
-A_k, 
-\end{cases}
-\]
-
-We then assessed the causal contrast:
-
-\textbf{Contrast A: Therapeutic Intervention vs.~Status Quo} \[
-\text{ATE}^{\text{wellbeing}} = \mathbb{E}\left[Y\left(a_k^+\right) - Y\left(a_k^-\right)\right]
-\]
-
-We assume conditional independence of the potential outcomes and the
-sequential treatment regimes.
-
-\[
-\big\{ Y(a_k^+), Y(a_k^-)\big\} \coprod A_k \mid L_k, W
-\]
-
-To consistently estimate causal effects, we rely on three assumptions.
-These assumptions are standard in the literature on causal inference
-(\citeproc{ref-bulbulia2023}{Bulbulia 2024c};
-\citeproc{ref-hernan2024WHATIF}{Hernan and Robins 2024}).
+We compare two hypothetical interventions that alter religious service
+attendance over four exposure waves (Waves 1--4), with outcomes measured
+at Wave 5, and controlling for a rich set of baseline covariates
+measured at Wave 0. In line with the modified treatment policies
+literature, we define \textbf{shift functions} to describe each regime.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
-  \textbf{Causal Consistency:} potential outcomes must align with
-  observed outcomes under the treatments in our data. Essentially, we
-  assume potential outcomes do not depend on the specific way treatment
-  was administered, as long as we consider measured covariates.
+  \textbf{Regular Religious Service Attendance}\\
+  At each wave, if a person's attendance is below four times per month,
+  we shift it up to four; otherwise, we leave it unchanged.
 \item
-  \textbf{Conditional Exchangeability:} given the observed covariates,
-  we assume treatment assignment is independent of potential outcomes.
-  In simpler terms, this means ``no unmeasured confounding'' -- any
-  variables that influence both treatment assignment and outcomes are
-  included in our covariate set. That is, conditional on \(W\) amd
-  \(L_k\), the treatment assignments \(A = \tilde{a}\) are `as good as
-  random.' This allows us to estimate causal effects from observed data.
-\item
-  \textbf{Positivity:} for unbiased estimation, every subject must have
-  a non-zero chance of receiving the treatment, regardless of their
-  covariate values. We evaluate this assumption in each study by
-  examining changes in psychopathy ``treatments'' from baseline (NZAVS
-  time 10) to the treatment wave (NZAVS time 11).
-  \href{appendix-positivity}{Appendix D}: Transition matrices shows this
-  observed shifts in the treatment variables from baseline (NZAVS time
-  10) to exposure waves (NZAVS time 11).
+  \textbf{No Religious Service Attendance}\\
+  At each wave, if a person's attendance is above zero, we shift it down
+  to zero; otherwise, we leave it unchanged.
 \end{enumerate}
+
+A confounder is a variable that when included in the the model, removes
+any non-causal association between a `treatment' and `outcome'. Here, we
+adjust for important confounders at the baseline wave (Wave 0). We also
+adjust for the following time-varying confounders at each wave: physical
+disability, employment, partner status, and parenting status. These
+factors may, independently of baseline measurements, influence both
+attendance at each wave and later outcomes.
+
+\subsubsection{Notation}\label{notation}
+
+\begin{itemize}
+\tightlist
+\item
+  \(A_k\): Observed religious service attendance at Wave \(k\), for
+  \(k = 1, \dots, 4\).\\
+\item
+  \(Y_\tau\): Outcome measured at the end of the study (Wave 5).\\
+\item
+  \(W_0\): Confounders measured at baseline (Wave 0).\\
+\item
+  \(L_k\): Time-varying confounders measured at Wave \(k\) (for
+  \(k = 1, \dots, 4\)).
+\end{itemize}
+
+\subsubsection{Shift Functions}\label{shift-functions}
+
+Let \(\boldsymbol{d}(a_k)^+\) represent the \textbf{regular attendance}
+treatment sequence and \(\boldsymbol{d}(a_k)^-\) the \textbf{no
+attendance} treatment sequence, where the interventions occure at each
+wave \(k = 1\dots 4\). Formally:
+
+\paragraph{\texorpdfstring{Regular Attendance Regime
+\(\bigl(\boldsymbol{d}(a_k^+)\bigr)\)}{Regular Attendance Regime \textbackslash bigl(\textbackslash boldsymbol\{d\}(a\_k\^{}+)\textbackslash bigr)}}\label{regular-attendance-regime-biglboldsymbolda_kbigr}
+
+\[
+\boldsymbol{d}(a_k^+) 
+\;=\; 
+\begin{cases}
+4, & \text{if } A_k < 4,\\[6pt]
+A_k, & \text{otherwise.}
+\end{cases}
+\]
+
+\paragraph{\texorpdfstring{No Attendance Regime
+\(\bigl(\boldsymbol{d}(a_k^-)\bigr)\)}{No Attendance Regime \textbackslash bigl(\textbackslash boldsymbol\{d\}(a\_k\^{}-)\textbackslash bigr)}}\label{no-attendance-regime-biglboldsymbolda_k-bigr}
+
+\[
+\boldsymbol{d}(a_k^-) 
+\;=\; 
+\begin{cases}
+0, & \text{if } A_k > 0,\\[6pt]
+A_k, & \text{otherwise.}
+\end{cases}
+\]
+
+Here, \(A_k\) is the observed attendance at Wave \(k\). The shift
+function \(\boldsymbol{d}\) `nudges' \(A_k\) to a target level (four
+times per month or zero) only if the current value is below (for regular
+attendance) or above (for no attendance) that target. Across the four
+waves, these shifts form a sequence \(\boldsymbol{\bar{d}}\), which
+defines a complete intervention regime.
+
+\subsubsection{Causal Contrast}\label{causal-contrast}
+
+We compare the average well-being under the \textbf{regular attendance}
+regime, \(\boldsymbol{\bar{d}}(a^+)\), to the average well-being under
+the \textbf{no attendance} regime, \(\boldsymbol{\bar{d}}(a^-)\).
+Specifically, the average treatment effect (ATE) is given:
+
+\[
+\text{ATE}^{\text{wellbeing}} 
+\;=\; 
+\mathbb{E}
+\Bigl[
+  Y_\tau\!\bigl(\boldsymbol{\bar{d}}(a^+)\bigr) 
+  \;-\; 
+  Y_\tau\!\bigl(\boldsymbol{\bar{d}}(a^-)\bigr)
+\Bigr].
+\]
+
+\subsubsection{Assumptions}\label{assumptions}
+
+To estimate this effect from observational data, we assume:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Conditional Exchangeability:} Once we condition on \(W_0\) and
+  each \(L_k\), the interventions \(\boldsymbol{\bar{d}}(a^+)\) or
+  \(\boldsymbol{\bar{d}}(a^-)\) are effectively random with respect to
+  potential outcomes.
+\item
+  \textbf{Consistency:} The potential outcome under a given regime
+  matches the observed outcome when that regime is actually followed.
+\item
+  \textbf{Positivity:} Everyone has a non-zero probability of receiving
+  each level of attendance (i.e., a chance to be `shifted' up or down)
+  given their covariates.
+\end{enumerate}
+
+Mathematically, for conditional exchangeability, we write:
+
+\[
+\Bigl\{
+  Y\bigl(\boldsymbol{d}(a^+)\bigr), 
+  \; 
+  Y\bigl(\boldsymbol{d}(a^-)\bigr)
+\Bigr\}
+\coprod
+A_k |
+L_k,
+W_0.
+\]
+
+Under these assumptions, our statistical models permit us to estimate
+\(\text{ATE}^{\text{wellbeing}}\) from observational data. Again, that
+contrast is `regularly attend religious service at least four wave'
+versus `never attend religious service at least four waves'. Finally, we
+define the target population as the New Zealand Population from
+2019-2024, the years in which measurements were taken.
+
+Although both growth models and causal inference methods can inform
+changes over time, they focus on different questions. Growth models
+quantify how individuals vary in their natural trajectories. In
+contrast, causal models explicitly ask: ``What happens if we
+intervene?'' By defining hypothetical interventions, adjusting for
+confounders, and specifying assumptions, researchers can rigorously
+address ``what if'' questions, bridging the gap between observational
+data and actionable insights. This approach opens new avenues for
+psychological scientists to design and evaluate interventions that might
+guide policy and practice with evidence.
 
 \subsubsection{Statistical Estimator}\label{statistical-estimator}
 
@@ -1001,11 +1069,12 @@ effect of the adult population of New Zealand, which should not be
 confused with life advice.
 
 One of our most robust findings is that religious engagement increases a
-sense of meaning and especially of purpose. The the explanation for this
-result remain speculative. Evolutionary accounts might question why, if
-meaning and purpose are biologically desirable, they are not universal
-`default' states of consciousness. Why would the time and material
-investments of religious service attendance require our attention? Some
+sense of meaning and sense of purpose. Why this should be so remains
+speculative. Evolutionary accounts might question why, if meaning and
+purpose are biologically desirable, they are not universal `default'
+states of consciousness. Why would the time and material investments of
+religious service attendance require our attention
+(\citeproc{ref-sosis2003cooperation}{Sosis and Bressler 2003})? Some
 scholars suggest that religious healing might function as a hard-to-fake
 signal that validates religious commitments, rather than as an
 evolutionary end in itself (\citeproc{ref-bulbulia2006nature}{Bulbulia
@@ -1092,11 +1161,9 @@ in preparing the manuscript or deciding to publish it.
 
 \subsubsection{Author Statement}\label{author-statement}
 
-\textbf{TBA:}
-
-JB did the analysis and developed the approach. CGS led data collection.
-JB, DD, CGS, KR, at GT obtained funding. \textbf{All authors had input
-into the manuscript.}
+All authors had input into the manuscript. JB did the analysis and
+developed the approach. CGS led data collection. JB, DD, CGS, KR, at GT
+obtained funding.
 
 \newpage{}
 
@@ -1357,7 +1424,8 @@ Attitudes and Values Cohort waves 2018.}
 \endgroup{}
 \endgroup{}
 
-\subsubsection{Exposure Variable}\label{appendix-exposure}
+\subsubsection{Exposure Variable: Religious Service
+Attendance}\label{appendix-exposure}
 
 \begingroup\fontsize{12}{14}\selectfont
 \begingroup\fontsize{8}{10}\selectfont
@@ -1405,15 +1473,16 @@ Zealand Attitudes and Values Cohort waves 2018.}
 
 \subsubsection{Baseline and Outcome Variables}\label{appendix-outcomes}
 
-\subsubsection{Health Outcomes}\label{health-outcomes}
+\subsubsection{Health Outcome Variables}\label{health-outcome-variables}
 
 \begingroup\fontsize{12}{14}\selectfont
 \begingroup\fontsize{8}{10}\selectfont
 
 \begin{longtable}[t]{lll}
 
-\caption{\label{tbl-sample-outcomes-health}Demographic statistics for
-New Zealand Attitudes and Values Cohort waves 2018.}
+\caption{\label{tbl-sample-outcomes-health}Health variables measured at
+baseline (NZAVS time 10, years 2018-2019, and time 15, years
+2023-2024).}
 
 \tabularnewline
 
@@ -1451,6 +1520,252 @@ New Zealand Attitudes and Values Cohort waves 2018.}
 \cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{5.04 (1.17)} & \cellcolor{gray!10}{4.84 (1.17)}\\
 \hspace{1em}Median [Min, Max] & 5.00 [1.00, 7.00] & 5.00 [1.00, 7.00]\\
 \cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{9 (0.0\%)} & \cellcolor{gray!10}{25080 (54.1\%)}\\*
+
+\end{longtable}
+
+\endgroup{}
+\endgroup{}
+
+\subsubsection{Psychological Well-Being Outcome
+Variables}\label{psychological-well-being-outcome-variables}
+
+\begingroup\fontsize{12}{14}\selectfont
+\begingroup\fontsize{8}{10}\selectfont
+
+\begin{longtable}[t]{lll}
+
+\caption{\label{tbl-sample-outcomes-psych}Psychological well-being
+variables measured at baseline (NZAVS time 10, years 2018-2019, and time
+15, years 2023-2024).}
+
+\tabularnewline
+
+\toprule
+  & 2018 & 2023\\
+\midrule
+\endfirsthead
+\multicolumn{3}{@{}l}{\textit{(continued)}}\\
+\toprule
+  & 2018 & 2023\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+\cellcolor{gray!10}{} & \cellcolor{gray!10}{(N=46377)} & \cellcolor{gray!10}{(N=46377)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Fatigue}}\\
+\hspace{1em}Mean (SD) & 1.64 (1.09) & 1.62 (1.07)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{2.00 [0, 4.00]} & \cellcolor{gray!10}{2.00 [0, 4.00]}\\
+\hspace{1em}Missing & 500 (1.1\%) & 25117 (54.2\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Kessler 6 Anxiety}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{1.21 (0.773)} & \cellcolor{gray!10}{1.16 (0.764)}\\
+\hspace{1em}Median [Min, Max] & 1.00 [0, 4.00] & 1.00 [0, 4.00]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{437 (0.9\%)} & \cellcolor{gray!10}{25048 (54.0\%)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Kessler 6 Depression}}\\
+\hspace{1em}Mean (SD) & 0.585 (0.753) & 0.526 (0.722)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{0.333 [0, 4.00]} & \cellcolor{gray!10}{0.333 [0, 4.00]}\\
+\hspace{1em}Missing & 440 (0.9\%) & 25048 (54.0\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Rumination}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{0.847 (1.01)} & \cellcolor{gray!10}{0.759 (0.956)}\\
+\hspace{1em}Median [Min, Max] & 1.00 [0, 4.00] & 0 [0, 4.00]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{538 (1.2\%)} & \cellcolor{gray!10}{25108 (54.1\%)}\\*
+
+\end{longtable}
+
+\endgroup{}
+\endgroup{}
+
+\subsubsection{Present-Focussed Well-Being
+Indicators}\label{present-focussed-well-being-indicators}
+
+\begingroup\fontsize{12}{14}\selectfont
+\begingroup\fontsize{8}{10}\selectfont
+
+\begin{longtable}[t]{lll}
+
+\caption{\label{tbl-sample-outcomes-present}Present-focussed well-being
+variables measured at baseline (NZAVS time 10, years 2018-2019, and time
+15, years 2023-2024).}
+
+\tabularnewline
+
+\toprule
+  & 2018 & 2023\\
+\midrule
+\endfirsthead
+\multicolumn{3}{@{}l}{\textit{(continued)}}\\
+\toprule
+  & 2018 & 2023\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+\cellcolor{gray!10}{} & \cellcolor{gray!10}{(N=46377)} & \cellcolor{gray!10}{(N=46377)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Body Satisifaction}}\\
+\hspace{1em}Mean (SD) & 4.24 (1.70) & 4.23 (1.69)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{4.00 [1.00, 7.00]} & \cellcolor{gray!10}{4.00 [1.00, 7.00]}\\
+\hspace{1em}Missing & 537 (1.2\%) & 25931 (55.9\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Forgiveness}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{5.02 (1.27)} & \cellcolor{gray!10}{5.20 (1.26)}\\
+\hspace{1em}Median [Min, Max] & 5.33 [1.00, 7.00] & 5.33 [1.00, 7.00]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{11 (0.0\%)} & \cellcolor{gray!10}{25125 (54.2\%)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Perfectionism}}\\
+\hspace{1em}Mean (SD) & 3.18 (1.34) & 2.98 (1.40)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{3.00 [1.00, 7.00]} & \cellcolor{gray!10}{2.67 [1.00, 7.00]}\\
+\hspace{1em}Missing & 6 (0.0\%) & 25174 (54.3\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Pwb Standard Living}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{7.58 (2.04)} & \cellcolor{gray!10}{7.54 (2.09)}\\
+\hspace{1em}Median [Min, Max] & 8.00 [0, 10.0] & 8.00 [0, \vphantom{1} 10.0]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{174 (0.4\%)} & \cellcolor{gray!10}{25125 (54.2\%)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Pwb Your Future Security}}\\
+\hspace{1em}Mean (SD) & 6.26 (2.35) & 6.13 (2.49)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{7.00 [0, 10.0]} & \cellcolor{gray!10}{7.00 [0, \vphantom{1} 10.0]}\\
+\hspace{1em}Missing & 168 (0.4\%) & 25151 (54.2\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Pwb Your Health}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{6.76 (2.31)} & \cellcolor{gray!10}{6.54 (2.42)}\\
+\hspace{1em}Median [Min, Max] & 7.00 [0, 10.0] & 7.00 [0, 10.0]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{188 (0.4\%)} & \cellcolor{gray!10}{25221 (54.4\%)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Pwb Your Relationships}}\\
+\hspace{1em}Mean (SD) & 7.74 (2.24) & 7.66 (2.22)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{8.00 [0, 10.0]} & \cellcolor{gray!10}{8.00 [0, 10.0]}\\
+\hspace{1em}Missing & 193 (0.4\%) & 25164 (54.3\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Self Control Have Lots}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{5.12 (1.38)} & \cellcolor{gray!10}{5.10 (1.41)}\\
+\hspace{1em}Median [Min, Max] & 5.00 [1.00, 7.00] & 5.00 [1.00, 7.00]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{1261 (2.7\%)} & \cellcolor{gray!10}{26032 (56.1\%)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Self Control: Wish More (r)}}\\
+\hspace{1em}Mean (SD) & 3.71 (1.83) & 3.87 (1.81)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{3.00 [1.00, 7.00]} & \cellcolor{gray!10}{4.00 [1.00, 7.00]}\\
+\hspace{1em}Missing & 197 (0.4\%) & 25974 (56.0\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Self Esteem}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{5.14 (1.28)} & \cellcolor{gray!10}{5.27 (1.30)}\\
+\hspace{1em}Median [Min, Max] & 5.33 [1.00, 7.00] & 5.67 [1.00, 7.00]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{400 (0.9\%)} & \cellcolor{gray!10}{25104 (54.1\%)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Sexual Satisfaction}}\\
+\hspace{1em}Mean (SD) & 4.58 (1.77) & 4.38 (1.76)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{5.00 [1.00, 7.00]} & \cellcolor{gray!10}{4.00 [1.00, 7.00]}\\
+\hspace{1em}Missing & 2958 (6.4\%) & 26494 (57.1\%)\\*
+
+\end{longtable}
+
+\endgroup{}
+\endgroup{}
+
+\subsubsection{Life-Focussed Well-Being
+Indicators}\label{life-focussed-well-being-indicators}
+
+\begingroup\fontsize{12}{14}\selectfont
+\begingroup\fontsize{8}{10}\selectfont
+
+\begin{longtable}[t]{lll}
+
+\caption{\label{tbl-sample-outcomes-life}Life-reflective well-being
+variables measured at baseline (NZAVS time 10, years 2018-2019, and time
+15, years 2023-2024).}
+
+\tabularnewline
+
+\toprule
+  & 2018 & 2023\\
+\midrule
+\endfirsthead
+\multicolumn{3}{@{}l}{\textit{(continued)}}\\
+\toprule
+  & 2018 & 2023\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+\cellcolor{gray!10}{} & \cellcolor{gray!10}{(N=46377)} & \cellcolor{gray!10}{(N=46377)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Gratitude}}\\
+\hspace{1em}Mean (SD) & 5.90 (0.886) & 5.90 (0.910)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{6.00 [1.00, 7.00]} & \cellcolor{gray!10}{6.00 [1.00, \vphantom{1} 7.00]}\\
+\hspace{1em}Missing & 9 (0.0\%) & 25102 (54.1\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Lifesat}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{5.29 (1.20)} & \cellcolor{gray!10}{5.22 (1.24)}\\
+\hspace{1em}Median [Min, Max] & 5.50 [1.00, 7.00] & 5.50 [1.00, 7.00]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{223 (0.5\%)} & \cellcolor{gray!10}{25348 (54.7\%)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Meaning Purpose}}\\
+\hspace{1em}Mean (SD) & 5.20 (1.42) & 5.16 (1.41)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{5.00 [1.00, 7.00]} & \cellcolor{gray!10}{5.00 [1.00, 7.00]}\\
+\hspace{1em}Missing & 1224 (2.6\%) & 26377 (56.9\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Meaning Sense}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{5.71 (1.22)} & \cellcolor{gray!10}{5.78 (1.20)}\\
+\hspace{1em}Median [Min, Max] & 6.00 [1.00, 7.00] & 6.00 [1.00, 7.00]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{160 (0.3\%)} & \cellcolor{gray!10}{26039 (56.1\%)}\\*
+
+\end{longtable}
+
+\endgroup{}
+\endgroup{}
+
+\subsubsection{Social Well-Being
+Indicators}\label{social-well-being-indicators}
+
+\begingroup\fontsize{12}{14}\selectfont
+\begingroup\fontsize{8}{10}\selectfont
+
+\begin{longtable}[t]{lll}
+
+\caption{\label{tbl-sample-outcomes-social}Life-reflective well-being
+variables measured at baseline (NZAVS time 10, years 2018-2019, and time
+15, years 2023-2024).}
+
+\tabularnewline
+
+\toprule
+  & 2018 & 2023\\
+\midrule
+\endfirsthead
+\multicolumn{3}{@{}l}{\textit{(continued)}}\\
+\toprule
+  & 2018 & 2023\\
+\midrule
+\endhead
+
+\endfoot
+\bottomrule
+\endlastfoot
+\cellcolor{gray!10}{} & \cellcolor{gray!10}{(N=46377)} & \cellcolor{gray!10}{(N=46377)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Belonging}}\\
+\hspace{1em}Mean (SD) & 5.14 (1.08) & 5.23 (1.10)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{5.33 [1.00, 7.00]} & \cellcolor{gray!10}{5.33 [1.00, 7.00]}\\
+\hspace{1em}Missing & 397 (0.9\%) & 25100 (54.1\%)\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Sense of Neighbourhood Community}}\\
+\cellcolor{gray!10}{\hspace{1em}Mean (SD)} & \cellcolor{gray!10}{4.19 (1.67)} & \cellcolor{gray!10}{4.63 (1.56)}\\
+\hspace{1em}Median [Min, Max] & 4.00 [1.00, 7.00] & 5.00 [1.00, 7.00]\\
+\cellcolor{gray!10}{\hspace{1em}Missing} & \cellcolor{gray!10}{252 (0.5\%)} & \cellcolor{gray!10}{25906 (55.9\%)}\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textbf{Social Support}}\\
+\hspace{1em}Mean (SD) & 5.95 (1.12) & 6.00 (1.13)\\
+\cellcolor{gray!10}{\hspace{1em}Median [Min, Max]} & \cellcolor{gray!10}{6.33 [1.00, 7.00]} & \cellcolor{gray!10}{6.33 [1.00, 7.00]}\\
+\hspace{1em}Missing & 37 (0.1\%) & 25133 (54.2\%)\\*
 
 \end{longtable}
 
@@ -1579,13 +1894,6 @@ doi:\href{https://doi.org/10.5281/zenodo.10907724}{10.5281/zenodo.10907724}.
 Bulbulia, JA (2024c) Methods in causal inference part 1: Causal diagrams
 and confounding. \emph{Evolutionary Human Sciences}, \textbf{6}, e40.
 doi:\href{https://doi.org/10.1017/ehs.2024.35}{10.1017/ehs.2024.35}.
-
-\bibitem[\citeproctext]{ref-bulbulia2024causal}
-Bulbulia, JA, Davis, DE, Rice, KG, Sibley, CG, and Troughton, G (2024)
-The causal effects of religious service attendance on prosocial
-behaviours in {New Zealand}: {A} national longitudinal study.
-\emph{Archive for the Psychology of Religion}, \textbf{46}(3), 244--267.
-doi:\href{https://doi.org/10.1177/00846724241302810}{10.1177/00846724241302810}.
 
 \bibitem[\citeproctext]{ref-xgboost2023}
 Chen, T, He, T, Benesty, M, \ldots{} Yuan, J (2023) \emph{Xgboost:
@@ -1735,6 +2043,11 @@ Sibley, CG (2021)
 \emph{\href{https://doi.org/10.31234/osf.io/wgqvy}{Sampling procedure
 and sample details for the {N}ew {Z}ealand {A}ttitudes and {V}alues
 {S}tudy}}.
+
+\bibitem[\citeproctext]{ref-sosis2003cooperation}
+Sosis, R, and Bressler, ER (2003) Cooperation and commune longevity: A
+test of the costly signaling theory of religion. \emph{Cross-Cultural
+Research}, \textbf{37}(2), 211--239.
 
 \bibitem[\citeproctext]{ref-vanderweele2019}
 VanderWeele, TJ (2019) Principles of confounder selection.

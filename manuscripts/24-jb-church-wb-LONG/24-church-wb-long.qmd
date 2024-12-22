@@ -407,90 +407,118 @@ Responses were rounded to the nearest whole number. Because few participants rep
 
 ### Baseline Covariates
 
-We controlled for a broad range of baseline variables measured at Wave 10 (2018–2019) to reduce confounding by demographic, personality, and behavioural factors (see Appendix for full measures). These included age, gender, ethnicity, education level, personality traits (Agreeableness, Conscientiousness, Extraversion, Honesty-Humility, Neuroticism, and Openness), household income, employment status, parenting status, relationship status, religious belonging, and health-related behaviours (e.g. smoking, alcohol use, hours spent exercising). We also controlled for all outcome measures and for religious service attendance at baseline to minimise reverse causation (refer to [Appendix A](appendix-measures)).
+We controlled for a broad range of baseline variables measured at Wave 10 (2018–2019) to reduce confounding by demographic, personality, and behavioural factors (see Appendix for full measures). These included age, gender, ethnicity, education level, personality traits (Agreeableness, Conscientiousness, Extraversion, Honesty-Humility, Neuroticism, and Openness), household income, employment status, parenting status, relationship status, religious belonging, and health-related behaviours (e.g. smoking, alcohol use, hours spent exercising). We also controlled for all outcome measures and for religious service attendance at baseline to minimise reverse causation (refer to [Appendix B](appendix-baseline)).
 
 ### Exposure
 
-The primary exposure was religious service attendance. We assessed how often participants attended any church or place of worship during the study period, creating an intervention that either shifted attendance to at least monthly or set attendance to zero. Further details on the measurement and coding of this variable appear in Appendix B.
+The primary exposure was religious service attendance. We assessed how often participants attended any church or place of worship during the study period, creating an intervention that either shifted attendance to at least monthly or set attendance to zero.
 
 ### Outcomes
 
 We categorised outcomes into five domains—health, psychological well-being, present-reflective outcomes, life-reflective outcomes, and social outcomes—based on validated scales and measures. Table 1 summarises each domain and its associated measures. For instance, health outcomes included BMI and hours of sleep, whereas psychological well-being encompassed anxiety and depression. Outcomes were standardised where appropriate (i.e. converted to z-scores) to facilitate comparison.
 
-| Domain      | Example Measures                           |
-|-------------|--------------------------------------------|
-| Health      | BMI, Hours of Sleep, Hours of Exercise, SF-Health   |
+| Domain          | Example Measures                           |
+|-----------------|--------------------------------------------|
+| Health          | BMI, Hours of Sleep, Hours of Exercise, SF-Health   |
 | Psychological Well-Being | Anxiety, Depression, Fatigue, Rumination         |
 | Present-Reflective        | Body Satisfaction, Forgiveness, Self Esteem, Sexual Satisfaction |
 | Life-Reflective           | Gratitude, Life Satisfaction, Meaning (Sense & Purpose)           |
 | Social                    | Belonging, Support, Community                            |
 
-Full variable names, labels, and scales are reported in  [Appendix A](appendix-measures), with label mappings provided to clarify each outcome’s definition.
 
-Data summaries for all measures used in this study are provided in [Appendix A](appendix-measures).
+Data summaries for all measures used in this study are provided in [Appendix B](appendix-baseline).
 
+## Causal Interventions
 
-### Causal Interventions
+When psychologists model time-series data, they often use growth models to quantify patterns of change over time. However, many research questions are causal: we want to know what would happen if we could intervene on certain variables (e.g., religious service attendance). To study these questions using observational time-series data, we must clearly state our causal question. Here, we ask:
 
-We contrasted two causal interventions. 
+> "What if, at each wave, we intervened to set religious service attendance to a certain level, and then measured everyone's well-being at the final wave?"
 
-**Regular Religious Service Attendance**: At each wave, shift religious service attendance to at lest four times per month. Do not shift otherwise. 
+We compare two hypothetical interventions that alter religious service attendance over four exposure waves (Waves 1–4), with outcomes measured at Wave 5, and controlling for a rich set of baseline covariates measured at Wave 0. In line with the modified treatment policies literature, we define **shift functions** to describe each regime. 
 
-**No Religious Service Attendance**: At each wave, shift religious service attendance to zero. 
+1. **Regular Religious Service Attendance**  
+   At each wave, if a person's attendance is below four times per month, we shift it up to four; otherwise, we leave it unchanged.
 
-We control for a rich set of confounders measured at baseline, following protocols describe in [@bulbulia2024causal].  We also adjust for physical disability, employment status, partner status, and parenting status, as time-varying confounders, as these may affect both whether one attends religious service and one's health and well-being.
+2. **No Religious Service Attendance**  
+   At each wave, if a person's attendance is above zero, we shift it down to zero; otherwise, we leave it unchanged.
 
+A confounder is a variable that when included in the the model, removes any non-causal association between a 'treatment' and 'outcome'. Here, we adjust for important confounders at the baseline wave (Wave 0). We also adjust for the following time-varying confounders at each wave: physical disability, employment, partner status, and parenting status. These factors may, independently of baseline measurements, influence both attendance at each wave and later outcomes.
 
-- $A_k$ = intervention of `r nice_exposure_name` in exposure waves $k={1,2,3,4}$
-- $Y$ = outcome measured at the end of study ($k=5$)
-- $W$ = confounders measured at baseline ($k=0$)
-- $L_k$ = time varying confounders measured at $k={1,2,3,4}$
+### Notation
 
+- $A_k$: Observed religious service attendance at Wave $k$, for $k = 1, \dots, 4$.  
+- $Y_\tau$: Outcome measured at the end of the study (Wave 5).  
+- $W_0$: Confounders measured at baseline (Wave 0).  
+- $L_k$: Time-varying confounders measured at Wave $k$ (for $k = 1, \dots, 4$).  
 
-We define the regular religious service intervention as:
+### Shift Functions
+
+Let $\boldsymbol{d}(a_k)^+$ represent the **regular attendance** treatment sequence and $\boldsymbol{d}(a_k)^-$ the **no attendance** treatment sequence, where the interventions occure at each wave $k = 1\dots 4$. Formally:
+
+#### Regular Attendance Regime $\bigl(\boldsymbol{d}(a_k^+)\bigr)$
 
 $$
-a^+ = f(A_k) = 
+\boldsymbol{d}(a_k^+) 
+\;=\; 
 \begin{cases}
-4, & \text{if } A_k < 4 \\
-A_k, 
+4, & \text{if } A_k < 4,\\[6pt]
+A_k, & \text{otherwise.}
 \end{cases}
 $$
-We define the zero religious service intervention as:
+
+#### No Attendance Regime $\bigl(\boldsymbol{d}(a_k^-)\bigr)$
 
 $$
-a^- = f(A_k) = 
+\boldsymbol{d}(a_k^-) 
+\;=\; 
 \begin{cases}
-0, & \text{if } A_k > 0 \\
-A_k, 
+0, & \text{if } A_k > 0,\\[6pt]
+A_k, & \text{otherwise.}
 \end{cases}
 $$
 
+Here, $A_k$ is the observed attendance at Wave $k$. The shift function $\boldsymbol{d}$ 'nudges' $A_k$ to a target level (four times per month or zero) only if the current value is below (for regular attendance) or above (for no attendance) that target. Across the four waves, these shifts form a sequence $\boldsymbol{\bar{d}}$, which defines a complete intervention regime.
 
-We then assessed the causal contrast: 
+### Causal Contrast
 
-**Contrast A: Therapeutic Intervention vs. Status Quo**
-$$
-\text{ATE}^{\text{wellbeing}} = \mathbb{E}\left[Y\left(a_k^+\right) - Y\left(a_k^-\right)\right]
-$$
-
-
-We assume conditional independence of the potential outcomes and the sequential treatment regimes. 
-
+We compare the average well-being under the **regular attendance** regime, $\boldsymbol{\bar{d}}(a^+)$, to the average well-being under the **no attendance** regime, $\boldsymbol{\bar{d}}(a^-)$. Specifically, the average treatment effect (ATE) is given:
 
 $$
-\big\{ Y(a_k^+), Y(a_k^-)\big\} \coprod A_k \mid L_k, W
+\text{ATE}^{\text{wellbeing}} 
+\;=\; 
+\mathbb{E}
+\Bigl[
+  Y_\tau\!\bigl(\boldsymbol{\bar{d}}(a^+)\bigr) 
+  \;-\; 
+  Y_\tau\!\bigl(\boldsymbol{\bar{d}}(a^-)\bigr)
+\Bigr].
 $$
 
+### Assumptions
 
-To consistently estimate causal effects, we rely on three assumptions. These assumptions are standard in the literature on causal inference [@hernan2024WHATIF; @bulbulia2023].
+To estimate this effect from observational data, we assume:
 
-1. **Causal Consistency:** potential outcomes must align with observed outcomes under the treatments in our data. Essentially, we assume potential outcomes do not depend on the specific way treatment was administered, as long as we consider measured covariates. 
+1. **Conditional Exchangeability:** Once we condition on $W_0$ and each $L_k$, the interventions $\boldsymbol{\bar{d}}(a^+)$ or $\boldsymbol{\bar{d}}(a^-)$ are effectively random with respect to potential outcomes.
+2. **Consistency:** The potential outcome under a given regime matches the observed outcome when that regime is actually followed.
+3. **Positivity:** Everyone has a non-zero probability of receiving each level of attendance (i.e., a chance to be 'shifted' up or down) given their covariates.
 
-2. **Conditional Exchangeability:** given the observed covariates, we assume treatment assignment is independent of potential outcomes. In simpler terms, this means "no unmeasured confounding" – any variables that influence both treatment assignment and outcomes are included in our covariate set. That is, conditional on $W$ amd $L_k$, the treatment assignments $A = \tilde{a}$ are 'as good as random.' This allows us to estimate causal effects from observed data.
+Mathematically, for conditional exchangeability, we write:
 
-3. **Positivity:** for unbiased estimation, every subject must have a non-zero chance of receiving the treatment, regardless of their covariate values. We evaluate this assumption in each study by examining changes in psychopathy "treatments" from baseline (NZAVS time 10) to the treatment wave (NZAVS time 11).  [Appendix D](appendix-positivity): Transition matrices shows this observed shifts in the treatment variables from baseline (NZAVS time 10) to exposure waves (NZAVS time 11).
+$$
+\Bigl\{
+  Y\bigl(\boldsymbol{d}(a^+)\bigr), 
+  \; 
+  Y\bigl(\boldsymbol{d}(a^-)\bigr)
+\Bigr\}
+\coprod
+A_k |
+L_k,
+W_0.
+$$
 
+Under these assumptions, our statistical models permit us to estimate $\text{ATE}^{\text{wellbeing}}$ from observational data. Again, that contrast is 'regularly attend religious service at least four wave' versus 'never attend religious service at least four waves'.  Finally, we define the target population as the New Zealand Population from 2019-2024, the years in which measurements were taken. 
+
+Although both growth models and causal inference methods can inform changes over time, they focus on different questions. Growth models quantify how individuals vary in their natural trajectories. In contrast, causal models explicitly ask: "What happens if we intervene?" By defining hypothetical interventions, adjusting for confounders, and specifying assumptions, researchers can rigorously address "what if" questions, bridging the gap between observational data and actionable insights. This approach opens new avenues for psychological scientists to design and evaluate interventions that might guide policy and practice with evidence.
 
 ### Statistical Estimator
 
@@ -666,7 +694,7 @@ Our findings suggest that regular religious service attendance can modestly enha
 
 A further caveat is that causal effect estimates reflect a hypothetical scenario in which the entire target population either consistently attends services or never attends. This population-level contrast represents an average treatment effect; we have not examined how the causal effects of religious service attendance vary by faith tradition, intensity of belief, or cultural context. Such studies involve changing the target population from everyone to members of specific population strata or group. Moroever, at an individual level, different people will respond differently to religious behaviours, and we assume that people often know themselves best. Our findings project an average treatment effect of the adult population of New Zealand, which should not be confused with life advice.
 
-One of our most robust findings is that religious engagement increases a sense of meaning and especially of purpose. The the explanation for this result remain speculative. Evolutionary accounts might question why, if meaning and purpose are biologically desirable, they are not universal 'default' states of consciousness. Why would the time and material investments of religious service attendance require our attention? Some scholars suggest that religious healing might function as a hard-to-fake signal that validates religious commitments, rather than as an evolutionary end in itself [@bulbulia2006nature]. Any evolutionary or functional explanations for why religious practice boosts meaning presently remains speculative, and must reckon with the complex cultural and biological processes that have given rise to and conserved the religions of our day.
+One of our most robust findings is that religious engagement increases a sense of meaning and sense of purpose. Why this should be so remains speculative. Evolutionary accounts might question why, if meaning and purpose are biologically desirable, they are not universal 'default' states of consciousness. Why would the time and material investments of religious service attendance require our attention [@sosis2003cooperation]? Some scholars suggest that religious healing might function as a hard-to-fake signal that validates religious commitments, rather than as an evolutionary end in itself [@bulbulia2006nature]. Any evolutionary or functional explanations for why religious practice boosts meaning presently remains speculative, and must reckon with the complex cultural and biological processes that have given rise to and conserved the religions of our day.
 
 Closely related to meaning is the finding that religious engagement fosters gratitude. In classical Christian thought dating at least to Aquinas, religion is framed as a virtue of justice called 'piety', which entails rightly acknowledging the sources of one's existence and sustenance as a debt that cannot be repaid [@bulbulia2023understanding]. In a modern idiom, one might refer to this virtue a 'gratitude'. Indeed, the rehearsal of gratitude is a prominent feature not only of Christian religious service but of most religious traditions [@mccullough2001gratitude; @bono2004gratitude]. It has been hypothesised that active attention to gratitude in religious faith serves to foster prosociality, which, if confirmed, would help to explain the durability of this result to robust causal estimation workflows that controls for confounding.
 
@@ -692,9 +720,8 @@ The New Zealand Attitudes and Values Study is supported by a grant from the Temp
 
 ### Author Statement
 
-**TBA:** 
 
-JB did the analysis and developed the approach. CGS led data collection. JB, DD, CGS, KR, at GT obtained funding. **All authors had input into the manuscript.**
+All authors had input into the manuscript. JB did the analysis and developed the approach. CGS led data collection. JB, DD, CGS, KR, at GT obtained funding.
 
 
 {{< pagebreak >}}
@@ -757,7 +784,7 @@ Demographic statistics for New Zealand Attitudes and Values Cohort waves 2018.
 :::
 
 
-### Exposure Variable  {#appendix-exposure} 
+### Exposure Variable: Religious Service Attendance  {#appendix-exposure} 
 
 ::: {#tbl-sample-exposures}
 ```{r, results = 'asis'}
@@ -789,7 +816,7 @@ Demographic statistics for New Zealand Attitudes and Values Cohort waves 2018.
 ### Baseline and Outcome Variables {#appendix-outcomes} 
 
 
-### Health Outcomes
+### Health Outcome Variables
 
 ::: {#tbl-sample-outcomes-health}
 ```{r, results = 'asis'}
@@ -813,7 +840,122 @@ latex_table_outcomes_health |>
    ) 
 
 ```
-Demographic statistics for New Zealand Attitudes and Values Cohort waves 2018.
+Health variables measured at baseline (NZAVS time 10, years 2018-2019, and time 15, years 2023-2024).
+:::
+
+
+
+### Psychological Well-Being Outcome Variables
+
+::: {#tbl-sample-outcomes-psych}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+# summary_tables$variables |> 
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     digits = 2,
+#     row.names = FALSE                      # remove row names to eliminate any unintended columns
+#   ) 
+
+
+latex_table_outcomes_psych |> 
+  kable_styling(
+    font_size = 12,
+    latex_options = c("hold_position", "repeat_header", "striped", "longtable")
+   ) 
+
+```
+Psychological well-being variables measured at baseline (NZAVS time 10, years 2018-2019, and time 15, years 2023-2024).
+:::
+
+
+
+### Present-Focussed Well-Being Indicators
+
+::: {#tbl-sample-outcomes-present}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+# summary_tables$variables |> 
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     digits = 2,
+#     row.names = FALSE                      # remove row names to eliminate any unintended columns
+#   ) 
+
+
+latex_table_outcomes_present |> 
+  kable_styling(
+    font_size = 12,
+    latex_options = c("hold_position", "repeat_header", "striped", "longtable")
+   ) 
+
+```
+Present-focussed well-being variables measured at baseline (NZAVS time 10, years 2018-2019, and time 15, years 2023-2024).
+:::
+
+
+
+### Life-Focussed Well-Being Indicators
+
+::: {#tbl-sample-outcomes-life}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+# summary_tables$variables |> 
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     digits = 2,
+#     row.names = FALSE                      # remove row names to eliminate any unintended columns
+#   ) 
+
+
+latex_table_outcomes_life |> 
+  kable_styling(
+    font_size = 12,
+    latex_options = c("hold_position", "repeat_header", "striped", "longtable")
+   ) 
+
+```
+Life-reflective well-being variables measured at baseline (NZAVS time 10, years 2018-2019, and time 15, years 2023-2024).
+:::
+
+
+### Social Well-Being Indicators
+
+::: {#tbl-sample-outcomes-social}
+```{r, results = 'asis'}
+#| eval: true
+#| include: true
+#| echo: false
+
+# summary_tables$variables |> 
+#   kbl(
+#     format = "latex",
+#     booktabs = TRUE,
+#     digits = 2,
+#     row.names = FALSE                      # remove row names to eliminate any unintended columns
+#   ) 
+
+
+latex_table_outcomes_social |> 
+  kable_styling(
+    font_size = 12,
+    latex_options = c("hold_position", "repeat_header", "striped", "longtable")
+   ) 
+
+```
+Life-reflective well-being variables measured at baseline (NZAVS time 10, years 2018-2019, and time 15, years 2023-2024).
 :::
 
 
