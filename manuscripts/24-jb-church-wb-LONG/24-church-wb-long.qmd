@@ -123,6 +123,12 @@ measures_data
 # set data paths
 push_mods <- here::here("/Users/joseph/Library/CloudStorage/Dropbox-v-project/data/24-jb-church-fl-long")
 
+
+# missing at baseline
+percent_missing_baseline <- margot::here_read("percent_missing_baseline")
+
+
+
 # read variable names
 baseline_vars <- margot::here_read("baseline_vars")
 exposure_var <- margot::here_read("exposure_var")
@@ -199,7 +205,7 @@ label_mapping_raw_present<- c(
   "foregiveness" = "Forgiveness",
   "perfectionism" = "Perfectionism",  
   "pwb_standard_living" = "PWB Standard Living", 
-  "pwb_your_raw_security", 
+  "pwb_your_security" = "PWB Your Future Security",
   "pwb_your_health" = "PWB Your Health", 
   "pwb_your_relationships" = "PWB Your Relationships",
   "self_control_have_lots" = "Self Control Have Lots", 
@@ -226,21 +232,20 @@ label_mappings_all <- list(
   exposure = label_mapping_raw_exposure,
   health = label_mapping_raw_health,
   psychological = label_mapping_raw_psych,
-  present = label_mapping_raw_present,
-  life = label_mapping_raw_life,
+  present_focussed = label_mapping_raw_present,
+  life_focussed = label_mapping_raw_life,
   social = label_mapping_raw_social
 )
-label_mappings_all
+
 
 all_outcomes <- list(
-  health = raw_outcomes_health,
-  psychological = raw_outcomes_psych,
-  present_focused = raw_outcomes_present,
-  life_focused = raw_outcomes_life,
-  social = raw_outcomes_social
+  health          = raw_outcomes_health,
+  psychological   = raw_outcomes_psych,
+  present_focussed         = raw_outcomes_present,  # changed to match label_mappings_all
+  life_focussed            = raw_outcomes_life,     # changed to match label_mappings_all
+  social          = raw_outcomes_social
 )
-all_outcomes
-baseline_vars
+
 appendix_text_version_1 <- boilerplate_measures(
   baseline_vars = baseline_vars,
   exposure_var = raw_exposure_vars,
@@ -262,15 +267,16 @@ summary_tables <- margot::here_read_qs("summary_tables", push_mods)
 
 # read nzavs timeline
 timeline_histogram <- margot::here_read_qs("timeline_histogram", push_mods)
-timeline_histogram
+
+
 # read latex tables
-latex_table_baseline <- here_read("latex_table_baseline")
-latex_table_exposures <- here_read("latex_table_exposures")
-latex_table_outcomes_health <- here_read("latex_table_outcomes_health")
-latex_table_outcomes_psych <- here_read("latex_table_outcomes_psych")
-latex_table_outcomes_present <- here_read("latex_table_outcomes_present")
-latex_table_outcomes_life <- here_read("latex_table_outcomes_life")
-latex_table_outcomes_social <- here_read("latex_table_outcomes_social")
+latex_table_baseline <- margot::here_read("latex_table_baseline")
+latex_table_exposures <- margot::here_read("latex_table_exposures")
+latex_table_outcomes_health <- margot::here_read("latex_table_outcomes_health")
+latex_table_outcomes_psych <- margot::here_read("latex_table_outcomes_psych")
+latex_table_outcomes_present <- margot::here_read("latex_table_outcomes_present")
+latex_table_outcomes_life <- margot::here_read("latex_table_outcomes_life")
+latex_table_outcomes_social <- margot::here_read("latex_table_outcomes_social")
 
 
 
@@ -475,7 +481,6 @@ present_religious_vs_secular <- margot_plot(
   save_path = here::here(push_mods),
   original_df = original_df
 )
-n_participants
 
 # religion vs secular: life
 life_religious_vs_secular <- margot_plot(
@@ -498,7 +503,6 @@ social_religious_vs_secular <- margot_plot(
   original_df = original_df
 )
 
-percent_missing_baseline <- here_read("percent_missing_baseline")
 
 
 ```
@@ -506,11 +510,11 @@ percent_missing_baseline <- here_read("percent_missing_baseline")
 
 ## Introduction
 
-Collective religious activity is a cornerstone of many cultures, and questions about whether attending religious services affects well-being are long-standing [@koenig2012handbook]. Within religious traditions, the belief that religious practices benefit adherents permeates theology, moral teaching, and community life, from Buddhism's emphasis on meditation as a path to enlightenment and reduced suffering to Christianity's view of prayer and worship as a means of spiritual growth and divine connection, to Indigenous spiritual practices that are seen as maintaining harmony between people, nature, and the sacred. More recently, empirical science has linked religious service attendance with multiple dimensions of well-being, including social integration, life satisfaction, mental health, and meaning-making [@vanderweele2022invited_church; @chen2020religious; @dunbar2021religiosity; @highland2022national]. These studies have demonstrated that, on average, individuals who attend services report more favourable social and psychological outcomes. Is this association causal?  For whom, and in which respects? 
+Collective religious activity is a cornerstone of many cultures, and questions about whether attending religious services affects well-being are long-standing [@koenig2012handbook]. Within religious traditions, the belief that religious practices benefit adherents permeates theology, moral teaching, and community life, from Buddhism's emphasis on meditation as a path to enlightenment and reduced suffering to Christianity's view of prayer and worship as a means of spiritual growth and divine connection, to Indigenous spiritual practices that are seen as maintaining harmony between people, nature, and the sacred. More recently, empirical science has linked religious service attendance with multiple dimensions of well-being, including social integration, life satisfaction, mental health, and meaning-making [@vanderweele2022invited_church; @chen2020religious; @dunbar2021religiosity; @highland2022national]. These studies have demonstrated that, on average, individuals who attend services report more favourable social and psychological outcomes. Is this association causal?  For whom?  
 
-Although several studies have applied rigorous causal methods [@pawlikowski2019religious; @vanderweele2021effectsReligiousServiceMetanalysis; @vanderweele2020vchenrespond; @vanderweelechurchmortality], debates over causality persist [@highland2019attitudes]. Many investigations do not fully adjust for baseline health or baseline religious service attendance, nor other critical confounders affecting both religious participation and well-being [@brown2023_church; @jokela2024_church]. For instance, in their analysis of four U.S. cohort studies (N=6,592), Jokela and Laakasuo found that poorer health trajectories preceded religious disengagement, suggesting that declining practice might reflect underlying health problems rather than cause them. Similarly, Iyer and Rosso's global data ($N=65,564$) show that frequent attenders report about five per cent higher life satisfaction than infrequent attenders, though unmeasured confounding or reverse causation could explain this association.
+Although recent studies have applied causal methods [@pawlikowski2019religious; @vanderweele2021effectsReligiousServiceMetanalysis; @vanderweele2020vchenrespond; @vanderweelechurchmortality], debates over their implications persist [@highland2019attitudes]. Some investigations do not fully adjust for baseline health or baseline religious service attendance, nor other critical confounders affecting both religious participation and well-being [@brown2023_church; @jokela2024_church]. For instance, in their analysis of four U.S. cohort studies (N=6,592), Jokela and Laakasuo found that poorer health trajectories preceded religious disengagement, suggesting that declining practice might reflect underlying health problems rather than cause them. Similarly, Iyer and Rosso's global data ($N=65,564$) show that frequent attenders report about five per cent higher life satisfaction than infrequent attenders, though unmeasured confounding or reverse causation could explain this association.
 
-Despite a growing causal inference literature, many questions remain. Existing work often relies on non-representative samples or predominantly religious settings, rarely incorporates time-varying confounders, and seldom examines populations with relatively low religious engagement. @brown2023_church propose that community-building itself, rather than specifically religious community-building, may explain well-being benefits. Supporting evidence from New Zealand shows that following the 2010–2011 Christchurch earthquakes, people who lost faith exhibited declining subjective health, whereas those who maintained faith or lacked faith altogether did not [@sibley2012]. These findings hint that broader communal factors -- not necessarily religious practice -- could drive well-being, especially in secular contexts where religious service might not confer distinctive advantages. Moreover, Chen and colleagues observe that well-being encompasses emotional, physical, social, and psychological domains and that some—such as meaning, purpose, and social connection—may be more sensitive to religious engagement than others [@chen2022_church_longitudinal]. However, most studies on religious attendance and well-being focus on just one or a few of these domains.
+Existing work often relies on non-representative samples or predominantly religious settings, rarely incorporates time-varying confounders, and seldom examines populations outside the north atlantic [@price2024science], or in societies with relatively low religious engagement. @brown2023_church propose that community-building itself, rather than specifically religious community-building, may explain well-being benefits. Supporting evidence from New Zealand shows that following the 2010–2011 Christchurch earthquakes, people who lost faith exhibited declining subjective health, whereas those who maintained faith or lacked faith altogether did not [@sibley2012]. These findings hint that broader communal factors -- not necessarily religious practice -- could drive well-being, especially in secular contexts where religious service might not confer distinctive advantages. Moreover, Chen and colleagues observe that well-being encompasses emotional, physical, social, and psychological domains and that some—such as meaning, purpose, and social connection—may be more sensitive to religious engagement than others [@chen2022_church_longitudinal]. However, most studies on religious attendance and well-being focus on just one or a few of these domains.
 
 In sum, there is a need for studies that move beyond cross-sectional correlations to address causation, address causation robustly, and systematically evaluate multiple dimensions of well-being, particularly in secular societies. Without such evidence, policy, clinical, and theoretical questions about the causal role of religious service attendance in supporting human flourishing remain unanswered.
 
@@ -519,8 +523,6 @@ Here, we address these gaps by estimating the causal effects of regular religiou
 ## Method
 
 ### Sample
-
-
 Data were collected as part of the New Zealand Attitudes and Values Study (NZAVS), an annual longitudinal national probability panel assessing New Zealand residents’ social attitudes, personality, ideology, and health outcomes. The panel began in 2009 and has since expanded to include over fifty researchers, with responses from `r n_total` participants to date. The study operates independently of political or corporate funding and is based at a university. It employs prize draws to incentivise participation. The NZAVS tends to slightly under-sample males and individuals of Asian descent and to over-sample females and Māori (the Indigenous people of New Zealand). To enhance the representativeness of our sample population estimates for the target population of New Zealand, we apply census-based survey weights that adjust for age, gender, and ethnicity (New Zealand European, Asian, Māori, Pacific) [@sibley2021]. For more information about the NZAVS, visit: [OSF.IO/75SNB](https://doi.org/10.17605/OSF.IO/75SNB). Refer to [Appendix A](#appendix-timeline) for a histogram of daily responses for this cohort.
 
 
@@ -531,22 +533,23 @@ The target population for this study comprises the cohort of New Zealand residen
 ### Treatment Indicator
 
 
-We assessed religious service attendance using the following question:
+The New Zealand Attitudes and Values Study assesses religious service attendance using the following question:
 
 
 - *Do you identify with a religion and/or spiritual group? If yes, how many times did you attend a church or place of worship during the last month?*
 
 
-Responses were rounded to the nearest whole number. Because few participants reported attending more than eight times, we capped responses above eight at eight (refer to [Appendix B](#appendix-baseline), variable `religion_church_round`). In the regular church service condition, we did not intervene on responses greater than four to reduce computational burdens during estimation.
+We rounded response to the nearest whole number. Because few participants reported attending more than eight times, we capped responses above eight at eight (refer to [Appendix B](#appendix-baseline), variable `religion_church_round`).
 
 ### Baseline Covariates
 
-We controlled for a broad range of baseline variables measured at NZAVS time 10 (Wave 2018–2019) to reduce confounding by demographic, personality, and behavioural factors (see [Appendix B](#appendix-baseline) for full measures). These included age, gender, ethnicity, education level, personality traits (Agreeableness, Conscientiousness, Extraversion, Honesty-Humility, Neuroticism, and Openness), household income, employment status, parenting status, relationship status, religious belonging, and health-related behaviours (e.g. smoking, alcohol use, hours spent exercising). We also controlled for all outcome measures and for religious service attendance at baseline to minimise reverse causation (refer to [Appendix B](#appendix-baseline) and [Appendix C](#appendix-confounding)).
+We adjusted for a rich set of demographic, personality, and behavioural indicators measured at the baseline wave, NZAVS time 10 (Wave 2018, years 2018-2019) (see [Appendix B](#appendix-baseline) for full measures). These variables included age, gender, ethnicity, education level, personality traits (Agreeableness, Conscientiousness, Extraversion, Honesty-Humility, Neuroticism, and Openness), household income, employment status, parenting status, relationship status, religious belonging, and health-related behaviours (e.g. smoking, alcohol use, hours spent exercising). We selected only those outcome variables measured in the baseline wave and controlled for these variables. Moreover we controlled for religious service attendance at baseline (refer to [Appendix B](#appendix-baseline) and [Appendix C](#appendix-confounding)) This strategy of confounding control is powerful because for any confounder to affect subsequent treatments and the outcome, it would need to do so independently of the baseline outcome variables, the baseline exposure, and the rich set of demographic indicators measured at baseline [@vanderweele2020].
 
 
 ### Outcomes
 
-We investigate well-being using an "outcome-wide" approach [@vanderweele2020]. We categorised outcomes into five domains—health, psychological well-being, present-reflective outcomes, life-reflective outcomes, and social outcomes—based on validated scales and measures, using the outcomes developed in [@pedro_2024effects]. Table 1 summarises each domain and its associated measures. For instance, health outcomes included BMI and hours of sleep, whereas psychological well-being encompassed anxiety and depression. Outcomes were converted to z-scores (standardised) to facilitate comparison. Thus, the effects may be interpreted as effect sizes.
+We investigate well-being using an VanderWeele and colleague's "outcome-wide" approach. We categorised outcomes into five domains—health, psychological well-being, present-reflective outcomes, life-reflective outcomes, and social outcomes—based on validated scales and measures. Outcomes were based on those modelled in an earlier outcome-wide paper @pedro_2024effects. @tbl-outcomes summarises each domain and its associated measures. For instance, health outcomes included BMI and hours of sleep, whereas psychological well-being included anxiety and depression. Outcomes were converted to z-scores (standardised), and the causal effect estimates may be therefore be interpreted as effect sizes.
+
 
 | Domain          | Example Measures                           |
 |-----------------|--------------------------------------------|
@@ -554,10 +557,13 @@ We investigate well-being using an "outcome-wide" approach [@vanderweele2020]. W
 | Psychological Well-Being | Anxiety, Depression, Fatigue, Rumination         |
 | Present-Reflective        | Body Satisfaction, Forgiveness, Self-Esteem, Sexual Satisfaction |
 | Life-Reflective           | Gratitude, Life Satisfaction, Meaning (Sense & Purpose)           |
-| Social                    | Belonging, Support, Community                            |
+| Social                    | Belonging, Support, Community          |
+
+: Outcome domains and example dimensions. Data summaries for all measures used in this study are provided in [Appendix B](#appendix-baseline). {#tbl-outcomes}
 
 
-Data summaries for all measures used in this study are provided in [Appendix B](#appendix-baseline).
+
+
 
 ### Causal Interventions
 
@@ -567,7 +573,7 @@ Here, we ask:
 
 > "What if, at each wave, we intervened to set religious service attendance to a certain level, and then measured everyone's well-being at the final wave?"
 
-To answer this, we compare two hypothetical interventions. Each intervention shifts religious service attendance across four exposure waves (Waves 1–4), with outcomes measured at Wave 5. We control for a rich set of baseline covariates (from Wave 0) and time-varying confounders. We maximise sample size and statistical power by using the six most recent NZAVS waves (Waves 10–15).
+To answer this, we compare two hypothetical interventions. Each intervention shifts religious service attendance across four exposure waves, with outcomes measured after the year following the fourth exposure wave. Again, we control for a rich set of baseline covariates in the wave before the first exposure wave as well as for time-varying confounders at each exposure wave (refer to @@tbl-plan). We using the six most recent NZAVS waves (Times 10–15) because Wave 10 containes the largest cohort, enabling us to maximise power.
 
 Following the modified treatment policies approach, we define **shift functions** describing each intervention:
 
@@ -577,13 +583,6 @@ Following the modified treatment policies approach, we define **shift functions*
 2. **No Religious Service Attendance**  
    At each wave, if attendance is above zero, we shift it to zero; otherwise, we leave it unchanged.
 
-We then organise our data to resemble a randomised experiment that assigns each person to one of these two strategies, clearly specifying the treatment plans, timing of interventions, assignment procedures, and analysis plan to account for confounders. We define a "confounder" is a variable that, once included in the model, along with other included variables, removes any non-causal association between the treatment and outcome. Here, we adjust for confounders measured at baseline (Wave 0), such as demographic variables, personality traits, and prior well-being. We also adjust for time-varying confounders at each wave (physical disability, employment status, partner status, and parenting status). We assume these variables can influence religious service attendance and later well-being, potentially biasing our estimates.
-
-
-### Causal Contrasts
-
-@tbl-plan outlines each regime we estimated. We compared the average expected outcome under each regime to that under the "no attendance" regime, estimating contrasts on the difference scale (i.e., subtracting the expected outcome under "no attendance" from that under "regular attendance"). Confidence intervals were obtained using the cross-fitted influence-function approach in the `lmtp` package [@williams2021]. This approach employs sequentially doubly robust (SDR) estimators, as developed by @diaz2021_non_parametric_lmtp and co-authors, which remain valid if either the outcome model or the propensity model is correctly specified, thereby requiring weaker assumptions than standard approaches.
-
 ::: {#tbl-plan}
 ```{=latex}
 \vizfive
@@ -592,36 +591,46 @@ We contrast well-being outcomes from two treatment regimes: (1) regular attendan
 :::
 
 
-By adopting the target trial framework and leveraging the six most recent NZAVS waves, we aim to rigorously estimate the causal effects of religious service attendance on multi-dimensional well-being. @tbl-plan shows the two sequential treatments we contrast: one in which everyone attends religious services regularly for four years and one in which no one attends for four years. We adjust for confounders at baseline and in each subsequent wave. We ensure there is no reverse causation by measuring the outcomes at the end of the study, one year after the final treatment wave. By setting up our data as if it came from a hypothetical experiment, we gain clarity about which causal effects we are estimating and as well as confidence about our causal effect estimates (refer to @hernan2024WHATIF, @bulbulia2022; @bulbulia2023).
+We then organise our data to resemble a randomised sequential experiment that assigns each person to one of two longitudinal treatment strategies "regular religious service for four waves" and "no religious service for four waves." We define a "confounder" is a variable that, once included in the model, along with other included variables, removes any non-causal association between the treatment and outcome. Here, as mentioned, we adjust for a rich set of demographic and personality variables, as well as baseline religious service attendance and baseline measures of all outcomes. We also adjust for time-varying confounders at each wave (physical disability, employment status, partner status, and parenting status). We assume these time-varying confounders can influence religious service attendance and later well-being, potentially biasing our estimates. We ensure there is no reverse causation by measuring the outcomes at the end of the study, one year after the final treatment wave. 
+
+
+### Causal Contrasts
+
+We compared the average expected outcome under the "regular attendance" and "no attendance" regime, estimating contrasts on the difference scale (i.e., subtracting the expected outcome under "no attendance" from that under "regular attendance"). We obtained confidence intervals using the cross-fitted influence-function approach in the `lmtp` package [@williams2021]. This approach employs sequentially doubly robust (SDR) estimator, as developed by @diaz2021_non_parametric_lmtp, which remains valid if either the outcome model or the propensity model is correctly specified, thereby requiring weaker assumptions than standard approaches. By setting up our data as if it came from a hypothetical experiment, we gain clarity about which causal effects we are estimating and as well as confidence about our causal effect estimates (refer to @hernan2024WHATIF, @bulbulia2022; @bulbulia2023).
 
 We estimate this average treatment effect on the difference scale for each outcome across five well-being domains under the assumptions of no-unmeasured confounding, causal consistency, and positivity (refer to [Appendix D](#appendix-assumptions) and [Appendix E](#appendix-transition)). Again, the target population is all adults in New Zealand from the years 2018-2024.
 
-Importantly, although both growth models and causal inference methods pertain to questions about changes over time, they focus on different questions. Growth models quantify how individuals vary in their natural trajectories. In contrast, causal models explicitly ask: "What happens if we intervene?" By defining hypothetical interventions, adjusting for confounders, and specifying assumptions, researchers can rigorously address "what if" questions, bridging the gap between observational data and actionable insights. This approach opens new avenues for psychological scientists to design and evaluate interventions that might guide policy and practice with evidence. 
+
+### Comment on Methods for Causal Inference Compared with Growth Curve Analysis
+
+Although both growth models and causal inference methods pertain to questions about changes over time, each method focusses on different questions. Growth models quantify how individuals vary in their natural trajectories. In contrast, causal models explicitly ask: "What happens if we intervene?" -- which of course requires that we define the interventions we seek to compare.  By clearly defining the series of interventions to be compared,  adjusting for confounders, and ensuring that outcomes are measured after the interventions, investigators can rigorously address "what if?" questions, bridging the gap between observational data and actionable insights. Causal inference opens new avenues for psychological scientists to design and evaluate interventions that might guide policy and practice with evidence. Such advice cannot be obtained from statistical models of change over time, no matter how sophisticated [@hernan2024WHATIF].
 
 ### Statistical Estimator
 
-We estimate the causal effect of modified treatment policies over time using a semi-parametric Sequential Doubly-Robust estimator from the `lmtp` package [@williams2021]. The SDR algorithm proceeds in two steps. First, machine learning algorithms flexibly model the relationships among treatments, covariates, and outcomes, allowing SDR to capture complex, high-dimensional covariate structures without strict model assumptions. This step yields an initial set of estimates [@díaz2021]. In the second step, SDR "targets" these initial estimates by incorporating observed data distribution information, improving the accuracy of the causal effect estimate through an iterative process. The SDR estimator is multiply robust for repeated treatments across multiple waves [@diaz2023lmtp; @hoffman2023], improving model robustness to misspecification in either the outcome or treatment model. The `lmtp` package relies on the `SuperLearner` library in R, which integrates diverse machine learning algorithms [@SuperLearner2023]. We used the `SL.ranger`, `SL.glmnet`, and `SL.xgboost` [@polley2023; @xgboost2023; @Ranger2017] learners. **`SL.ranger`**: implements a random forest algorithm that handles non-linear relationships and complex patterns, improving model accuracy but potentially increasing variance. **`SL.glmnet`**: provides regularised linear models that help manage high dimensionality and collinearity, effectively reducing model variance and improving stability. **`SL.xgboost`**: uses gradient boosting to optimise performance and capture complex interactions, balancing the model’s ability to explore data complexities without overfitting [@polley2023]. The ensemble approach of `superlearner` optimally combines predictions from these models. Graphs, tables and output reports were created using the `margot` package [@margot2024]. For further details of the targeted learning using `lmtp` see [@hoffman2022; @hoffman2023; @díaz2021].
+We estimate causal effects of time-varying treatment policies using a Sequential Doubly-Robust (SDR) estimator in the `lmtp` package [@williams2021]. SDR proceeds in two steps. First, we use machine learning to flexibly model relationships among treatments, covariates, and outcomes. This approach captures complex, high-dimensional structures without strict assumptions [@díaz2021]. Second, SDR "targets" these initial estimates by incorporating information from the observed data distribution. This step iteratively refines the accuracy of our causal estimates.
 
-### Hanling of Missing Data
+The SDR estimator is multiply robust when treatments repeat over multiple waves [@diaz2023lmtp; @hoffman2023]. This design maintains consistency if either the outcome model or treatment model is correctly specified. The `lmtp` package relies on the `SuperLearner` library in R [@SuperLearner2023]. We used `SL.ranger`, `SL.glmnet`, and `SL.xgboost` [@polley2023; @xgboost2023; @Ranger2017] as our base learners. **`SL.ranger`**: implements a random forest algorithm, capturing non-linear relationships and complex interactions. **`SL.glmnet`**: provides regularised linear models for high-dimensional data. **`SL.xgboost`**: uses gradient boosting to capture intricate patterns without over-fitting.
+
+`SuperLearner` combines these learners adaptively to optimise predictive performance. We created graphs, tables, and output reports with the `margot` package [@margot2024]. For more details on targeted learning with `lmtp`, see [@hoffman2022; @hoffman2023; @díaz2021].
+
+### Handling of Missing Data
 
 #### Baseline Missingness
 
-We used predictive mean matching from the `mice` package [@vanbuuren2018] to impute missing baseline values (comprising `r percent_missing_baseline` of the baseline data). Following [@zhang2023shouldMultipleImputation], we performed single imputation using only baseline data. For each column with missing values, we created a binary indicator of missingness so that estimation could condition on these indicators (see `lmtp` documentation [@williams2021]).
+We used predictive mean matching from the `mice` package [@vanbuuren2018] to impute missing baseline values (comprising `r percent_missing_baseline` of the baseline data). Following [@zhang2023shouldMultipleImputation], we performed single imputation using only baseline data. For each column with missing values, we created a binary indicator of missingness so that the machine learning algorithms we employed could condition on missingness information during estimation (see `lmtp` documentation [@williams2021]).
 
 #### Missingness in Time-Varying Variables
 
-When a time-varying value was missing in any wave but a future value was observed, we carried forward the previous response and included a missingness indicator. This approach let nonparametric machine learners account for missingness patterns. If no future value was observed, we considered the participant censored and used inverse probability of treatment weights to address attrition.
+When a time-varying value was missing in any wave but a future value was observed, we carried forward the previous response and included a missingness indicator. Again, this approach let the patterns of missingness inform nonparametric machine learnering. If no future value was observed, we considered the participant censored and used inverse probability of treatment weights to address attrition.
 
 #### Outcome Missingness
 
-Finally, to handle confounding and selection bias arising from missing outcomes and panel attrition, we applied censoring weights, estimated via nonparametric machine learning ensembles in the `lmtp` package [@williams2021].
-
+Finally, to handle confounding and selection bias arising from missing outcomes and panel attrition, we applied inverse probability of censoring weights, estimated via nonparametric machine learning ensembles in the `lmtp` package [@williams2021].
 
 
 ### Sensitivity Analysis
 
 We perform sensitivity analyses using the E-value metric [@vanderweele2017; @linden2020EVALUE]. The E-value represents the minimum association strength (on the risk ratio scale) that an unmeasured confounder would need to have with both the exposure and outcome—after adjusting for measured covariates—to explain away the observed exposure-outcome association [@vanderweele2020; @linden2020EVALUE].
-
 
 
 ## Results
@@ -792,16 +801,15 @@ Third, we contrast (1) regular religious service attendance for four years with 
 
 Finally, it is important to emphasise that, at an individual level, responses to religious activities are likely to differ. Our findings represent an average treatment effect for the adult population of New Zealand, but they should not be construed as life advice for any particular individual.
 
-Setting aside these limitations, one of the most robust results is that religious engagement fosters a sense of meaning and purpose (and especially of purpose). This finding supports long-standing traditions of theory and empirical research on religion and well-being [@park2005religion; @park2005religion_meaning; @eliade1984quest]. However, understanding why religious service attendance enhances a sense of meaning, particularly a sense of purpose, remains an open question. Evolutionary investigators might ask why a sense of meaning and purpose, if it confers biological advantages, is not a universal "default" cognitive state [@sterelny2018religion]? Some evolutionary investigators suggest that religious activity might function partly as a hard-to-fake signal of commitment rather than as an end in itself [sosis2003cooperation]. Another compatible explanation is that religious service confers purpose by assigning tasks and objective -- both secular and collective. Charitable work, shared worship, and other communal practices can promote reciprocity, mutual support, and a shared responsibility that elevates abstract values into concrete goals. Notably, collective purposes have been shown to enhance the cooperative effects of collective activities, which may favour religious service in processes of cultural selection [@reddish2013let]. Why religious attendance might amplify meaning and (especially) purpose awaits future inquiries.
+Setting aside these limitations, one of the most robust results is that religious engagement fosters a sense of meaning and purpose (and especially of purpose). This finding supports long-standing traditions of theory and empirical research on religion and well-being [@park2005religion; @park2005religion_meaning; @eliade1984quest]. However, understanding why religious service attendance enhances a sense of meaning, particularly a sense of purpose, remains an open question. Evolutionary investigators might ask why a sense of meaning and purpose, if it confers biological advantages, is not a universal "default" cognitive state [@sterelny2018religion]? Some evolutionary investigators suggest that religious activity might function partly as a hard-to-fake signal of commitment rather than as an end in itself [@sosis2003cooperation]. Another compatible explanation is that religious service confers purpose by assigning tasks and objective -- both secular and collective. Charitable work, shared worship, and other communal practices can promote reciprocity, mutual support, and a shared responsibility that elevates abstract values into concrete goals. Notably, collective purposes have been shown to enhance the cooperative effects of collective activities, which may favour religious service in processes of cultural selection [@reddish2013let]. However, why religious attendance might amplify meaning and (especially) purpose awaits future inquiries.
 
 We also observe a positive causal association between regular attendance and gratitude. In classical Christian thought (for example, Aquinas), religion is described as a virtue of justice called "piety," acknowledging the sources of one's existence as a debt that cannot be repaid [@bulbulia2023understanding]. In contemporary language, we might call this a conception of religion as a virtue of gratitude. Across religious traditions, gratitude to the gods and ancestors, or a single God, is commonly rehearsed [@watts2015pulotu]. Some hypothesise that religions actively cultivate gratitude to foster prosocial behaviours [@mccullough2001gratitude; @bono2004gratitude]. In any case, the conjecture that religious participation expresses gratitude is consistent with our findings.
 
-We also find that religious attendance is causally associated with modest improvements in sexual satisfaction. Earlier cross-sectional studies have observed correlations between religiosity and marital sexual satisfaction [@dew2020joint]. Although these studies do reliably estimate causal magnitudes, our results suggest a genuine but modest causal effect. Again, our purposes here are descriptive, and we do not evaluate specific theories. Speculating, religious service might align values, enhance communication, and foster stable social support networks within couples, thereby strengthening intimacy and trust and reduce conflict. From a bio-functional perspective, such intimacy and trust would be especially valuable for parenting -- the "ultimate cooperation problem" that links biological fates [@Bulbulia_2015].  On the other hand, a darker side to such cooperation might be sexual inequality [@deak2021individuals]. Again, our findings should not be considered as offering life advice. However, our findings motivate future investigation within the emerging field of religion, biological sex, and parenting (refer to @shaver2020church; @shaver2024religious; @shaver2022integrating). We contribute to these horizons by observing that in contemporary New Zealand, the relationship between religious attendance and sexual satisfaction is likely causal. 
-
+We find that religious attendance is causally associated with modest improvements in sexual satisfaction. Earlier cross-sectional studies have observed correlations between religiosity and marital sexual satisfaction [@dew2020joint]. Although these studies do reliably estimate causal magnitudes, our results suggest a genuine but modest causal effect. Again, our purposes here are descriptive, and we do not evaluate specific theories. Speculating, religious service might align values, enhance communication, and foster stable social support networks within couples, thereby strengthening intimacy and trust and reduce conflict. From a bio-functional perspective, such intimacy and trust would be especially valuable for parenting -- the "ultimate cooperation problem" that links biological fates [@Bulbulia_2015].  On the other hand, a darker side to such cooperation might be sexual inequality [@deak2021individuals]. Again, our findings should not be considered as offering life advice. However, our findings motivate future investigation within the emerging field of religion, biological sex, and parenting (refer to @shaver2020church; @shaver2024religious; @shaver2022integrating). We contribute to these horizons by observing that in contemporary New Zealand, the relationship between religious attendance and sexual satisfaction is likely causal. 
 
 Finally, we observe small but detectable effects on certain health behaviours. Specifically, regular attendance slightly reduced hours of exercise. This finding is consistent with a lost-opportunity explanation, whereby time spent at religious services replaces other physical activities. We observed a modest negative effect on BMI, suggesting that religious engagement might offset this reduced exercise through dietary practices or social norms around body weight, although this is speculative and mechanisms await further investigation. These smaller estimates illustrate how religious involvement can reallocate time and attention in ways that shape diverse health outcomes, even if the overall patterns are more modest than those observed for meaning, gratitude, sexual satisfaction, and a sense of purpose
 
-In summary, our findings show that religious service attendance can enrich certain facets of well-being, especially meaning, gratitude, sexual satisfaction, and a sense of purpose. We find only limited evidence for broader effects on other domains. Future research might consider different populations and subgroups within New Zealand and examine proximate and evolutionary mechanisms by which religious service affects well-being. As with all causal investigations, we should also remain mindful that a practice that benefits certain groups, on average, may not benefit every individual similarly. We recommend care when imparting individual advice.
+In summary, our findings show that in New Zeland, religious service attendance can enrich certain facets of well-being, especially meaning, gratitude, sexual satisfaction, and a sense of purpose. We find only limited evidence for broader effects on other domains. Future research might consider different populations and subgroups within New Zealand, and a wider range of populations [@price2024science; @johnson2022global]. Such research should also examine proximate and evolutionary mechanisms by which religious service affects well-being, broadly conceived to include biological well-being [@shaver2024religious; @spake2024practical] and where possible, include objective measures both of attendance and well-being [@shaver2021comparison]. As with all causal investigations, we should also remain mindful that a practice that benefits certain groups, on average, may not benefit every individual similarly. We recommend care when imparting individual advice.
 
 ### Ethics
 
